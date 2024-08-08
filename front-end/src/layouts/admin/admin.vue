@@ -1,0 +1,13 @@
+<template>
+  <a-layout style="min-height: 100vh">
+    <TheMenu />
+    <a-layout>
+      <router-view></router-view>
+    </a-layout>
+  </a-layout>
+</template>
+<script setup>
+import TheMenu from "../../components/admin/TheMenu.vue";
+</script>
+
+
