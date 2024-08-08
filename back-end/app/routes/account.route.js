@@ -1,17 +1,17 @@
 const express = require("express");
 const accounts = require("../controllers/account.controller");
-
+const authenticateToken = require("../middlewares/jwt.middleware");
 const router = express.Router();
 
-router
-  .route("/")
-  .get(accounts.findALL)
-  .post(accounts.create)
-  .delete(accounts.deleteALL);
+router.route("/").get(accounts.findALL).delete(accounts.deleteALL);
 
+router.route("/login").post(accounts.login);
 router
-  .route("/login") 
-  .post(accounts.login);
+  .route("/activeAccount/:token")
+  .get(
+    authenticateToken.authenticateTokenFromParamsWithEmail,
+    accounts.activeAccount
+  );
 
 router
   .route("/:id")
