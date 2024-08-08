@@ -13,8 +13,10 @@ router
     accounts.activeAccount
   );
 
+router.route("/blockAccount/:accountID").put(accounts.blockAccount);
+
 router
-  .route("/:id")
+  .route("/:accountID")
   .get(accounts.findOne)
   .put(accounts.update)
   .delete(accounts.delete);

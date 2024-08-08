@@ -40,11 +40,29 @@ exports.login = async (req, res, next) => {
 exports.activeAccount = async (req, res, next) => {
   const userID = new ObjectId(req.user._id);
   const userEmail = req.user.email;
-  const userEmailExist = await accountService.activeAccount({ userID: userID, email: userEmail });
-  res.send({
-    message: "Account is activated!",
-    userEmailExist
-  });
+  try {
+    const userEmailExist = await accountService.activeAccount({
+      userID: userID,
+      email: userEmail,
+    });
+    res.send({
+      message: "Account is activated!",
+      userEmailExist,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Error while activing account"));
+  }
+};
+
+exports.blockAccount = async (req, res, next) => {
+  try {
+    await accountService.blockAccount(req.params.accountID);
+    res.send({
+      message: "Account has been locked!",
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Error while blocking account"));
+  }
 };
 
 exports.findALL = async (req, res, next) => {
@@ -60,7 +78,15 @@ exports.update = async (req, res, next) => {
 };
 
 exports.delete = async (req, res, next) => {
-  res.send({ message: "handle delete" });
+  const accountID = req.params.accountID;
+  try {
+    await accountService.deleteAccount(accountID);
+    res.send({ message: "Deleted Successfully!"});
+  } catch (error) {
+    return next(
+      new ApiError(500, `Error while deleting a account with ID = ${accountID}`)
+    );
+  }
 };
 
 exports.deleteALL = async (req, res, next) => {
