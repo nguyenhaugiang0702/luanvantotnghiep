@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 
 class ApiService {
     constructor() {
-        this.baseUrl = 'http://localhost:3000/api/';
+        this.baseUrl = 'http://localhost:3000/api/v1';
     }
 
     async get(endpoint, token) {
