@@ -4,12 +4,10 @@ const cors = require('cors');
 const app = express();
 const ApiError = require("./app/api-error");
 const userRouter = require('./app/routes/user.route');
-const accountRouter = require('./app/routes/account.route');
 
 app.use(cors());
 app.use(express.json());
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/accounts', accountRouter);
 
 // handle 404 response
 app.use((req, res, next) => {

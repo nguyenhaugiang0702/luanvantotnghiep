@@ -52,6 +52,8 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
       }
     }
     req.user = email;
+    console.log(req.user);
+    
     next();
   });
 }

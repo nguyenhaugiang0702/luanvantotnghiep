@@ -10,6 +10,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  isActive: {
+    type: Number,
+    required: true,
+  },
   gender: {
     type: String,
     required: true,
@@ -17,7 +30,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   dob: {
     type: String,
@@ -29,13 +42,11 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: String,
-    default: () =>
-      moment().tz("Asia/Ho_Chi_Minh").format("HH:mm:ss DD/MM/YYYY"),
+    required: true
   },
   updatedAt: {
     type: String,
-    default: () =>
-      moment().tz("Asia/Ho_Chi_Minh").format("HH:mm:ss DD/MM/YYYY"),
+    required: true
   },
 });
 
