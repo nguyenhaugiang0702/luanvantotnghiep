@@ -10,9 +10,9 @@ function authenticateTokenFromHeader(req, res, next) {
   jwt.verify(token, "my_secret_key_admin", (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
-        return next(new ApiError(401, "Session expired, please log in again"));
+        return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
       } else {
-        return next(new ApiError(403, "Please check again"));
+        return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
     req.admin = admin;
@@ -28,9 +28,9 @@ function authenticateTokenFromParams(req, res, next) {
   jwt.verify(token, "my_secret_key_admin", (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
-        return next(new ApiError(401, "Session expired, please log in again"));
+        return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
       } else {
-        return next(new ApiError(403, "Please check again"));
+        return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
     req.admin = admin;
@@ -46,9 +46,9 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
   jwt.verify(token, "my_secret_key_with_email_to_active", (err, email) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
-        return next(new ApiError(401, "Session expired, please log in again"));
+        return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
       } else {
-        return next(new ApiError(403, "Please check again"));
+        return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
     req.user = email;

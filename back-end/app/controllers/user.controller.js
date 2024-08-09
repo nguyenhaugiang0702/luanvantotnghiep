@@ -32,16 +32,16 @@ exports.create = async (req, res, next) => {
     `;
     await sendEmail({
       email: newUser.email,
-      subject: "Activate the account",
+      subject: "Kích hoạt tài khoản",
       html: message,
     });
     res.send({
-      message: "Register Successfully!",
+      message: "Đăng ký thành công!",
       newUser,
     });
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Error when registering account"));
+    return next(new ApiError(500, "Lỗi khi đăng ký tài khoản!"));
   }
 };
 
@@ -51,21 +51,21 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      return next(new ApiError(404, "Account does not exist."));
+      return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
 
     if (user.isActive <= 0) {
-      return next(new ApiError(404, "Account has not been activated."));
+      return next(new ApiError(404, "Tài khoản chưa được kích hoạt."));
     }
 
     if (user.isActive >= 2) {
-      return next(new ApiError(404, "Account has been locked"));
+      return next(new ApiError(404, "Tài khoản đã bị khóa"));
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return next(new ApiError(400, "Incorrect password."));
+      return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
     const accessToken = jwt.sign({ _id: user._id }, "your_jwt_secret_key", {
@@ -73,11 +73,11 @@ exports.login = async (req, res, next) => {
     });
 
     res.send({
-      message: "Logged in successfully!",
+      message: "Đăng nhập thành công!",
       accessToken,
     });
   } catch (error) {
-    return next(new ApiError(500, "Error while logging in"));
+    return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
 };
 
@@ -90,11 +90,11 @@ exports.activeAccount = async (req, res, next) => {
       email: userEmail,
     });
     res.send({
-      message: "Account is activated!",
+      message: "Tài khoản được kích hoạt!",
       userEmailExist,
     });
   } catch (error) {
-    return next(new ApiError(500, "Error while activing account"));
+    return next(new ApiError(500, "Lỗi khi kích hoạt tài khoản"));
   }
 };
 
@@ -102,10 +102,10 @@ exports.blockAccount = async (req, res, next) => {
   try {
     await userService.blockUserAccount(req.params.userID);
     res.send({
-      message: "Account has been locked!",
+      message: "Tài khoản đã bị khóa!",
     });
   } catch (error) {
-    return next(new ApiError(500, "Error while blocking account"));
+    return next(new ApiError(500, "Lỗi khi khóa tài khoản"));
   }
 };
 
@@ -113,10 +113,10 @@ exports.unBlockAccount = async (req, res, next) => {
   try {
     await userService.unBlockUserAccount(req.params.userID);
     res.send({
-      message: "Account has been unlocked!",
+      message: "Tài khoản đã được mở khóa!",
     });
   } catch (error) {
-    return next(new ApiError(500, "Error while blocking account"));
+    return next(new ApiError(500, "Lỗi khi mở khóa tài khoản"));
   }
 };
 
@@ -126,7 +126,7 @@ exports.findALL = async (req, res) => {
     usersData = await userService.getAllUser();
     return res.send(usersData);
   } catch (error) {
-    return next(new ApiError(500, "Error when get all users"));
+    return next(new ApiError(500, "Lỗi khi lấy tất cả người dùng"));
   }
 };
 
@@ -142,10 +142,10 @@ exports.delete = async (req, res, next) => {
   const userID = req.params.userID;
   try {
     await userService.deleteUserAccount(userID);
-    res.send({ message: "Deleted Successfully!" });
+    res.send({ message: "Đã xóa thành công!" });
   } catch (error) {
     return next(
-      new ApiError(500, `Error while deleting a account with ID = ${accountID}`)
+      new ApiError(500, `Lỗi khi xóa tài khoản với ID = ${accountID}`)
     );
   }
 };
