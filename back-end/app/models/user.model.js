@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   isActive: {
     type: Number,
-    required: true,
+    required: false,
   },
   gender: {
     type: String,
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   dob: {
     type: String,
@@ -42,11 +42,11 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: String,
-    required: true
+    required: false,
   },
   updatedAt: {
     type: String,
-    required: true
+    required: false,
   },
 });
 

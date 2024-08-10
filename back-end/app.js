@@ -4,10 +4,16 @@ const cors = require('cors');
 const app = express();
 const ApiError = require("./app/api-error");
 const userRouter = require('./app/routes/user.route');
-
+const authRouter = require('./app/routes/auth.route');
+require("./app/passport");
 app.use(cors());
 app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:3001'
+}));
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);
+
 
 // handle 404 response
 app.use((req, res, next) => {
