@@ -1,9 +1,9 @@
 import { createWebHistory, createRouter } from "vue-router";
 import admin from "./admin.js";
-// import client from "./client.js";
+import client from "./client.js";
 import Cookies from 'js-cookie';
 
-const routes = [...admin];
+const routes = [...admin, ...client];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
