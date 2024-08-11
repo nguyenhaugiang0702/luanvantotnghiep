@@ -4,15 +4,15 @@ const moment = require("moment-timezone");
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
+    required: false,
   },
   lastName: {
     type: String,
-    required: true,
+    required: false,
   },
   email: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
   },
   password: {
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    required: true,
+    required: false,
   },
   phoneNumber: {
     type: String,
@@ -34,9 +34,17 @@ const userSchema = new mongoose.Schema({
   },
   dob: {
     type: String,
-    required: true,
+    required: false,
   },
   image: {
+    type: String,
+    required: false,
+  },
+  typeLogin: {
+    type: String,
+    required: false,
+  },
+  accessToken: {
     type: String,
     required: false,
   },

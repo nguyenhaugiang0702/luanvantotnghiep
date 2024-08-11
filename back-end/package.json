@@ -22,7 +22,8 @@
     "nodemailer": "^6.9.14",
     "objectid": "^3.2.1",
     "passport": "^0.7.0",
-    "passport-facebook": "^3.0.0"
+    "passport-facebook": "^3.0.0",
+    "twilio": "^5.2.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
