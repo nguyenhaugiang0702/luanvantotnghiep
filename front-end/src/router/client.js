@@ -1,12 +1,11 @@
 const client = [
   {
-    // path: "/",
-    // redirect: "/",
-    // component: () => import("../layouts/client.vue"),
     path: "/",
-    name: "Login",
-    // redirect: "/",
-    component: () => import("../pages/client/Login.vue"),
+    component: () => import("../layouts/client/client.vue"),
+    // path: "/",
+    // name: "Login",
+    // // redirect: "/",
+    // component: () => import("../pages/client/Login.vue"),
     // children: [
     //     // {
     //     //     path: "",
