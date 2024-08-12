@@ -10,10 +10,11 @@ const ValidateService = require("../utils/validate.util");
 const twilio = require("../twilio");
 const sendOTP = require("../twilio");
 const OTP = require("../models/otp.model");
+
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { phoneNumber, password } = req.body;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ phoneNumber: phoneNumber });
 
     if (!user) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
@@ -38,7 +39,7 @@ exports.login = async (req, res, next) => {
     });
 
     res.send({
-      isLogged: true,
+      isLoggedIn: true,
       message: "Đăng nhập thành công!",
       accessToken,
     });
@@ -47,9 +48,15 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.signUp = async (req, res, next) => {
+exports.createOTP = async (req, res, next) => {
   const { phoneNumber } = req.body;
   try {
+    const userExistWithPhoneNumber = await userService.checkPhoneNumberExist(
+      phoneNumber
+    );
+    if (userExistWithPhoneNumber) {
+      return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+    }
     const otpUser = await OTP.findOne({ phoneNumber: phoneNumber });
     const otp = await sendOTP(phoneNumber);
     const expiresAt = moment()
@@ -71,7 +78,7 @@ exports.signUp = async (req, res, next) => {
     );
 
     return res.send({
-      message: "OTP đã được gửi",
+      message: "Mã OTP đã được gửi",
       otpCode: otp,
       otpSent: true,
     });

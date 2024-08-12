@@ -5,8 +5,8 @@ const authenticateToken = require("../middlewares/jwt.middleware");
 const router = express.Router();
 
 router.route("/").get(users.findALL).post(users.create).delete(users.deleteALL);
-router.route("/login").post(users.login);
-router.route("/login").post(users.login);
+router.route("/signIn").post(users.signIn);
+router.route("/facebook").post(users.signIn);
 router.route("/:userID").get(users.findOne).put(users.update).delete(users.delete);
 router
   .route("/activeAccount/:token")

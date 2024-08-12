@@ -49,11 +49,11 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   createdAt: {
-    type: String,
+    type: Date,
     required: false,
   },
   updatedAt: {
-    type: String,
+    type: Date,
     required: false,
   },
 });

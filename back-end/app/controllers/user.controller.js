@@ -3,41 +3,46 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("../config/index");
 const sendEmail = require("../utils/email.util");
-const moment = require("moment");
+const moment = require("moment-timezone");
 const ApiError = require("../api-error");
 const User = require("../models/user.model");
 const ValidateService = require("../utils/validate.util");
 
 exports.create = async (req, res, next) => {
   try {
-    const validateService = new ValidateService();
-    const errors = await validateService.validateUser(req.body);
-    if (errors.length > 0) {
-      return next(new ApiError(400, errors))
-    }
+    // const validateService = new ValidateService();
+    // const errors = await validateService.validateUser(req.body);
+    // if (errors.length > 0) {
+    //   return next(new ApiError(400, errors))
+    // }
+    console.log(req.body);
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     req.body.password = hashedPassword;
-    req.body.createdAt = moment().format("HH:mm:ss DD/MM/YYYY");
-    req.body.updatedAt = moment().format("HH:mm:ss DD/MM/YYYY");
+    req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.isActive = 1;
+    req.body.typeLogin = "SMS";
     const newUser = await userService.createUser(req.body);
-    const accessTokenWithEmail = jwt.sign(
-      { email: newUser.email, _id: newUser._id },
+    const accessToken = jwt.sign(
+      { _id: newUser._id },
       "my_secret_key_with_email_to_active"
     );
 
-    const activeAccountUrl = `${config.app.appUrl}/api/v1/users/activeAccount/${accessTokenWithEmail}`;
-    const message = `
-        <p>Please click on the link below to activate your account</p>
-        <a href="${activeAccountUrl}" target="_blank">Click Here</a>
-    `;
-    await sendEmail({
-      email: newUser.email,
-      subject: "Kích hoạt tài khoản",
-      html: message,
-    });
+    // const activeAccountUrl = `${config.app.appUrl}/api/v1/users/activeAccount/${accessTokenWithEmail}`;
+    // const message = `
+    //     <p>Please click on the link below to activate your account</p>
+    //     <a href="${activeAccountUrl}" target="_blank">Click Here</a>
+    // `;
+    // await sendEmail({
+    //   email: newUser.email,
+    //   subject: "Kích hoạt tài khoản",
+    //   html: message,
+    // });
     res.send({
       message: "Đăng ký thành công!",
       newUser,
+      accessToken,
     });
   } catch (error) {
     console.log(error);
@@ -45,10 +50,10 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+exports.signIn = async (req, res, next) => {
+  const { phoneNumber, password } = req.body;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ phoneNumber: phoneNumber });
 
     if (!user) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));

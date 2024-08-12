@@ -6,7 +6,7 @@ const router = express.Router();
 require("../passport");
 
 router.route("/").post(auth.login);
-router.route("/signUp").post(auth.signUp);
+router.route("/createOTP").post(auth.createOTP);
 router.route("/signUp/verifyOTP").post(auth.signUpVerify);
 
 router.route("/facebook").get(
