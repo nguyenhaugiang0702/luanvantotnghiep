@@ -39,7 +39,11 @@
           <div class="forgot">
             <span>Quên mật khẩu?</span>
           </div>
-          <button type="submit" class="btn bkg"  :disabled="isLoadingSignIn || !isSignInFormValid">
+          <button
+            type="submit"
+            class="btn bkg"
+            :disabled="isLoadingSignIn || !isSignInFormValid"
+          >
             <span
               v-if="isLoadingSignIn"
               class="spinner-border spinner-border-sm text-white"
@@ -66,6 +70,7 @@
             >
             <input
               type="text"
+              :disabled="otpVerified"
               v-model="phoneNumber.phoneNumberSignUp"
               class="border border-2 form-control"
               name="phoneNumberSignUp"
@@ -81,7 +86,7 @@
               @click="sendOTP"
               type="button"
               class="btn_otp"
-              :disabled="isLoading"
+              :disabled="isLoading || otpVerified"
             >
               <span
                 v-if="isLoading"
@@ -100,7 +105,7 @@
             >
             <input
               v-model="otp"
-              :disabled="!otpSent"
+              :disabled="!otpSent || otpVerified"
               @keyup.enter="checkOTP"
               type="text"
               class="border border-2 form-control"
@@ -185,6 +190,7 @@ import ApiService from "@/service/ApiService";
 import AuthService from "@/service/auth.service";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import validation from "@/utils/validate.util";
 
 export default {
   setup() {
@@ -240,6 +246,12 @@ export default {
     };
 
     const sendOTP = async () => {
+      if (
+        !validation.validatePhoneNumber(phoneNumber.value.phoneNumberSignUp)
+      ) {
+        errors.value.phoneNumber.phoneNumberSignUp = true;
+        return;
+      }
       try {
         isLoading.value = true;
         const response = await authService.post("/auth/createOTP", {
@@ -269,37 +281,41 @@ export default {
     };
 
     const checkOTP = async () => {
+      if (!validation.validateOTP(otp.value)) {
+        errors.value.otp = true;
+        return;
+      }
       const otpNumber = Number(otp.value);
-      if (otp.value.length === 6) {
-        try {
-          const response = await authService.post("/auth/signUp/verifyOTP", {
-            phoneNumber: phoneNumber.value.phoneNumberSignUp,
-            otp: otpNumber,
-          });
-          if (response?.status === 200) {
-            otpVerified.value = response.data.otpVerified;
-            toast(response.data.message, {
-              theme: "auto",
-              type: "success",
-              dangerouslyHTMLString: true,
-            });
-            errors.value.otp = "";
-          }
-        } catch (error) {
-          const errorMessage = error.response?.data?.message;
-          errors.value.otp = errorMessage;
-          toast(errorMessage, {
+      try {
+        const response = await authService.post("/auth/signUp/verifyOTP", {
+          phoneNumber: phoneNumber.value.phoneNumberSignUp,
+          otp: otpNumber,
+        });
+        if (response?.status === 200) {
+          otpVerified.value = response.data.otpVerified;
+          toast(response.data.message, {
             theme: "auto",
-            type: "error",
+            type: "success",
             dangerouslyHTMLString: true,
           });
+          errors.value.otp = "";
         }
-      } else {
-        console.log(2);
+      } catch (error) {
+        const errorMessage = error.response?.data?.message;
+        errors.value.otp = errorMessage;
+        toast(errorMessage, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
       }
     };
 
     const signUp = async () => {
+      if (!validation.validatePassword(password.value.passwordSignUp)) {
+        errors.value.password.passwordSignUp = true;
+        return;
+      }
       try {
         isLoadingSignUp.value = true;
         const response = await authService.post("/users", {
@@ -328,7 +344,10 @@ export default {
     };
 
     const isSignInFormValid = computed(() => {
-      return phoneNumber.value.phoneNumberSignIn.trim() !== '' && password.value.passwordSignIn.trim() !== '';
+      return (
+        phoneNumber.value.phoneNumberSignIn.trim() !== "" &&
+        password.value.passwordSignIn.trim() !== ""
+      );
     });
 
     const signIn = async () => {
@@ -380,7 +399,7 @@ export default {
       togglePasswordSignUpVisibility,
       togglePasswordSignInVisibility,
       showPasswordSignIn,
-      isSignInFormValid
+      isSignInFormValid,
     };
   },
 };
