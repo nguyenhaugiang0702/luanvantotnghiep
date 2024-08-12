@@ -1,15 +1,11 @@
 const userService = require("../services/user.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../config/index");
-const sendEmail = require("../utils/email.util");
 const moment = require("moment-timezone");
 const ApiError = require("../api-error");
 const User = require("../models/user.model");
-const ValidateService = require("../utils/validate.util");
-const twilio = require("../twilio");
 const sendOTP = require("../twilio");
-const OTP = require("../models/otp.model");
+const otpService = require("../services/otp.service");
 
 exports.login = async (req, res, next) => {
   const { phoneNumber, password } = req.body;
@@ -57,7 +53,7 @@ exports.createOTP = async (req, res, next) => {
     if (userExistWithPhoneNumber) {
       return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
     }
-    const otpUser = await OTP.findOne({ phoneNumber: phoneNumber });
+    const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
     const otp = await sendOTP(phoneNumber);
     const expiresAt = moment()
       .tz("Asia/Ho_Chi_Minh")
@@ -65,17 +61,16 @@ exports.createOTP = async (req, res, next) => {
       .toDate();
 
     if (!otpUser) {
-      await OTP.create({
+      await otpService.createOTP({
         phoneNumber,
         otp,
         expiresAt,
       });
     }
-    await OTP.findOneAndUpdate(
-      { phoneNumber: phoneNumber },
-      { otp: otp, expiresAt: expiresAt },
-      { new: true }
-    );
+    await otpService.updateOTPByPhoneNumber(phoneNumber, {
+      otp: otp,
+      expiresAt: expiresAt,
+    });
 
     return res.send({
       message: "Mã OTP đã được gửi",
@@ -83,16 +78,14 @@ exports.createOTP = async (req, res, next) => {
       otpSent: true,
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi đăng nhập"));
+    return next(new ApiError(500, "Lỗi khi tạo OTP"));
   }
 };
 
 exports.signUpVerify = async (req, res, next) => {
   const { phoneNumber, otp } = req.body;
   try {
-    // Tìm OTP liên quan đến số điện thoại
-    const otpRecord = await OTP.findOne({ phoneNumber: phoneNumber, otp: otp });
-    console.log(otpRecord);
+    const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(phoneNumber, otp);
 
     if (!otpRecord) {
       return next(new ApiError(400, "Mã OTP không chính xác hoặc đã hết hạn."));
