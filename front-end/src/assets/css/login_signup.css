@@ -449,7 +449,7 @@ body {
   width: 330px;
   height: 42px;
   /* background-color: #eeedef; */
-  margin: 30px 0;
+  margin: 40px 0;
 }
 
 #form_input .type_phone {
@@ -504,4 +504,11 @@ body {
     top: -42px;
     right: -170px;
     width: 60px;
+}
+
+.iconPassword{
+  position: relative;
+  top: -32px;
+  font-size: 20px;
+  right: -140px;
 }

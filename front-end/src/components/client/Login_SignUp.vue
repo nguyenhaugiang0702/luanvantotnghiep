@@ -5,16 +5,17 @@
         <h3>Đăng nhập</h3>
         <span>hoặc sử dụng tài khoản của bạn</span>
 
-        <form action="#" id="form_input">
+        <form @submit.prevent="signIn" id="form_input">
           <div class="type">
             <label for="exampleFormControlInput1" class="form-label float-start"
               >Số điện thoại/Email</label
             >
             <input
+              v-model="phoneNumber.phoneNumberSignIn"
               class="form-control border border-2"
-              type="email"
+              type="text"
               name=""
-              id="email"
+              id=""
             />
           </div>
           <div class="type">
@@ -22,40 +23,63 @@
               >Mật khẩu</label
             >
             <input
+              v-model="password.passwordSignIn"
               class="border border-2 form-control"
-              type="password"
               name=""
               id="password"
+              :type="showPasswordSignIn ? 'text' : 'password'"
             />
+            <i
+              @click="togglePasswordSignInVisibility"
+              :class="['fa', showPasswordSignIn ? 'fa-eye-slash' : 'fa-eye']"
+              class="password-toggle iconPassword"
+            ></i>
           </div>
 
           <div class="forgot">
             <span>Quên mật khẩu?</span>
           </div>
-
-          <button class="btn bkg">Đăng nhập</button>
+          <button type="submit" class="btn bkg"  :disabled="isLoadingSignIn || !isSignInFormValid">
+            <span
+              v-if="isLoadingSignIn"
+              class="spinner-border spinner-border-sm text-white"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span class="text-white" v-else> Đăng nhập </span>
+          </button>
         </form>
       </div>
 
       <div class="form sign_up">
         <h3>Đăng ký</h3>
-        <span>or use your email for register</span>
+        <span>Hoặc sử dụng email của bạn để đăng ký</span>
 
-        <form action="#" id="form_input">
+        <form
+          @submit.prevent="signUp"
+          id="form_input"
+          :validation-schema="signUpSchema"
+        >
           <div class="type_phone">
             <label for="exampleFormControlInput1" class="form-label float-start"
               >Số điện thoại</label
             >
             <input
               type="text"
-              v-model="phone.phoneNumber"
+              v-model="phoneNumber.phoneNumberSignUp"
               class="border border-2 form-control"
-              name=""
-              id="name"
+              name="phoneNumberSignUp"
+              id="phoneNumberSignUp"
+              :class="{
+                'border border-danger': errors.phoneNumber.phoneNumberSignUp,
+                'border-success':
+                  !errors.phoneNumber.phoneNumberSignUp &&
+                  phoneNumber.phoneNumberSignUp !== '',
+              }"
             />
             <button
               @click="sendOTP"
-              type="submit"
+              type="button"
               class="btn_otp"
               :disabled="isLoading"
             >
@@ -75,15 +99,20 @@
               >Mã xác nhận OTP</label
             >
             <input
-              v-model="otp.code"
+              v-model="otp"
               :disabled="!otpSent"
-              @input="checkOTP"
+              @keyup.enter="checkOTP"
               type="text"
               class="border border-2 form-control"
+              :class="{
+                'border border-danger': errors.otp,
+                'border-success': !errors.otp && otp !== '' && otpSent,
+              }"
               placeholder="6 ký tự"
-              name=""
-              id="email"
+              name="otp"
+              id="otp"
             />
+            <span class="text-danger float-start"></span>
           </div>
           <div class="type">
             <label for="exampleFormControlInput1" class="form-label float-start"
@@ -91,55 +120,116 @@
             >
             <input
               :disabled="!otpVerified"
+              v-model="password.passwordSignUp"
               class="border border-2 form-control"
-              type="password"
-              name=""
-              id="password"
+              :class="{
+                'border border-danger': errors.password.passwordSignUp,
+                'border-success':
+                  !errors.password.passwordSignUp &&
+                  password.passwordSignUp !== '',
+              }"
+              :type="showPasswordSignUp ? 'text' : 'password'"
+              name="passwordSignUp"
+              id="passwordSignUp"
             />
+            <i
+              @click="togglePasswordSignUpVisibility"
+              :class="['fa', showPasswordSignUp ? 'fa-eye-slash' : 'fa-eye']"
+              class="password-toggle iconPassword"
+            ></i>
+            <span class="text-danger float-start"></span>
           </div>
-
-          <button class="btn bkg">Sign Up</button>
+          <button
+            type="submit"
+            class="btn bkg"
+            :disabled="isLoadingSignUp || !password.passwordSignUp"
+          >
+            <span
+              v-if="isLoadingSignUp"
+              class="spinner-border spinner-border-sm text-white"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span class="text-white" v-else> Đăng ký </span>
+          </button>
         </form>
       </div>
     </div>
 
     <div class="overlay">
       <div class="page page_signIn">
-        <h3>Welcome Back!</h3>
-        <p>To keep with us please login with your personal info</p>
+        <h3>Chào mừng trở lại!</h3>
+        <p>
+          Để giữ chúng tôi, vui lòng đăng nhập với thông tin cá nhân của bạn
+        </p>
 
         <button class="btn btnSign-in" @click="toggleSignIn">
-          Sign Up <i class="bi bi-arrow-right"></i>
+          Đăng ký <i class="bi bi-arrow-right"></i>
         </button>
       </div>
 
       <div class="page page_signUp">
-        <h3>Hello Friend!</h3>
-        <p>Enter your personal details and start journey with us</p>
+        <h3>Chào bạn!</h3>
+        <p>Nhập chi tiết cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
 
         <button class="btn btnSign-up" @click="toggleSignUp">
-          <i class="bi bi-arrow-left"></i> Sign In
+          <i class="bi bi-arrow-left"></i> Đăng nhập
         </button>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ApiService from "@/service/ApiService";
+import AuthService from "@/service/auth.service";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+
 export default {
   setup() {
     const api = new ApiService();
+    const authService = new AuthService();
     const isSignInActive = ref(true);
-    const phone = ref({
-      phoneNumber: "",
+    const phoneNumber = ref({
+      phoneNumberSignUp: "",
+      phoneNumberSignIn: "",
     });
     const isLoading = ref(false);
     const otpSent = ref(false);
-    const otp = ref({
-      code: "",
-    });
+    const otp = ref("");
     const otpVerified = ref(false);
+    const isLoadingSignUp = ref(false);
+    const isLoadingSignIn = ref(false);
+    const password = ref({
+      passwordSignUp: "",
+      passwordSignIn: "",
+    });
+    const errors = ref({
+      phoneNumber: {
+        phoneNumberSignIn: "",
+        phoneNumberSignUp: "",
+      },
+      otp: "",
+      password: {
+        passwordSignIn: "",
+        passwordSignUp: "",
+      },
+    });
+
+    // Thêm biến để quản lý việc hiển thị mật khẩu
+    const showPasswordSignUp = ref(false);
+
+    const togglePasswordSignUpVisibility = () => {
+      showPasswordSignUp.value = !showPasswordSignUp.value;
+    };
+
+    // Thêm biến để quản lý việc hiển thị mật khẩu
+    const showPasswordSignIn = ref(false);
+
+    const togglePasswordSignInVisibility = () => {
+      showPasswordSignIn.value = !showPasswordSignIn.value;
+    };
 
     const toggleSignIn = () => {
       isSignInActive.value = true;
@@ -152,37 +242,120 @@ export default {
     const sendOTP = async () => {
       try {
         isLoading.value = true;
-        const response = await api.post("/auth/signUp", phone.value);
+        const response = await authService.post("/auth/createOTP", {
+          phoneNumber: phoneNumber.value.phoneNumberSignUp,
+        });
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
-          alert(response.data.otpCode);
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          errors.value.phoneNumber.phoneNumberSignUp = "";
         }
       } catch (error) {
-        console.error("Error sending OTP:", error);
+        const errorMessage = error.response?.data?.message;
+        errors.value.phoneNumber.phoneNumberSignUp = errorMessage;
+        toast(errorMessage, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
       } finally {
         isLoading.value = false;
       }
     };
 
     const checkOTP = async () => {
-      const otpNumber = Number(otp.value.code);
-      if (otp.value.code.length === 6) {
+      const otpNumber = Number(otp.value);
+      if (otp.value.length === 6) {
         try {
-          const response = await api.post("/auth/signUp/verifyOTP", {
-            phoneNumber: phone.value.phoneNumber,
+          const response = await authService.post("/auth/signUp/verifyOTP", {
+            phoneNumber: phoneNumber.value.phoneNumberSignUp,
             otp: otpNumber,
           });
           if (response?.status === 200) {
             otpVerified.value = response.data.otpVerified;
-            alert("OTP xác thực thành công!");
+            toast(response.data.message, {
+              theme: "auto",
+              type: "success",
+              dangerouslyHTMLString: true,
+            });
+            errors.value.otp = "";
           }
         } catch (error) {
-          console.error("Error verifying OTP:", error);
-          alert("Mã OTP không chính xác hoặc đã hết hạn.");
+          const errorMessage = error.response?.data?.message;
+          errors.value.otp = errorMessage;
+          toast(errorMessage, {
+            theme: "auto",
+            type: "error",
+            dangerouslyHTMLString: true,
+          });
         }
       } else {
         console.log(2);
+      }
+    };
+
+    const signUp = async () => {
+      try {
+        isLoadingSignUp.value = true;
+        const response = await authService.post("/users", {
+          password: password.value.passwordSignUp,
+          phoneNumber: phoneNumber.value.phoneNumberSignUp,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (response.status == 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+        }
+      } catch (error) {
+        const errorMessage = error.response?.data?.message;
+        errors.value.password.passwordSignUp = errorMessage;
+        toast(errorMessage, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
+      } finally {
+        isLoadingSignUp.value = false;
+      }
+    };
+
+    const isSignInFormValid = computed(() => {
+      return phoneNumber.value.phoneNumberSignIn.trim() !== '' && password.value.passwordSignIn.trim() !== '';
+    });
+
+    const signIn = async () => {
+      try {
+        isLoadingSignIn.value = true;
+        const response = await authService.post("/auth", {
+          password: password.value.passwordSignIn,
+          phoneNumber: phoneNumber.value.phoneNumberSignIn,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (response.status == 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+        }
+      } catch (error) {
+        const errorMessage = error.response?.data?.message;
+        errors.value.password.passwordSignUp = errorMessage;
+        toast(errorMessage, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
+      } finally {
+        isLoadingSignIn.value = false;
       }
     };
 
@@ -191,12 +364,23 @@ export default {
       toggleSignIn,
       toggleSignUp,
       sendOTP,
-      phone,
+      phoneNumber,
       isLoading,
       otpSent,
       checkOTP,
       otp,
       otpVerified,
+      signUp,
+      isLoadingSignIn,
+      isLoadingSignUp,
+      password,
+      signIn,
+      errors,
+      showPasswordSignUp,
+      togglePasswordSignUpVisibility,
+      togglePasswordSignInVisibility,
+      showPasswordSignIn,
+      isSignInFormValid
     };
   },
 };
