@@ -153,10 +153,10 @@ export default {
             }
         }
 
-        onMounted(() => {
-            getCarts();
-            getUser();
-        })
+        // onMounted(() => {
+        //     getCarts();
+        //     getUser();
+        // })
 
         const totalQuantityInCart = computed(() => {
             // Kiểm tra nếu booksInCart.value không tồn tại hoặc không phải là một object

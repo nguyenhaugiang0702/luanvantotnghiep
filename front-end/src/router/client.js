@@ -46,6 +46,7 @@ const client = [
         {
             path: "/customer/account/edit/",
             name: 'profile',
+            redirect: {name: 'profile-infoUser'},
             component: () => import("../layouts/client/profile.vue"),
             children: [
                 {

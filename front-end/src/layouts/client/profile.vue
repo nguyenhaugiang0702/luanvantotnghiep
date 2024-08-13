@@ -1,5 +1,5 @@
 <template>
-    <div class="container ">
+    <div class="container mt-4">
         <div class="row d-flex justify-content-center">
             <!-- Sidebar Component -->
             <Sidebar />

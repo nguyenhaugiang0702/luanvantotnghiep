@@ -128,7 +128,7 @@
               v-model="password.passwordSignUp"
               class="border border-2 form-control"
               :class="{
-                'border border-danger': errors.password.passwordSignUp,
+                'border-danger': errors.password.passwordSignUp,
                 'border-success':
                   !errors.password.passwordSignUp &&
                   password.passwordSignUp !== '',
@@ -186,15 +186,15 @@
 </template>
 <script>
 import { ref, computed } from "vue";
-import ApiService from "@/service/ApiService";
 import AuthService from "@/service/auth.service";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import validation from "@/utils/validate.util";
+import { useRouter } from "vue-router";
+import Cookies from "js-cookie";
 
 export default {
   setup() {
-    const api = new ApiService();
     const authService = new AuthService();
     const isSignInActive = ref(true);
     const phoneNumber = ref({
@@ -222,6 +222,7 @@ export default {
         passwordSignUp: "",
       },
     });
+    const router = useRouter();
 
     // Thêm biến để quản lý việc hiển thị mật khẩu
     const showPasswordSignUp = ref(false);
@@ -329,6 +330,7 @@ export default {
             type: "success",
             dangerouslyHTMLString: true,
           });
+          router.push({ name: "profile" });
         }
       } catch (error) {
         const errorMessage = error.response?.data?.message;
@@ -359,11 +361,11 @@ export default {
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response.status == 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          const token = response.data.accessToken;
+          const isLoggedIn = response.data.isLoggedIn;
+          Cookies.set("accessToken", token, { expires: 7 });
+          Cookies.set("isLoggedIn", isLoggedIn, { expires: 7 });
+          router.push({ name: "profile" });
         }
       } catch (error) {
         const errorMessage = error.response?.data?.message;
