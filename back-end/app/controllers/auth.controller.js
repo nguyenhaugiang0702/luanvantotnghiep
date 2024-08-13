@@ -30,7 +30,7 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = jwt.sign({ _id: user._id }, "your_jwt_secret_key", {
+    const accessToken = jwt.sign({ id: user._id }, "my_jwt_secret_key_login", {
       expiresIn: "6h",
     });
 
@@ -38,6 +38,7 @@ exports.login = async (req, res, next) => {
       isLoggedIn: true,
       message: "Đăng nhập thành công!",
       accessToken,
+      user: user
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi đăng nhập"));

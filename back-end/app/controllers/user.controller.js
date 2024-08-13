@@ -135,8 +135,13 @@ exports.findALL = async (req, res) => {
   }
 };
 
-exports.findOne = async (req, res) => {
-  res.send({ message: "handle findOne" });
+exports.findOne = async (req, res, next) => {
+  try {
+    const user = await userService.getUserById(req.user.id);
+    return res.send(user);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi tìm thông tin của người dùng"));
+  }
 };
 
 exports.update = async (req, res) => {

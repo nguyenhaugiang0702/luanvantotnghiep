@@ -5,9 +5,9 @@ const ApiError = require("../api-error");
 function authenticateTokenFromHeader(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return next(new ApiError(403, "Please check the token again"));
+  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_secret_key_admin", (err, admin) => {
+  jwt.verify(token, "my_jwt_secret_key_login", (err, user) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -15,7 +15,7 @@ function authenticateTokenFromHeader(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.admin = admin;
+    req.user = user;
     next();
   });
 }
@@ -23,9 +23,9 @@ function authenticateTokenFromHeader(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParams(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Please check the token again"));
+  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_secret_key_admin", (err, admin) => {
+  jwt.verify(token, "my_jwt_secret_key_login", (err, user) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -33,7 +33,8 @@ function authenticateTokenFromParams(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.admin = admin;
+    req.user = user;
+    console.log(req.user);
     next();
   });
 }
@@ -41,7 +42,7 @@ function authenticateTokenFromParams(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParamsWithEmail(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Please check the token again"));
+  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_secret_key_with_email_to_active", (err, email) => {
     if (err) {
@@ -52,8 +53,7 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
       }
     }
     req.user = email;
-    console.log(req.user);
-    
+
     next();
   });
 }

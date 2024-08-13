@@ -4,10 +4,20 @@ const authenticateToken = require("../middlewares/jwt.middleware");
 
 const router = express.Router();
 
+router
+  .route("/:token")
+  .get(authenticateToken.authenticateTokenFromParams, users.findOne)
+  .put(users.update)
+  .delete(users.delete);
+
 router.route("/").get(users.findALL).post(users.create).delete(users.deleteALL);
 router.route("/signIn").post(users.signIn);
 router.route("/facebook").post(users.signIn);
-router.route("/:userID").get(users.findOne).put(users.update).delete(users.delete);
+router
+  .route("/:userID")
+  .get(users.findOne)
+  .put(users.update)
+  .delete(users.delete);
 router
   .route("/activeAccount/:token")
   .get(
@@ -17,6 +27,5 @@ router
 
 router.route("/blockAccount/:userID").put(users.blockAccount);
 router.route("/unBlockAccount/:userID").put(users.unBlockAccount);
-
 
 module.exports = router;
