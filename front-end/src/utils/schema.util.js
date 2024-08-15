@@ -59,19 +59,19 @@ export const updateUserSchema = yup.object({
   gender: yup.string().required("Giới tính là bắt buộc"),
   dayOfBirthday: yup
     .number("Ngày sinh phải là số")
-    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Ngày sinh phải là số")
     .required("Ngày sinh là bắt buộc")
     .min(1, "Ngày không hợp lệ")
     .max(31, "Ngày không hợp lệ"),
   monthOfBirthday: yup
     .number("Tháng sinh phải là số")
-    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Ngày sinh phải là số")
     .required("Tháng sinh là bắt buộc")
     .min(1, "Tháng không hợp lệ")
     .max(12, "Tháng không hợp lệ"),
   yearOfBirthday: yup
     .number("Năm sinh phải là số")
-    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Ngày sinh phải là số")
     .required("Năm sinh là bắt buộc")
     .min(1900, "Năm không hợp lệ")
     .max(new Date().getFullYear(), "Năm không hợp lệ"),
@@ -93,4 +93,6 @@ export const changePhoneNumberSchema = yup.object({
     .string()
     .matches(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số")
     .required("Mã OTP không được để trống"),
+
+  email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
 });

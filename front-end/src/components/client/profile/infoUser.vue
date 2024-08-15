@@ -63,6 +63,7 @@
                 'is-valid': !errors.phoneNumber && user.phoneNumber !== '',
               }"
               id="phoneNumber"
+              readonly
               name="phoneNumber"
               placeholder="nhap so dien thoai"
               v-model="user.phoneNumber"
@@ -96,9 +97,7 @@
             <ErrorMessage class="invalid-feedback" name="email" />
           </div>
           <div class="col-3">
-            <button type="button" class="btn btn-secondary float-end">
-              Thay đổi
-            </button>
+            <ChangeEmail />
           </div>
         </div>
       </div>
@@ -325,13 +324,18 @@ import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { updateUserSchema } from "@/utils/schema.util";
 import ChangPhoneNumber from "../modals/ChangPhoneNumber.vue";
+import ChangeEmail from "../modals/ChangeEmail.vue";
+
 import UserService from "@/service/user.service";
+import moment from "moment";
+
 export default {
   components: {
     Form,
     Field,
     ErrorMessage,
     ChangPhoneNumber,
+    ChangeEmail
   },
   setup() {
     // const showPasswordSection = ref(false);
@@ -366,6 +370,10 @@ export default {
     const getUser = async () => {
       const response = await userService.get(`/${token}`);
       if (response?.status === 200) {
+        const dobMoment = moment(response.data.dob, "DD/MM/YYYY");
+        user.value.dayOfBirthday = dobMoment.date(); // Ngày
+        user.value.monthOfBirthday = dobMoment.month() + 1; // Tháng (cần +1 vì month() trả về giá trị 0-11)
+        user.value.yearOfBirthday = dobMoment.year(); // Năm
         Object.assign(user.value, response.data);
       }
     };
@@ -375,10 +383,10 @@ export default {
 
       try {
         isLoadingUpdate.value = true;
-        user.value.dayOfBirthday = parseInt(user.value.dayOfBirthday) || null;
-        user.value.monthOfBirthday =
-          parseInt(user.value.monthOfBirthday) || null;
-        user.value.yearOfBirthday = parseInt(user.value.yearOfBirthday) || null;
+        // user.value.dayOfBirthday = parseInt(user.value.dayOfBirthday) || null;
+        // user.value.monthOfBirthday =
+        //   parseInt(user.value.monthOfBirthday) || null;
+        // user.value.yearOfBirthday = parseInt(user.value.yearOfBirthday) || null;
         if (!user.value.changePassword.isChanged) {
           const fieldNames = [
             "firstName",
@@ -396,6 +404,31 @@ export default {
           const allValid = validationResults.every((result) => result);
           if (!allValid) {
             return;
+          }
+          // Định dạng ngày sinh
+          const dob = moment({
+            day: user.value.dayOfBirthday,
+            month: user.value.monthOfBirthday - 1, // Month is zero-indexed in moment.js
+            year: user.value.yearOfBirthday,
+          }).format("DD/MM/YYYY");
+          const userDataUpdate = {
+            userData: {
+              firstName: user.value.firstName,
+              lastName: user.value.lastName,
+              gender: user.value.gender,
+              dob: dob,
+            },
+          };
+
+          const response = await userService.put(`/${token}`, userDataUpdate);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          if (response?.status === 200) {
+            toast(response.data.message, {
+              theme: "auto",
+              type: "success",
+              dangerouslyHTMLString: true,
+            });
+            getUser();
           }
         }
         const { valid } = await validate();
