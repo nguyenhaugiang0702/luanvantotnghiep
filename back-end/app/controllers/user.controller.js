@@ -104,6 +104,17 @@ exports.activeAccount = async (req, res, next) => {
   }
 };
 
+exports.activeEmail = async (req, res, next) => {
+  const userID = req.user.id;
+  const userEmail = req.user.email;
+  try {
+    await userService.updateUser(userID, userEmail);
+    res.redirect(`${config.viteApp.viteURL}/customer/account/edit/`);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi kích hoạt tài khoản"));
+  }
+};
+
 exports.blockAccount = async (req, res, next) => {
   try {
     await userService.blockUserAccount(req.params.userID);
@@ -147,27 +158,46 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   const userID = req.user.id;
-  const { newPhoneNumber, otp } = req.body;
-  console.log(req.body);
+  const { newPhoneNumber, otp, userData, email } = req.body;
   try {
-    const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
-      newPhoneNumber,
-      otp
-    );
+    // Update Phone Number
+    if (newPhoneNumber && otp) {
+      const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
+        newPhoneNumber,
+        otp
+      );
 
-    if (!otpRecord) {
-      return next(new ApiError(400, "OTP không hợp lệ hoặc đã hết hạn."));
+      if (!otpRecord) {
+        return next(new ApiError(400, "OTP không hợp lệ hoặc đã hết hạn."));
+      }
+      req.body.phoneNumber = newPhoneNumber;
+      const userUpdate = await userService.updateUser(userID, req.body);
+      return res.send({
+        message: "Cập nhật thành công",
+        userUpdate,
+      });
+    } else if (userData) {
+      // Update firstName, lastName, gender and dob
+      const userUpdate = await userService.updateUser(userID, userData);
+      return res.send({
+        message: "Cập nhât thành công",
+        userUpdate,
+      });
+    } else if (email) {
+      res.send({
+        message: "Cập nhât thành công",
+      });
     }
-    req.body.phoneNumber = newPhoneNumber;
-    const userUpdate = await userService.updateUser(userID, req.body);
-    return res.send({
-      message: "Cập nhật thành công",
-      userUpdate,
-    });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi đổi số điện thoại mới"));
+    return next(new ApiError(500, "Lỗi khi cập nhật"));
   }
 };
+
+exports.activeEmail = async (req, res, next) => {
+  console.log(req.user.id);
+  console.log(req.user.email);
+
+}
 
 exports.delete = async (req, res, next) => {
   const userID = req.params.userID;

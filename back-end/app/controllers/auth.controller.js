@@ -6,6 +6,8 @@ const ApiError = require("../api-error");
 const User = require("../models/user.model");
 const sendOTP = require("../twilio");
 const otpService = require("../services/otp.service");
+const sendEmail = require("../utils/email.util");
+const config = require("../config/index");
 
 exports.login = async (req, res, next) => {
   const { phoneNumber, password } = req.body;
@@ -54,7 +56,7 @@ exports.createOTP = async (req, res, next) => {
 
     // Nếu tài khoản tồn tại và đã được kích hoạt qua OTP
     if (userExistWithPhoneNumber && userExistWithPhoneNumber.isActive == 1) {
-      if(userExistWithPhoneNumber.phoneNumber == phoneNumber){
+      if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
         return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
       }
       const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
@@ -139,5 +141,34 @@ exports.signUpVerify = async (req, res, next) => {
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi xác thực OTP"));
+  }
+};
+
+exports.sendEmailToActive = async (req, res, next) => {
+  const userID = req.user.id;
+  const { email } = req.body;
+
+  try {
+    const tokenWithEmail = jwt.sign(
+      { id: userID, email: email },
+      "my_secret_key_with_email_to_active"
+    );
+    const activeEmailUrl = `${config.app.appUrl}/api/v1/users/activeEmail/${tokenWithEmail}`;
+    const message = `
+          <p>Please click on the link below to activate your email</p>
+          <a href="${activeEmailUrl}" target="_blank">Click Here</a>
+      `;
+
+    await sendEmail({
+      email: email,
+      subject: "Kích hoạt email",
+      html: message,
+    });
+
+    return res.send({
+      message: "Đã gửi email xác nhận",
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi cập nhật"));
   }
 };
