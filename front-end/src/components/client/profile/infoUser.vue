@@ -53,48 +53,69 @@
     <div class="form-group row mt-4">
       <label for="phoneNumber" class="col-3">Số điện thoại</label>
       <div class="col-8">
-        <Field
-          type="tel"
-          :class="{
-            'form-control': true,
-            'is-invalid': errors.phoneNumber,
-            'is-valid': !errors.phoneNumber && user.phoneNumber !== '',
-          }"
-          id="phoneNumber"
-          name="phoneNumber"
-          placeholder="nhap so dien thoai"
-          v-model="user.phoneNumber"
-        />
-        <ErrorMessage class="invalid-feedback" name="phoneNumber" />
+        <div class="row">
+          <div class="col-9">
+            <Field
+              type="tel"
+              :class="{
+                'form-control': true,
+                'is-invalid': errors.phoneNumber,
+                'is-valid': !errors.phoneNumber && user.phoneNumber !== '',
+              }"
+              id="phoneNumber"
+              name="phoneNumber"
+              placeholder="nhap so dien thoai"
+              v-model="user.phoneNumber"
+            />
+            <ErrorMessage class="invalid-feedback" name="phoneNumber" />
+          </div>
+          <div class="col-3">
+            <ChangPhoneNumber />
+          </div>
+        </div>
       </div>
     </div>
     <div class="form-group row mt-4">
       <label for="email" class="col-3">Email</label>
       <div class="col-8">
-        <Field
-          type="email"
-          :class="{
-            'form-control': true,
-            'is-invalid': errors.email,
-            'is-valid': !errors.email && user.email !== '',
-          }"
-          id="email"
-          v-model="user.email"
-          name="email"
-          placeholder="Địa chỉ email"
-        />
-        <ErrorMessage class="invalid-feedback" name="email" />
+        <div class="row">
+          <div class="col-9">
+            <Field
+              type="email"
+              :class="{
+                'form-control': true,
+                'is-invalid': errors.email,
+                'is-valid': !errors.email && user.email !== '',
+              }"
+              id="email"
+              v-model="user.email"
+              readonly
+              name="email"
+              placeholder="Địa chỉ email"
+            />
+            <ErrorMessage class="invalid-feedback" name="email" />
+          </div>
+          <div class="col-3">
+            <button type="button" class="btn btn-secondary float-end">
+              Thay đổi
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="form-group row mt-4">
       <label class="col-3">Giới tính*</label><br />
       <div class="col-8">
         <div class="row">
-          <div class="col-3">
+          <div class="col-2">
             <div class="form-check">
               <Field
                 type="radio"
                 class="form-check-input"
+                :class="{
+                  'is-invalid': errors.gender,
+                  'is-valid': !errors.gender && user.gender !== '',
+                }"
                 id="validationFormCheck1"
                 name="gender"
                 value="male"
@@ -105,11 +126,15 @@
               >
             </div>
           </div>
-          <div class="col-3">
+          <div class="col-2">
             <div class="form-check">
               <Field
                 type="radio"
                 class="form-check-input"
+                :class="{
+                  'is-invalid': errors.gender,
+                  'is-valid': !errors.gender && user.gender !== '',
+                }"
                 id="validationFormCheck2"
                 name="gender"
                 value="female"
@@ -121,7 +146,7 @@
             </div>
           </div>
           <div class="col-8">
-            <ErrorMessage class="invalid-feedback" name="gender" />
+            <ErrorMessage class="invalid-feedback d-block" name="gender" />
           </div>
         </div>
       </div>
@@ -173,9 +198,15 @@
           </div>
         </div>
         <div class="row">
-          <ErrorMessage class="invalid-feedback" name="dayOfBirthday" />
-          <ErrorMessage class="invalid-feedback" name="monthOfBirthday" />
-          <ErrorMessage class="invalid-feedback" name="yearOfBirthday" />
+          <ErrorMessage class="invalid-feedback d-block" name="dayOfBirthday" />
+          <ErrorMessage
+            class="invalid-feedback d-block"
+            name="monthOfBirthday"
+          />
+          <ErrorMessage
+            class="invalid-feedback d-block"
+            name="yearOfBirthday"
+          />
         </div>
       </div>
     </div>
@@ -184,9 +215,9 @@
       <span class="col-3"></span>
       <div class="col-8">
         <input
-          @click="handleShowPasswordSection"
+          as="input"
+          v-model="user.changePassword.isChanged"
           class="form-check-input me-2 border border-dark"
-          v-model="showPasswordSection"
           type="checkbox"
           id="invalidCheck3"
           aria-describedby="invalidCheck3Feedback"
@@ -198,7 +229,7 @@
     <div
       class="password-section"
       id="passwordSection"
-      v-if="showPasswordSection"
+      v-if="user.changePassword.isChanged"
     >
       <div class="form-group row mt-4">
         <label for="currentPassword" class="col-3">Mật khẩu hiện tại*</label>
@@ -268,8 +299,18 @@
       </div>
     </div>
     <div class="d-flex justify-content-center">
-      <button type="submit" class="btn btn-primary mt-4 col-3 text-center">
-        Lưu thay đổi
+      <button
+        type="submit"
+        class="btn btn-primary mt-4 col-3 text-center"
+        :disabled="isLoadingUpdate"
+      >
+        <span
+          v-if="isLoadingUpdate"
+          class="spinner-border spinner-border-sm text-white"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <span class="text-white" v-else> Lưu thay đổi </span>
       </button>
     </div>
   </form>
@@ -283,20 +324,23 @@ import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { updateUserSchema } from "@/utils/schema.util";
+import ChangPhoneNumber from "../modals/ChangPhoneNumber.vue";
+import UserService from "@/service/user.service";
 export default {
   components: {
     Form,
     Field,
     ErrorMessage,
+    ChangPhoneNumber,
   },
   setup() {
-    const showPasswordSection = ref(false);
-    const handleShowPasswordSection = () => {
-      showPasswordSection.value = !showPasswordSection.value;
-      user.value.changePassword.isChanged = showPasswordSection.value;
-    };
+    // const showPasswordSection = ref(false);
+    // const handleShowPasswordSection = () => {
+    //   showPasswordSection.value = !showPasswordSection.value;
+    //   user.value.changePassword.isChanged = showPasswordSection.value;
+    // };
     const token = Cookies.get("accessToken");
-    const api = new ApiService();
+    const userService = new UserService();
     const user = ref({
       firstName: "",
       lastName: "",
@@ -313,59 +357,69 @@ export default {
         cfNewPassword: "",
       },
     });
+    const isLoadingUpdate = ref(false);
 
-    const { errors, validate } = useForm({
+    const { errors, validate, validateField } = useForm({
       validationSchema: updateUserSchema,
-      initialValues: user.value,
     });
 
-    const errorsValidate = ref({});
-
-    // const errors = ref({
-    //   firstName: "",
-    //   lastName: "",
-    //   phoneNumber: "",
-    //   email: "",
-    //   gender: "",
-    //   dayOfBirthday: "",
-    //   monthOfBirthday: "",
-    //   yearOfBirthday: "",
-    //   changePassword: {
-    //     isChanged: "",
-    //     currentPassword: "",
-    //     newPassword: "",
-    //     cfNewPassword: "",
-    //   },
-    // });
-
     const getUser = async () => {
-      const response = await api.get(`/users/${token}`);
+      const response = await userService.get(`/${token}`);
       if (response?.status === 200) {
-        // user.value = response.data;
         Object.assign(user.value, response.data);
       }
     };
 
     const updateUser = async () => {
-      // const validationErrors = validation.validateUpdateUser(user.value);
-      // if (Object.keys(validationErrors).length > 0) {
-      //   errors.value = validationErrors;
-      //   return;
-      // }
-      const { valid, errors } = await validate();
-      if (!valid) {
-        errorsValidate.value = errors;
-        return;
-      }
+      console.log(user.value);
 
-      const response = await api.put(`/users/${token}`);
-      if (response?.status === 200) {
-        toast("Cập nhật thành công", {
+      try {
+        isLoadingUpdate.value = true;
+        user.value.dayOfBirthday = parseInt(user.value.dayOfBirthday) || null;
+        user.value.monthOfBirthday =
+          parseInt(user.value.monthOfBirthday) || null;
+        user.value.yearOfBirthday = parseInt(user.value.yearOfBirthday) || null;
+        if (!user.value.changePassword.isChanged) {
+          const fieldNames = [
+            "firstName",
+            "lastName",
+            "gender",
+            "dayOfBirthday",
+            "monthOfBirthday",
+            "yearOfBirthday",
+          ];
+
+          const validationResults = await Promise.all(
+            fieldNames.map((field) => validateField(field))
+          );
+
+          const allValid = validationResults.every((result) => result);
+          if (!allValid) {
+            return;
+          }
+        }
+        const { valid } = await validate();
+        if (!valid) {
+          return;
+        }
+
+        // const response = await userService.put(`/${token}`, user.value);
+        // if (response?.status === 200) {
+        //   toast(response.data.message, {
+        //     theme: "auto",
+        //     type: "success",
+        //     dangerouslyHTMLString: true,
+        //   });
+        //   getUser();
+        // }
+      } catch (error) {
+        toast(error.response?.data?.message, {
           theme: "auto",
           type: "success",
           dangerouslyHTMLString: true,
         });
-        getUser();
+      } finally {
+        isLoadingUpdate.value = false;
       }
     };
 
@@ -374,11 +428,12 @@ export default {
     });
 
     return {
-      showPasswordSection,
+      // showPasswordSection,
       user,
       updateUser,
       errors,
-      handleShowPasswordSection,
+      // handleShowPasswordSection,
+      isLoadingUpdate,
     };
   },
 };
