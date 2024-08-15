@@ -7,7 +7,7 @@ const router = express.Router();
 router
   .route("/:token")
   .get(authenticateToken.authenticateTokenFromParams, users.findOne)
-  .put(users.update)
+  .put(authenticateToken.authenticateTokenFromParams, users.update)
   .delete(users.delete);
 
 router.route("/").get(users.findALL).post(users.create).delete(users.deleteALL);

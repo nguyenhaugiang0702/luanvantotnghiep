@@ -3,23 +3,25 @@ const twilio = require("twilio");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
+const phoneNumberHost = process.env.TWILIO_PHONE_NUMBER;
 const client = new twilio(accountSid, authToken);
 
-const formatPhoneNumber = (phoneNumber) => {
+const formatPhoneNumber = async (phoneNumber) => {
     // Thêm mã quốc gia (+84) vào số điện thoại
     if (phoneNumber.startsWith('0')) {
       return `+84${phoneNumber.slice(1)}`;
     }
-    return phoneNumber;
+    
+    return await phoneNumber;
   };
 
 const sendOTP = async (phoneNumber) => {
   try {
     const otpCode = Math.floor(100000 + Math.random() * 900000);
-    const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
+    const formattedPhoneNumber = await formatPhoneNumber(phoneNumber);    
     const message = await client.messages.create({
       body: `Your OTP code is ${otpCode}`,
-      from: "+19383563086", 
+      from: phoneNumberHost, 
       to: formattedPhoneNumber,
     });
     console.log("OTP sent:", message.sid);

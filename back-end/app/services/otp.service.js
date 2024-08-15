@@ -4,8 +4,8 @@ const moment = require("moment");
 
 const createOTP = async (userData) => {
   try {
-    const user = new User(userData);
-    return await user.save();
+    const otp = new OTP(userData);
+    return await otp.save();
   } catch (error) {
     throw new Error("Lỗi khi tạo người dùng: " + error.message);
   }

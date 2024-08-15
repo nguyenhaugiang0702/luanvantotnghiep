@@ -1,4 +1,5 @@
 const userService = require("../services/user.service");
+const otpService = require("../services/otp.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("../config/index");
@@ -144,8 +145,28 @@ exports.findOne = async (req, res, next) => {
   }
 };
 
-exports.update = async (req, res) => {
-  res.send({ message: "handle update" });
+exports.update = async (req, res, next) => {
+  const userID = req.user.id;
+  const { newPhoneNumber, otp } = req.body;
+  console.log(req.body);
+  try {
+    const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
+      newPhoneNumber,
+      otp
+    );
+
+    if (!otpRecord) {
+      return next(new ApiError(400, "OTP không hợp lệ hoặc đã hết hạn."));
+    }
+    req.body.phoneNumber = newPhoneNumber;
+    const userUpdate = await userService.updateUser(userID, req.body);
+    return res.send({
+      message: "Cập nhật thành công",
+      userUpdate,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đổi số điện thoại mới"));
+  }
 };
 
 exports.delete = async (req, res, next) => {
