@@ -71,7 +71,7 @@
             <ErrorMessage class="invalid-feedback" name="phoneNumber" />
           </div>
           <div class="col-3">
-            <ChangPhoneNumber />
+            <ChangPhoneNumber @refreshUser="getUser" />
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@
             <ErrorMessage class="invalid-feedback" name="email" />
           </div>
           <div class="col-3">
-            <ChangeEmail />
+            <ChangeEmail @refreshUser="getUser" />
           </div>
         </div>
       </div>
@@ -238,7 +238,7 @@
             :class="{
               'form-control': true,
               'is-invalid':
-                errors.cfNewPassword && user.changePassword.isChanged,
+                errors.currentPassword && user.changePassword.isChanged,
               'is-valid':
                 !errors.currentPassword &&
                 user.changePassword.isChanged &&
@@ -259,8 +259,7 @@
             type="password"
             :class="{
               'form-control': true,
-              'is-invalid':
-                errors.cfNewPassword && user.changePassword.isChanged,
+              'is-invalid': errors.newPassword && user.changePassword.isChanged,
               'is-valid':
                 !errors.newPassword &&
                 user.changePassword.isChanged &&
@@ -335,7 +334,7 @@ export default {
     Field,
     ErrorMessage,
     ChangPhoneNumber,
-    ChangeEmail
+    ChangeEmail,
   },
   setup() {
     // const showPasswordSection = ref(false);
@@ -379,22 +378,14 @@ export default {
     };
 
     const updateUser = async () => {
-      console.log(user.value);
-
       try {
         isLoadingUpdate.value = true;
-        // user.value.dayOfBirthday = parseInt(user.value.dayOfBirthday) || null;
-        // user.value.monthOfBirthday =
-        //   parseInt(user.value.monthOfBirthday) || null;
-        // user.value.yearOfBirthday = parseInt(user.value.yearOfBirthday) || null;
-        if (!user.value.changePassword.isChanged) {
+        if (user.value.changePassword.isChanged) {
+          console.log(1);
           const fieldNames = [
-            "firstName",
-            "lastName",
-            "gender",
-            "dayOfBirthday",
-            "monthOfBirthday",
-            "yearOfBirthday",
+            "currentPassword",
+            "newPassword",
+            "cfNewPassword",
           ];
 
           const validationResults = await Promise.all(
@@ -405,23 +396,19 @@ export default {
           if (!allValid) {
             return;
           }
-          // Định dạng ngày sinh
-          const dob = moment({
-            day: user.value.dayOfBirthday,
-            month: user.value.monthOfBirthday - 1, // Month is zero-indexed in moment.js
-            year: user.value.yearOfBirthday,
-          }).format("DD/MM/YYYY");
-          const userDataUpdate = {
-            userData: {
-              firstName: user.value.firstName,
-              lastName: user.value.lastName,
-              gender: user.value.gender,
-              dob: dob,
-            },
-          };
 
-          const response = await userService.put(`/${token}`, userDataUpdate);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const userData = {
+            currentPassword: user.value.changePassword.currentPassword,
+            newPassword: user.value.changePassword.newPassword,
+            cfNewPassword: user.value.changePassword.cfNewPassword,
+          };
+          console.log(userData);
+
+          const response = await userService.put(
+            `/changePassword/${token}`,
+            userData
+          );
+
           if (response?.status === 200) {
             toast(response.data.message, {
               theme: "auto",
@@ -430,25 +417,55 @@ export default {
             });
             getUser();
           }
-        }
-        const { valid } = await validate();
-        if (!valid) {
           return;
         }
+        console.log(11);
+        // Không click chọn đổi mật khẩu
+        const fieldNames = [
+          "firstName",
+          "lastName",
+          "gender",
+          "dayOfBirthday",
+          "monthOfBirthday",
+          "yearOfBirthday",
+        ];
 
-        // const response = await userService.put(`/${token}`, user.value);
-        // if (response?.status === 200) {
-        //   toast(response.data.message, {
-        //     theme: "auto",
-        //     type: "success",
-        //     dangerouslyHTMLString: true,
-        //   });
-        //   getUser();
-        // }
+        const validationResults = await Promise.all(
+          fieldNames.map((field) => validateField(field))
+        );
+
+        const allValid = validationResults.every((result) => result);
+        if (!allValid) {
+          return;
+        }
+        // Định dạng ngày sinh
+        const dob = moment({
+          day: user.value.dayOfBirthday,
+          month: user.value.monthOfBirthday - 1, // Month is zero-indexed in moment.js
+          year: user.value.yearOfBirthday,
+        }).format("DD/MM/YYYY");
+        const userDataUpdate = {
+          userData: {
+            firstName: user.value.firstName,
+            lastName: user.value.lastName,
+            gender: user.value.gender,
+            dob: dob,
+          },
+        };
+        const response = await userService.put(`/${token}`, userDataUpdate);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (response?.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          getUser();
+        }
       } catch (error) {
         toast(error.response?.data?.message, {
           theme: "auto",
-          type: "success",
+          type: "error",
           dangerouslyHTMLString: true,
         });
       } finally {
@@ -461,12 +478,11 @@ export default {
     });
 
     return {
-      // showPasswordSection,
       user,
       updateUser,
       errors,
-      // handleShowPasswordSection,
       isLoadingUpdate,
+      getUser,
     };
   },
 };

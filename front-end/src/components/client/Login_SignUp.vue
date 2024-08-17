@@ -255,7 +255,7 @@ export default {
       }
       try {
         isLoading.value = true;
-        const response = await authService.post("/auth/createOTP", {
+        const response = await authService.post("/createOTP", {
           phoneNumber: phoneNumber.value.phoneNumberSignUp,
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -288,7 +288,7 @@ export default {
       }
       const otpNumber = Number(otp.value);
       try {
-        const response = await authService.post("/auth/signUp/verifyOTP", {
+        const response = await authService.post("/signUp/verifyOTP", {
           phoneNumber: phoneNumber.value.phoneNumberSignUp,
           otp: otpNumber,
         });
@@ -355,7 +355,7 @@ export default {
     const signIn = async () => {
       try {
         isLoadingSignIn.value = true;
-        const response = await authService.post("/auth", {
+        const response = await authService.post("/", {
           password: password.value.passwordSignIn,
           phoneNumber: phoneNumber.value.phoneNumberSignIn,
         });

@@ -78,23 +78,23 @@
                 <Field
                   class="form-control"
                   :class="{
-                    'is-invalid': errors.otp && otpSent,
-                    'is-valid': !errors.otp && userUpdate.otp !== '',
+                    'is-invalid': errors.otpSMS && otpSent,
+                    'is-valid': !errors.otpSMS && userUpdate.otpSMS !== '',
                   }"
                   type="text"
                   :disabled="!otpSent"
-                  name="otp"
+                  name="otpSMS"
                   value=""
-                  v-model="userUpdate.otp"
+                  v-model="userUpdate.otpSMS"
                 />
-                <ErrorMessage name="otp" class="invalid-feedback" />
+                <ErrorMessage name="otpSMS" class="invalid-feedback" />
               </div>
             </div>
             <div class="row d-flex justify-content-center mt-4">
               <button
                 type="submit"
                 class="btn btn-primary col-3"
-                :disabled="isLoadingUpdate"
+                :disabled="isLoadingUpdate || !otpSent"
               >
                 <span
                   v-if="isLoadingUpdate"
@@ -102,9 +102,7 @@
                   role="status"
                   aria-hidden="true"
                 ></span>
-                <span class="text-white" v-else>
-                    Xác nhận
-                </span>
+                <span class="text-white" v-else> Xác nhận </span>
               </button>
             </div>
           </form>
@@ -123,11 +121,9 @@
   </div>
 </template>
 <script>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import Cookies from "js-cookie";
-import ApiService from "@/service/ApiService";
 import { toast } from "vue3-toastify";
-import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changePhoneNumberSchema } from "@/utils/schema.util";
 import UserService from "@/service/user.service";
@@ -138,10 +134,11 @@ export default {
     Field,
     ErrorMessage,
   },
-  setup() {
+  emit:["refreshUser"],
+  setup(props, { emit}) {
     const userUpdate = ref({
       newPhoneNumber: "",
-      otp: "",
+      otpSMS: "",
     });
     const { errors, validate, validateField } = useForm({
       validationSchema: changePhoneNumberSchema,
@@ -156,7 +153,7 @@ export default {
     const sendOTPChangePhoneNmber = async () => {
       try {
         isLoading.value = true;
-        const { valid, errors } = await validateField('newPhoneNumber');
+        const { valid } = await validateField("newPhoneNumber");
         if (!valid) {
           return;
         }
@@ -164,7 +161,7 @@ export default {
           phoneNumber: userUpdate.value.newPhoneNumber,
         };
 
-        const response = await authService.post("/auth/createOTP", data);
+        const response = await authService.post("/createOTP", data);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
@@ -186,7 +183,7 @@ export default {
     };
 
     const changePhoneNumber = async () => {
-      const { valid, errors } = await validate();
+      const { valid } = await validate();
       if (!valid) {
         return;
       }
@@ -200,6 +197,8 @@ export default {
             type: "success",
             dangerouslyHTMLString: true,
           });
+          $("#changPhoneNumber").modal("hide");
+          emit("refreshUser");
         }
       } catch (error) {
         toast(error.response?.data?.message, {
@@ -211,6 +210,7 @@ export default {
         isLoadingUpdate.value = false;
       }
     };
+
     return {
       changePhoneNumberSchema,
       changePhoneNumber,

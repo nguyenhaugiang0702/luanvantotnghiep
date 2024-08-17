@@ -89,7 +89,14 @@ export const changePhoneNumberSchema = yup.object({
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
 
-  otp: yup
+  otpSMS: yup
+    .string()
+    .matches(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số")
+    .required("Mã OTP không được để trống"),
+});
+
+export const changeEmailSchema = yup.object({
+  otpEmail: yup
     .string()
     .matches(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số")
     .required("Mã OTP không được để trống"),
