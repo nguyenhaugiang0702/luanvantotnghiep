@@ -1,6 +1,5 @@
 const OTP = require("../models/otp.model");
 const { ObjectId } = require("mongodb");
-const moment = require("moment");
 
 const createOTP = async (userData) => {
   try {
@@ -21,13 +20,30 @@ const findRecordByPhoneNumber = async (phoneNumber) => {
   return await OTP.findOne({ phoneNumber: phoneNumber });
 };
 
-const findRecordByOTPAndPhoneNumber = async (phoneNumber, otp) => {
-  return await OTP.findOne({ phoneNumber: phoneNumber, otp: otp });
+const findRecordByOTPAndPhoneNumber = async (phoneNumber, otpSMS) => {
+  return await OTP.findOne({ phoneNumber: phoneNumber, otpSMS: otpSMS });
+};
+
+const findRecordByEmail = async (email) => {
+  return await OTP.findOne({ email: email });
+};
+
+const findRecordByOTPAndEmail = async (email, otpEmail) => {
+  return await OTP.findOne({ email: email, otpEmail: otpEmail });
+};
+
+const updateOTPByEmail = async (email, data) => {
+  return await OTP.findOneAndUpdate({ email: email }, data, {
+    new: true,
+  });
 };
 
 module.exports = {
   createOTP,
   updateOTPByPhoneNumber,
   findRecordByPhoneNumber,
-  findRecordByOTPAndPhoneNumber
+  findRecordByOTPAndPhoneNumber,
+  findRecordByEmail,
+  findRecordByOTPAndEmail,
+  updateOTPByEmail
 };

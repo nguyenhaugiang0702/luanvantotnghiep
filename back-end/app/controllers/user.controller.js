@@ -104,17 +104,6 @@ exports.activeAccount = async (req, res, next) => {
   }
 };
 
-exports.activeEmail = async (req, res, next) => {
-  const userID = req.user.id;
-  const userEmail = req.user.email;
-  try {
-    await userService.updateUser(userID, userEmail);
-    res.redirect(`${config.viteApp.viteURL}/customer/account/edit/`);
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi kích hoạt tài khoản"));
-  }
-};
-
 exports.blockAccount = async (req, res, next) => {
   try {
     await userService.blockUserAccount(req.params.userID);
@@ -158,17 +147,23 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   const userID = req.user.id;
-  const { newPhoneNumber, otp, userData, email } = req.body;
+  const { newPhoneNumber, otpSMS, otpEmail, userData, email } = req.body;
   try {
+    console.log(req.body);
     // Update Phone Number
-    if (newPhoneNumber && otp) {
+    if (newPhoneNumber && otpSMS) {
       const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
         newPhoneNumber,
-        otp
+        otpSMS
       );
 
       if (!otpRecord) {
         return next(new ApiError(400, "OTP không hợp lệ hoặc đã hết hạn."));
+      }
+      const currentTime = moment().tz("Asia/Ho_Chi_Minh");
+
+      if (currentTime.isAfter(moment(otpRecord.expiresAt))) {
+        return next(new ApiError(400, "Mã OTP đã hết hạn."));
       }
       req.body.phoneNumber = newPhoneNumber;
       const userUpdate = await userService.updateUser(userID, req.body);
@@ -183,9 +178,26 @@ exports.update = async (req, res, next) => {
         message: "Cập nhât thành công",
         userUpdate,
       });
-    } else if (email) {
-      res.send({
+    } else if (email && otpEmail) {
+      // Update email
+      console.log(123);
+      const otpRecord = await otpService.findRecordByOTPAndEmail(
+        email,
+        otpEmail
+      );
+
+      if (!otpRecord) {
+        return next(new ApiError(400, "OTP không hợp lệ hoặc đã hết hạn."));
+      }
+      const currentTime = moment().tz("Asia/Ho_Chi_Minh");
+
+      if (currentTime.isAfter(moment(otpRecord.expiresAt))) {
+        return next(new ApiError(400, "Mã OTP đã hết hạn."));
+      }
+      const userUpdate = await userService.updateUser(userID, { email: email });
+      return res.send({
         message: "Cập nhât thành công",
+        userUpdate,
       });
     }
   } catch (error) {
@@ -193,11 +205,36 @@ exports.update = async (req, res, next) => {
   }
 };
 
-exports.activeEmail = async (req, res, next) => {
-  console.log(req.user.id);
-  console.log(req.user.email);
+exports.changePassword = async (req, res, next) => {
+  const userID = req.user.id;
+  try {
+    const user = await userService.getUserById(userID);
+    const isMatch = await bcrypt.compare(
+      req.body.currentPassword,
+      user.password
+    );
+    console.log(req.body);
+    
 
-}
+    if (!isMatch) {
+      return next(new ApiError(400, "Mật khẩu hiện tại không đúng"));
+    }
+    if (req.body.newPassword != req.body.cfNewPassword) {
+      return next(
+        new ApiError(400, "Mật khẩu mới và mật khẩu xác nhận không đúng")
+      );
+    }
+    const hashedNewPassword = await bcrypt.hash(req.body.newPassword, 10);
+    await userService.updateUser(userID, {
+      password: hashedNewPassword,
+    });
+    return res.send({
+      message: "Đổi mật khẩu thành công"
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đổi mật khẩu"));
+  }
+};
 
 exports.delete = async (req, res, next) => {
   const userID = req.params.userID;

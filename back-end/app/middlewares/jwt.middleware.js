@@ -34,7 +34,6 @@ function authenticateTokenFromParams(req, res, next) {
       }
     }
     req.user = user;
-    console.log(req.user);
     next();
   });
 }
@@ -53,7 +52,6 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
       }
     }
     req.user = user;
-    console.log(req.user);
     next();
   });
 }

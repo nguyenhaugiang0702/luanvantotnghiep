@@ -48,19 +48,79 @@ exports.login = async (req, res, next) => {
 };
 
 exports.createOTP = async (req, res, next) => {
-  const { phoneNumber } = req.body;
+  const { phoneNumber, email } = req.body;
   try {
-    const userExistWithPhoneNumber = await userService.checkPhoneNumberExist(
-      phoneNumber
-    );
+    if (phoneNumber) {
+      // Gửi mã OTP qua số điện thoại
+      const userExistWithPhoneNumber = await userService.checkPhoneNumberExist(
+        phoneNumber
+      );
 
-    // Nếu tài khoản tồn tại và đã được kích hoạt qua OTP
-    if (userExistWithPhoneNumber && userExistWithPhoneNumber.isActive == 1) {
-      if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
-        return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+      // Nếu tài khoản tồn tại và đã được kích hoạt qua OTP
+      if (userExistWithPhoneNumber && userExistWithPhoneNumber.isActive == 1) {
+        if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
+          return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+        }
+        const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
+        const otpSMS = await sendOTP(phoneNumber);
+        const expiresAt = moment()
+          .tz("Asia/Ho_Chi_Minh")
+          .add(45, "minutes")
+          .toDate();
+
+        if (!otpUser) {
+          await otpService.createOTP({
+            phoneNumber,
+            otpSMS,
+            expiresAt,
+          });
+        }
+        await otpService.updateOTPByPhoneNumber(phoneNumber, {
+          otpSMS: otpSMS,
+          expiresAt: expiresAt,
+        });
+
+        return res.send({
+          message: "Mã OTP đã được gửi",
+          otpCode: otpSMS,
+          otpSent: true,
+        });
+      } else {
+        if (userExistWithPhoneNumber) {
+          return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+        }
+
+        const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
+        const otpSMS = await sendOTP(phoneNumber);
+        const expiresAt = moment()
+          .tz("Asia/Ho_Chi_Minh")
+          .add(45, "minutes")
+          .toDate();
+
+        if (!otpUser) {
+          await otpService.createOTP({
+            phoneNumber,
+            otpSMS,
+            expiresAt,
+          });
+        }
+        await otpService.updateOTPByPhoneNumber(phoneNumber, {
+          otpSMS: otpSMS,
+          expiresAt: expiresAt,
+        });
+        return res.send({
+          message: "Mã OTP đã được gửi",
+          otpCode: otpSMS,
+          otpSent: true,
+        });
       }
-      const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-      const otp = await sendOTP(phoneNumber);
+    } else if (email) {
+      // Gửi mã OTP qua email
+      const otpUser = await otpService.findRecordByEmail(email);
+      const otpEmail = await sendEmail({
+        email: email,
+        subject: "Kích hoạt email",
+      });
       const expiresAt = moment()
         .tz("Asia/Ho_Chi_Minh")
         .add(45, "minutes")
@@ -68,47 +128,18 @@ exports.createOTP = async (req, res, next) => {
 
       if (!otpUser) {
         await otpService.createOTP({
-          phoneNumber,
-          otp,
+          email,
+          otpEmail,
           expiresAt,
         });
       }
-      await otpService.updateOTPByPhoneNumber(phoneNumber, {
-        otp: otp,
-        expiresAt: expiresAt,
-      });
-
-      return res.send({
-        message: "Mã OTP đã được gửi",
-        otpCode: otp,
-        otpSent: true,
-      });
-    } else {
-      if (userExistWithPhoneNumber) {
-        return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
-      }
-
-      const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-      const otp = await sendOTP(phoneNumber);
-      const expiresAt = moment()
-        .tz("Asia/Ho_Chi_Minh")
-        .add(45, "minutes")
-        .toDate();
-
-      if (!otpUser) {
-        await otpService.createOTP({
-          phoneNumber,
-          otp,
-          expiresAt,
-        });
-      }
-      await otpService.updateOTPByPhoneNumber(phoneNumber, {
-        otp: otp,
+      await otpService.updateOTPByEmail(email, {
+        otpEmail: otpEmail,
         expiresAt: expiresAt,
       });
       return res.send({
         message: "Mã OTP đã được gửi",
-        otpCode: otp,
+        otpCode: otpEmail,
         otpSent: true,
       });
     }
@@ -118,11 +149,11 @@ exports.createOTP = async (req, res, next) => {
 };
 
 exports.signUpVerify = async (req, res, next) => {
-  const { phoneNumber, otp } = req.body;
+  const { phoneNumber, otpSMS } = req.body;
   try {
     const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
       phoneNumber,
-      otp
+      otpSMS
     );
 
     if (!otpRecord) {

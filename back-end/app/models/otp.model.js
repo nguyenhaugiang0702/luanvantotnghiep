@@ -4,16 +4,25 @@ const moment = require("moment-timezone");
 const otpSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
-    required: true,
-    ref: "User", // Liên kết đến mô hình User qua phoneNumber
+    required: false,
+    ref: "User",
   },
-  otp: {
+  email: {
+    type: String,
+    required: false,
+    ref: "User",
+  },
+  otpSMS: {
     type: Number,
-    required: true,
+    required: false,
+  },
+  otpEmail: {
+    type: Number,
+    required: false,
   },
   expiresAt: {
     type: Date,
-    required: true,
+    required: false,
   },
   createdAt: {
     type: Date,

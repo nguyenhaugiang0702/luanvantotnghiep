@@ -9,14 +9,12 @@ router
   .get(authenticateToken.authenticateTokenFromParams, users.findOne)
   .put(authenticateToken.authenticateTokenFromParams, users.update)
   .delete(users.delete);
-
 router
-  .route("/activeEmail/:token")
-  .get(authenticateToken.authenticateTokenFromParamsWithEmail, users.activeEmail);
-
+  .route("/changePassword/:token")
+  .put(authenticateToken.authenticateTokenFromParams, users.changePassword);
 router.route("/").get(users.findALL).post(users.create).delete(users.deleteALL);
 router.route("/signIn").post(users.signIn);
-router.route("/facebook").post(users.signIn);
+// router.route("/facebook").post(users.signIn);
 router
   .route("/:userID")
   .get(users.findOne)
