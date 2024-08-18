@@ -2,15 +2,6 @@ const User = require("../models/user.model");
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
 
-const createUser = async (userData) => {
-  try {
-    const user = new User(userData);
-    return await user.save();
-  } catch (error) {
-    throw new Error("Lỗi khi tạo người dùng: " + error.message);
-  }
-};
-
 const getUserById = async (userId) => {
   const userID = {
     _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
