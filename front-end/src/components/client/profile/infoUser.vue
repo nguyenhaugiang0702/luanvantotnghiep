@@ -209,93 +209,6 @@
         </div>
       </div>
     </div>
-
-    <div class="form-group row mt-4">
-      <span class="col-3"></span>
-      <div class="col-8">
-        <input
-          as="input"
-          v-model="user.changePassword.isChanged"
-          class="form-check-input me-2 border border-dark"
-          type="checkbox"
-          id="invalidCheck3"
-          aria-describedby="invalidCheck3Feedback"
-        />
-        <label class="col-8"> Đổi mật khẩu</label>
-      </div>
-    </div>
-
-    <div
-      class="password-section"
-      id="passwordSection"
-      v-if="user.changePassword.isChanged"
-    >
-      <div class="form-group row mt-4">
-        <label for="currentPassword" class="col-3">Mật khẩu hiện tại*</label>
-        <div class="col-8">
-          <Field
-            type="password"
-            :class="{
-              'form-control': true,
-              'is-invalid':
-                errors.currentPassword && user.changePassword.isChanged,
-              'is-valid':
-                !errors.currentPassword &&
-                user.changePassword.isChanged &&
-                user.changePassword.currentPassword !== '',
-            }"
-            id="currentPassword"
-            placeholder="Mật khẩu hiện tại"
-            name="currentPassword"
-            v-model="user.changePassword.currentPassword"
-          />
-          <ErrorMessage class="invalid-feedback" name="currentPassword" />
-        </div>
-      </div>
-      <div class="form-group row mt-4">
-        <label for="newPassword" class="col-3">Mật khẩu mới*</label>
-        <div class="col-8">
-          <Field
-            type="password"
-            :class="{
-              'form-control': true,
-              'is-invalid': errors.newPassword && user.changePassword.isChanged,
-              'is-valid':
-                !errors.newPassword &&
-                user.changePassword.isChanged &&
-                user.changePassword.newPassword !== '',
-            }"
-            id="newPassword"
-            placeholder="Mật khẩu mới"
-            name="newPassword"
-            v-model="user.changePassword.newPassword"
-          />
-          <ErrorMessage class="invalid-feedback" name="newPassword" />
-        </div>
-      </div>
-      <div class="form-group row mt-4">
-        <label for="cfNewPassword" class="col-3">Nhập lại mật khẩu mới*</label>
-        <div class="col-8">
-          <Field
-            type="password"
-            :class="{
-              'form-control': true,
-              'is-invalid':
-                errors.cfNewPassword && user.changePassword.isChanged,
-              'is-valid':
-                !errors.cfNewPassword &&
-                user.changePassword.isChanged &&
-                user.changePassword.cfNewPassword !== '',
-            }"
-            id="cfNewPassword"
-            name="cfNewPassword"
-            placeholder="Nhập lại mật khẩu mới"
-            v-model="user.changePassword.cfNewPassword"
-          />
-          <ErrorMessage class="invalid-feedback" name="cfNewPassword" />
-        </div>
-      </div>
-    </div>
     <div class="d-flex justify-content-center">
       <button
         type="submit"
@@ -337,11 +250,6 @@ export default {
     ChangeEmail,
   },
   setup() {
-    // const showPasswordSection = ref(false);
-    // const handleShowPasswordSection = () => {
-    //   showPasswordSection.value = !showPasswordSection.value;
-    //   user.value.changePassword.isChanged = showPasswordSection.value;
-    // };
     const token = Cookies.get("accessToken");
     const userService = new UserService();
     const user = ref({
@@ -353,12 +261,6 @@ export default {
       dayOfBirthday: "",
       monthOfBirthday: "",
       yearOfBirthday: "",
-      changePassword: {
-        isChanged: false,
-        currentPassword: "",
-        newPassword: "",
-        cfNewPassword: "",
-      },
     });
     const isLoadingUpdate = ref(false);
 
@@ -380,62 +282,9 @@ export default {
     const updateUser = async () => {
       try {
         isLoadingUpdate.value = true;
-        if (user.value.changePassword.isChanged) {
-          console.log(1);
-          const fieldNames = [
-            "currentPassword",
-            "newPassword",
-            "cfNewPassword",
-          ];
 
-          const validationResults = await Promise.all(
-            fieldNames.map((field) => validateField(field))
-          );
-
-          const allValid = validationResults.every((result) => result);
-          if (!allValid) {
-            return;
-          }
-
-          const userData = {
-            currentPassword: user.value.changePassword.currentPassword,
-            newPassword: user.value.changePassword.newPassword,
-            cfNewPassword: user.value.changePassword.cfNewPassword,
-          };
-          console.log(userData);
-
-          const response = await userService.put(
-            `/changePassword/${token}`,
-            userData
-          );
-
-          if (response?.status === 200) {
-            toast(response.data.message, {
-              theme: "auto",
-              type: "success",
-              dangerouslyHTMLString: true,
-            });
-            getUser();
-          }
-          return;
-        }
-        console.log(11);
-        // Không click chọn đổi mật khẩu
-        const fieldNames = [
-          "firstName",
-          "lastName",
-          "gender",
-          "dayOfBirthday",
-          "monthOfBirthday",
-          "yearOfBirthday",
-        ];
-
-        const validationResults = await Promise.all(
-          fieldNames.map((field) => validateField(field))
-        );
-
-        const allValid = validationResults.every((result) => result);
-        if (!allValid) {
+        const { valid } = await validate();
+        if (!valid) {
           return;
         }
         // Định dạng ngày sinh

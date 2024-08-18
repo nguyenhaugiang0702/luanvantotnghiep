@@ -1,5 +1,4 @@
 const admin = [
-  
   // {
   //   path: "/forgotpassword",
   //   name: "forgotpassword",
@@ -28,6 +27,22 @@ const admin = [
         name: "admin-categories",
         component: () => import("../pages/admin/categories/index.vue"),
         prop: true,
+      },
+      {
+        path: "suppliers",
+        name: "admin-suppliers",
+        children: [
+          {
+            path: "",
+            name: "admin-suppliers-list",
+            component: () => import("../pages/admin/suplliers/index.vue"),
+          },
+          {
+            path: "add",
+            name: "admin-suppliers-add",
+            component: () => import("../pages/admin/suplliers/add.vue"),
+          },
+        ],
       },
 
       // {

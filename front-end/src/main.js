@@ -10,6 +10,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Antd from "ant-design-vue";
 import * as Icons from "@ant-design/icons-vue";
 import "ant-design-vue/dist/reset.css";
+import "vue3-toastify/dist/index.css";
 
 const app = createApp(App);
 app.use(router);

@@ -17,12 +17,19 @@
         <template #title>
           <span>
             <user-outlined />
-            <span>User</span>
+            <span>Quản lý nhà cung cấp</span>
           </span>
         </template>
-        <a-menu-item key="3">Tom</a-menu-item>
-        <a-menu-item key="4">Bill</a-menu-item>
-        <a-menu-item key="5">Alex</a-menu-item>
+        <a-menu-item
+          key="admin-suppliers-add"
+          @click="navigateTo('admin-suppliers-add')"
+          >Thêm</a-menu-item
+        >
+        <a-menu-item
+          key="admin-suppliers-list"
+          @click="navigateTo('admin-suppliers-list')"
+          >Danh sách</a-menu-item
+        >
       </a-sub-menu>
       <a-sub-menu key="sub2">
         <template #title>

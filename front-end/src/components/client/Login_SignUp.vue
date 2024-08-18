@@ -188,7 +188,6 @@
 import { ref, computed } from "vue";
 import AuthService from "@/service/auth.service";
 import { toast } from "vue3-toastify";
-import "vue3-toastify/dist/index.css";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";

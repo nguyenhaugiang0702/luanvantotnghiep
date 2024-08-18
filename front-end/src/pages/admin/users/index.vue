@@ -1,7 +1,7 @@
 <template>
   <div>
-    <a-layout-header style="background: #fff; padding: 0 20px">
-      day la trang quan ly users
+    <a-layout-header class="text-uppercase fw-bold" style="background: #fff; padding: 0 20px">
+      Quản lý người dùng
     </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
@@ -9,20 +9,6 @@
         <a-breadcrumb-item>Bill</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <!-- <a-table
-          :columns="columns"
-          :row-key="(record) => record.login.uuid"
-          :data-source="dataSource"
-          :pagination="pagination"
-          :loading="loading"
-          @change="handleTableChange"
-        >
-          <template #bodyCell="{ column, text }">
-            <template v-if="column.dataIndex === 'name'"
-              >{{ text.first }} {{ text.last }}</template
-            >
-          </template>
-        </a-table> -->
         <div class="row">
           <div class="col-12">
             <div class="table-responsive">
