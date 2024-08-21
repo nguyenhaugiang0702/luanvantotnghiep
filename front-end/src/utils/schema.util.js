@@ -66,3 +66,19 @@ export const supllierSchema = yup.object({
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
 });
+
+export const receiptSchema = yup.object({
+  supplierName: yup.string().required("Tên nhà cung cấp là bắt buộc"),
+
+  bookName: yup.string().required("Tên sách là bắt buộc"),
+  quantity: yup
+    .number("Số lượng phải là số")
+    .typeError("Số lượng phải là số")
+    .required("Số lượng là bắt buộc")
+    .min(1, "Số lượng không nhỏ hơn 1"),
+  price: yup
+    .number("Giá phải là số")
+    .typeError("Giá phải là số")
+    .required("Giá là bắt buộc")
+    .min(1, "Giá không nhỏ hơn 1"),
+});

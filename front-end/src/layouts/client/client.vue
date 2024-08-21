@@ -1,26 +1,27 @@
 <template>
   <div>
     <Header />
-    <div class="bg-primary py-4"></div>
-    <Login_SignUp />
+    <Navbar />
     <router-view></router-view>
-    <!-- <Footer /> -->
+    <Footer />
   </div>
 </template>
 <script>
-
 import Header from "../../components/client/Header.vue";
 import Footer from "../../components/client/Footer.vue";
-import Login_SignUp from "../../components/client/Login_SignUp.vue";
+import Navbar from "../../components/client/Navbar.vue";
 
 export default {
   components: {
     Header,
     Footer,
-    Login_SignUp,
+    Navbar,
   },
   setup() {
     return {};
   },
 };
 </script>
+<style scoped>
+@import '../../assets/css/index.css';
+</style>

@@ -2,47 +2,18 @@ const client = [
   {
     path: "/",
     component: () => import("../layouts/client/client.vue"),
-    // path: "/",
-    // name: "Login",
-    // // redirect: "/",
-    // component: () => import("../pages/client/Login.vue"),
+    redirect: { name: "home" },
     children: [
-      // {
-      //     path: "",
-      //     name: 'home',
-      //     component: () => import("../pages/client/Home.vue"),
-      // },
-      // {
-      //     path: "",
-      //     name: 'home',
-      //     component: () => import("../pages/client/Login.vue"),
-      // },
-      // {
-      //     path: "books",
-      //     name: 'booksPage',
-      //     component: () => import("../pages/client/Book.vue"),
-      // },
-      // {
-      //     path: "/books/:publisherId",
-      //     name: 'books-filter-nxb',
-      //     component: () => import("../pages/client/FilterNxb.vue"),
-      //     props: true ,
-      // },
-      // {
-      //     path: "/books/detail/:id",
-      //     name: 'books-detail',
-      //     component: () => import("../pages/client/Detail.vue"),
-      // },
-      // {
-      //     path: "cart",
-      //     name: 'cart',
-      //     component: () => import("../pages/client/Cart.vue"),
-      // },
-      // {
-      //     path: "checkout",
-      //     name: 'checkout',
-      //     component: () => import("../pages/client/CheckOut.vue"),
-      // },
+      {
+        path: "login",
+        name: "login",
+        component: () => import("../pages/client/Login_SignUp.vue"),
+      },
+      {
+        path: "",
+        name: "home",
+        component: () => import("../pages/client/Home.vue"),
+      },
       {
         path: "/customer/account/edit/",
         name: "profile",
@@ -53,17 +24,18 @@ const client = [
             path: "",
             name: "profile-infoUser",
             component: () =>
-              import("../components/client/profile/infoUser.vue"),
+              import("../components/client/profile/InfoUser.vue"),
           },
           {
             path: "changePassword",
             name: "profile-password",
-            component: () => import("../components/client/profile/ChangePassword.vue"),
+            component: () =>
+              import("../components/client/profile/ChangePassword.vue"),
           },
           {
-              path: "address",
-              name: 'profile-address',
-              component: () => import("../components/client/profile/Address.vue"),
+            path: "address",
+            name: "profile-address",
+            component: () => import("../components/client/profile/Address.vue"),
           },
         ],
       },

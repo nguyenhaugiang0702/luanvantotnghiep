@@ -4,20 +4,20 @@
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
       <a-menu-item key="admin-users" @click="navigateTo('admin-users')">
         <pie-chart-outlined />
-        <span>Quan ly users</span>
+        <span>Người dùng</span>
       </a-menu-item>
       <a-menu-item
         key="admin-categories"
         @click="navigateTo('admin-categories')"
       >
         <desktop-outlined />
-        <span>Quan ly the loai</span>
+        <span>Thể loại</span>
       </a-menu-item>
       <a-sub-menu key="sub1">
         <template #title>
           <span>
             <user-outlined />
-            <span>Quản lý nhà cung cấp</span>
+            <span>Nhà cung cấp</span>
           </span>
         </template>
         <a-menu-item
@@ -35,11 +35,11 @@
         <template #title>
           <span>
             <team-outlined />
-            <span>Team</span>
+            <span>Nhập hàng</span>
           </span>
         </template>
-        <a-menu-item key="6">Team 1</a-menu-item>
-        <a-menu-item key="8">Team 2</a-menu-item>
+        <a-menu-item key="admin-receipts-add" @click="navigateTo('admin-receipts-add')">Thêm</a-menu-item>
+        <a-menu-item key="admin-receipts-list" @click="navigateTo('admin-receipts-list')">Danh sách</a-menu-item>
       </a-sub-menu>
       <a-menu-item key="9">
         <file-outlined />
@@ -64,7 +64,7 @@ export default defineComponent({
     const navigateTo = (routeName) => {
       selectedKeys.value = [routeName];
       emit("update:selectedKeys", selectedKeys.value);
-      router.push({ name: routeName }).catch(() => {});
+      router.push({ name: routeName });
     };
     onMounted(() => {
       if (!selectedKeys.value.length) {

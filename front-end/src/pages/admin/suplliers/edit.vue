@@ -8,11 +8,17 @@
     </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Nhà cung cấp</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">Thêm</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">Nhà cung cấp</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold breadcrumb-item-hover" @click="handleNaviagte"
+          >Danh sách</a-breadcrumb-item
+        >
+        <a-breadcrumb-item class="fw-bold">Chỉnh sửa</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <form @submit.prevent="addSupplier" :validation-schema="supllierSchema">
+        <form
+          @submit.prevent="updateSupplier"
+          :validation-schema="supllierSchema"
+        >
           <div class="row">
             <div class="form-group col-sm-6">
               <label class="form-label" for="name">Tên nhà cung cấp</label>
@@ -102,34 +108,41 @@ import { useMenu } from "../../../stores/use-menu.js";
 export default {
   components: { Form, Field, ErrorMessage },
   setup() {
-    const supplier = ref({
-      name: "",
-      email: "",
-      address: "",
-      phoneNumber: "",
-    });
-    const store = useMenu();
-    store.onSelectedKeys(["admin-suppliers-add"]);
-
+    const supplier = ref({});
+    const route = useRoute();
+    const router = useRouter();
+    const supplierID = route.params.supplierID;
     const supplierService = new SupplierService();
+    const store = useMenu();
+    store.onSelectedKeys(["admin-suppliers-edit"]);
+
     const { errors, validate, resetForm } = useForm({
       validationSchema: supllierSchema,
     });
 
-    const addSupplier = async () => {
+    const getSupplier = async () => {
+      const response = await supplierService.get(`/${supplierID}`);
+      if (response.status === 200) {
+        supplier.value = response.data;
+      }
+    };
+
+    const updateSupplier = async () => {
       try {
         const { valid } = await validate();
         if (!valid) {
           return;
         }
-        const response = await supplierService.post("/", supplier.value);
+        const response = await supplierService.put(
+          `/${supplierID}`,
+          supplier.value
+        );
         if (response.status == 200) {
           toast(response.data.message, {
             theme: "auto",
             type: "success",
             dangerouslyHTMLString: true,
           });
-          resetForm();
         }
       } catch (error) {
         toast(error.response?.data?.message, {
@@ -140,7 +153,27 @@ export default {
       }
     };
 
-    return { supplier, addSupplier, supllierSchema, errors };
+    const handleNaviagte = () => {
+      router.push({ name: "admin-suppliers-list" });
+    };
+
+    onMounted(() => {
+      getSupplier();
+    });
+
+    return {
+      supplier,
+      updateSupplier,
+      supllierSchema,
+      errors,
+      supplierID,
+      handleNaviagte,
+    };
   },
 };
 </script>
+<style scoped>
+.breadcrumb-item-hover{
+  cursor: pointer;
+}
+</style>

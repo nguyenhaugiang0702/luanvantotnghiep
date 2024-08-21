@@ -1,0 +1,54 @@
+#mytable_suppliers_wrapper .dt-buttons {
+  position: relative;
+  right: -230px;
+  top: 30px;
+}
+
+#mytable_suppliers_wrapper .dt-search #dt-search-0 {
+  margin-bottom: 10px;
+  padding-right: 100px;
+  border: 1px solid #000;
+}
+
+#mytable_suppliers_wrapper .dt-length {
+  position: relative;
+  top: 65px;
+  max-width: 120px;
+}
+
+#mytable_suppliers_wrapper {
+  margin-top: -60px;
+}
+
+#mytable_suppliers_wrapper .dt-paging {
+  float: right;
+}
+
+/* Cho màn hình có chiều rộng tối đa là 768px */
+@media (max-width: 768px) {
+  #mytable_suppliers_wrapper .dt-buttons {
+    right: 0px;
+    top: -20px;
+  }
+
+  #mytable_suppliers_wrapper .dt-length {
+    top: 60px;
+  }
+
+  #mytable_suppliers_wrapper {
+    margin-top: -10px;
+  }
+
+  #mytable_suppliers_wrapper .dt-search #dt-search-0 {
+    position: relative;
+    top: 40px;
+    left: -30px;
+  }
+  #mytable_suppliers {
+    position: relative;
+    top: 35px;
+  }
+  #mytable_suppliers_wrapper .dt-paging {
+    margin-top: 25px;
+  }
+}

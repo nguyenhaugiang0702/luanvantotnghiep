@@ -41,7 +41,37 @@ const admin = [
             path: "add",
             name: "admin-suppliers-add",
             component: () => import("../pages/admin/suplliers/add.vue"),
+            props: true,
           },
+          {
+            path: "edit/:supplierID",
+            name: "admin-suppliers-edit",
+            component: () => import("../pages/admin/suplliers/edit.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
+        path: "receipts",
+        name: "admin-receipts",
+        children: [
+          {
+            path: "",
+            name: "admin-receipts-list",
+            component: () => import("../pages/admin/receipts/index.vue"),
+          },
+          {
+            path: "add",
+            name: "admin-receipts-add",
+            component: () => import("../pages/admin/receipts/add.vue"),
+            props: true,
+          },
+          // {
+          //   path: "edit/:supplierID",
+          //   name: "admin-receipts-edit",
+          //   component: () => import("../pages/admin/receipts/edit.vue"),
+          //   props: true,
+          // },
         ],
       },
 

@@ -20,10 +20,11 @@
                 :columns="columns"
                 :data="suppliers"
                 :options="{
-                  response: true,
+                  responsive: false,
                   autoWidth: true,
-                  dom: 'Bfrtip',
+                  dom: 'lBfrtip',
                   buttons: buttons,
+                  language: language,
                 }"
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
@@ -39,6 +40,7 @@
                   </tr>
                 </thead>
                 <tbody></tbody>
+                <ConfirmDialog />
               </DataTable>
             </div>
           </div>
@@ -69,15 +71,22 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import SupplierService from "@/service/supplier.service.js";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
+import "datatables.net-responsive-bs5";
+import "datatables.net-select-bs5";
+import { useConfirm } from "primevue/useconfirm";
+import ConfirmDialog from 'primevue/confirmdialog';
+import { toast } from "vue3-toastify";
 export default defineComponent({
   components: {
     DataTable,
+    ConfirmDialog
   },
   setup() {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-suppliers-list"]);
     const supplierService = new SupplierService();
+    const confirm = useConfirm();
     const columns = [
       {
         data: null,
@@ -95,14 +104,14 @@ export default defineComponent({
       },
       {
         data: "phoneNumber",
-        width: "15%", 
+        width: "15%",
         render: (data, type, row, meta) => {
           return `<div class="text-start text-break">${data}</div>`;
         },
       },
       {
         data: "email",
-        width: "20%", 
+        width: "20%",
         render: (data, type, row, meta) => {
           return `<div class="text-start text-break">${data}</div>`;
         },
@@ -120,14 +129,14 @@ export default defineComponent({
         render: (data, type, row, meta) => {
           return `<div class="row">
             <div class="col-sm-2 me-4 col-md-2">
-                <button ref="${data}" class="btn btn-primary" data-id=${data}>
+                <button ref="${data}" id="editSupplier" class="btn btn-primary" data-id=${data}>
                     <i class="fa-solid fa-pen"></i>
                 </button>
             </div>
             <div class="col-sm-2 col-md-2">
-                <button class="btn btn-danger" data-id=${data}>
+                <button class="btn btn-danger" id="deleteSupplier" data-id=${data}>
                     <i class="fa-solid fa-trash"></i>
-                </button>    
+                </button>
             </div>
           </div>`;
         },
@@ -138,75 +147,55 @@ export default defineComponent({
     const getSuppliers = async () => {
       const response = await supplierService.get("/");
       if (response.status === 200) {
-        suppliers.value = response.data.suppliers;
+        suppliers.value = response.data;
       }
     };
 
-    // const deletuser = async (userID) => {
-    //   const token = Cookies.get("accessToken");
-    //   const response = await api.delete(`/users/${userID}`, token);
-    //   if (response.status == 200) {
-    //     await showSuccess({
-    //       text: "Dữ liệu đã được xóa thành công.",
-    //     });
-    //     getUsers();
-    //   }
-    // };
+    const deleteSupplier = async (supplierID) => {
+      const response = await supplierService.delete(`/${supplierID}`);
+      if (response.status == 200) {
+        toast(response.data.message, {
+          theme: "auto",
+          type: "success",
+          dangerouslyHTMLString: true,
+        });
+        getSuppliers();
+      }
+    };
 
-    // const blockUser = async (userID) => {
-    //   const token = Cookies.get("accessToken");
-    //   const response = await api.put(`/users/blockAccount/${userID}`, token);
-    //   if (response.status == 200) {
-    //     await showSuccess({
-    //       text: "Người dùng đã bị khóa",
-    //     });
-    //     getUsers();
-    //   }
-    // };
+    $(document).on("click", "#editSupplier", async (event) => {
+      const supplierID = $(event.currentTarget).data("id");
+      router.push({
+        name: "admin-suppliers-edit",
+        params: { supplierID: supplierID },
+      });
+    });
 
-    // const unBlockUser = async (userID) => {
-    //   const token = Cookies.get("accessToken");
-    //   const response = await api.put(`/users/unBlockAccount/${userID}`, token);
-    //   if (response.status == 200) {
-    //     await showSuccess({
-    //       text: "Người dùng đã được mở khóa",
-    //     });
-    //     getUsers();
-    //   }
-    // };
+    const confirmDelete = (supplierID) => {
+      confirm.require({
+        message: "Bạn có chắc chắn muốn xóa nhà cung cấp này?",
+        header: "Xác nhận xóa",
+        icon: "pi pi-info-circle",
+        rejectLabel: "Hủy",
+        rejectProps: {
+          label: "Hủy",
+          severity: "secondary",
+          outlined: true,
+        },
+        acceptProps: {
+          label: "Xóa",
+          severity: "danger",
+        },
+        accept: async () => {
+          await deleteSupplier(supplierID);
+        },
+      });
+    };
 
-    // $(document).on("click", "#deletuser", async (event) => {
-    //   const userId = $(event.currentTarget).data("id");
-    //   await showConfirmation({
-    //     text: "Người dùng này sẽ bị xóa!",
-    //   }).then((result) => {
-    //     if (result.isConfirmed) {
-    //       deletuser(userId);
-    //     }
-    //   });
-    // });
-
-    // $(document).on("click", "#blockuser", async (event) => {
-    //   const userId = $(event.currentTarget).data("id");
-    //   await showConfirmation({
-    //     text: "Người dùng này sẽ bị khóa !",
-    //   }).then((result) => {
-    //     if (result.isConfirmed) {
-    //       blockUser(userId);
-    //     }
-    //   });
-    // });
-
-    // $(document).on("click", "#unblockuser", async (event) => {
-    //   const userId = $(event.currentTarget).data("id");
-    //   await showConfirmation({
-    //     text: "Người dùng này sẽ đuợc mở khóa !",
-    //   }).then((result) => {
-    //     if (result.isConfirmed) {
-    //       unBlockUser(userId);
-    //     }
-    //   });
-    // });
+    $(document).on("click", "#deleteSupplier", async (event) => {
+      const supplierID = $(event.currentTarget).data("id");
+      confirmDelete(supplierID); 
+    });
 
     onMounted(() => {
       getSuppliers();
@@ -237,15 +226,29 @@ export default defineComponent({
     ];
     // Bỏ cột thao tác trong bảng
 
+    const language = {
+      search: "_INPUT_",
+      searchPlaceholder: "Tìm kiếm...",
+      lengthMenu: "Hiển thị _MENU_ hàng",
+      paginate: {
+        first: "Đầu tiên",
+        last: "Cuối cùng",
+        next: "Tiếp theo",
+        previous: "Trước đó",
+      },
+      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+    };
     return {
       getSuppliers,
       columns,
       suppliers,
       buttons,
+      language,
     };
   },
 });
 </script>
 <style>
 @import "datatables.net-bs5";
+@import "../../../assets/css/datatable.css";
 </style>

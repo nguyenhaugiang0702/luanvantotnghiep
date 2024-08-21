@@ -5,7 +5,7 @@
         <h3>Đăng nhập</h3>
         <span>hoặc sử dụng tài khoản của bạn</span>
 
-        <form @submit.prevent="signIn" id="form_input">
+        <form @submit.prevent="signIn" class="form_input">
           <div class="type">
             <label for="exampleFormControlInput1" class="form-label float-start"
               >Số điện thoại/Email</label
@@ -59,11 +59,7 @@
         <h3>Đăng ký</h3>
         <span>Hoặc sử dụng email của bạn để đăng ký</span>
 
-        <form
-          @submit.prevent="signUp"
-          id="form_input"
-          :validation-schema="signUpSchema"
-        >
+        <form @submit.prevent="signUp" class="form_input">
           <div class="type_phone">
             <label for="exampleFormControlInput1" class="form-label float-start"
               >Số điện thoại</label
@@ -185,7 +181,7 @@
   </div>
 </template>
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch, watchEffect } from "vue";
 import AuthService from "@/service/auth.service";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
@@ -239,10 +235,15 @@ export default {
 
     const toggleSignIn = () => {
       isSignInActive.value = true;
+      // localStorage.setItem("isSignInActive", true);
+      // isSignInActive.value = localStorage.getItem("isSignInActive");
     };
 
     const toggleSignUp = () => {
       isSignInActive.value = false;
+
+      // localStorage.setItem("isSignInActive", false);
+      // isSignInActive.value = localStorage.getItem("isSignInActive");
     };
 
     const sendOTP = async () => {
@@ -378,6 +379,11 @@ export default {
         isLoadingSignIn.value = false;
       }
     };
+
+    // watch(isSignInActive, (newValue) => {
+    //   localStorage.setItem("isSignInActive", newValue);
+    //   isSignInActive.value = localStorage.getItem("isSignInActive");
+    // });
 
     return {
       isSignInActive,
