@@ -66,12 +66,32 @@ const admin = [
             component: () => import("../pages/admin/receipts/add.vue"),
             props: true,
           },
-          // {
-          //   path: "edit/:supplierID",
-          //   name: "admin-receipts-edit",
-          //   component: () => import("../pages/admin/receipts/edit.vue"),
-          //   props: true,
-          // },
+        ],
+      },
+      {
+        path: "authors",
+        name: "admin-authors",
+        redirect: { name: "admin-authors-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-authors-list",
+            component: () => import("../pages/admin/authors/index.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
+        path: "publishers",
+        name: "admin-publishers",
+        redirect: { name: "admin-publishers-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-publishers-list",
+            component: () => import("../pages/admin/publishers/index.vue"),
+            props: true,
+          },
         ],
       },
 

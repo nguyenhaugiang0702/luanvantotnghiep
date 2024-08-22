@@ -82,3 +82,10 @@ export const receiptSchema = yup.object({
     .required("Giá là bắt buộc")
     .min(1, "Giá không nhỏ hơn 1"),
 });
+
+
+export const authorSchema = yup.object({
+  authorName: yup.string().required("Tên nhà cung cấp là bắt buộc"),
+
+  authorDob: yup.string().required("Ngày sinh là bắt buộc"),
+});

@@ -7,11 +7,11 @@
         <span>Người dùng</span>
       </a-menu-item>
       <a-menu-item
-        key="admin-categories"
-        @click="navigateTo('admin-categories')"
+        key="admin-authors-list"
+        @click="navigateTo('admin-authors-list')"
       >
         <desktop-outlined />
-        <span>Thể loại</span>
+        <span>Tác giả</span>
       </a-menu-item>
       <a-sub-menu key="sub1">
         <template #title>
