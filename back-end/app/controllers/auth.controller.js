@@ -65,7 +65,7 @@ exports.createOTP = async (req, res, next) => {
         const otpSMS = await sendOTP(phoneNumber);
         const expiresAt = moment()
           .tz("Asia/Ho_Chi_Minh")
-          .add(45, "minutes")
+          .add(2, "minutes")
           .toDate();
 
         if (!otpUser) {
@@ -94,7 +94,7 @@ exports.createOTP = async (req, res, next) => {
         const otpSMS = await sendOTP(phoneNumber);
         const expiresAt = moment()
           .tz("Asia/Ho_Chi_Minh")
-          .add(45, "minutes")
+          .add(2, "minutes")
           .toDate();
 
         if (!otpUser) {
@@ -172,34 +172,5 @@ exports.signUpVerify = async (req, res, next) => {
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi xác thực OTP"));
-  }
-};
-
-exports.sendEmailToActive = async (req, res, next) => {
-  const userID = req.user.id;
-  const { email } = req.body;
-
-  try {
-    const tokenWithEmail = jwt.sign(
-      { id: userID, email: email },
-      "my_secret_key_with_email_to_active"
-    );
-    const activeEmailUrl = `${config.app.appUrl}/api/v1/users/activeEmail/${tokenWithEmail}`;
-    const message = `
-          <p>Please click on the link below to activate your email</p>
-          <a href="${activeEmailUrl}" target="_blank">Click Here</a>
-      `;
-
-    await sendEmail({
-      email: email,
-      subject: "Kích hoạt email",
-      html: message,
-    });
-
-    return res.send({
-      message: "Đã gửi email xác nhận",
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi cập nhật"));
   }
 };

@@ -2,12 +2,8 @@ const OTP = require("../models/otp.model");
 const { ObjectId } = require("mongodb");
 
 const createOTP = async (userData) => {
-  try {
-    const otp = new OTP(userData);
-    return await otp.save();
-  } catch (error) {
-    throw new Error("Lỗi khi tạo người dùng: " + error.message);
-  }
+  const otp = new OTP(userData);
+  return await otp.save();
 };
 
 const updateOTPByPhoneNumber = async (phoneNumber, data) => {
@@ -45,5 +41,5 @@ module.exports = {
   findRecordByOTPAndPhoneNumber,
   findRecordByEmail,
   findRecordByOTPAndEmail,
-  updateOTPByEmail
+  updateOTPByEmail,
 };

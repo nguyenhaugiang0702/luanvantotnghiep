@@ -9,10 +9,9 @@ const authenticateToken = require("../middlewares/jwt.middleware");
 router.route("/").post(auth.login);
 router.route("/createOTP").post(auth.createOTP);
 router.route("/signUp/verifyOTP").post(auth.signUpVerify);
-router
-  .route("/sendEmailToActive/:token")
-  .put(authenticateToken.authenticateTokenFromParams, auth.sendEmailToActive);
 
+
+///////////////
 router.route("/facebook").get(
   passport.authenticate("facebook", {
     scope: ["email","user_birthday", "user_gender"],
