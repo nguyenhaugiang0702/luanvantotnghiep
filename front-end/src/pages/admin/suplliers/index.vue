@@ -40,7 +40,6 @@
                   </tr>
                 </thead>
                 <tbody></tbody>
-                <ConfirmDialog />
               </DataTable>
             </div>
           </div>
@@ -68,25 +67,20 @@ DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
-import Cookies from "js-cookie";
 import SupplierService from "@/service/supplier.service.js";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
-import { useConfirm } from "primevue/useconfirm";
-import ConfirmDialog from 'primevue/confirmdialog';
 import { toast } from "vue3-toastify";
 export default defineComponent({
   components: {
     DataTable,
-    ConfirmDialog
   },
   setup() {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-suppliers-list"]);
     const supplierService = new SupplierService();
-    const confirm = useConfirm();
     const columns = [
       {
         data: null,
@@ -129,7 +123,7 @@ export default defineComponent({
         render: (data, type, row, meta) => {
           return `<div class="row">
             <div class="col-sm-2 me-4 col-md-2">
-                <button ref="${data}" id="editSupplier" class="btn btn-primary" data-id=${data}>
+                <button ref="${data}" id="editSupplier" class="btn btn-warning" data-id=${data}>
                     <i class="fa-solid fa-pen"></i>
                 </button>
             </div>
@@ -171,30 +165,14 @@ export default defineComponent({
       });
     });
 
-    const confirmDelete = (supplierID) => {
-      confirm.require({
-        message: "Bạn có chắc chắn muốn xóa nhà cung cấp này?",
-        header: "Xác nhận xóa",
-        icon: "pi pi-info-circle",
-        rejectLabel: "Hủy",
-        rejectProps: {
-          label: "Hủy",
-          severity: "secondary",
-          outlined: true,
-        },
-        acceptProps: {
-          label: "Xóa",
-          severity: "danger",
-        },
-        accept: async () => {
-          await deleteSupplier(supplierID);
-        },
-      });
-    };
-
     $(document).on("click", "#deleteSupplier", async (event) => {
       const supplierID = $(event.currentTarget).data("id");
-      confirmDelete(supplierID); 
+      const isConfirmed = await showConfirmation({
+        title: "Bạn có chắc chắn muốn xóa nhà cung cấp này?",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteSupplier(supplierID);
+      }
     });
 
     onMounted(() => {

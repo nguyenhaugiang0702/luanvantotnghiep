@@ -13,7 +13,7 @@
         <desktop-outlined />
         <span>Tác giả</span>
       </a-menu-item>
-      <a-sub-menu key="sub1">
+      <a-sub-menu key="admin-suppliers-list">
         <template #title>
           <span>
             <user-outlined />
@@ -31,7 +31,17 @@
           >Danh sách</a-menu-item
         >
       </a-sub-menu>
-      <a-sub-menu key="sub2">
+      <a-sub-menu key="admin-publishers-list">
+        <template #title>
+          <span>
+            <team-outlined />
+            <span>Nhà xuất bản</span>
+          </span>
+        </template>
+        <a-menu-item key="admin-publishers-add" @click="navigateTo('admin-publishers-add')">Thêm</a-menu-item>
+        <a-menu-item key="admin-publishers-list" @click="navigateTo('admin-publishers-list')">Danh sách</a-menu-item>
+      </a-sub-menu>
+      <a-sub-menu key="admin-receipts-list">
         <template #title>
           <span>
             <team-outlined />

@@ -92,35 +92,20 @@ const admin = [
             component: () => import("../pages/admin/publishers/index.vue"),
             props: true,
           },
+          {
+            path: "add",
+            name: "admin-publishers-add",
+            component: () => import("../pages/admin/publishers/add.vue"),
+            props: true,
+          },
+          {
+            path: "edit/:publisherID",
+            name: "admin-publishers-edit",
+            component: () => import("../pages/admin/publishers/edit.vue"),
+            props: true,
+          },
         ],
       },
-
-      // {
-      //   path: "teachers",
-      //   children: [
-      //     {
-      //       path: "",
-      //       name: "admin-teachers",
-      //       component: () => import("../pages/admin/teachers/index.vue"),
-      //       prop: true,
-      //     },
-      //     {
-      //       path: "changepassword",
-      //       name: "admin-teachers-changepassword",
-      //       component: () => import("../pages/admin/teachers/change_password.vue"),
-      //     },
-      //   ]
-      // },
-      // {
-      //   path: "subjects/:id",
-      //   name: "admin-questions",
-      //   component: () => import("../pages/admin/questions/index.vue"),
-      // },
-      // {
-      //   path: "subjects/random-question/:id",
-      //   name: "admin-questions-random",
-      //   component: () => import("../pages/admin/questions/random-question.vue"),
-      // },
     ],
   },
 ];
