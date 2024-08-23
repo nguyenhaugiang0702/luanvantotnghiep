@@ -20,6 +20,13 @@
         <desktop-outlined />
         <span>Danh mục</span>
       </a-menu-item>
+      <a-menu-item
+        key="admin-formalities"
+        @click="navigateTo('admin-formalities')"
+      >
+        <desktop-outlined />
+        <span>Hình thức</span>
+      </a-menu-item>
       <a-sub-menu key="admin-books-list">
         <template #title>
           <span>

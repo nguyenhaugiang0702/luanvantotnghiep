@@ -29,6 +29,12 @@ const admin = [
         prop: true,
       },
       {
+        path: "formalities",
+        name: "admin-formalities",
+        component: () => import("../pages/admin/formalities/index.vue"),
+        prop: true,
+      },
+      {
         path: "suppliers",
         name: "admin-suppliers",
         children: [
