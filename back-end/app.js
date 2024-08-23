@@ -10,6 +10,7 @@ const receiptRouter = require("./app/routes/receipt.route");
 const authorRouter = require("./app/routes/author.route");
 const publisherRouter = require("./app/routes/publisher.route");
 const categoryRouter = require("./app/routes/category.route");
+const formalityRouter = require("./app/routes/formality.route");
 
 require("./app/passport");
 app.use(cors());
@@ -26,6 +27,7 @@ app.use("/api/v1/receipts", receiptRouter);
 app.use("/api/v1/authors", authorRouter);
 app.use("/api/v1/publishers", publisherRouter);
 app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/formalities", formalityRouter);
 
 // handle 404 response
 app.use((req, res, next) => {
