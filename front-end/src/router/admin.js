@@ -106,6 +106,31 @@ const admin = [
           },
         ],
       },
+      {
+        path: "books",
+        name: "admin-books",
+        redirect: { name: "admin-books-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-books-list",
+            component: () => import("../pages/admin/books/index.vue"),
+            props: true,
+          },
+          {
+            path: "add",
+            name: "admin-books-add",
+            component: () => import("../pages/admin/books/add.vue"),
+            props: true,
+          },
+          {
+            path: "edit/:publisherID",
+            name: "admin-books-edit",
+            component: () => import("../pages/admin/books/edit.vue"),
+            props: true,
+          },
+        ],
+      },
     ],
   },
 ];

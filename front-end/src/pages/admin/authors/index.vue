@@ -116,12 +116,12 @@ export default {
         render: (data, type, row, meta) => {
           return `<div class="row">
             <div class="col-sm-2 me-2 col-md-2">
-                <button ref="${data}" id="editPublisher" class="btn btn-warning" data-id=${data}>
+                <button data-bs-toggle="modal" data-bs-target="#updateAuthor" ref="${data}" id="editAuthor" class="btn btn-warning" data-id=${data}>
                    <i class="fa-solid fa-pencil"></i>
                 </button>
             </div>
             <div class="col-sm-2 col-md-2">
-                <button class="btn btn-danger" id="deletePublisher" data-id=${data}>
+                <button  class="btn btn-danger" id="deleteAuthor" data-id=${data}>
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
@@ -144,6 +144,7 @@ export default {
       const authorToEdit = authors.value.find(
         (author) => author._id === authorId
       );
+      
       if (authorToEdit) {
         editedAuthor.value = { ...authorToEdit };
       }
@@ -161,30 +162,8 @@ export default {
       }
     };
 
-    const confirmDelete = (authorId) => {
-      confirm.require({
-        message: "Bạn có chắc chắn muốn xóa tác giả này?",
-        header: "Xác nhận xóa",
-        icon: "pi pi-info-circle",
-        rejectLabel: "Hủy",
-        rejectProps: {
-          label: "Hủy",
-          severity: "secondary",
-          outlined: true,
-        },
-        acceptProps: {
-          label: "Xóa",
-          severity: "danger",
-        },
-        accept: async () => {
-          await deleteAuthor(authorId);
-        },
-      });
-    };
-
     $(document).on("click", "#deleteAuthor", async (event) => {
       const authorId = $(event.currentTarget).data("id");
-      //   confirmDelete(authorId);
       const isConfirmed = await showConfirmation({
         title: "Bạn chắc chắn muốn xóa tác giả này",
       });

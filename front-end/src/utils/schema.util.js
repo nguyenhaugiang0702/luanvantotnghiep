@@ -100,3 +100,7 @@ export const authorSchema = yup.object({
 
   authorDob: yup.string().required("Ngày sinh là bắt buộc"),
 });
+
+export const categorySchema = yup.object({
+  name: yup.string().required("Tên danh mục là bắt buộc"),
+});

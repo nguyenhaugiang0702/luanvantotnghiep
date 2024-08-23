@@ -13,6 +13,31 @@
         <desktop-outlined />
         <span>Tác giả</span>
       </a-menu-item>
+      <a-menu-item
+        key="admin-categories"
+        @click="navigateTo('admin-categories')"
+      >
+        <desktop-outlined />
+        <span>Danh mục</span>
+      </a-menu-item>
+      <a-sub-menu key="admin-books-list">
+        <template #title>
+          <span>
+            <user-outlined />
+            <span>Sản phẩm</span>
+          </span>
+        </template>
+        <a-menu-item
+          key="admin-books-add"
+          @click="navigateTo('admin-books-add')"
+          >Thêm</a-menu-item
+        >
+        <a-menu-item
+          key="admin-books-list"
+          @click="navigateTo('admin-books-list')"
+          >Danh sách</a-menu-item
+        >
+      </a-sub-menu>
       <a-sub-menu key="admin-suppliers-list">
         <template #title>
           <span>
@@ -38,8 +63,16 @@
             <span>Nhà xuất bản</span>
           </span>
         </template>
-        <a-menu-item key="admin-publishers-add" @click="navigateTo('admin-publishers-add')">Thêm</a-menu-item>
-        <a-menu-item key="admin-publishers-list" @click="navigateTo('admin-publishers-list')">Danh sách</a-menu-item>
+        <a-menu-item
+          key="admin-publishers-add"
+          @click="navigateTo('admin-publishers-add')"
+          >Thêm</a-menu-item
+        >
+        <a-menu-item
+          key="admin-publishers-list"
+          @click="navigateTo('admin-publishers-list')"
+          >Danh sách</a-menu-item
+        >
       </a-sub-menu>
       <a-sub-menu key="admin-receipts-list">
         <template #title>
@@ -48,8 +81,16 @@
             <span>Nhập hàng</span>
           </span>
         </template>
-        <a-menu-item key="admin-receipts-add" @click="navigateTo('admin-receipts-add')">Thêm</a-menu-item>
-        <a-menu-item key="admin-receipts-list" @click="navigateTo('admin-receipts-list')">Danh sách</a-menu-item>
+        <a-menu-item
+          key="admin-receipts-add"
+          @click="navigateTo('admin-receipts-add')"
+          >Thêm</a-menu-item
+        >
+        <a-menu-item
+          key="admin-receipts-list"
+          @click="navigateTo('admin-receipts-list')"
+          >Danh sách</a-menu-item
+        >
       </a-sub-menu>
       <a-menu-item key="9">
         <file-outlined />
