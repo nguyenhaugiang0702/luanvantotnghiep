@@ -108,13 +108,13 @@ export default {
         width: "30%",
         render: (data, type, row, meta) => {
           return `<div class="row">
-              <div class="col-sm-2 col-md-2">
+              <div class="col-sm-1 me-2">
                   <button data-bs-toggle="modal"
                       data-bs-target="#updateFormality" ref="${data}" id="editFormality" class="btn btn-warning" data-id=${data}>
                      <i class="fa-solid fa-pencil"></i>
                   </button>
               </div>
-              <div class="col-sm-2 col-md-2">
+              <div class="col-sm-1">
                   <button type="button" 
                       class="btn btn-danger" id="deleteFormality" data-id=${data}>
                       <i class="fa-solid fa-trash"></i>
