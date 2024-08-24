@@ -32,7 +32,7 @@ exports.findAll = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const authorID = req.params.authorId;
+    const authorID = req.params.authorID;
     const author = await auhorService.updateAuthor(authorID, req.body);
     return res.send({
       message: "Cập nhật thành công tác giả",
@@ -45,7 +45,7 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
   try {
-    const authorID = req.params.authorId;
+    const authorID = req.params.authorID;
     const author = await auhorService.deleteAuthor(authorID);
     return res.send({
       message: "Xóa thành công tác giả",

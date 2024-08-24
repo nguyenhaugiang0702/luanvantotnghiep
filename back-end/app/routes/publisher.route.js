@@ -9,7 +9,7 @@ router
   .post(validation.createPublisherValidation, publishers.create);
 
 router
-  .route("/:publisherId")
+  .route("/:publisherID")
   .get(publishers.findOne)
   .put(validation.createPublisherValidation, publishers.update)
   .delete(publishers.delete);

@@ -26,7 +26,7 @@ exports.findAll = async (req, res, next) => {
 
 exports.findOne = async (req, res, next) => {
   try {
-    const publisherID = req.params.publisherId;
+    const publisherID = req.params.publisherID;
     const publisher = await publisherService.getPublisherById(publisherID);
     return res.send(publisher);
   } catch (error) {
@@ -36,7 +36,7 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const publisherID = req.params.publisherId;
+    const publisherID = req.params.publisherID;
     const publisher = await publisherService.updatePublisher(
       publisherID,
       req.body
