@@ -124,11 +124,11 @@ export default defineComponent({
       emit("update:selectedKeys", selectedKeys.value);
       router.push({ name: routeName });
     };
-    onMounted(() => {
-      if (!selectedKeys.value.length) {
-        navigateTo("admin-users");
-      }
-    });
+    // onMounted(() => {
+    //   if (!selectedKeys.value.length) {
+    //     navigateTo("admin-users");
+    //   }
+    // });
     return { collapsed, navigateTo, selectedKeys };
   },
 });

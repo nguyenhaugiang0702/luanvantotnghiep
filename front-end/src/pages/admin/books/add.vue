@@ -12,7 +12,7 @@
         <a-breadcrumb-item class="fw-bold">Thêm</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <form @submit.prevent="addBook">
+        <form @submit.prevent="addBook" enctype="multipart/form-data">
           <div class="row">
             <div class="form-group col-sm-4">
               <label class="form-label" for="bookName">Tên sách</label>
@@ -42,9 +42,11 @@
                   aria-expanded="false"
                   placeholder="Nhập tên tác giả"
                   @focus="showDropdown = true"
-                  v-model="searchValue"
+                  v-model="searchAuthorValue"
                   :class="{
-                    'is-invalid': errors.authorName || !authorSelected,
+                    'is-invalid':
+                      errors.authorName ||
+                      (searchAuthorValue !== '' && !authorID),
                     'is-valid': !errors.authorName && newBook.authorID !== '',
                   }"
                 />
@@ -55,80 +57,182 @@
                   <li
                     style="max-width: 300px"
                     class="dropdown-item"
-                    v-for="(author, index) in filteredAuthors"
+                    v-for="(author, index) in authorOptions"
                     :key="author._id"
-                    @click="selectAuthor(author)"
+                    @click="selectAuthorID(author)"
                   >
                     {{ author.name }}
                   </li>
                 </ul>
                 <ErrorMessage name="authorName" class="invalid-feedback" />
                 <span
-                  v-if="!authorSelected && !errors.authorName"
+                  v-if="
+                    !errors.authorName && searchAuthorValue !== '' && !authorID
+                  "
                   style="color: #dc3545; font-size: 0.875em"
                   >Vui lòng chọn tác giả</span
                 >
               </div>
             </div>
             <div class="form-group col-sm-4">
-              <label class="form-label" for="publisherName">Nhà xuất bản</label>
-              <Field
-                class="form-control"
-                type="text"
-                name="publisherName"
-                id="publisherName"
-                placeholder="Tên nhà xuất bản"
-                :class="{
-                  'is-invalid': errors.publisherName,
-                  'is-valid':
-                    !errors.publisherName && newBook.publisherID !== '',
-                }"
-              />
-              <ErrorMessage name="publisherName" class="invalid-feedback" />
+              <div class="dropdown">
+                <label class="form-label" for="publisherName"
+                  >Nhà xuất bản</label
+                >
+                <Field
+                  class="form-control dropdown-toggle"
+                  type="text"
+                  name="publisherName"
+                  id="publisherName"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  placeholder="Nhập tên tác giả"
+                  @focus="showDropdown = true"
+                  v-model="searchPublisherValue"
+                  :class="{
+                    'is-invalid':
+                      errors.publisherName ||
+                      (searchPublisherValue !== '' && !publisherID),
+                    'is-valid':
+                      !errors.publisherName && newBook.publisherID !== '',
+                  }"
+                />
+                <ul
+                  class="dropdown-menu"
+                  style="max-height: 200px; overflow: auto"
+                >
+                  <li
+                    style="max-width: 300px"
+                    class="dropdown-item"
+                    v-for="(publisher, index) in publisherOptions"
+                    :key="publisher._id"
+                    @click="selectpublisherID(publisher)"
+                  >
+                    {{ publisher.name }}
+                  </li>
+                </ul>
+                <ErrorMessage name="publisherName" class="invalid-feedback" />
+                <span
+                  v-if="
+                    !errors.publisherName &&
+                    searchPublisherValue !== '' &&
+                    !publisherID
+                  "
+                  style="color: #dc3545; font-size: 0.875em"
+                  >Vui lòng chọn nhà xuất bản</span
+                >
+              </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-sm-6">
               <div class="form-group">
-                <label class="form-label" for="categoryName">Danh mục</label>
-                <Field
-                  class="form-control"
-                  type="text"
-                  name="categoryName"
-                  id="categoryName"
-                  placeholder="Nhập danh mục"
-                  :class="{
-                    'is-invalid': errors.categoryName,
-                    'is-valid':
-                      !errors.categoryName && newBook.categoryID !== '',
-                  }"
-                />
-                <ErrorMessage name="categoryName" class="invalid-feedback" />
+                <div class="dropdown">
+                  <label class="form-label" for="categoryName">Danh mục</label>
+                  <Field
+                    class="form-control dropdown-toggle"
+                    type="text"
+                    name="categoryName"
+                    id="categoryName"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    placeholder="Nhập danh mục"
+                    @focus="showDropdown = true"
+                    v-model="searchCategoryValue"
+                    :class="{
+                      'is-invalid':
+                        errors.categoryName ||
+                        (searchCategoryValue !== '' && !categoryID),
+                      'is-valid':
+                        !errors.categoryName && newBook.categoryID !== '',
+                    }"
+                  />
+                  <ul
+                    class="dropdown-menu"
+                    style="max-height: 200px; overflow: auto"
+                  >
+                    <li
+                      style="max-width: 300px"
+                      class="dropdown-item"
+                      v-for="(category, index) in categoryOptions"
+                      :key="category._id"
+                      @click="selectCategoryID(category)"
+                    >
+                      {{ category.name }}
+                    </li>
+                  </ul>
+                  <ErrorMessage name="categoryName" class="invalid-feedback" />
+                  <span
+                    v-if="
+                      !errors.categoryName &&
+                      searchCategoryValue !== '' &&
+                      !categoryID
+                    "
+                    style="color: #dc3545; font-size: 0.875em"
+                    >Vui lòng chọn danh mục</span
+                  >
+                </div>
               </div>
             </div>
             <div class="col-sm-6">
               <div class="form-group">
-                <label class="form-label" for="formalityName">Hình thức</label>
-                <Field
-                  class="form-control"
-                  type="text"
-                  name="formalityName"
-                  id="formalityName"
-                  placeholder="Nhập hình thức"
-                  :class="{
-                    'is-invalid': errors.formalityName,
-                    'is-valid':
-                      !errors.formalityName && newBook.formalityID !== '',
-                  }"
-                />
-                <ErrorMessage name="formalityName" class="invalid-feedback" />
+                <div class="dropdown">
+                  <label class="form-label" for="formalityName"
+                    >Hình thức</label
+                  >
+                  <Field
+                    class="form-control dropdown-toggle"
+                    type="text"
+                    name="formalityName"
+                    id="formalityName"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    placeholder="Nhập danh mục"
+                    @focus="showDropdown = true"
+                    v-model="searchFormalityValue"
+                    :class="{
+                      'is-invalid':
+                        errors.formalityName ||
+                        (searchFormalityValue !== '' && !formalityID),
+                      'is-valid':
+                        !errors.formalityName && newBook.formalityID !== '',
+                    }"
+                  />
+                  <ul
+                    class="dropdown-menu"
+                    style="max-height: 200px; overflow: auto"
+                  >
+                    <li
+                      style="max-width: 300px"
+                      class="dropdown-item"
+                      v-for="(formality, index) in formalityOptions"
+                      :key="formality._id"
+                      @click="selectFormalityID(formality)"
+                    >
+                      {{ formality.name }}
+                    </li>
+                  </ul>
+                  <ErrorMessage name="formalityName" class="invalid-feedback" />
+                  <span
+                    v-if="
+                      !errors.formalityName &&
+                      searchFormalityValue !== '' &&
+                      !formalityID
+                    "
+                    style="color: #dc3545; font-size: 0.875em"
+                    >Vui lòng chọn hình thức</span
+                  >
+                </div>
               </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-sm-12 form-group">
               <label class="form-label" for="name">Mô tả sản phẩm</label>
-              <Editor editorStyle="height: 320px" />
+              <Editor
+                v-model="newBook.description"
+                editorStyle="height: 320px"
+              />
             </div>
           </div>
           <div class="row mt-4">
@@ -140,6 +244,7 @@
                 name="publisherYear"
                 id="publisherYear"
                 placeholder="Nhập hình thức"
+                v-model="newBook.detail.publisherYear"
                 :class="{
                   'is-invalid': errors.publisherYear,
                   'is-valid':
@@ -157,6 +262,7 @@
                 name="weight"
                 id="weight"
                 placeholder="Nhập trọng lượng"
+                v-model="newBook.detail.weight"
                 :class="{
                   'is-invalid': errors.weight,
                   'is-valid': !errors.weight && newBook.detail.weight !== '',
@@ -172,6 +278,7 @@
                 name="pageNumber"
                 id="pageNumber"
                 placeholder="Nhập số trang"
+                v-model="newBook.detail.pageNumber"
                 :class="{
                   'is-invalid': errors.pageNumber,
                   'is-valid':
@@ -191,6 +298,7 @@
                   name="length"
                   id="length"
                   placeholder="Nhập chiều dài"
+                  v-model="newBook.detail.length"
                   :class="{
                     'is-invalid': errors.length,
                     'is-valid': !errors.length && newBook.detail.length !== '',
@@ -208,6 +316,7 @@
                   name="width"
                   id="width"
                   placeholder="Nhập chiều dài"
+                  v-model="newBook.detail.width"
                   :class="{
                     'is-invalid': errors.width,
                     'is-valid': !errors.width && newBook.detail.width !== '',
@@ -227,6 +336,7 @@
                   name="originalPrice"
                   id="originalPrice"
                   placeholder="Nhập giá gốc"
+                  v-model="newBook.detail.originalPrice"
                   :class="{
                     'is-invalid': errors.originalPrice,
                     'is-valid':
@@ -248,6 +358,7 @@
                   name="discountPrice"
                   id="discountPrice"
                   placeholder="Nhập gía Km"
+                  v-model="newBook.detail.discountPrice"
                   :class="{
                     'is-invalid': errors.discountPrice,
                     'is-valid':
@@ -262,19 +373,54 @@
           <div class="row mt-4">
             <div class="col-sm-6">
               <div class="form-group">
-                <label for="image" class="form-label">Chọn ảnh</label>
+                <label for="images" class="form-label">Chọn ảnh</label>
                 <Field
                   class="form-control"
                   type="file"
-                  name="image"
-                  id="image"
+                  name="images"
+                  ref="fileInput"
+                  multiple
+                  as="input"
+                  id="images"
                   placeholder="Nhập giá gốc"
+                  @change="handleImageUpload"
                   :class="{
-                    'is-invalid': errors.image,
-                    'is-valid': !errors.image && newBook.image !== '',
+                    'is-invalid': errors.images,
+                    'is-valid': !errors.images && images.length !== 0,
                   }"
                 />
-                <ErrorMessage name="image" class="invalid-feedback" />
+                <ErrorMessage name="images" class="invalid-feedback" />
+                <!-- <span
+                  v-if="newBook.images.length === 0 && !errors.images"
+                  style="color: #dc3545; font-size: 0.875em"
+                  >Ảnh là bắt buộc</span
+                > -->
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div class="form-group">
+                <label class="form-label">Xóa hết ảnh</label>
+                <button @click.prevent="clearImages" class="btn btn-danger">
+                  Clear Image
+                </button>
+              </div>
+            </div>
+            <!-- Display selected images -->
+            <div v-if="imagePreviews.length" class="row mt-3">
+              <div
+                v-for="(image, index) in imagePreviews"
+                :key="index"
+                class="col-sm-3"
+              >
+                <img
+                  :src="image"
+                  alt="Selected image"
+                  class="img-thumbnail"
+                  style="max-height: 150px"
+                />
+                <button @click="removeImage(index)" class="remove-btn">
+                  Xóa
+                </button>
               </div>
             </div>
           </div>
@@ -289,10 +435,19 @@
 <script>
 import Editor from "primevue/editor";
 import { ref, onMounted, computed, watch } from "vue";
-import { Form, Field, ErrorMessage, useForm } from "vee-validate";
+import {
+  Form,
+  Field,
+  ErrorMessage,
+  useForm,
+  useValidateField,
+} from "vee-validate";
 import { bookSchema } from "@/utils/schema.util";
+import useDropdown from "@/composables/useDropdown";
 // services
-import AuthorsService from "@/service/author.service";
+import BookService from "@/service/book.service";
+// component
+import { toast } from "vue3-toastify";
 
 export default {
   components: {
@@ -317,79 +472,233 @@ export default {
         originalPrice: "",
         discountPrice: "",
       },
-      image: "",
     });
-    const showDropdown = ref(false);
-    const searchValue = ref("");
-    const authorSelected = ref(false);
-    const authorsService = new AuthorsService();
-    const { errors, validate, resetForm } = useForm({
+    const imagePreviews = ref([]);
+    const fileInput = ref(null);
+    const images = ref([]);
+    const bookService = new BookService();
+    const { errors, validate, resetForm, validateField } = useForm({
       validationSchema: bookSchema,
     });
+
+    const handleImageUpload = (event) => {
+      const files = Array.from(event.target.files);
+      images.value = [];
+      files.forEach((file) => {
+        images.value.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreviews.value.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const removeImage = (index) => {
+      images.value.splice(index, 1);
+      imagePreviews.value.splice(index, 1);
+      console.log(newBook.value.images);
+      // Reset giá trị thẻ input để Vue nhận diện sự thay đổi
+      const input = document.getElementById("images");
+      if (input) {
+        const dataTransfer = new DataTransfer();
+
+        images.value.forEach((file) => {
+          dataTransfer.items.add(file);
+        });
+
+        input.files = dataTransfer.files;
+      }
+    };
+
+    const clearImages = () => {
+      images.value = [];
+      imagePreviews.value = [];
+      const input = document.getElementById("images");
+      if (input) {
+        const dataTransfer = new DataTransfer();
+
+        images.value.forEach((file) => {
+          dataTransfer.items.add(file);
+        });
+
+        input.files = dataTransfer.files;
+      }
+    };
+
+    // Hàm để thêm các trường thông tin vào FormData
+    const addFieldsToFormData = (formData, book) => {
+      // Thêm các trường thông tin chính
+      for (const [key, value] of Object.entries(book)) {
+        if (key === "detail") {
+          // Thêm các trường chi tiết
+          for (const [detailKey, detailValue] of Object.entries(value)) {
+            formData.append(`detail[${detailKey}]`, detailValue);
+          }
+        } else {
+          formData.append(key, value);
+        }
+      }
+    };
+
+    // Hàm để thêm hình ảnh vào FormData
+    const addImagesToFormData = (formData, images) => {
+      images.forEach((image, index) => {
+        formData.append(`images`, image);
+      });
+    };
 
     const addBook = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
-    };
-    const authors = ref([]);
-    const getAuthors = async () => {
-      const response = await authorsService.get("/");
-      if (response.status === 200) {
-        authors.value = response.data;
+      const formData = new FormData();
+      addFieldsToFormData(formData, newBook.value);
+      addImagesToFormData(formData, images.value);
+
+      try {
+        const response = await bookService.post("/", formData);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          newBook.value.description = "";
+          newBook.value.authorID = "";
+          newBook.value.categoryID = "";
+          newBook.value.formalityID = "";
+          newBook.value.publisherID = "";
+          resetForm();
+          clearImages();
+        }
+      } catch (error) {
+        toast(error.response?.data?.message, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
       }
     };
 
-    const filteredAuthors = computed(() => {
-      return authors.value.filter((author) =>
-        author.name.toLowerCase().includes(searchValue.value.toLowerCase())
-      );
-    });
+    // Dropdown cho tác giả
+    const {
+      searchValue: searchAuthorValue,
+      filteredOptions: authorOptions,
+      selected: authorSelectedID,
+      selectItem: selectAuthorID,
+      itemID: authorID,
+    } = useDropdown("authors");
 
-    const selectAuthor = (author) => {
-      searchValue.value = author.name;
-      newBook.value.authorID = author._id;
-      showDropdown.value = false; // Ẩn danh sách sau khi chọn
-      authorSelected.value = true;
-    };
+    // Dropdown cho nhà xuất bản
+    const {
+      searchValue: searchPublisherValue,
+      filteredOptions: publisherOptions,
+      selected: publisherSelectedID,
+      selectItem: selectpublisherID,
+      itemID: publisherID,
+    } = useDropdown("publishers");
 
-    // Theo dõi sự thay đổi của searchValue
-    watch(searchValue, (newValue) => {
-      // Nếu giá trị nhập vào không khớp với bất kỳ tác giả nào trong danh sách, reset
-      const matchedAuthor = authors.value.find(
-        (author) => author.name.toLowerCase() === newValue.toLowerCase()
-      );
+    // Dropdown cho nhà danh mục
+    const {
+      searchValue: searchCategoryValue,
+      filteredOptions: categoryOptions,
+      selected: categorySelectedID,
+      selectItem: selectCategoryID,
+      itemID: categoryID,
+    } = useDropdown("categories");
 
-      if (!matchedAuthor) {
-        newBook.value.authorID = ""; // Xóa authorID
-        authorSelected.value = false; // Đánh dấu chưa chọn tác giả
+    // Dropdown cho hình thức
+    const {
+      searchValue: searchFormalityValue,
+      filteredOptions: formalityOptions,
+      selected: formalitySelectedID,
+      selectItem: selectFormalityID,
+      itemID: formalityID,
+    } = useDropdown("formalities");
+
+    // Theo dõi sự thay đổi của authorID
+    watch(authorID, (newVal) => {
+      if (newVal) {
+        newBook.value.authorID = newVal;
+        console.log("Tác giả đã chọn: ", newVal);
       }
     });
 
-    onMounted(() => {
-      getAuthors();
+    // Theo dõi sự thay đổi của publisherID
+    watch(publisherID, (newVal) => {
+      if (newVal) {
+        newBook.value.publisherID = newVal;
+        console.log("Nhà xuất bản đã chọn: ", newVal);
+      }
     });
+
+    // Theo dõi sự thay đổi của categoryID
+    watch(categoryID, (newVal) => {
+      if (newVal) {
+        newBook.value.categoryID = newVal;
+        console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
+
+    // Theo dõi sự thay đổi của formalityID
+    watch(formalityID, (newVal) => {
+      if (newVal) {
+        newBook.value.formalityID = newVal;
+        console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
+
     return {
       errors,
       addBook,
       newBook,
-      authors,
-      showDropdown,
-      filteredAuthors,
-      searchValue,
-      selectAuthor,
-      authorSelected,
+      // Authors
+      searchAuthorValue,
+      authorOptions,
+      authorSelectedID,
+      selectAuthorID,
+      authorID,
+      // Publishers
+      searchPublisherValue,
+      publisherOptions,
+      publisherSelectedID,
+      selectpublisherID,
+      publisherID,
+      // Categories
+      searchCategoryValue,
+      categoryOptions,
+      categorySelectedID,
+      selectCategoryID,
+      categoryID,
+      // Formalities
+      searchFormalityValue,
+      formalityOptions,
+      formalitySelectedID,
+      selectFormalityID,
+      formalityID,
+      // image
+      handleImageUpload,
+      imagePreviews,
+      removeImage,
+      clearImages,
+      fileInput,
+      images,
     };
   },
 };
 </script>
 <style scoped>
-.certain-category-search-dropdown {
-  max-height: 200px;
-  overflow: auto;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
+.remove-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
 }
 </style>

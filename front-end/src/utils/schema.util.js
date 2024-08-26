@@ -121,6 +121,6 @@ export const bookSchema = yup.object({
   width: yup.number().typeError("Chiều rộng phải là số").required("Chiều rộng là bắt buộc"),
   originalPrice: yup.number().typeError("Giá gốc phải là số").required("Giá gốc là bắt buộc"),
   discountPrice: yup.number().typeError("Giá khuyến mãi phải là số").required("Giá khuyến mãi là bắt buộc"),
-  image: yup.string().required("Ảnh là bắt buộc"),
+  images: yup.array().required('Ảnh là bắt buộc')
 });
 
