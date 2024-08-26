@@ -1,4 +1,5 @@
 const Book = require("../models/book.model");
+const { ObjectId } = require("mongodb");
 
 const createBook = async (bookData) => {
   const newBook = new Book(bookData);
@@ -6,14 +7,22 @@ const createBook = async (bookData) => {
 };
 
 const getAllBooks = async () => {
-  return await Book.find({});
+  return await Book.find({})
+    .populate("authorID")
+    .populate("publisherID")
+    .populate("categoryID")
+    .populate("formalityID");
 };
 
 const getBookByID = async (bookId) => {
   const bookID = {
     _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
   };
-  return await Book.findById(bookID);
+  return await Book.findById(bookID)
+    .populate("authorID")
+    .populate("publisherID")
+    .populate("categoryID")
+    .populate("formalityID");
 };
 
 const updateBook = async (bookId, bookData) => {
