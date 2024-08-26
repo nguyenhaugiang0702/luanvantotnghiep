@@ -1,12 +1,20 @@
 const moment = require("moment-timezone");
 const ApiError = require("../api-error");
 const bookService = require("../services/book.service");
+const upload = require("../utils/multer.util");
 
 exports.create = async (req, res, next) => {
   try {
     req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+
+    if (!req.files || req.files.length === 0) {
+      return next(new ApiError(500, "Không có file nào được tải lên."));
+    }
+    req.body.images = req.files.map((file) => file.path);
+
     const newBook = await bookService.createBook(req.body);
+
     return res.send({
       message: "Thêm tác sách thành công",
       newBook,
@@ -15,6 +23,33 @@ exports.create = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi thêm mới sách"));
   }
 };
+
+// exports.create = async (req, res, next) => {
+//   try {
+//     console.log(req.body);
+//     upload.any()(req, res, async function (err) {
+//       if (err) {
+//         return next(new ApiError(500, "Error uploading image"));
+//       }
+//       req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+//       req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+
+//       if (!req.files || req.files.length === 0) {
+//         return next(new ApiError(500, "Không có file nào được tải lên."));
+//       }
+//       req.body.images = req.files.map((file) => file.path);
+
+//       const newBook = await bookService.createBook(req.body);
+
+//       return res.send({
+//         message: "Thêm tác sách thành công",
+//         newBook,
+//       });
+//     });
+//   } catch (error) {
+//     return next(new ApiError(500, "Lỗi khi thêm mới sách"));
+//   }
+// };
 
 exports.findAll = async (req, res, next) => {
   let books = [];

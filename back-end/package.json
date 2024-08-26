@@ -19,6 +19,7 @@
     "moment-timezone": "^0.5.45",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.14",
     "objectid": "^3.2.1",
     "passport": "^0.7.0",
