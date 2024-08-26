@@ -52,6 +52,9 @@
                 />
                 <ul
                   class="dropdown-menu"
+                  :class="{
+                    'd-none': authorSelectedID,
+                  }"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
@@ -99,6 +102,9 @@
                 />
                 <ul
                   class="dropdown-menu"
+                  :class="{
+                    'd-none': publisherSelectedID,
+                  }"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
@@ -149,6 +155,9 @@
                   />
                   <ul
                     class="dropdown-menu"
+                    :class="{
+                      'd-none': categorySelectedID,
+                    }"
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
@@ -200,6 +209,9 @@
                   />
                   <ul
                     class="dropdown-menu"
+                    :class="{
+                      'd-none': formalitySelectedID,
+                    }"
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
@@ -484,6 +496,7 @@ export default {
     const handleImageUpload = (event) => {
       const files = Array.from(event.target.files);
       images.value = [];
+      imagePreviews.value = [];
       files.forEach((file) => {
         images.value.push(file);
         const reader = new FileReader();
@@ -623,6 +636,47 @@ export default {
       if (newVal) {
         newBook.value.authorID = newVal;
         console.log("Tác giả đã chọn: ", newVal);
+      }
+    });
+
+    // Theo dõi sự thay đổi của authorSelectedID
+    watch(authorSelectedID, (newVal) => {
+      if (newVal) {
+        authorSelectedID.value = newVal;
+        console.log("Tác giả đã chọn + An dropdown: ", authorSelectedID.value);
+      }
+    });
+
+    // Theo dõi sự thay đổi của categorySelectedID
+    watch(categorySelectedID, (newVal) => {
+      if (newVal) {
+        categorySelectedID.value = newVal;
+        console.log(
+          "Danh mục đã chọn + An dropdown: ",
+          categorySelectedID.value
+        );
+      }
+    });
+
+    // Theo dõi sự thay đổi của formalitySelectedID
+    watch(formalitySelectedID, (newVal) => {
+      if (newVal) {
+        formalitySelectedID.value = newVal;
+        console.log(
+          "Hình thức đã chọn + An dropdown: ",
+          formalitySelectedID.value
+        );
+      }
+    });
+
+    // Theo dõi sự thay đổi của publisherSelectedID
+    watch(publisherSelectedID, (newVal) => {
+      if (newVal) {
+        publisherSelectedID.value = newVal;
+        console.log(
+          "nhà xuất bản đã chọn + An dropdown: ",
+          publisherSelectedID.value
+        );
       }
     });
 
