@@ -130,7 +130,7 @@ const admin = [
             props: true,
           },
           {
-            path: "edit/:publisherID",
+            path: "edit/:bookID",
             name: "admin-books-edit",
             component: () => import("../pages/admin/books/edit.vue"),
             props: true,

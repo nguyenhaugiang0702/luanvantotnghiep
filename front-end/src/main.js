@@ -20,6 +20,7 @@ import PrimeVue from "primevue/config";
 import "primeicons/primeicons.css"; // Icons
 import AppState from "./plugins/appState.js";
 import Noir from "./presets/Noir.js";
+
 const app = createApp(App);
 app.use(PrimeVue, {
   theme: {
@@ -36,6 +37,7 @@ app.use(router);
 app.use(AppState);
 app.use(createPinia());
 app.use(Antd);
+
 
 // Đăng ký các biểu tượng
 Object.keys(Icons).forEach((key) => {

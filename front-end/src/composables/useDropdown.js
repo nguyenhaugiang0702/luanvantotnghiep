@@ -4,11 +4,11 @@ import PublisherService from "@/service/publisher.service";
 import CategoryService from "@/service/category.service";
 import FormalityService from "@/service/formality.service";
 
-export default function useDropdown(entityType) {
+export default function useDropdown(entityType, initialID = "") {
   const searchValue = ref("");
   const selected = ref(false);
   const options = ref([]);
-  const itemID = ref("");
+  const itemID = ref(initialID);
 
   // Mapping giữa loại entity và service tương ứng
   const serviceMap = {
@@ -25,6 +25,15 @@ export default function useDropdown(entityType) {
       const response = await service.get("/");
       if (response.status === 200) {
         options.value = response.data;
+        if (initialID) {
+          const selectedItem = options.value.find(
+            (item) => item._id === initialID
+          );
+          if (selectedItem) {
+            searchValue.value = selectedItem.name;
+            selected.value = true;
+          }
+        }
       }
     }
   };
@@ -42,14 +51,14 @@ export default function useDropdown(entityType) {
   };
 
   watch(searchValue, (newValue) => {
-    // if (!filteredOptions.value.some((option) => option.name === newValue)) {
-    //   selected.value = false;
-    // }
-    const matchedAuthor = filteredOptions.value.find(
+    const matchedItem = filteredOptions.value.find(
       (item) => item.name.toLowerCase() === newValue.toLowerCase()
     );
 
-    if (!matchedAuthor) {
+    if (matchedItem) {
+      itemID.value = matchedItem._id;
+      selected.value = true;
+    } else {
       itemID.value = "";
       selected.value = false;
     }

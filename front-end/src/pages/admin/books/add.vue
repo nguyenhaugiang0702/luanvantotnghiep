@@ -447,19 +447,14 @@
 <script>
 import Editor from "primevue/editor";
 import { ref, onMounted, computed, watch } from "vue";
-import {
-  Form,
-  Field,
-  ErrorMessage,
-  useForm,
-  useValidateField,
-} from "vee-validate";
+import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { bookSchema } from "@/utils/schema.util";
 import useDropdown from "@/composables/useDropdown";
 // services
 import BookService from "@/service/book.service";
 // component
 import { toast } from "vue3-toastify";
+import { useMenu } from "../../../stores/use-menu";
 
 export default {
   components: {
@@ -485,6 +480,8 @@ export default {
         discountPrice: "",
       },
     });
+    const store = useMenu();
+    store.onSelectedKeys(["admin-books-add"]);
     const imagePreviews = ref([]);
     const fileInput = ref(null);
     const images = ref([]);
