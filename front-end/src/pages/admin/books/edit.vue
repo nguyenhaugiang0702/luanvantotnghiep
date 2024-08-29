@@ -12,7 +12,7 @@
         <a-breadcrumb-item class="fw-bold">Chỉnh sửa</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <form @submit.prevent="" enctype="multipart/form-data">
+        <form @submit.prevent="updateBook">
           <div class="row">
             <div class="form-group col-sm-4">
               <label class="form-label" for="bookName">Tên sách</label>
@@ -239,6 +239,7 @@
               </div>
             </div>
           </div>
+          
           <div class="row mt-4">
             <div class="col-sm-12 form-group">
               <label class="form-label" for="name">Mô tả sản phẩm</label>
@@ -246,6 +247,141 @@
                 api-key="cp3h3fv43xxm3htfzjt7m98xqk1nsou8w4d2wx0a4yz8hrk4"
                 v-model="book.description"
               />
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="form-group col-sm-4">
+              <label class="form-label" for="publisherYear">Năm xuất bản</label>
+              <Field
+                class="form-control"
+                type="text"
+                name="publisherYear"
+                id="publisherYear"
+                placeholder="Nhập hình thức"
+                v-model="book.detail.publisherYear"
+                :class="{
+                  'is-invalid': errors.publisherYear,
+                  'is-valid':
+                    !errors.publisherYear &&
+                    book.detail.publisherYear !== '',
+                }"
+              />
+              <ErrorMessage name="publisherYear" class="invalid-feedback" />
+            </div>
+            <div class="form-group col-sm-4">
+              <label class="form-label" for="weight">Trọng lượng</label>
+              <Field
+                class="form-control"
+                type="text"
+                name="weight"
+                id="weight"
+                placeholder="Nhập trọng lượng"
+                v-model="book.detail.weight"
+                :class="{
+                  'is-invalid': errors.weight,
+                  'is-valid': !errors.weight && book.detail.weight !== '',
+                }"
+              />
+              <ErrorMessage name="weight" class="invalid-feedback" />
+            </div>
+            <div class="form-group col-sm-4">
+              <label class="form-label" for="pageNumber">Số trang</label>
+              <Field
+                class="form-control"
+                type="text"
+                name="pageNumber"
+                id="pageNumber"
+                placeholder="Nhập số trang"
+                v-model="book.detail.pageNumber"
+                :class="{
+                  'is-invalid': errors.pageNumber,
+                  'is-valid':
+                    !errors.pageNumber && book.detail.pageNumber !== '',
+                }"
+              />
+              <ErrorMessage name="pageNumber" class="invalid-feedback" />
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label class="form-label" for="length">Chiều dài</label>
+                <Field
+                  class="form-control"
+                  type="text"
+                  name="length"
+                  id="length"
+                  placeholder="Nhập chiều dài"
+                  v-model="book.detail.length"
+                  :class="{
+                    'is-invalid': errors.length,
+                    'is-valid': !errors.length && book.detail.length !== '',
+                  }"
+                />
+                <ErrorMessage name="length" class="invalid-feedback" />
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label class="form-label" for="width">Chiều rộng</label>
+                <Field
+                  class="form-control"
+                  type="text"
+                  name="width"
+                  id="width"
+                  placeholder="Nhập chiều dài"
+                  v-model="book.detail.width"
+                  :class="{
+                    'is-invalid': errors.width,
+                    'is-valid': !errors.width && book.detail.width !== '',
+                  }"
+                />
+                <ErrorMessage name="width" class="invalid-feedback" />
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label class="form-label" for="originalPrice">Giá gốc</label>
+                <Field
+                  class="form-control"
+                  type="text"
+                  name="originalPrice"
+                  id="originalPrice"
+                  placeholder="Nhập giá gốc"
+                  v-model="book.detail.originalPrice"
+                  :class="{
+                    'is-invalid': errors.originalPrice,
+                    'is-valid':
+                      !errors.originalPrice &&
+                      book.detail.originalPrice !== '',
+                  }"
+                />
+                <ErrorMessage name="originalPrice" class="invalid-feedback" />
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label class="form-label" for="discountPrice"
+                  >Giá khuyến mãi</label
+                >
+                <Field
+                  class="form-control"
+                  type="text"
+                  name="discountPrice"
+                  id="discountPrice"
+                  placeholder="Nhập gía Km"
+                  v-model="book.detail.discountPrice"
+                  :class="{
+                    'is-invalid': errors.discountPrice,
+                    'is-valid':
+                      !errors.discountPrice &&
+                      book.detail.discountPrice !== '',
+                  }"
+                />
+                <ErrorMessage name="discountPrice" class="invalid-feedback" />
+              </div>
             </div>
           </div>
           <div class="row mt-5 d-flex justify-content-center">
@@ -260,11 +396,12 @@
 // import Editor from "primevue/editor";
 import { ref, onMounted, computed, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
-import { bookSchema } from "@/utils/schema.util";
+import { updateBookSchema } from "@/utils/schema.util";
 import useDropdown from "@/composables/useDropdown";
 import { useRoute, useRouter } from "vue-router";
 import BookService from "@/service/book.service";
 import Editor from "@tinymce/tinymce-vue";
+import { toast } from "vue3-toastify";
 
 export default {
   components: {
@@ -280,23 +417,69 @@ export default {
       formalityID: "",
       authorID: "",
       description: "",
+      detail: {
+        publisherYear: "",
+        weight: "",
+        pageNumber: "",
+        length: "",
+        width: "",
+        originalPrice: "",
+        discountPrice: "",
+      },
     });
+
     const route = useRoute();
     const router = useRouter();
     const bookID = route.params.bookID;
     const bookService = new BookService();
     const { errors, validate, resetForm, validateField } = useForm({
-      validationSchema: bookSchema,
+      validationSchema: updateBookSchema,
     });
 
     const getBook = async () => {
       const response = await bookService.get(`/${bookID}`);
       if (response.status === 200) {
         book.value = response.data;
-        searchAuthorValue.value = book.value.authorID.name;
-        searchCategoryValue.value = book.value.categoryID.name;
-        searchFormalityValue.value = book.value.formalityID.name;
-        searchPublisherValue.value = book.value.publisherID.name;
+        data.value = response.data;
+        searchAuthorValue.value = response.data.authorID.name;
+        searchCategoryValue.value = response.data.categoryID.name;
+        searchFormalityValue.value = response.data.formalityID.name;
+        searchPublisherValue.value = response.data.publisherID.name;
+      }
+    };
+
+    const data = ref({
+      name: "",
+      categoryID: "",
+      publisherID: "",
+      formalityID: "",
+      authorID: "",
+      description: ""
+    });
+
+    const updateBook = async () => {
+      const { valid } = await validate();
+      if (!valid) {
+        return;
+      }
+      console.log(data.value);
+
+      try {
+        const response = await bookService.put(`/${bookID}`, data.value);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          getBook();
+        }
+      } catch (error) {
+        toast(error.response?.data?.message, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
       }
     };
 
@@ -340,82 +523,84 @@ export default {
       itemID: formalityID,
     } = useDropdown("formalities", book.value.formalityID._id);
 
-    // // Theo dõi sự thay đổi của authorID
-    // watch(authorID, (newVal) => {
-    //   if (newVal) {
-    //     book.value.authorID = newVal;
-    //     console.log("Tác giả đã chọn: ", newVal);
-    //   }
-    // });
+    // Theo dõi sự thay đổi của authorSelectedID
+    watch(authorSelectedID, (newVal) => {
+      if (newVal) {
+        authorSelectedID.value = newVal;
+        console.log("Tác giả đã chọn + An dropdown: ", authorSelectedID.value);
+      }
+    });
 
-    // // Theo dõi sự thay đổi của authorSelectedID
-    // watch(authorSelectedID, (newVal) => {
-    //   if (newVal) {
-    //     authorSelectedID.value = newVal;
-    //     console.log("Tác giả đã chọn + An dropdown: ", authorSelectedID.value);
-    //   }
-    // });
+    // Theo dõi sự thay đổi của categorySelectedID
+    watch(categorySelectedID, (newVal) => {
+      if (newVal) {
+        categorySelectedID.value = newVal;
+        console.log(
+          "Danh mục đã chọn + An dropdown: ",
+          categorySelectedID.value
+        );
+      }
+    });
 
-    // // Theo dõi sự thay đổi của categorySelectedID
-    // watch(categorySelectedID, (newVal) => {
-    //   if (newVal) {
-    //     categorySelectedID.value = newVal;
-    //     console.log(
-    //       "Danh mục đã chọn + An dropdown: ",
-    //       categorySelectedID.value
-    //     );
-    //   }
-    // });
+    // Theo dõi sự thay đổi của formalitySelectedID
+    watch(formalitySelectedID, (newVal) => {
+      if (newVal) {
+        formalitySelectedID.value = newVal;
+        console.log(
+          "Hình thức đã chọn + An dropdown: ",
+          formalitySelectedID.value
+        );
+      }
+    });
 
-    // // Theo dõi sự thay đổi của formalitySelectedID
-    // watch(formalitySelectedID, (newVal) => {
-    //   if (newVal) {
-    //     formalitySelectedID.value = newVal;
-    //     console.log(
-    //       "Hình thức đã chọn + An dropdown: ",
-    //       formalitySelectedID.value
-    //     );
-    //   }
-    // });
+    // Theo dõi sự thay đổi của publisherSelectedID
+    watch(publisherSelectedID, (newVal) => {
+      if (newVal) {
+        publisherSelectedID.value = newVal;
+        console.log(
+          "nhà xuất bản đã chọn + An dropdown: ",
+          publisherSelectedID.value
+        );
+      }
+    });
 
-    // // Theo dõi sự thay đổi của publisherSelectedID
-    // watch(publisherSelectedID, (newVal) => {
-    //   if (newVal) {
-    //     publisherSelectedID.value = newVal;
-    //     console.log(
-    //       "nhà xuất bản đã chọn + An dropdown: ",
-    //       publisherSelectedID.value
-    //     );
-    //   }
-    // });
+    // Theo dõi sự thay đổi của authorID
+    watch(authorID, (newVal) => {
+      if (newVal) {
+        data.value.authorID = newVal;
+        console.log("Tác giả đã chọn: ", newVal);
+      }
+    });
 
-    // // Theo dõi sự thay đổi của publisherID
-    // watch(publisherID, (newVal) => {
-    //   if (newVal) {
-    //     book.value.publisherID = newVal;
-    //     console.log("Nhà xuất bản đã chọn: ", newVal);
-    //   }
-    // });
+    // Theo dõi sự thay đổi của publisherID
+    watch(publisherID, (newVal) => {
+      if (newVal) {
+        data.value.publisherID = newVal;
+        console.log("Nhà xuất bản đã chọn: ", newVal);
+      }
+    });
 
-    // // Theo dõi sự thay đổi của categoryID
-    // watch(categoryID, (newVal) => {
-    //   if (newVal) {
-    //     book.value.categoryID = newVal;
-    //     console.log("Hình thức đã chọn: ", newVal);
-    //   }
-    // });
+    // Theo dõi sự thay đổi của categoryID
+    watch(categoryID, (newVal) => {
+      if (newVal) {
+        data.value.categoryID = newVal;
+        console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
 
-    // // Theo dõi sự thay đổi của formalityID
-    // watch(formalityID, (newVal) => {
-    //   if (newVal) {
-    //     book.value.formalityID = newVal;
-    //     console.log("Hình thức đã chọn: ", newVal);
-    //   }
-    // });
+    // Theo dõi sự thay đổi của formalityID
+    watch(formalityID, (newVal) => {
+      if (newVal) {
+        data.value.formalityID = newVal;
+        console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
 
     return {
       book,
       errors,
+      updateBook,
+      data,
       // Authors
       searchAuthorValue,
       authorOptions,

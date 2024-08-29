@@ -125,6 +125,12 @@ export default {
         data: "_id",
         render: (data, type, row, meta) => {
           return `<div class="row">
+            <div class="col-sm-2 me-3">
+                  <button type="button" id="viewDetail" class="btn btn-secondary" data-id=${data} data-bs-toggle="tooltip" 
+                        data-bs-placement="top" data-bs-title="Tooltip on top">
+                    <i class="fa-solid fa-circle-info"></i>
+                  </button>
+              </div>
               <div class="col-sm-2 me-3">
                   <button id="editBook" class="btn btn-warning" data-id=${data}>
                      <i class="fa-solid fa-pencil"></i>
@@ -175,6 +181,23 @@ export default {
     //     await deleteAuthor(authorId);
     //   }
     // });
+
+    // const deleteAuthor = async (authorId) => {
+    //   const response = await authorService.delete(`/${authorId}`);
+    //   if (response.status === 200) {
+    //     toast(response.data.message, {
+    //       theme: "auto",
+    //       type: "success",
+    //       dangerouslyHTMLString: true,
+    //     });
+    //     getBooks();
+    //   }
+    // };
+
+    $(document).on("click", "#viewDetail", async (event) => {
+      let bookId = $(event.currentTarget).data("id");
+      router.push({ name: "admin-books-edit-detail", params: { bookID: bookId } });
+    });
 
     onMounted(() => {
       getBooks();

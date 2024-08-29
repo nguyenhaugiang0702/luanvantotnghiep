@@ -242,8 +242,8 @@
             <div class="col-sm-12 form-group">
               <label class="form-label" for="name">Mô tả sản phẩm</label>
               <Editor
+                api-key="cp3h3fv43xxm3htfzjt7m98xqk1nsou8w4d2wx0a4yz8hrk4"
                 v-model="newBook.description"
-                editorStyle="height: 320px"
               />
             </div>
           </div>
@@ -422,7 +422,7 @@
               <div
                 v-for="(image, index) in imagePreviews"
                 :key="index"
-                class="col-sm-3"
+                class="col-sm-3 mb-2"
               >
                 <img
                   :src="image"
@@ -445,7 +445,7 @@
   </div>
 </template>
 <script>
-import Editor from "primevue/editor";
+import Editor from "@tinymce/tinymce-vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { bookSchema } from "@/utils/schema.util";
@@ -482,6 +482,7 @@ export default {
     });
     const store = useMenu();
     store.onSelectedKeys(["admin-books-add"]);
+    const isNew = ref(true);
     const imagePreviews = ref([]);
     const fileInput = ref(null);
     const images = ref([]);
@@ -507,7 +508,6 @@ export default {
     const removeImage = (index) => {
       images.value.splice(index, 1);
       imagePreviews.value.splice(index, 1);
-      console.log(newBook.value.images);
       // Reset giá trị thẻ input để Vue nhận diện sự thay đổi
       const input = document.getElementById("images");
       if (input) {
@@ -524,16 +524,7 @@ export default {
     const clearImages = () => {
       images.value = [];
       imagePreviews.value = [];
-      const input = document.getElementById("images");
-      if (input) {
-        const dataTransfer = new DataTransfer();
-
-        images.value.forEach((file) => {
-          dataTransfer.items.add(file);
-        });
-
-        input.files = dataTransfer.files;
-      }
+      $("#images").val("");
     };
 
     // Hàm để thêm các trường thông tin vào FormData
@@ -566,7 +557,7 @@ export default {
       const formData = new FormData();
       addFieldsToFormData(formData, newBook.value);
       addImagesToFormData(formData, images.value);
-
+      
       try {
         const response = await bookService.post("/", formData);
         if (response.status === 200) {

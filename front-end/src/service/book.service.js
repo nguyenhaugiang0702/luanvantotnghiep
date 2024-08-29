@@ -33,9 +33,9 @@ class BookService {
   async put(endpoint, data, token) {
     const url = this.baseUrl + endpoint;
     const headers = {
-      // "Content-Type": "multipart/form-data",
+      "Content-Type": "multipart/form-data",
       // "Accept": "multipart/form-data",
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
     };
     if (token != null) {
       headers["Authorization"] = "Bearer " + token;

@@ -135,6 +135,12 @@ const admin = [
             component: () => import("../pages/admin/books/edit.vue"),
             props: true,
           },
+          {
+            path: "edit/detail/:bookID",
+            name: "admin-books-edit-detail",
+            component: () => import("../pages/admin/books/editDetail.vue"),
+            props: true,
+          },
         ],
       },
     ],

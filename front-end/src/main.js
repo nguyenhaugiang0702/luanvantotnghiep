@@ -6,7 +6,7 @@ import axios from "axios";
 window.axios = axios;
 // Boostrap v5.3
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "../node_modules/bootstrap/dist/js/bootstrap.bundle";
+import "../node_modules/bootstrap/dist/js/bootstrap.bundle.js";
 // Fontawesome
 import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 // Ant Design
