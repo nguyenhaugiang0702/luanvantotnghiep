@@ -29,7 +29,15 @@ const bookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Formality",
   },
-  images: Array,
+  images: [
+    {
+      path: String,
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
+      },
+    },
+  ],
   createAt: Date,
   updatedAt: Date,
 });
