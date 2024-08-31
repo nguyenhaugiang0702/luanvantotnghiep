@@ -339,7 +339,7 @@
             </div>
           </div>
           <div class="row mt-4">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="form-label" for="originalPrice">Giá gốc</label>
                 <Field
@@ -359,7 +359,7 @@
                 <ErrorMessage name="originalPrice" class="invalid-feedback" />
               </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="form-label" for="discountPrice"
                   >Giá khuyến mãi</label
@@ -379,6 +379,63 @@
                   }"
                 />
                 <ErrorMessage name="discountPrice" class="invalid-feedback" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <div class="dropdown">
+                  <label class="form-label" for="priceRangeName"
+                    >Khoản giá</label
+                  >
+                  <Field
+                    class="form-control dropdown-toggle"
+                    type="text"
+                    name="priceRangeName"
+                    id="priceRangeName"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    placeholder="Nhập tên khoản giá"
+                    @focus="showDropdown = true"
+                    v-model="searchPriceRangeValue"
+                    :class="{
+                      'is-invalid':
+                        errors.priceRangeName ||
+                        (searchPriceRangeValue !== '' && !priceRangeID),
+                      'is-valid':
+                        !errors.priceRangeName && newBook.priceRangeID !== '',
+                    }"
+                  />
+                  <ul
+                    class="dropdown-menu"
+                    :class="{
+                      'd-none': priceRangeSelectedID,
+                    }"
+                    style="max-height: 200px; overflow: auto"
+                  >
+                    <li
+                      style="max-width: 300px"
+                      class="dropdown-item"
+                      v-for="(priceRange, index) in priceRangeOptions"
+                      :key="priceRange._id"
+                      @click="selectPriceRangeID(priceRange)"
+                    >
+                      {{ priceRange.startPrice }}đ - {{ priceRange.endPrice }}đ
+                    </li>
+                  </ul>
+                  <ErrorMessage
+                    name="priceRangeName"
+                    class="invalid-feedback"
+                  />
+                  <span
+                    v-if="
+                      !errors.priceRangeName &&
+                      searchPriceRangeValue !== '' &&
+                      !priceRangeID
+                    "
+                    style="color: #dc3545; font-size: 0.875em"
+                    >Vui lòng chọn khoản giá</span
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -469,6 +526,7 @@ export default {
       publisherID: "",
       authorID: "",
       formalityID: "",
+      priceRangeID: "",
       description: "",
       detail: {
         publisherYear: "",
@@ -557,7 +615,7 @@ export default {
       const formData = new FormData();
       addFieldsToFormData(formData, newBook.value);
       addImagesToFormData(formData, images.value);
-      
+
       try {
         const response = await bookService.post("/", formData);
         if (response.status === 200) {
@@ -571,6 +629,7 @@ export default {
           newBook.value.categoryID = "";
           newBook.value.formalityID = "";
           newBook.value.publisherID = "";
+          newBook.value.priceRangeID = "";
           resetForm();
           clearImages();
         }
@@ -618,6 +677,15 @@ export default {
       selectItem: selectFormalityID,
       itemID: formalityID,
     } = useDropdown("formalities");
+
+    // Dropdown cho hình thức
+    const {
+      searchValue: searchPriceRangeValue,
+      filteredOptions: priceRangeOptions,
+      selected: priceRangeSelectedID,
+      selectItem: selectPriceRangeID,
+      itemID: priceRangeID,
+    } = useDropdown("priceranges");
 
     // Theo dõi sự thay đổi của authorID
     watch(authorID, (newVal) => {
@@ -668,6 +736,17 @@ export default {
       }
     });
 
+    // Theo dõi sự thay đổi của priceRangeSelectedID
+    watch(priceRangeSelectedID, (newVal) => {
+      if (newVal) {
+        priceRangeSelectedID.value = newVal;
+        console.log(
+          "Khoản giá đã chọn + An dropdown: ",
+          priceRangeSelectedID.value
+        );
+      }
+    });
+
     // Theo dõi sự thay đổi của publisherID
     watch(publisherID, (newVal) => {
       if (newVal) {
@@ -689,6 +768,14 @@ export default {
       if (newVal) {
         newBook.value.formalityID = newVal;
         console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
+
+    // Theo dõi sự thay đổi của priceRangeID
+    watch(priceRangeID, (newVal) => {
+      if (newVal) {
+        newBook.value.priceRangeID = newVal;
+        console.log("Khoản giá đã chọn: ", newVal);
       }
     });
 
@@ -720,6 +807,12 @@ export default {
       formalitySelectedID,
       selectFormalityID,
       formalityID,
+      // PriceRanges
+      searchPriceRangeValue,
+      priceRangeOptions,
+      priceRangeSelectedID,
+      selectPriceRangeID,
+      priceRangeID,
       // image
       handleImageUpload,
       imagePreviews,

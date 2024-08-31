@@ -26,7 +26,7 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="text-decoration-none">
+              <router-link class="text-decoration-none" :to="{ name: 'books' }">
                 <a
                   class="nav-link text-white text-uppercase fw-semibold"
                   aria-current="page"

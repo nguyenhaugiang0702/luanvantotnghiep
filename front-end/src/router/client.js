@@ -15,6 +15,24 @@ const client = [
         component: () => import("../pages/client/Home.vue"),
       },
       {
+        path: "/books",
+        name: "books",
+        redirect: { name: "book-list" },
+        children: [
+          {
+            path: "",
+            name: "book-list",
+            component: () => import("../pages/client/Books.vue"),
+          },
+          {
+            path: "detail/:bookID",
+            name: "book-detail",
+            component: () => import("../pages/client/DetailBook.vue"),
+            props: true
+          },
+        ],
+      },
+      {
         path: "/customer/account/edit/",
         name: "profile",
         redirect: { name: "profile-infoUser" },

@@ -114,15 +114,36 @@ export const bookSchema = yup.object({
   publisherName: yup.string().required("Tên nhà xuất bản là bắt buộc"),
   categoryName: yup.string().required("Tên danh mục là bắt buộc"),
   formalityName: yup.string().required("Tên hình thức là bắt buộc"),
-  publisherYear: yup.number().typeError("Năm xuất bản phải là số").required("Năm xuất bản là bắt buộc"),
-  weight: yup.number().typeError("Trọng lượng phải là số").required("Trọng lượng là bắt buộc"),
-  pageNumber: yup.number().typeError("Số trang phải là số").required("Số trang là bắt buộc"),
-  length: yup.number().typeError("Chiều dài phải là số").required("Chiều dài là bắt buộc"),
-  width: yup.number().typeError("Chiều rộng phải là số").required("Chiều rộng là bắt buộc"),
-  originalPrice: yup.number().typeError("Giá gốc phải là số").required("Giá gốc là bắt buộc"),
-  discountPrice: yup.number().typeError("Giá khuyến mãi phải là số").required("Giá khuyến mãi là bắt buộc"),
-  images: yup.array().required('Ảnh là bắt buộc')
-  
+  priceRangeName: yup.string().required("Tên khoản giá là bắt buộc"),
+  publisherYear: yup
+    .number()
+    .typeError("Năm xuất bản phải là số")
+    .required("Năm xuất bản là bắt buộc"),
+  weight: yup
+    .number()
+    .typeError("Trọng lượng phải là số")
+    .required("Trọng lượng là bắt buộc"),
+  pageNumber: yup
+    .number()
+    .typeError("Số trang phải là số")
+    .required("Số trang là bắt buộc"),
+  length: yup
+    .number()
+    .typeError("Chiều dài phải là số")
+    .required("Chiều dài là bắt buộc"),
+  width: yup
+    .number()
+    .typeError("Chiều rộng phải là số")
+    .required("Chiều rộng là bắt buộc"),
+  originalPrice: yup
+    .number()
+    .typeError("Giá gốc phải là số")
+    .required("Giá gốc là bắt buộc"),
+  discountPrice: yup
+    .number()
+    .typeError("Giá khuyến mãi phải là số")
+    .required("Giá khuyến mãi là bắt buộc"),
+  images: yup.array().required("Ảnh là bắt buộc"),
 });
 
 export const updateBookSchema = yup.object({
@@ -131,12 +152,44 @@ export const updateBookSchema = yup.object({
   publisherName: yup.string().required("Tên nhà xuất bản là bắt buộc"),
   categoryName: yup.string().required("Tên danh mục là bắt buộc"),
   formalityName: yup.string().required("Tên hình thức là bắt buộc"),
-  publisherYear: yup.number().typeError("Năm xuất bản phải là số").required("Năm xuất bản là bắt buộc"),
-  weight: yup.number().typeError("Trọng lượng phải là số").required("Trọng lượng là bắt buộc"),
-  pageNumber: yup.number().typeError("Số trang phải là số").required("Số trang là bắt buộc"),
-  length: yup.number().typeError("Chiều dài phải là số").required("Chiều dài là bắt buộc"),
-  width: yup.number().typeError("Chiều rộng phải là số").required("Chiều rộng là bắt buộc"),
-  originalPrice: yup.number().typeError("Giá gốc phải là số").required("Giá gốc là bắt buộc"),
-  discountPrice: yup.number().typeError("Giá khuyến mãi phải là số").required("Giá khuyến mãi là bắt buộc"),
+  priceRangeName: yup.string().required("Tên khoản giá là bắt buộc"),
+  publisherYear: yup
+    .number()
+    .typeError("Năm xuất bản phải là số")
+    .required("Năm xuất bản là bắt buộc"),
+  weight: yup
+    .number()
+    .typeError("Trọng lượng phải là số")
+    .required("Trọng lượng là bắt buộc"),
+  pageNumber: yup
+    .number()
+    .typeError("Số trang phải là số")
+    .required("Số trang là bắt buộc"),
+  length: yup
+    .number()
+    .typeError("Chiều dài phải là số")
+    .required("Chiều dài là bắt buộc"),
+  width: yup
+    .number()
+    .typeError("Chiều rộng phải là số")
+    .required("Chiều rộng là bắt buộc"),
+  originalPrice: yup
+    .number()
+    .typeError("Giá gốc phải là số")
+    .required("Giá gốc là bắt buộc"),
+  discountPrice: yup
+    .number()
+    .typeError("Giá khuyến mãi phải là số")
+    .required("Giá khuyến mãi là bắt buộc"),
 });
 
+export const priceRangeSchema = yup.object({
+  startPrice: yup
+    .number()
+    .typeError("Giá bắt đầu phải là số")
+    .required("Giá bắt đầu là bắt buộc"),
+  endPrice: yup
+    .number()
+    .typeError("Giá kết thúc phải là số")
+    .required("Giá kết thúc là bắt buộc"),
+});

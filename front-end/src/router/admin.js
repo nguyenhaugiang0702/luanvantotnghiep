@@ -88,6 +88,19 @@ const admin = [
         ],
       },
       {
+        path: "priceranges",
+        name: "admin-priceranges",
+        redirect: { name: "admin-priceranges-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-priceranges-list",
+            component: () => import("../pages/admin/priceranges/index.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
         path: "publishers",
         name: "admin-publishers",
         redirect: { name: "admin-publishers-list" },

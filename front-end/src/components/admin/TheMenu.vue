@@ -27,6 +27,13 @@
         <desktop-outlined />
         <span>Hình thức</span>
       </a-menu-item>
+      <a-menu-item
+        key="admin-priceranges"
+        @click="navigateTo('admin-priceranges')"
+      >
+        <desktop-outlined />
+        <span>Khoản giá</span>
+      </a-menu-item>
       <a-sub-menu key="admin-books-list">
         <template #title>
           <span>

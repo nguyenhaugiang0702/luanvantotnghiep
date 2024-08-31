@@ -3,6 +3,7 @@ import AuthorsService from "@/service/author.service";
 import PublisherService from "@/service/publisher.service";
 import CategoryService from "@/service/category.service";
 import FormalityService from "@/service/formality.service";
+import PriceRangeService from "@/service/priceRange.service";
 
 export default function useDropdown(entityType, initialID = "") {
   const searchValue = ref("");
@@ -16,6 +17,7 @@ export default function useDropdown(entityType, initialID = "") {
     publishers: new PublisherService(),
     categories: new CategoryService(),
     formalities: new FormalityService(),
+    priceranges: new PriceRangeService(),
   };
 
   const service = serviceMap[entityType]; // Chọn service dựa trên entityType
