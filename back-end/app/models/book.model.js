@@ -29,6 +29,10 @@ const bookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Formality",
   },
+  priceRangeID:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PriceRange",
+  },
   images: [
     {
       path: String,

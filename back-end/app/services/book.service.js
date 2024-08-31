@@ -71,6 +71,42 @@ const findImageByBookIDAndImageID = async (bookID, imageID) => {
   };
 };
 
+const getFilteredBooks = async (filters) => {
+  const query = {};
+
+  // Lọc sách theo priceRangeID
+  if (filters.price && filters.price.length > 0) {
+    query.priceRangeID = { $in: filters.price };
+  }
+  // Lọc sách theo categoryID
+  if (filters.category && filters.category.length > 0) {
+    query.categoryID = { $in: filters.category };
+  }
+  // Lọc sách theo publisherID
+  if (filters.publisher && filters.publisher.length > 0) {
+    query.publisherID = { $in: filters.publisher };
+  }
+
+  if (filters.supplier && filters.supplier.length > 0) {
+    // Nếu bạn có trường supplierID trong mô hình, bạn có thể thêm vào đây
+    // query.supplierID = { $in: filters.supplier };
+  }
+
+  // Lọc sách theo formalityID
+  if (filters.formality && filters.formality.length > 0) {
+    query.formalityID = { $in: filters.formality };
+  } 
+  
+  // Lọc sách theo authorID
+  if (filters.author && filters.author.length > 0) {
+    query.authorID = { $in: filters.author };
+  }
+
+  // Tìm sách theo điều kiện
+  const books = await Book.find(query);
+  return books;
+};
+
 module.exports = {
   createBook,
   updateBook,
@@ -80,4 +116,5 @@ module.exports = {
   getBookByID,
   getBookImagesByID,
   findImageByBookIDAndImageID,
+  getFilteredBooks,
 };

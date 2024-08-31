@@ -12,6 +12,7 @@ const publisherRouter = require("./app/routes/publisher.route");
 const categoryRouter = require("./app/routes/category.route");
 const formalityRouter = require("./app/routes/formality.route");
 const bookRouter = require("./app/routes/book.route");
+const priceRangeRouter = require("./app/routes/pricerange.route");
 const upload = require("./app/utils/multer.util");
 
 require("./app/passport");
@@ -36,6 +37,7 @@ app.use("/api/v1/authors", authorRouter);
 app.use("/api/v1/publishers", publisherRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/formalities", formalityRouter);
+app.use("/api/v1/priceRanges", priceRangeRouter);
 app.use("/api/v1/books", upload.array("images"), bookRouter);
 
 // handle 404 response

@@ -65,6 +65,20 @@ exports.findAll = async (req, res, next) => {
   return res.send(books);
 };
 
+exports.filterBooks = async (req, res, next) => {
+  let books = [];
+  try {
+    // Lấy chuỗi JSON từ query params và phân tích cú pháp nó
+    const filtersString = req.query.filters;
+    const filters = JSON.parse(filtersString);
+     // Tiến hành lọc sách theo filters
+    books = await bookService.getFilteredBooks(filters);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
+  }
+  return res.send(books);
+};
+
 exports.findOne = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
