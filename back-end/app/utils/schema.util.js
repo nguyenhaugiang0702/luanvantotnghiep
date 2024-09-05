@@ -118,6 +118,19 @@ const priceRangeSchema = yup.object({
     .required("Giá kết thúc là bắt buộc"),
 });
 
+const addressSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  province: yup.string().required("Tên tỉnh là bắt buộc"),
+  district: yup.string().required("Tên quận/huyện là bắt buộc"),
+  ward: yup.string().required("Tên xã là bắt buộc"),
+  detailAddress: yup.string().required("Thông tin này quan trọng.Vui lòng không để trống."),
+});
+
 module.exports = {
   supplierSchema,
   authorSchema,
@@ -125,4 +138,5 @@ module.exports = {
   bookSchema,
   updateBookSchema,
   priceRangeSchema,
+  addressSchema,
 };

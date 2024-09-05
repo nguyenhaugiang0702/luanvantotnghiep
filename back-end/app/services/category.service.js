@@ -11,19 +11,17 @@ const getAllCategory = async () => {
 };
 
 const updateCategory = async (categoryId, categoryData) => {
-  const categoryID = {
-    _id: ObjectId.isValid(categoryId) ? new ObjectId(categoryId) : null,
-  };
-  return await Category.findByIdAndUpdate(categoryID, categoryData, {
-    new: true,
-  });
+  if (ObjectId.isValid(categoryId)) {
+    return await Category.findByIdAndUpdate(categoryId, categoryData, {
+      new: true,
+    });
+  }
 };
 
 const deleteCategory = async (categoryId) => {
-  const categoryID = {
-    _id: ObjectId.isValid(categoryId) ? new ObjectId(categoryId) : null,
-  };
-  return await Category.findByIdAndDelete(categoryID);
+  if (ObjectId.isValid(categoryId)) {
+    return await Category.findByIdAndDelete(categoryId);
+  }
 };
 
 const checkNameExist = async (name) => {

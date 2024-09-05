@@ -12,19 +12,17 @@ const getAllPriceRange = async () => {
 };
 
 const updatePriceRange = async (priceRangeId, priceRangeData) => {
-  const priceRangeID = {
-    _id: ObjectId.isValid(priceRangeId) ? new ObjectId(priceRangeId) : null,
-  };
-  return await PriceRange.findByIdAndUpdate(priceRangeID, priceRangeData, {
-    new: true,
-  });
+  if (ObjectId.isValid(priceRangeId)) {
+    return await PriceRange.findByIdAndUpdate(priceRangeId, priceRangeData, {
+      new: true,
+    });
+  }
 };
 
 const deletePriceRange = async (priceRangeId) => {
-  const priceRangeID = {
-    _id: ObjectId.isValid(priceRangeId) ? new ObjectId(priceRangeId) : null,
-  };
-  return await PriceRange.findByIdAndDelete(priceRangeID);
+  if (ObjectId.isValid(priceRangeId)) {
+    return await PriceRange.findByIdAndDelete(priceRangeId);
+  }
 };
 
 module.exports = {

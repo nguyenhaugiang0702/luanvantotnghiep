@@ -10,7 +10,7 @@ router
 
 
   router
-  .route("/:authorId")
+  .route("/:authorID")
   .put(validateSupplier.createAuthorValidation, authors.update)
   .delete(authors.delete);
 

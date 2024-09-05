@@ -36,10 +36,10 @@ exports.update = async (req, res, next) => {
     const author = await auhorService.updateAuthor(authorID, req.body);
     return res.send({
       message: "Cập nhật thành công tác giả",
-      author,
+      author
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả tác giả"));
+    return next(new ApiError(500, "Lỗi khi cập nhật tác giả"));
   }
 };
 
@@ -52,6 +52,6 @@ exports.delete = async (req, res, next) => {
       author,
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả tác giả"));
+    return next(new ApiError(500, "Lỗi khi xóa tác giả"));
   }
 };

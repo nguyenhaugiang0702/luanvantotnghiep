@@ -25,17 +25,15 @@ const getAllSuppliersByName = async (name) => {
 };
 
 const updateSupplier = async (supplierId, data) => {
-  const supplierID = {
-    _id: ObjectId.isValid(supplierId) ? new ObjectId(supplierId) : null,
-  };
-  return await Supplier.findByIdAndUpdate(supplierID, data, { new: true });
+  if (ObjectId.isValid(supplierId)) {
+    return await Supplier.findByIdAndUpdate(supplierId, data, { new: true });
+  }
 };
 
 const deleteSupplier = async (supplierId) => {
-  const supplierID = {
-    _id: ObjectId.isValid(supplierId) ? new ObjectId(supplierId) : null,
-  };
-  return await Supplier.findByIdAndDelete(supplierID);
+  if (ObjectId.isValid(supplierId)) {
+    return await Supplier.findByIdAndDelete(supplierId);
+  }
 };
 
 const checkNameExist = async (name) => {

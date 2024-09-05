@@ -33,24 +33,15 @@ const getBookImagesByID = async (bookId) => {
 };
 
 const updateBook = async (bookId, bookData) => {
-  const bookID = {
-    _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-  };
-  return await Book.findByIdAndUpdate(bookID, bookData, { new: true });
+  if (ObjectId.isValid(bookId)) {
+    return await Book.findByIdAndUpdate(bookId, bookData, { new: true });
+  }
 };
 
 const deleteBook = async (bookId) => {
-  const bookID = {
-    _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-  };
-  return await Book.findByIdAndDelete(bookID);
-};
-
-const deleteImage = async (bookId, index) => {
-  const bookID = {
-    _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-  };
-  return await Book.findByIdAndDelete(bookID);
+  if (ObjectId.isValid(bookId)) {
+    return await Book.findByIdAndDelete(bookId);
+  }
 };
 
 const checkNameExist = async (name) => {
@@ -95,8 +86,8 @@ const getFilteredBooks = async (filters) => {
   // Lọc sách theo formalityID
   if (filters.formality && filters.formality.length > 0) {
     query.formalityID = { $in: filters.formality };
-  } 
-  
+  }
+
   // Lọc sách theo authorID
   if (filters.author && filters.author.length > 0) {
     query.authorID = { $in: filters.author };

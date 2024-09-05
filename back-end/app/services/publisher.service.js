@@ -7,10 +7,7 @@ const createPublisher = async (publisherData) => {
 };
 
 const getPublisherById = async (publisherId) => {
-  const publisherID = {
-    _id: ObjectId.isValid(publisherId) ? new ObjectId(publisherId) : null,
-  };
-  return await Publisher.findById(publisherID);
+  return await Publisher.findById(publisherId);
 };
 
 const getAllPublishers = async () => {
@@ -18,17 +15,15 @@ const getAllPublishers = async () => {
 };
 
 const updatePublisher = async (publisherId, data) => {
-  const publisherID = {
-    _id: ObjectId.isValid(publisherId) ? new ObjectId(publisherId) : null,
-  };
-  return await Publisher.findByIdAndUpdate(publisherID, data, { new: true });
+  if (ObjectId.isValid(publisherId)) {
+    return await Publisher.findByIdAndUpdate(publisherId, data, { new: true });
+  }
 };
 
 const deletePublisher = async (publisherId) => {
-  const publisherID = {
-    _id: ObjectId.isValid(publisherId) ? new ObjectId(publisherId) : null,
-  };
-  return await Publisher.findByIdAndDelete(publisherID);
+  if (ObjectId.isValid(publisherId)) {
+    return await Publisher.findByIdAndDelete(publisherId);
+  }
 };
 
 const checkNameExist = async (name) => {

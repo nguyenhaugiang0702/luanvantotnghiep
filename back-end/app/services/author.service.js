@@ -11,10 +11,16 @@ const getAllAuthors = async () => {
 };
 
 const updateAuthor = async (authorId, authorData) => {
-  const authorID = {
-    _id: ObjectId.isValid(authorId) ? new ObjectId(authorId) : null,
-  };
-  return await Author.findByIdAndUpdate(authorID, authorData, { new: true });
+  try {
+    if (ObjectId.isValid(authorId)) {
+      console.log(authorId);
+      return await Author.findByIdAndUpdate(authorId, authorData, {
+        new: true,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const deleteAuthor = async (authorId) => {

@@ -32,8 +32,8 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = jwt.sign({ id: user._id }, "my_jwt_secret_key_login", {
-      expiresIn: "6h",
+    const accessToken = jwt.sign({ id: user._id }, "my_jwt_secret_key_bookstore", {
+      expiresIn: "1y",
     });
 
     res.send({

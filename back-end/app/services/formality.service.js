@@ -11,19 +11,17 @@ const getAllFormality = async () => {
 };
 
 const updateFormality = async (formalityId, formalityData) => {
-  const formalityID = {
-    _id: ObjectId.isValid(formalityId) ? new ObjectId(formalityId) : null,
-  };
-  return await Formality.findByIdAndUpdate(formalityID, formalityData, {
-    new: true,
-  });
+  if (ObjectId.isValid(formalityId)) {
+    return await Formality.findByIdAndUpdate(formalityId, formalityData, {
+      new: true,
+    });
+  }
 };
 
 const deleteFormality = async (formalityId) => {
-  const formalityID = {
-    _id: ObjectId.isValid(formalityId) ? new ObjectId(formalityId) : null,
-  };
-  return await Formality.findByIdAndDelete(formalityID);
+  if (ObjectId.isValid(formalityId)) {
+    return await Formality.findByIdAndDelete(formalityId);
+  }
 };
 
 const checkNameExist = async (name) => {
