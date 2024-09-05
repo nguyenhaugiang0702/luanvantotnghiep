@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <div class="row my-3">
+    <div class="row">
       <div class="col-sm-8"><Carousel /></div>
       <div class="col-sm-4">
         <div class="row mb-1">
@@ -21,7 +20,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 <script>
 import Carousel from "../../components/client/Carousel.vue";

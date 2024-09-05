@@ -1,230 +1,224 @@
 <template>
-  <h4>THÔNG TIN TÀI KHOẢN</h4>
-  <form @submit.prevent="updateUser" :validation-schema="updateUserSchema">
-    <div class="form-group row mt-5">
-      <label for="firstName" class="col-3">Họ*</label>
-      <div class="col-8">
-        <!-- <input
-          type="text"
-          v-model="user.firstName"
-          :class="{
-            'form-control border': true,
-            'border-danger': errors.firstName,
-            'border-success': !errors.firstName && user.firstName !== '',
-          }"
-          id="firstName"
-          name="firstName"
-          placeholder="Nhập họ"
-        /> -->
-        <Field
-          type="text"
-          v-model="user.firstName"
-          :class="{
-            'form-control': true,
-            'is-invalid': errors.firstName,
-            'is-valid': !errors.firstName && user.firstName !== '',
-          }"
-          id="firstName"
-          name="firstName"
-          placeholder="Nhập họ"
-        />
-        <ErrorMessage class="invalid-feedback" name="firstName" />
+  <div class="container bg-white">
+    <h4 class="p-3">THÔNG TIN TÀI KHOẢN</h4>
+    <form @submit.prevent="updateUser" :validation-schema="updateUserSchema">
+      <div class="form-group row mx-2">
+        <label for="firstName" class="col-sm-3">Họ</label>
+        <div class="col-sm-8">
+          <Field
+            type="text"
+            v-model="user.firstName"
+            :class="{
+              'form-control': true,
+              'is-invalid': errors.firstName,
+              'is-valid': !errors.firstName && user.firstName !== '',
+            }"
+            id="firstName"
+            name="firstName"
+            placeholder="Nhập họ"
+          />
+          <ErrorMessage class="invalid-feedback" name="firstName" />
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row mt-4">
-      <label for="lastName" class="col-3">Tên*</label>
-      <div class="col-8">
-        <Field
-          type="text"
-          v-model="user.lastName"
-          :class="{
-            'form-control': true,
-            'is-invalid': errors.lastName,
-            'is-valid': !errors.lastName && user.lastName !== '',
-          }"
-          id="lastName"
-          placeholder="Nhập tên"
-          name="lastName"
-        />
-        <ErrorMessage class="invalid-feedback" name="lastName" />
-      </div>
-    </div>
-    <div class="form-group row mt-4">
-      <label for="phoneNumber" class="col-3">Số điện thoại</label>
-      <div class="col-8">
-        <div class="row">
-          <div class="col-9">
-            <Field
-              type="tel"
-              :class="{
-                'form-control': true,
-                'is-invalid': errors.phoneNumber,
-                'is-valid': !errors.phoneNumber && user.phoneNumber !== '',
-              }"
-              id="phoneNumber"
-              readonly
-              name="phoneNumber"
-              placeholder="nhap so dien thoai"
-              v-model="user.phoneNumber"
-            />
-            <ErrorMessage class="invalid-feedback" name="phoneNumber" />
-          </div>
-          <div class="col-3">
-            <ChangPhoneNumber @refreshUser="getUser" />
-          </div>
+      <div class="form-group row mt-4 mx-2">
+        <label for="lastName" class="col-3">Tên</label>
+        <div class="col-8">
+          <Field
+            type="text"
+            v-model="user.lastName"
+            :class="{
+              'form-control': true,
+              'is-invalid': errors.lastName,
+              'is-valid': !errors.lastName && user.lastName !== '',
+            }"
+            id="lastName"
+            placeholder="Nhập tên"
+            name="lastName"
+          />
+          <ErrorMessage class="invalid-feedback" name="lastName" />
         </div>
       </div>
-    </div>
-    <div class="form-group row mt-4">
-      <label for="email" class="col-3">Email</label>
-      <div class="col-8">
-        <div class="row">
-          <div class="col-9">
-            <Field
-              type="email"
-              :class="{
-                'form-control': true,
-                'is-invalid': errors.email,
-                'is-valid': !errors.email && user.email !== '',
-              }"
-              id="email"
-              v-model="user.email"
-              readonly
-              name="email"
-              placeholder="Địa chỉ email"
-            />
-            <ErrorMessage class="invalid-feedback" name="email" />
-          </div>
-          <div class="col-3">
-            <ChangeEmail @refreshUser="getUser" />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="form-group row mt-4">
-      <label class="col-3">Giới tính*</label><br />
-      <div class="col-8">
-        <div class="row">
-          <div class="col-2">
-            <div class="form-check">
+      <div class="form-group row mt-4 mx-2">
+        <label for="phoneNumber" class="col-3">Số điện thoại</label>
+        <div class="col-8">
+          <div class="row">
+            <div class="col-9">
               <Field
-                type="radio"
-                class="form-check-input"
+                type="tel"
                 :class="{
-                  'is-invalid': errors.gender,
-                  'is-valid': !errors.gender && user.gender !== '',
+                  'form-control': true,
+                  'is-invalid': errors.phoneNumber,
+                  'is-valid': !errors.phoneNumber && user.phoneNumber !== '',
                 }"
-                id="validationFormCheck1"
-                name="gender"
-                value="male"
-                v-model="user.gender"
+                id="phoneNumber"
+                readonly
+                name="phoneNumber"
+                placeholder="nhap so dien thoai"
+                v-model="user.phoneNumber"
               />
-              <label class="form-check-label" for="validationFormCheck2"
-                >Nam</label
-              >
+              <ErrorMessage class="invalid-feedback" name="phoneNumber" />
+            </div>
+            <div class="col-3">
+              <ChangPhoneNumber @refreshUser="getUser" />
             </div>
           </div>
-          <div class="col-2">
-            <div class="form-check">
+        </div>
+      </div>
+      <div class="form-group row mt-4 mx-2">
+        <label for="email" class="col-3">Email</label>
+        <div class="col-8">
+          <div class="row">
+            <div class="col-9">
               <Field
-                type="radio"
-                class="form-check-input"
+                type="email"
                 :class="{
-                  'is-invalid': errors.gender,
-                  'is-valid': !errors.gender && user.gender !== '',
+                  'form-control': true,
+                  'is-invalid': errors.email,
+                  'is-valid': !errors.email && user.email !== '',
                 }"
-                id="validationFormCheck2"
-                name="gender"
-                value="female"
-                v-model="user.gender"
+                id="email"
+                v-model="user.email"
+                readonly
+                name="email"
+                placeholder="Địa chỉ email"
               />
-              <label class="form-check-label" for="validationFormCheck2"
-                >Nữ</label
-              >
+              <ErrorMessage class="invalid-feedback" name="email" />
             </div>
-          </div>
-          <div class="col-8">
-            <ErrorMessage class="invalid-feedback d-block" name="gender" />
+            <div class="col-3">
+              <ChangeEmail @refreshUser="getUser" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="form-group row mt-4">
-      <label for="birthday" class="col-3">Birthday*</label>
-      <div class="col-8">
-        <div class="row">
-          <div class="col">
-            <Field
-              type="text"
-              :class="{
-                'form-control': true,
-                'is-invalid': errors.dayOfBirthday,
-                'is-valid': !errors.dayOfBirthday && user.dayOfBirthday !== '',
-              }"
-              placeholder="DD"
+      <div class="form-group row mt-4 mx-2">
+        <label class="col-3">Giới tính*</label><br />
+        <div class="col-8">
+          <div class="row">
+            <div class="col-2">
+              <div class="form-check">
+                <Field
+                  type="radio"
+                  class="form-check-input"
+                  :class="{
+                    'is-invalid': errors.gender,
+                    'is-valid': !errors.gender && user.gender !== '',
+                  }"
+                  id="validationFormCheck1"
+                  name="gender"
+                  value="male"
+                  v-model="user.gender"
+                />
+                <label class="form-check-label" for="validationFormCheck2"
+                  >Nam</label
+                >
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="form-check">
+                <Field
+                  type="radio"
+                  class="form-check-input"
+                  :class="{
+                    'is-invalid': errors.gender,
+                    'is-valid': !errors.gender && user.gender !== '',
+                  }"
+                  id="validationFormCheck2"
+                  name="gender"
+                  value="female"
+                  v-model="user.gender"
+                />
+                <label class="form-check-label" for="validationFormCheck2"
+                  >Nữ</label
+                >
+              </div>
+            </div>
+            <div class="col-8">
+              <ErrorMessage class="invalid-feedback d-block" name="gender" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row mt-4 mx-2">
+        <label for="birthday" class="col-3">Birthday*</label>
+        <div class="col-8">
+          <div class="row">
+            <div class="col">
+              <Field
+                type="text"
+                :class="{
+                  'form-control': true,
+                  'is-invalid': errors.dayOfBirthday,
+                  'is-valid':
+                    !errors.dayOfBirthday && user.dayOfBirthday !== '',
+                }"
+                placeholder="DD"
+                name="dayOfBirthday"
+                v-model="user.dayOfBirthday"
+              />
+            </div>
+            <div class="col">
+              <Field
+                type="text"
+                :class="{
+                  'form-control': true,
+                  'is-invalid': errors.monthOfBirthday,
+                  'is-valid':
+                    !errors.monthOfBirthday && user.monthOfBirthday !== '',
+                }"
+                placeholder="MM"
+                name="monthOfBirthday"
+                v-model="user.monthOfBirthday"
+              />
+            </div>
+            <div class="col">
+              <Field
+                type="text"
+                :class="{
+                  'form-control': true,
+                  'is-invalid': errors.yearOfBirthday,
+                  'is-valid':
+                    !errors.yearOfBirthday && user.yearOfBirthday !== '',
+                }"
+                placeholder="YYYY"
+                name="yearOfBirthday"
+                v-model="user.yearOfBirthday"
+              />
+            </div>
+          </div>
+          <div class="row mx-2">
+            <ErrorMessage
+              class="invalid-feedback d-block"
               name="dayOfBirthday"
-              v-model="user.dayOfBirthday"
             />
-          </div>
-          <div class="col">
-            <Field
-              type="text"
-              :class="{
-                'form-control': true,
-                'is-invalid': errors.monthOfBirthday,
-                'is-valid':
-                  !errors.monthOfBirthday && user.monthOfBirthday !== '',
-              }"
-              placeholder="MM"
+            <ErrorMessage
+              class="invalid-feedback d-block"
               name="monthOfBirthday"
-              v-model="user.monthOfBirthday"
             />
-          </div>
-          <div class="col">
-            <Field
-              type="text"
-              :class="{
-                'form-control': true,
-                'is-invalid': errors.yearOfBirthday,
-                'is-valid':
-                  !errors.yearOfBirthday && user.yearOfBirthday !== '',
-              }"
-              placeholder="YYYY"
+            <ErrorMessage
+              class="invalid-feedback d-block"
               name="yearOfBirthday"
-              v-model="user.yearOfBirthday"
             />
           </div>
-        </div>
-        <div class="row">
-          <ErrorMessage class="invalid-feedback d-block" name="dayOfBirthday" />
-          <ErrorMessage
-            class="invalid-feedback d-block"
-            name="monthOfBirthday"
-          />
-          <ErrorMessage
-            class="invalid-feedback d-block"
-            name="yearOfBirthday"
-          />
         </div>
       </div>
-    </div>
-    <div class="d-flex justify-content-center">
-      <button
-        type="submit"
-        class="btn btn-primary mt-4 col-3 text-center"
-        :disabled="isLoadingUpdate"
-      >
-        <span
-          v-if="isLoadingUpdate"
-          class="spinner-border spinner-border-sm text-white"
-          role="status"
-          aria-hidden="true"
-        ></span>
-        <span class="text-white" v-else> Lưu thay đổi </span>
-      </button>
-    </div>
-  </form>
+      <div class="d-flex justify-content-center">
+        <button
+          type="submit"
+          class="btn btn-primary mt-4 col-3 text-center"
+          :disabled="isLoadingUpdate"
+        >
+          <span
+            v-if="isLoadingUpdate"
+            class="spinner-border spinner-border-sm text-white"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <span class="text-white" v-else> Lưu thay đổi </span>
+        </button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>

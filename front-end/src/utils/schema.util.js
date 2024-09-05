@@ -193,3 +193,27 @@ export const priceRangeSchema = yup.object({
     .typeError("Giá kết thúc phải là số")
     .required("Giá kết thúc là bắt buộc"),
 });
+
+export const addressSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  province: yup
+    .string()
+    .notOneOf(["0"], "Vui lòng chọn tỉnh/thành phố") // Giá trị không phải là "0"
+    .required("Vui lòng chọn tỉnh/thành phố"),
+  district: yup
+    .string()
+    .notOneOf(["0"], "Vui lòng chọn quận/huyện") // Giá trị không phải là "0"
+    .required("Vui lòng chọn quận/huyện"),
+  ward: yup
+    .string()
+    .notOneOf(["0"], "Vui lòng chọn xã/phường") // Giá trị không phải là "0"
+    .required("Vui lòng chọn xã/phường"),
+  detailAddress: yup
+    .string()
+    .required("Thông tin này quan trọng.Vui lòng không để trống."),
+});

@@ -15,6 +15,11 @@ const client = [
         component: () => import("../pages/client/Home.vue"),
       },
       {
+        path: "cart",
+        name: "cart",
+        component: () => import("../pages/client/Cart.vue"),
+      },
+      {
         path: "/books",
         name: "books",
         redirect: { name: "book-list" },
@@ -28,7 +33,7 @@ const client = [
             path: "detail/:bookID",
             name: "book-detail",
             component: () => import("../pages/client/DetailBook.vue"),
-            props: true
+            props: true,
           },
         ],
       },
@@ -53,7 +58,27 @@ const client = [
           {
             path: "address",
             name: "profile-address",
-            component: () => import("../components/client/profile/Address.vue"),
+            redirect: {name: 'profile-address-list'},
+            children: [
+              {
+                path: "",
+                name: "profile-address-list",
+                component: () =>
+                  import("../components/client/profile/address/index.vue"),
+              },
+              {
+                path: "edit/:addressID",
+                name: "profile-address-edit",
+                component: () =>
+                  import("../components/client/profile/address/editAddress.vue"),
+              },
+              {
+                path: "add",
+                name: "profile-address-add",
+                component: () =>
+                  import("../components/client/profile/address/addAddress.vue"),
+              },
+            ],
           },
         ],
       },

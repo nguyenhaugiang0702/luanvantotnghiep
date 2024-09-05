@@ -48,7 +48,7 @@
                 }"
                 id="authorDob"
                 v-model="authorToEdit.dob"
-              />    
+              />
               <ErrorMessage name="authorDob" class="invalid-feedback" />
             </div>
             <div class="modal-footer">
@@ -104,6 +104,11 @@ export default defineComponent({
         return;
       }
       try {
+        const data = {
+          name: authorToEdit.value.name,
+          dob: authorToEdit.value.dob,
+        };
+        console.log(props.authorToEdit._id);
         const response = await authorService.put(
           `/${props.authorToEdit._id}`,
           authorToEdit.value
@@ -115,7 +120,7 @@ export default defineComponent({
             dangerouslyHTMLString: true,
           });
           resetForm();
-          $('#updateAuthor').modal("hide");
+          $("#updateAuthor").modal("hide");
           emit("refreshAuthors");
         }
       } catch (error) {

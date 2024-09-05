@@ -1,6 +1,31 @@
 <template>
   <!-- Nội dung sản phẩm bên phải -->
   <div class="content">
+    <!-- Filters Tag -->
+    <div v-if="hasFilteredTags" class="row ms-4 pt-4">
+      <span class="col-sm-2 text-center">Lọc theo : </span>
+
+      <div class="col-sm-9 float-start">
+        <div class="row">
+          <div
+            class="col-sm-5 mb-3"
+            v-for="filter in filterMessages"
+            :key="filter.id"
+          >
+            <button class="btn btn-outline-secondary">
+              {{ filter.message }}
+            </button>
+            <button @click="clearFilter(filter.id)" class="btn-tag">Xóa</button>
+          </div>
+          <!-- Nút xóa tất cả bộ lọc -->
+          <div class="col-sm-12 mt-3">
+            <button @click="handleClearFilters" class="btn btn-outline-danger">
+              Xóa tất cả
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Sắp xếp theo và số sản phẩm trên trang -->
     <div class="py-4 ps-2">
       <select class="form-select w-auto">
@@ -11,7 +36,7 @@
     </div>
 
     <!-- Danh sách sản phẩm -->
-    <div class="row">
+    <div class="row" v-if="books.length > 0">
       <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">
         <div class="book-card book card h-100 position-relative">
           <router-link
@@ -20,35 +45,40 @@
           >
             <img
               :src="`${config.imgUrl}/` + book.images[0].path"
-              class="card-img-top w-75" 
+              class="card-img-top w-75"
               alt="book image"
             />
           </router-link>
 
           <div class="card-body">
-            <router-link
+            <router-link class="text-decoration-none"
               :title="book.name"
               :to="{ name: 'book-detail', params: { bookID: book._id } }"
-              ><p class="card-title text-dark">
+              ><p class="card-title text-dark ">
                 {{ truncateTitle(book.name) }}
               </p></router-link
             >
-            <p class="card-text text-danger fw-bold fs-5">
-              {{
-                formatCurrency(
+            <p class="card-text">
+            <span class="text-danger fw-bold fs-5">
+            {{
+                formatPrice(
                   book.detail.originalPrice - book.detail.discountPrice
                 )
-              }}
+              }}</span>
+              
+              <div class=" text-decoration-line-through opacity-75">
+              {{ formatPrice(book.detail.originalPrice) }}
+            </div>
             </p>
-            <p class="card-text text-decoration-line-through opacity-75">
-              {{ formatCurrency(book.detail.originalPrice) }}
-            </p>
+            
             <!-- Nút Xem và Add to Cart hiển thị khi hover -->
             <div
               class="hover-buttons position-absolute bottom-0 start-0 end-0 p-3 text-center"
             >
-              <button class="btn btn-primary me-2">Xem</button>
-              <button class="btn btn-success">Add to Cart</button>
+              <router-link :to="{name: 'book-detail', params: { bookID: book._id }}" class="btn btn-primary me-2">Xem</router-link>
+              <button class="btn btn-success" @click="addToCart(book)">
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -67,28 +97,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch, computed, inject  } from "vue";
 import BookService from "@/service/book.service";
 import config from "@/config/index";
+import Cookies from "js-cookie";
+import { toast } from "vue3-toastify";
+import CartService from "@/service/cart.service";
+import { formatPrice } from "@/utils/utils";
+
 // Dữ liệu sản phẩm mẫu
 const books = ref([]);
-
 const currentPage = ref(1);
 const totalPages = ref(5);
 const bookService = new BookService();
+const cartService = new CartService();
+const tags = ref({});
+const token = Cookies.get("accessToken");
+const isLoggedIn = Cookies.get("isLoggedIn");
+const updateCart = inject('updateCart');
+// Nhận props từ component cha
+const props = defineProps({
+  books: {
+    type: Array,
+    default: () => [],
+  },
+  filteredTags: {
+    type: Object,
+    default: () => ({
+      author: [],
+      category: [],
+      formality: [],
+      price: [],
+      publisher: [],
+      supplier: [],
+    }),
+  },
+});
+const emit = defineEmits(["filteredTagsDelete","cartUpdated"]);
+
 const getBooks = async () => {
   const response = await bookService.get("/");
   if (response.status === 200) {
     books.value = response.data;
   }
-};
-
-// Hàm định dạng tiền
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(value);
 };
 
 // Hàm cắt ngắn tên sách nếu quá dài
@@ -97,9 +148,136 @@ const truncateTitle = (title) => {
   return title.length > maxLength ? title.slice(0, maxLength) + "..." : title;
 };
 
+const hasFilteredTags = computed(() => {
+  // Kiểm tra xem có bất kỳ mảng nào trong filteredTags không rỗng
+  return Object.values(props.filteredTags).some((arr) => arr.length > 0);
+});
+
+// Tạo danh sách các thông điệp riêng biệt cho từng mục
+const filterMessages = computed(() => {
+  const messages = [];
+
+  for (const [key, values] of Object.entries(props.filteredTags)) {
+    if (values.length > 0) {
+      values.forEach((item) => {
+        let message;
+        switch (key) {
+          case "price":
+            message = `Giá: ${item.name}`;
+            break;
+          case "category":
+            message = `Thể loại: ${item.name}`;
+            break;
+          case "author":
+            message = `Tác giả: ${item.name}`;
+            break;
+          case "formality":
+            message = `Hình thức: ${item.name}`;
+            break;
+          case "publisher":
+            message = `Nhà xuất bản: ${item.name}`;
+            break;
+          case "supplier":
+            message = `Nhà cung cấp: ${item.name}`;
+            break;
+          default:
+            message = "";
+        }
+        messages.push({ id: item.id, message });
+      });
+    }
+  }
+
+  return messages;
+});
+
+const clearFilter = (id) => {
+  const key = getKeyById(id); // Tạo hàm getKeyById để tìm kiếm key dựa trên id
+  if (key) {
+    const updatedItems = props.filteredTags[key].filter(
+      (item) => item.id !== id
+    );
+    const updatedIds = updatedItems.map((item) => item.id);
+    const updatedTags = { ...props.filteredTags, [key]: updatedIds };
+    emit("filteredTagsDelete", updatedTags);
+  }
+};
+
+const getKeyById = (id) => {
+  for (const [key, values] of Object.entries(props.filteredTags)) {
+    if (values.some((item) => item.id === id)) {
+      return key;
+    }
+  }
+  return null;
+};
+
+const addToCart = async (book) => {
+  if (!token || !isLoggedIn) {
+    toast("Vui lòng đăng nhập", {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+    return ;
+  }
+  try {
+    const data = {
+      books: [
+        {
+          bookID: book._id,
+          quantity: 1,
+          price: book.detail.originalPrice - book.detail.discountPrice,
+        },
+      ],
+    };
+
+    const response = await cartService.post("/", data, token);
+    if (response.status === 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      updateCart.value += 1;  // Cập nhật giỏ hàng
+    }
+  } catch (error) {
+    toast(error.response?.data?.message, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
+
 onMounted(() => {
   getBooks();
+  if (props.filteredTags) {
+    tags.value = props.filteredTags;
+  }
 });
+
+watch(
+  () => props.books,
+  (newBooks) => {
+    if (newBooks && newBooks.length > 0) {
+      books.value = newBooks;
+    } else {
+      books.value = []; // Clear books if no data
+    }
+  }
+);
+
+// Theo dõi sự thay đổi của `filteredTags`
+watch(
+  () => props.filteredTags,
+  (newFilteredTags) => {
+    if (newFilteredTags) {
+      tags.value = newFilteredTags;
+    }
+  },
+  { deep: true } // Sử dụng deep nếu bạn muốn theo dõi sự thay đổi sâu trong đối tượng `filteredTags`
+);
 
 // Chuyển sang trang trước
 const goToPreviousPage = () => {
@@ -160,5 +338,12 @@ const goToNextPage = () => {
 .book-card:hover {
   transform: translateY(-10px);
   box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
+}
+
+.btn-tag {
+  outline: none;
+  border: none;
+  background-color: red;
+  color: #fff;
 }
 </style>

@@ -1,37 +1,40 @@
 <template>
-  <div class="col-md-3 sidebar border border-dark">
-    <h4 class="p-3">TÀI KHOẢN</h4>
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a class="nav-link" href="#">Bảng điều khiển tài khoản</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="#">Thông tin tài khoản</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Số địa chỉ</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Đơn hàng của tôi</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Vi voucher</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Sách theo dõi</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Tài Khoản F-point / Freeship</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Nhận xét của tôi</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Thông Báo</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Đăng ký nhận tin điện tử</a>
-      </li>
-    </ul>
+  <div class="sidebar bg-white" style="max-height: 500px">
+    <div class="container">
+      <h4 class="p-3">TÀI KHOẢN</h4>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <router-link :to="{name: 'profile-infoUser'}" class="nav-link">Thông tin tài khoản</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'profile-address'}" class="nav-link">Số địa chỉ</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: ''}" class="nav-link">Đơn hàng của tôi</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'profile-password'}" class="nav-link">Đổi mật khẩu</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: ''}" class="nav-link">Vi voucher</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: ''}" class="nav-link">Sách theo dõi</router-link>
+        </li>
+        <li class="nav-item pb-2">
+          <router-link :to="{name: ''}" class="nav-link">Nhận xét của tôi</router-link>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.nav-link {
+  color: black;
+}
+
+.nav-link:hover {
+  color: blue;
+}
+</style>

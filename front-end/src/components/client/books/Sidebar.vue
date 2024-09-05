@@ -10,7 +10,7 @@
         <div :title="priceRange.name">
           <input
             class="form-check-input border border-dark"
-            type="radio"
+            type="checkbox"
             name="pricerange"
             :id="`pricerange-${priceRange._id}`"
             @change="
@@ -252,7 +252,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useExpandableList } from "@/composables/useExpandableList";
 import AuthorsService from "@/service/author.service";
 import PublisherService from "@/service/publisher.service";
@@ -263,6 +263,20 @@ import PriceRangeService from "@/service/priceRange.service";
 import BookService from "@/service/book.service";
 
 export default {
+  emit: ["filteredBooks", "filteredTags"],
+  props: {
+    filteredTagsDelete: {
+      type: Object,
+      default: () => ({
+        author: [],
+        category: [],
+        formality: [],
+        price: [],
+        publisher: [],
+        supplier: [],
+      }),
+    },
+  },
   setup(props, { emit }) {
     const authors = ref([]);
     const publishers = ref([]);
@@ -271,6 +285,14 @@ export default {
     const suppliers = ref([]);
     const priceranges = ref([]);
     const selectedFilters = ref({
+      price: [],
+      category: [],
+      publisher: [],
+      supplier: [],
+      formality: [],
+      author: [],
+    });
+    const selectedTags = ref({
       price: [],
       category: [],
       publisher: [],
@@ -366,16 +388,11 @@ export default {
           selectedFilters.value[filterType].splice(index, 1);
         }
       }
-      applyFilters();
+      fetchFilteredBooks();
     };
 
-    const applyFilters = () => {
-      const filters = { ...selectedFilters.value };
-      // Gọi API để lọc sản phẩm
-      fetchFilteredProducts(filters);
-    };
-
-    const fetchFilteredProducts = async (filters) => {
+    const fetchFilteredBooks = async () => {
+      const filters = selectedFilters.value;
       try {
         const filtersString = JSON.stringify(filters);
         // Giả sử có một service lấy sản phẩm đã được filter
@@ -384,12 +401,97 @@ export default {
         );
         if (response.status === 200) {
           // Xử lý dữ liệu sản phẩm nhận được sau khi lọc
-          console.log("Filtered Products:", response.data);
+          // console.log("Filtered Products:", response.data);
+          emit("filteredBooks", response.data);
+          updateTags();
         }
       } catch (error) {
-        console.error("Failed to fetch filtered products", error);
+        console.error("Failed to fetch filtered books", error);
       }
     };
+
+    const updateTags = () => {
+      const tags = {};
+      Object.keys(selectedFilters.value).forEach((filterType) => {
+        tags[filterType] = [];
+        selectedFilters.value[filterType].forEach((id) => {
+          const item = findItemById(filterType, id);
+          if (item) {
+            tags[filterType].push({ id: item._id, name: item.name });
+          }
+        });
+      });
+      selectedTags.value = tags;
+      emit("filteredTags", selectedTags.value);
+    };
+
+    const findItemById = (filterType, id) => {
+      let collection;
+      switch (filterType) {
+        case "price":
+          collection = priceranges.value;
+          break;
+        case "category":
+          collection = categories.value;
+          break;
+        case "publisher":
+          collection = publishers.value;
+          break;
+        case "supplier":
+          collection = suppliers.value;
+          break;
+        case "formality":
+          collection = formalities.value;
+          break;
+        case "author":
+          collection = authors.value;
+          break;
+        default:
+          return null;
+      }
+      return collection.find((item) => item._id === id);
+    };
+
+    const updateCheckboxes = () => {
+      const { filteredTagsDelete } = props;
+
+      // Cập nhật trạng thái checkbox cho mỗi loại bộ lọc
+      const updateFilter = (filterType, items, selectedItems) => {
+        items.value.forEach((item) => {
+          const checkbox = document.getElementById(`${filterType}-${item._id}`);
+          if (checkbox) {
+            checkbox.checked = selectedItems.includes(item._id);
+          }
+        });
+      };
+
+      // Cập nhật checkbox cho từng loại bộ lọc, kể cả khi mảng rỗng
+      updateFilter("pricerange", priceranges, filteredTagsDelete.price || []);
+      updateFilter("category", categories, filteredTagsDelete.category || []);
+      updateFilter("publisher", publishers, filteredTagsDelete.publisher || []);
+      updateFilter("supplier", suppliers, filteredTagsDelete.supplier || []);
+      updateFilter(
+        "formality",
+        formalities,
+        filteredTagsDelete.formality || []
+      );
+      updateFilter("author", authors, filteredTagsDelete.author || []);
+    };
+
+    watch(
+      () => props.filteredTagsDelete,
+      (newFilters) => {
+        Object.keys(newFilters).forEach((key) => {
+          if (selectedFilters.value[key]) {
+            // Lấy mảng các id trong newFilters[key]
+            selectedFilters.value[key] = newFilters[key];
+            updateCheckboxes();
+          }
+        });
+        fetchFilteredBooks();
+      },
+      { immediate: true }
+    );
 
     onMounted(() => {
       fetchData();

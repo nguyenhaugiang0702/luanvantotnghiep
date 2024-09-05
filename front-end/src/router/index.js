@@ -11,13 +11,14 @@ const router = createRouter({
 });
 
 // Guard để kiểm tra token trước khi truy cập vào trang đăng nhập
-// router.beforeEach((to, from, next) => {
-//   const token = Cookies.get('accessToken');
-//   if (token && to.name === 'login') {
-//     next({ name: '/' });
-//   } else {
-//     next();
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  const token = Cookies.get('accessToken');
+  const isLoggedIn = Cookies.get('isLoggedIn');
+  if (token && isLoggedIn && to.name === 'login') {
+    next({ path: '/' });
+  } else {
+    next();
+  }
+});
 
 export default router;

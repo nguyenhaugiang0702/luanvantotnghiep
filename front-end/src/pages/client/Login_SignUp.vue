@@ -181,7 +181,7 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch, watchEffect } from "vue";
+import { ref, computed, onMounted, watch, watchEffect, inject, nextTick } from "vue";
 import AuthService from "@/service/auth.service";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
@@ -218,6 +218,7 @@ export default {
       },
     });
     const router = useRouter();
+    const updateCart = inject("updateCart");
 
     // Thêm biến để quản lý việc hiển thị mật khẩu
     const showPasswordSignUp = ref(false);
@@ -363,9 +364,10 @@ export default {
         if (response.status == 200) {
           const token = response.data.accessToken;
           const isLoggedIn = response.data.isLoggedIn;
-          Cookies.set("accessToken", token, { expires: 7 });
-          Cookies.set("isLoggedIn", isLoggedIn, { expires: 7 });
+          Cookies.set("accessToken", token, { expires: 365 });
+          Cookies.set("isLoggedIn", isLoggedIn, { expires: 365 });
           router.push({ name: "profile" });
+          window.location.href = '/customer/account/edit/';
         }
       } catch (error) {
         const errorMessage = error.response?.data?.message;

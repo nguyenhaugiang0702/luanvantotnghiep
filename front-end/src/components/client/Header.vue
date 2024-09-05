@@ -30,40 +30,64 @@
             <span class="visually-hidden">unread messages</span>
           </span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" style="width: 500px">
-          <li v-for="book in booksInCart.books" :key="book.book_id">
-            <div class="row align-items-center">
-              <div class="col-auto">
-                <img
-                  class="ms-2"
-                  style="width: 100px; height: 100px"
-                  :src="`http://localhost:3000/` + book.book_image"
-                  alt=""
-                />
-              </div>
-              <div class="col">
-                <div class="col-12 text-break fw-bold">
-                  {{ book.book_name }}
-                </div>
-                <div class="col-12 fw-bold">Số Lượng: {{ book.quantity }}</div>
-              </div>
-            </div>
-            <hr />
-          </li>
-          <li class="row" v-if="userInfo.user_name">
-            <router-link
-              :to="{ name: 'cart' }"
-              class="btn btn-warning col-sm-4 mx-auto"
-              >Giỏ Hàng</router-link
+        <ul class="dropdown-menu dropdown-menu-cart">
+          <li class="mx-4 my-2">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="fw-bold ms-2"
+              >Giỏ hàng ({{ totalQuantityInCart }})</span
             >
           </li>
+          <hr />
+          <div class="books-list">
+            <li v-for="book in booksInCart.books" :key="book.book_id">
+              <div class="row align-items-center">
+                <div class="col-sm-3 text-center">
+                  <img
+                    v-if="book.bookID.images && book.bookID.images.length > 0"
+                    class="ms-2"
+                    style="width: 80px; height: 80px"
+                    :src="`${config.imgUrl}/` + book.bookID?.images[0]?.path"
+                    alt=""
+                  />
+                </div>
+                <div class="col-sm-9">
+                  <div class="row text-break fw-bold">
+                    <div class="col-sm-12">{{ book.bookID.name }}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <span class="text-danger fw-bold">{{
+                        formatPrice(book.price)
+                      }}</span>
+                      x
+                      <span>{{ book.quantity }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr />
+            </li>
+          </div>
+          <div class="row" v-if="isLoggedIn && token">
+            <div class="col-sm-6 text-start mx-4">
+              Tổng cộng:
+              <span class="text-danger fw-bold">{{
+                formatPrice(totalPrice)
+              }}</span>
+            </div>
+            <div class="col-sm-3 text-center">
+              <router-link class="btn btn-warning" :to="{ name: 'cart' }"
+                >Giỏ hàng</router-link
+              >
+            </div>
+          </div>
         </ul>
       </div>
       <!-- End Giỏ Hàng -->
 
       <!-- Tài Khoản -->
       <div class="col-sm-2 dropdown">
-        <div v-if="userInfo.user_name" class="my-4" style="z-index: 1021">
+        <div v-if="isLoggedIn && token" class="my-4" style="z-index: 1021">
           <div class="dropdown">
             <a
               class="nav-link dropdown-toggle"
@@ -94,7 +118,7 @@
           </div>
         </div>
 
-        <div v-else class="dropdown my-4" style="z-index: 1021">
+        <div v-else class="dropdown my-4">
           <button
             class="btn btn-secondary dropdown-toggle"
             type="button"
@@ -123,11 +147,22 @@
 </template>
 <script>
 import Search from "./Search.vue";
-import { computed, onMounted, ref } from "vue";
+import {
+  computed,
+  onMounted,
+  ref,
+  inject,
+  watch,
+  nextTick,
+  watchEffect,
+} from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
 import ApiService from "../../service/ApiService";
+import CartService from "@/service/cart.service";
 import { useRouter } from "vue-router";
+import config from "@/config/index";
+import { formatPrice } from "@/utils/utils";
 
 export default {
   components: {
@@ -138,9 +173,12 @@ export default {
     const userInfo = ref({});
     const router = useRouter();
     const apiService = new ApiService();
+    const cartService = new CartService();
+    const token = Cookies.get("accessToken"); 
+    const isLoggedIn = Cookies.get("isLoggedIn");
+    const updateCart = inject("updateCart");
     const getUser = async () => {
       try {
-        const token = Cookies.get("accessToken");
         if (token) {
           const response = await apiService.get(`users/${token}`);
           if (response.status === 200) {
@@ -175,23 +213,28 @@ export default {
 
     const booksInCart = ref([]);
     const getCarts = async () => {
-      try {
-        const token = Cookies.get("accessToken");
-        if (token) {
-          const response = await apiService.get(`cart/${token}`);
-          if (response.status === 200) {
-            booksInCart.value = response.data;
-          }
+      if (token) {
+        const response = await cartService.get("/", token);
+        if (response.status === 200) {
+          booksInCart.value = response.data;
         }
-      } catch (error) {
-        console.log(error);
       }
     };
 
-    // onMounted(() => {
-    //     getCarts();
-    //     getUser();
-    // })
+    const totalPrice = computed(() => {
+      return booksInCart.value.totalPrice || 0;
+    });
+
+    // Quan sát sự thay đổi của updateCart và gọi getCarts mỗi khi nó thay đổi
+    watch(updateCart, (newValue) => {
+      if (newValue) {
+        getCarts();
+      }
+    });
+
+    onMounted(() => {
+      getCarts();
+    });
 
     const totalQuantityInCart = computed(() => {
       // Kiểm tra nếu booksInCart.value không tồn tại hoặc không phải là một object
@@ -202,7 +245,7 @@ export default {
       if (!Array.isArray(booksArray)) {
         return 0;
       }
-      return booksArray.reduce((total, book) => total + book.quantity, 0);
+      return booksArray.length;
     });
 
     const setLogin = () => {
@@ -226,7 +269,47 @@ export default {
       userInfo,
       setLogin,
       setSignUp,
+      isLoggedIn,
+      token,
+      config,
+      totalPrice,
+      formatPrice,
     };
   },
 };
 </script>
+<style scoped>
+.books-list {
+  overflow-y: auto;
+  max-height: 450px;
+}
+.dropdown:hover .dropdown-menu {
+  display: block;
+  animation: fadeInUp 0.35s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dropdown-menu-cart {
+  width: 500px;
+}
+
+.dropdown-menu {
+  z-index: 1021;
+}
+
+/* Đảm bảo các li bên trong không làm dropdown menu bị kéo dài */
+.dropdown-menu .books-list {
+  list-style: none; /* Loại bỏ dấu gạch đầu dòng của li */
+  padding: 0; /* Xóa padding của ul */
+  margin: 0; /* Xóa margin của ul */
+}
+</style>
