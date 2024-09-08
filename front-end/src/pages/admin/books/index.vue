@@ -24,6 +24,7 @@
                   autoWidth: true,
                   dom: 'lBfrtip',
                   buttons: buttons,
+                  language: language
                 }"
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
@@ -93,6 +94,7 @@ export default {
       },
       {
         data: "name",
+        width: '25%',
         render: (data, type, row, meta) => {
           return `<div class='text-start'>${data}</div>`;
         },
@@ -160,40 +162,6 @@ export default {
       router.push({ name: "admin-books-edit", params: { bookID: bookId } });
     });
 
-    // const deleteAuthor = async (authorId) => {
-    //   const response = await authorService.delete(`/${authorId}`);
-    //   if (response.status === 200) {
-    //     toast(response.data.message, {
-    //       theme: "auto",
-    //       type: "success",
-    //       dangerouslyHTMLString: true,
-    //     });
-    //     getBooks();
-    //   }
-    // };
-
-    // $(document).on("click", "#deleteAuthor", async (event) => {
-    //   const authorId = $(event.currentTarget).data("id");
-    //   const isConfirmed = await showConfirmation({
-    //     title: "Bạn chắc chắn muốn xóa tác giả này",
-    //   });
-    //   if (isConfirmed.isConfirmed) {
-    //     await deleteAuthor(authorId);
-    //   }
-    // });
-
-    // const deleteAuthor = async (authorId) => {
-    //   const response = await authorService.delete(`/${authorId}`);
-    //   if (response.status === 200) {
-    //     toast(response.data.message, {
-    //       theme: "auto",
-    //       type: "success",
-    //       dangerouslyHTMLString: true,
-    //     });
-    //     getBooks();
-    //   }
-    // };
-
     $(document).on("click", "#viewDetail", async (event) => {
       let bookId = $(event.currentTarget).data("id");
       router.push({ name: "admin-books-edit-detail", params: { bookID: bookId } });
@@ -203,11 +171,50 @@ export default {
       getBooks();
     });
 
+    // Bỏ cột thao tác trong bảng
+    const exportOptions = {
+      columns: ":not(:last-child)",
+    };
+
+    const buttons = [
+      {
+        extend: "copy",
+        exportOptions: exportOptions,
+      },
+      {
+        extend: "csv",
+        exportOptions: exportOptions,
+      },
+      {
+        extend: "pdf",
+        exportOptions: exportOptions,
+      },
+      {
+        extend: "print",
+        exportOptions: exportOptions,
+      },
+    ];
+    // Bỏ cột thao tác trong bảng
+
+    const language = {
+      search: "_INPUT_",
+      searchPlaceholder: "Tìm kiếm...",
+      lengthMenu: "Hiển thị _MENU_ hàng",
+      paginate: {
+        first: "Đầu tiên",
+        last: "Cuối cùng",
+        next: "Tiếp theo",
+        previous: "Trước đó",
+      },
+      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+    };
+
     return {
       getBooks,
       books,
       columns,
-      //   editedAuthor,
+      buttons,
+      language
     };
   },
 };

@@ -1,12 +1,15 @@
 <template>
   <div>
-    <a-layout-header class="text-uppercase fw-bold" style="background: #fff; padding: 0 20px">
+    <a-layout-header
+      class="text-uppercase fw-bold"
+      style="background: #fff; padding: 0 20px"
+    >
       Quản lý người dùng
     </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>User</a-breadcrumb-item>
-        <a-breadcrumb-item>Bill</a-breadcrumb-item>
+        <a-breadcrumb-item>Người dùng</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <div class="row">
@@ -17,10 +20,11 @@
                 :columns="columns"
                 :data="users"
                 :options="{
-                  response: true,
-                  autoWidth: false,
-                  dom: 'Bfrtip',
+                  responsive: false,
+                  autoWidth: true,
+                  dom: 'lBfrtip',
                   buttons: buttons,
+                  language: language,
                 }"
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
@@ -61,6 +65,7 @@ import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
 import "datatables.net-responsive-bs5";
+import "datatables.net-select-bs5";
 import JsZip from "jszip";
 window.JsZip = JsZip;
 DataTable.use(DataTableLib);
@@ -70,6 +75,7 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import ApiService from "@/service/ApiService.js";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
+import moment from 'moment';
 
 export default defineComponent({
   components: {
@@ -93,7 +99,18 @@ export default defineComponent({
           return `<div>${row.firstName} ${row.lastName}</div>`;
         },
       },
-      { data: "gender" },
+      {
+        data: "gender",
+        render: (data) => {
+          if (data === "male") {
+            data = "Nam";
+            return `<div class="text-start">${data}</div>`;
+          } else {
+            data = "Nữ";
+            return `<div class="text-start">${data}</div>`;
+          }
+        },
+      },
       {
         data: "phoneNumber",
         render: (data, type, row, meta) => {
@@ -114,8 +131,18 @@ export default defineComponent({
           }
         },
       },
-      { data: "createdAt" },
-      { data: "updatedAt" },
+      {
+        data: "createdAt",
+        render: (data, type, row, meta) => {
+          return moment(data).format("DD/MM/YYYY HH:mm:ss");
+        },
+      },
+      {
+        data: "updatedAt",
+        render: (data, type, row, meta) => {
+          return moment(data).format("DD/MM/YYYY HH:mm:ss");
+        },
+      },
       {
         data: "_id",
         render: (data, type, row, meta) => {
@@ -267,12 +294,26 @@ export default defineComponent({
     ];
     // Bỏ cột thao tác trong bảng
 
+    const language = {
+      search: "_INPUT_",
+      searchPlaceholder: "Tìm kiếm...",
+      lengthMenu: "Hiển thị _MENU_ hàng",
+      paginate: {
+        first: "Đầu tiên",
+        last: "Cuối cùng",
+        next: "Tiếp theo",
+        previous: "Trước đó",
+      },
+      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+    };
+
     return {
       getUsers,
       columns,
       users,
       buttons,
       exportOptions,
+      language  
     };
   },
 });

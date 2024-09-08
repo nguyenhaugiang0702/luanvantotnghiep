@@ -8,7 +8,7 @@
         <form @submit.prevent="signIn" class="form_input">
           <div class="type">
             <label for="exampleFormControlInput1" class="form-label float-start"
-              >Số điện thoại/Email</label
+              >Số điện thoại</label
             >
             <input
               v-model="phoneNumber.phoneNumberSignIn"

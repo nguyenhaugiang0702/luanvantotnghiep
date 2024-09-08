@@ -8,10 +8,10 @@
     </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Sách</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">Sách</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">Sachs hoa hong</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">hinh anh</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">{{ bookName }}</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">Hình ảnh</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <div class="row">
@@ -175,16 +175,18 @@ export default {
     const bookService = new BookService();
     const route = useRoute();
     const bookID = route.params.bookID;
+    const bookName = ref("");
     // lấy ảnh của sách
     const getImages = async () => {
       const response = await bookService.get(`/images/${bookID}`);
       if (response.status === 200) {
-        images.value = response.data.map((image) => {
+        images.value = response.data.images.map((image) => {
           return {
             _id: image._id,
             path: `${config.imgUrl}/${image.path}`,
           };
         });
+        bookName.value = response.data.bookName;
       }
     };
     const currentPage = ref(1);
@@ -195,7 +197,7 @@ export default {
 
     const handlePageChange = (page, pageSize) => {
       currentPage.value = page;
-      itemsPerPage.value = pageSize; // Cập nhật số lượng mục mỗi trang
+      itemsPerPage.value = pageSize;
     };
 
     const paginatedImages = computed(() => {
@@ -203,15 +205,6 @@ export default {
       const end = start + itemsPerPage.value;
       return images.value.slice(start, end);
     });
-
-    // const totalPages = computed(() =>
-    //   Math.ceil(images.value.length / itemsPerPage.value)
-    // );
-    // const paginatedImages = computed(() => {
-    //   const start = (currentPage.value - 1) * itemsPerPage.value;
-    //   const end = start + itemsPerPage.value;
-    //   return images.value.slice(start, end);
-    // });
 
     onMounted(() => {
       getImages();
@@ -362,6 +355,7 @@ export default {
     };
 
     return {
+      bookName,
       images,
       isEditing,
       previewImages,

@@ -11,13 +11,13 @@
           <input
             class="form-check-input border border-dark"
             type="checkbox"
-            name="pricerange"
-            :id="`pricerange-${priceRange._id}`"
+            name="price"
+            :id="`price-${priceRange._id}`"
             @change="
-              handleFilterChange('price', priceRange._id, $event.target.checked)
+              handleFilterChange('price', priceRange, $event.target.checked)
             "
           />
-          <label class="form-check-label" :for="`pricerange-${priceRange._id}`">
+          <label class="form-check-label" :for="`price-${priceRange._id}`">
             {{ priceRange.name }}
           </label>
         </div>
@@ -53,11 +53,7 @@
             :id="`category-${category._id}`"
             :value="category._id"
             @change="
-              handleFilterChange(
-                'category',
-                category._id,
-                $event.target.checked
-              )
+              handleFilterChange('category', category, $event.target.checked)
             "
           />
           <label class="form-check-label" :for="`category-${category._id}`">{{
@@ -96,11 +92,7 @@
             :id="`publisher-${publisher._id}`"
             :value="publisher._id"
             @change="
-              handleFilterChange(
-                'publisher',
-                publisher._id,
-                $event.target.checked
-              )
+              handleFilterChange('publisher', publisher, $event.target.checked)
             "
           />
           <label class="form-check-label" :for="`publisher-${publisher._id}`">{{
@@ -139,11 +131,7 @@
             :id="`supplier-${supplier._id}`"
             :value="supplier._id"
             @change="
-              handleFilterChange(
-                'supplier',
-                supplier._id,
-                $event.target.checked
-              )
+              handleFilterChange('supplier', supplier, $event.target.checked)
             "
           />
           <label class="form-check-label" :for="`supplier-${supplier._id}`">{{
@@ -182,11 +170,7 @@
             :id="`formality-${formality._id}`"
             :value="formality._id"
             @change="
-              handleFilterChange(
-                'formality',
-                formality._id,
-                $event.target.checked
-              )
+              handleFilterChange('formality', formality, $event.target.checked)
             "
           />
           <label class="form-check-label" :for="`formality-${formality._id}`">{{
@@ -225,7 +209,7 @@
             :id="`author-${author._id}`"
             :value="author._id"
             @change="
-              handleFilterChange('author', author._id, $event.target.checked)
+              handleFilterChange('author', author, $event.target.checked)
             "
           />
           <label class="form-check-label" :for="`author-${author._id}`">{{
@@ -263,7 +247,7 @@ import PriceRangeService from "@/service/priceRange.service";
 import BookService from "@/service/book.service";
 
 export default {
-  emit: ["filteredBooks", "filteredTags"],
+  emit: ["filteredBooks", "filteredTags", "selected-ids"],
   props: {
     filteredTagsDelete: {
       type: Object,
@@ -380,115 +364,63 @@ export default {
     } = useExpandableList(priceranges);
 
     const handleFilterChange = (filterType, value, isChecked) => {
+      const currentFilters = selectedFilters.value[filterType];
       if (isChecked) {
-        selectedFilters.value[filterType].push(value);
-      } else {
-        const index = selectedFilters.value[filterType].indexOf(value);
-        if (index > -1) {
-          selectedFilters.value[filterType].splice(index, 1);
-        }
-      }
-      fetchFilteredBooks();
-    };
-
-    const fetchFilteredBooks = async () => {
-      const filters = selectedFilters.value;
-      try {
-        const filtersString = JSON.stringify(filters);
-        // Giả sử có một service lấy sản phẩm đã được filter
-        const response = await bookService.get(
-          `/filters?filters=${filtersString}`
-        );
-        if (response.status === 200) {
-          // Xử lý dữ liệu sản phẩm nhận được sau khi lọc
-          // console.log("Filtered Products:", response.data);
-          emit("filteredBooks", response.data);
-          updateTags();
-        }
-      } catch (error) {
-        console.error("Failed to fetch filtered books", error);
-      }
-    };
-
-    const updateTags = () => {
-      const tags = {};
-      Object.keys(selectedFilters.value).forEach((filterType) => {
-        tags[filterType] = [];
-        selectedFilters.value[filterType].forEach((id) => {
-          const item = findItemById(filterType, id);
-          if (item) {
-            tags[filterType].push({ id: item._id, name: item.name });
-          }
+        currentFilters.push({
+          id: value._id,
+          name: value.name,
         });
-      });
-      selectedTags.value = tags;
-      emit("filteredTags", selectedTags.value);
-    };
-
-    const findItemById = (filterType, id) => {
-      let collection;
-      switch (filterType) {
-        case "price":
-          collection = priceranges.value;
-          break;
-        case "category":
-          collection = categories.value;
-          break;
-        case "publisher":
-          collection = publishers.value;
-          break;
-        case "supplier":
-          collection = suppliers.value;
-          break;
-        case "formality":
-          collection = formalities.value;
-          break;
-        case "author":
-          collection = authors.value;
-          break;
-        default:
-          return null;
+      } else {
+        const index = currentFilters.findIndex((item) => item.id === value._id);
+        if (index > -1) {
+          currentFilters.splice(index, 1);
+        }
       }
-      return collection.find((item) => item._id === id);
+      // Cập nhật các bộ lọc
+      emit("selected-ids", selectedFilters.value);
+      // Gọi API để lấy sách đã được lọc
+      // fetchFilteredBooks(selectedFilters.value);
     };
 
-    const updateCheckboxes = () => {
-      const { filteredTagsDelete } = props;
-
-      // Cập nhật trạng thái checkbox cho mỗi loại bộ lọc
-      const updateFilter = (filterType, items, selectedItems) => {
-        items.value.forEach((item) => {
+    const updateCheckboxes = (filters, newFilters) => {
+      for (const [filterType, items] of Object.entries(filters)) {
+        items.forEach((item) => {
           const checkbox = document.getElementById(`${filterType}-${item._id}`);
           if (checkbox) {
-            checkbox.checked = selectedItems.includes(item._id);
+            // Chỉ cần cập nhật checkbox nếu có thay đổi trong newFilters
+            if (newFilters[filterType]) {
+              const ids = newFilters[filterType].map((item) => item.id);
+              checkbox.checked = ids.includes(item._id);
+            }
           }
         });
-      };
-
-      // Cập nhật checkbox cho từng loại bộ lọc, kể cả khi mảng rỗng
-      updateFilter("pricerange", priceranges, filteredTagsDelete.price || []);
-      updateFilter("category", categories, filteredTagsDelete.category || []);
-      updateFilter("publisher", publishers, filteredTagsDelete.publisher || []);
-      updateFilter("supplier", suppliers, filteredTagsDelete.supplier || []);
-      updateFilter(
-        "formality",
-        formalities,
-        filteredTagsDelete.formality || []
-      );
-      updateFilter("author", authors, filteredTagsDelete.author || []);
+      }
     };
 
     watch(
       () => props.filteredTagsDelete,
-      (newFilters) => {
+      async (newFilters) => {
+        // Cập nhật selectedFilters dựa trên newFilters
         Object.keys(newFilters).forEach((key) => {
-          if (selectedFilters.value[key]) {
-            // Lấy mảng các id trong newFilters[key]
-            selectedFilters.value[key] = newFilters[key];
-            updateCheckboxes();
-          }
+          const ids = newFilters[key].map((item) => item.id);
+          // Cập nhật selectedFilters với các id còn lại
+          selectedFilters.value[key] = selectedFilters.value[key].filter(
+            (item) => ids.includes(item.id)
+          );
         });
-        fetchFilteredBooks();
+        // Cập nhật checkbox sau khi selectedFilters đã được cập nhật
+        updateCheckboxes(
+          {
+            price: priceranges.value,
+            category: categories.value,
+            publisher: publishers.value,
+            supplier: suppliers.value,
+            formality: formalities.value,
+            author: authors.value,
+          },
+          selectedFilters.value
+        );
+        emit("selected-ids", selectedFilters.value);
       },
       { immediate: true }
     );

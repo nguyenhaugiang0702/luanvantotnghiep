@@ -39,20 +39,35 @@
           </li>
           <hr />
           <div class="books-list">
-            <li v-for="book in booksInCart.books" :key="book.book_id">
+            <li v-for="book in booksInCart.books" :key="book.bookID._id">
               <div class="row align-items-center">
                 <div class="col-sm-3 text-center">
-                  <img
-                    v-if="book.bookID.images && book.bookID.images.length > 0"
-                    class="ms-2"
-                    style="width: 80px; height: 80px"
-                    :src="`${config.imgUrl}/` + book.bookID?.images[0]?.path"
-                    alt=""
-                  />
+                  <router-link
+                    :to="{
+                      name: 'book-detail',
+                      params: { bookID: book.bookID._id },
+                    }"
+                  >
+                    <img
+                      v-if="book.bookID.images && book.bookID.images.length > 0"
+                      class="ms-2"
+                      style="width: 80px; height: 80px"
+                      :src="`${config.imgUrl}/` + book.bookID?.images[0]?.path"
+                      alt=""
+                  /></router-link>
                 </div>
                 <div class="col-sm-9">
                   <div class="row text-break fw-bold">
-                    <div class="col-sm-12">{{ book.bookID.name }}</div>
+                    <router-link class="text-decoration-none text-dark"
+                      :to="{
+                        name: 'book-detail',
+                        params: { bookID: book.bookID._id },
+                      }"
+                    >
+                      <div class="col-sm-12">
+                        {{ book.bookID.name }}
+                      </div></router-link
+                    >
                   </div>
                   <div class="row">
                     <div class="col-sm-12">
@@ -174,7 +189,7 @@ export default {
     const router = useRouter();
     const apiService = new ApiService();
     const cartService = new CartService();
-    const token = Cookies.get("accessToken"); 
+    const token = Cookies.get("accessToken");
     const isLoggedIn = Cookies.get("isLoggedIn");
     const updateCart = inject("updateCart");
     const getUser = async () => {

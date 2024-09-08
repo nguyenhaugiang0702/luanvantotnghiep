@@ -28,8 +28,8 @@
         <span>Hình thức</span>
       </a-menu-item>
       <a-menu-item
-        key="admin-priceranges"
-        @click="navigateTo('admin-priceranges')"
+        key="admin-priceranges-list"
+        @click="navigateTo('admin-priceranges-list')"
       >
         <desktop-outlined />
         <span>Khoản giá</span>

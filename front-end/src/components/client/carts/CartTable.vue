@@ -28,26 +28,36 @@
           />
         </td>
         <td style="width: 150px">
-          <img
-            v-if="book.bookID?.images && book.bookID?.images?.length > 0"
-            class="img-fluid"
-            :src="`http://localhost:3000/` + book.bookID?.images[0]?.path"
-            alt=""
-          />
+          <router-link
+            :to="{
+              name: 'book-detail',
+              params: { bookID: book.bookID._id },
+            }"
+            ><img
+              v-if="book.bookID?.images && book.bookID?.images?.length > 0"
+              class="img-fluid"
+              :src="`http://localhost:3000/` + book.bookID?.images[0]?.path"
+              alt=""
+          /></router-link>
         </td>
         <td>
-          <a class="text-decoration-none text-break text-dark">
-            {{ book.bookID.name }}
-            <div>
-              <small>Còn lại 0</small>
-            </div>
-            <span class="price text-danger fw-bold">
-              {{ formattedPrice(book.price) }}
-            </span>
-            <span class="ms-2 text-decoration-line-through opacity-75">{{
-              formattedPrice(book.bookID.detail.originalPrice)
-            }}</span>
-          </a>
+          <router-link
+            class="text-decoration-none text-break text-dark"
+            :to="{
+              name: 'book-detail',
+              params: { bookID: book.bookID._id },
+            }"
+            >{{ book.bookID.name }}</router-link
+          >
+          <div>
+            <small>Còn lại 0</small>
+          </div>
+          <span class="price text-danger fw-bold">
+            {{ formattedPrice(book.price) }}
+          </span>
+          <span class="ms-2 text-decoration-line-through opacity-75">{{
+            formattedPrice(book.bookID.detail.originalPrice)
+          }}</span>
         </td>
         <td>
           <div class="input-group">
@@ -241,9 +251,9 @@ export default {
             const bookTotalPrice = book.quantity * book.price;
             totalPrice += bookTotalPrice;
             selectedBooksArray.push({
-              bookID: book.bookID._id, 
+              bookID: book.bookID._id,
               quantity: book.quantity,
-              totalPrice: bookTotalPrice, 
+              totalPrice: bookTotalPrice,
             });
           }
         }

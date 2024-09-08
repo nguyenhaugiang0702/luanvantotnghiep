@@ -168,7 +168,7 @@
 <script setup>
 import BookService from "@/service/book.service";
 import { formatPrice } from "@/utils/utils";
-import { ref, onMounted, computed, nextTick, inject } from "vue";
+import { ref, onMounted, computed, nextTick, inject, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import config from "@/config/index";
 import { Carousel, Slide } from "vue3-carousel";
@@ -179,7 +179,7 @@ import CartService from "@/service/cart.service";
 
 const route = useRoute();
 const router = useRouter();
-const bookID = route.params.bookID;
+const bookID = ref(route.params.bookID);
 const bookService = new BookService();
 const cartService = new CartService();
 const book = ref({});
@@ -201,12 +201,23 @@ const slideTo = (val) => {
 
 // Lấy thông tin sách
 const getBook = async () => {
-  const response = await bookService.get(`/${bookID}`);
+  const response = await bookService.get(`/${bookID.value}`);
   if (response.status === 200) {
     book.value = response.data;
     isLongDescription.value = checkLongDescription(book.value.description);
   }
 };
+
+watch(
+  () => route.params.bookID,
+  async (newBookID) => {
+    if (newBookID) {
+      bookID.value = newBookID;
+      await getBook();
+    }
+  },
+  { immediate: true } // Đảm bảo gọi ngay khi component mount
+);
 
 const isLongDescription = ref(false);
 

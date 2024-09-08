@@ -28,10 +28,10 @@
     </div>
     <!-- Sắp xếp theo và số sản phẩm trên trang -->
     <div class="py-4 ps-2">
-      <select class="form-select w-auto">
+      <select class="form-select w-auto" v-model="itemsPerPage">
         <option value="8">8 sản phẩm</option>
         <option value="12">12 sản phẩm</option>
-        <option value="16">16 sản phẩm</option>
+        <option value="24">24 sản phẩm</option>
       </select>
     </div>
 
@@ -51,31 +51,37 @@
           </router-link>
 
           <div class="card-body">
-            <router-link class="text-decoration-none"
+            <router-link
+              class="text-decoration-none"
               :title="book.name"
               :to="{ name: 'book-detail', params: { bookID: book._id } }"
-              ><p class="card-title text-dark ">
+              ><p class="card-title text-dark">
                 {{ truncateTitle(book.name) }}
               </p></router-link
             >
-            <p class="card-text">
-            <span class="text-danger fw-bold fs-5">
-            {{
-                formatPrice(
-                  book.detail.originalPrice - book.detail.discountPrice
-                )
-              }}</span>
-              
-              <div class=" text-decoration-line-through opacity-75">
-              {{ formatPrice(book.detail.originalPrice) }}
+            <div class="card-text">
+              <span class="text-danger fw-bold fs-5">
+                {{
+                  formatPrice(
+                    book.detail.originalPrice - book.detail.discountPrice
+                  )
+                }}</span
+              >
+
+              <div class="text-decoration-line-through opacity-75">
+                {{ formatPrice(book.detail.originalPrice) }}
+              </div>
             </div>
-            </p>
-            
+
             <!-- Nút Xem và Add to Cart hiển thị khi hover -->
             <div
               class="hover-buttons position-absolute bottom-0 start-0 end-0 p-3 text-center"
             >
-              <router-link :to="{name: 'book-detail', params: { bookID: book._id }}" class="btn btn-primary me-2">Xem</router-link>
+              <router-link
+                :to="{ name: 'book-detail', params: { bookID: book._id } }"
+                class="btn btn-primary me-2"
+                >Xem</router-link
+              >
               <button class="btn btn-success" @click="addToCart(book)">
                 Add to Cart
               </button>
@@ -86,18 +92,40 @@
     </div>
 
     <!-- Phân trang -->
-    <div class="d-flex justify-content-between align-items-center">
-      <button class="btn btn-primary" @click="goToPreviousPage">
-        Trang trước
-      </button>
-      <span>Trang {{ currentPage }} trên {{ totalPages }}</span>
-      <button class="btn btn-primary" @click="goToNextPage">Trang sau</button>
+    <div class="d-flex justify-content-center align-items-center">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button class="page-link" @click="goToPreviousPage">
+              Previous
+            </button>
+          </li>
+
+          <li
+            v-for="page in totalPages"
+            :key="page"
+            class="page-item"
+            :class="{ active: page === currentPage }"
+          >
+            <button class="page-link" @click="handlePage(page)">
+              {{ page }}
+            </button>
+          </li>
+
+          <li
+            class="page-item"
+            :class="{ disabled: currentPage === totalPages }"
+          >
+            <button class="page-link" @click="goToNextPage">Next</button>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, inject  } from "vue";
+import { ref, onMounted, watch, computed, inject } from "vue";
 import BookService from "@/service/book.service";
 import config from "@/config/index";
 import Cookies from "js-cookie";
@@ -105,42 +133,25 @@ import { toast } from "vue3-toastify";
 import CartService from "@/service/cart.service";
 import { formatPrice } from "@/utils/utils";
 
-// Dữ liệu sản phẩm mẫu
 const books = ref([]);
-const currentPage = ref(1);
-const totalPages = ref(5);
 const bookService = new BookService();
 const cartService = new CartService();
-const tags = ref({});
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
-const updateCart = inject('updateCart');
-// Nhận props từ component cha
+const updateCart = inject("updateCart");
+const currentPage = ref(1);
+const itemsPerPage = ref(8);
+const totalPages = ref();
+const filters = ref({});
+const updatedItems = ref({});
+
 const props = defineProps({
-  books: {
-    type: Array,
-    default: () => [],
-  },
-  filteredTags: {
+  selectedIds: {
     type: Object,
-    default: () => ({
-      author: [],
-      category: [],
-      formality: [],
-      price: [],
-      publisher: [],
-      supplier: [],
-    }),
+    default: () => {},
   },
 });
-const emit = defineEmits(["filteredTagsDelete","cartUpdated"]);
-
-const getBooks = async () => {
-  const response = await bookService.get("/");
-  if (response.status === 200) {
-    books.value = response.data;
-  }
-};
+const emit = defineEmits(["filteredTagsDelete", "cartUpdated"]);
 
 // Hàm cắt ngắn tên sách nếu quá dài
 const truncateTitle = (title) => {
@@ -150,14 +161,14 @@ const truncateTitle = (title) => {
 
 const hasFilteredTags = computed(() => {
   // Kiểm tra xem có bất kỳ mảng nào trong filteredTags không rỗng
-  return Object.values(props.filteredTags).some((arr) => arr.length > 0);
+  return Object.values(props.selectedIds).some((arr) => arr.length > 0);
 });
 
 // Tạo danh sách các thông điệp riêng biệt cho từng mục
 const filterMessages = computed(() => {
   const messages = [];
 
-  for (const [key, values] of Object.entries(props.filteredTags)) {
+  for (const [key, values] of Object.entries(props.selectedIds)) {
     if (values.length > 0) {
       values.forEach((item) => {
         let message;
@@ -194,17 +205,29 @@ const filterMessages = computed(() => {
 const clearFilter = (id) => {
   const key = getKeyById(id); // Tạo hàm getKeyById để tìm kiếm key dựa trên id
   if (key) {
-    const updatedItems = props.filteredTags[key].filter(
+    updatedItems.value = props.selectedIds[key].filter(
       (item) => item.id !== id
     );
-    const updatedIds = updatedItems.map((item) => item.id);
-    const updatedTags = { ...props.filteredTags, [key]: updatedIds };
+
+    const updatedTags = { ...props.filteredTags, [key]: updatedItems.value };
     emit("filteredTagsDelete", updatedTags);
+    // Cập nhật danh sách sách theo bộ lọc mới
+    const filtersWithIds = Object.entries(updatedTags).reduce(
+      (acc, [key, arr]) => {
+        const ids = arr.map((item) => item.id).filter((id) => id !== undefined);
+        if (ids.length > 0) {
+          acc[key] = ids;
+        }
+        return acc;
+      },
+      {}
+    );
+    getBooks(filtersWithIds, currentPage.value, itemsPerPage.value);
   }
 };
 
 const getKeyById = (id) => {
-  for (const [key, values] of Object.entries(props.filteredTags)) {
+  for (const [key, values] of Object.entries(props.selectedIds)) {
     if (values.some((item) => item.id === id)) {
       return key;
     }
@@ -219,7 +242,7 @@ const addToCart = async (book) => {
       type: "error",
       dangerouslyHTMLString: true,
     });
-    return ;
+    return;
   }
   try {
     const data = {
@@ -239,7 +262,7 @@ const addToCart = async (book) => {
         type: "success",
         dangerouslyHTMLString: true,
       });
-      updateCart.value += 1;  // Cập nhật giỏ hàng
+      updateCart.value += 1; // Cập nhật giỏ hàng
     }
   } catch (error) {
     toast(error.response?.data?.message, {
@@ -250,46 +273,68 @@ const addToCart = async (book) => {
   }
 };
 
-onMounted(() => {
-  getBooks();
-  if (props.filteredTags) {
-    tags.value = props.filteredTags;
+const getBooks = async (filters, page, limit) => {
+  const filtersString = JSON.stringify(filters);
+  const response = await bookService.get(
+    `/filters?filters=${filtersString}&page=${page}&limit=${limit}`
+  );
+  if (response.status === 200) {
+    books.value = response.data.books;
+    totalPages.value = response.data.totalPages;
+    currentPage.value = response.data.currentPage;
   }
+};
+
+onMounted(() => {
+  getBooks({}, currentPage.value, itemsPerPage.value);
 });
 
 watch(
-  () => props.books,
-  (newBooks) => {
-    if (newBooks && newBooks.length > 0) {
-      books.value = newBooks;
-    } else {
-      books.value = []; // Clear books if no data
+  [() => props.selectedIds, () => itemsPerPage.value],
+  async ([newSelectedIds, newItemsPerPage]) => {
+    if (newItemsPerPage) {
+      currentPage.value = 1;
     }
-  }
+    filters.value = newSelectedIds;
+    // Chuyển đổi newSelectedIds thành dạng {key: [id1, id2, ...]}
+    const filtersWithIds = Object.entries(newSelectedIds).reduce(
+      (acc, [key, arr]) => {
+        const ids = arr.map((item) => item.id).filter((id) => id !== undefined);
+        if (ids.length > 0) {
+          acc[key] = ids;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    // Gọi API để lấy sách mới
+    await getBooks(filtersWithIds, currentPage.value, newItemsPerPage);
+  },
+  { deep: true }
 );
 
-// Theo dõi sự thay đổi của `filteredTags`
-watch(
-  () => props.filteredTags,
-  (newFilteredTags) => {
-    if (newFilteredTags) {
-      tags.value = newFilteredTags;
-    }
-  },
-  { deep: true } // Sử dụng deep nếu bạn muốn theo dõi sự thay đổi sâu trong đối tượng `filteredTags`
-);
+const handlePage = async (page) => {
+  currentPage.value = page;
+  const filtersString = JSON.stringify(filters.value);
+  await getBooks(filtersString, currentPage.value, itemsPerPage.value);
+};
 
 // Chuyển sang trang trước
-const goToPreviousPage = () => {
+const goToPreviousPage = async () => {
   if (currentPage.value > 1) {
     currentPage.value--;
+    const filtersString = JSON.stringify(filters.value);
+    await getBooks(filtersString, currentPage.value, itemsPerPage.value);
   }
 };
 
 // Chuyển sang trang sau
-const goToNextPage = () => {
+const goToNextPage = async () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
+    const filtersString = JSON.stringify(filters.value);
+    await getBooks(filtersString, currentPage.value, itemsPerPage.value);
   }
 };
 </script>

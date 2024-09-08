@@ -60,7 +60,6 @@ import print from "datatables.net-buttons/js/buttons.print";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
-import "datatables.net-responsive-bs5";
 import JsZip from "jszip";
 window.JsZip = JsZip;
 DataTable.use(DataTableLib);
@@ -229,5 +228,4 @@ export default defineComponent({
 </script>
 <style>
 @import "datatables.net-bs5";
-@import "../../../assets/css/datatable.css";
 </style>

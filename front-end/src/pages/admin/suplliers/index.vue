@@ -69,7 +69,6 @@ DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
 import SupplierService from "@/service/supplier.service.js";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
-import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { toast } from "vue3-toastify";
 export default defineComponent({
@@ -228,5 +227,4 @@ export default defineComponent({
 </script>
 <style>
 @import "datatables.net-bs5";
-@import "../../../assets/css/datatable.css";
 </style>

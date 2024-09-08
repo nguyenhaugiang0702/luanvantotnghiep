@@ -16,23 +16,21 @@
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
           <ul class="navbar-nav mx-auto">
             <li class="nav-item">
-              <router-link class="text-decoration-none" to="/">
-                <a
-                  class="nav-link text-white text-uppercase fw-semibold"
-                  aria-current="page"
-                  href="#"
-                  >Trang chủ</a
-                >
+              <router-link
+                class="text-decoration-none nav-link text-white text-uppercase fw-semibold"
+                to="/"
+                :class="{ active: currentPage === 'home' }"
+              >
+                Trang chủ
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="text-decoration-none" :to="{ name: 'books' }">
-                <a
-                  class="nav-link text-white text-uppercase fw-semibold"
-                  aria-current="page"
-                  href="#"
-                  >Cửa hàng</a
-                >
+              <router-link
+                class="text-decoration-none nav-link text-white text-uppercase fw-semibold"
+                :to="{ name: 'books' }"
+                :class="{ active: currentPage === 'book-list' }"
+              >
+                Cửa hàng
               </router-link>
             </li>
             <li class="nav-item">
@@ -85,8 +83,35 @@ export default {
   },
 };
 </script>
-<style>
-.active {
+<style scoped>
+/* .active {
   border-bottom: 2px solid #fff;
+} */
+.nav-link {
+  position: relative; /* Đặt vị trí của phần tử cha */
+  overflow: hidden; /* Đảm bảo hiệu ứng không vượt ra ngoài phần tử */
+  padding-bottom: 5px; /* Khoảng cách giữa văn bản và gạch dưới */
+}
+
+.nav-link::before {
+  content: ""; /* Tạo pseudo-element trước nội dung của phần tử */
+  position: absolute; /* Đặt vị trí của pseudo-element */
+  bottom: 0; /* Đặt pseudo-element ở đáy của phần tử */
+  left: 5px; /* Đặt pseudo-element bắt đầu từ trái của phần tử */
+  height: 2px; /* Chiều cao của gạch dưới */
+  width: 90%; /* Chiều rộng của gạch dưới */
+  background-color: #fff; /* Màu sắc của gạch dưới */
+  transition: transform 0.3s ease, width 0.3s ease; /* Hiệu ứng chuyển động */
+  transform: scaleX(0); /* Bắt đầu từ chiều rộng bằng 0 */
+  transform-origin: left; /* Đặt điểm gốc của transform tại trái */
+}
+
+.nav-link:hover::before {
+  transform: scaleX(1); /* Mở rộng chiều rộng khi hover */
+}
+
+.nav-link.active::before {
+  transform: scaleX(1); /* Đảm bảo gạch dưới luôn hiển thị đầy đủ khi đang hoạt động */
+  background-color: #fff; /* Màu sắc của gạch dưới khi đang hoạt động */
 }
 </style>

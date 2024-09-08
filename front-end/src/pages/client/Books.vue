@@ -15,10 +15,12 @@
         :filteredTagsDelete="filteredTagsDelete"
         @filteredBooks="handleFilteredBooks"
         @filteredTags="handleFilteredTags"
+        @selected-ids="handleSelectedIds"
       />
     </div>
     <div class="col-md-9">
       <ListBook
+        :selectedIds="selectedIds"
         :books="filteredBooks"
         :filteredTags="filteredTags"
         @filteredTagsDelete="handleFilteredTagsDelete"
@@ -35,6 +37,7 @@ import ListBook from "../../components/client/books/ListBook.vue";
 const filteredBooks = ref([]);
 const filteredTags = ref([]);
 const filteredTagsDelete = ref({});
+const selectedIds = ref([]);
 const emit = defineEmits(["cartUpdated"]);
 
 const handleFilteredBooks = (books) => {
@@ -47,6 +50,10 @@ const handleFilteredTags = (tags) => {
 
 const handleFilteredTagsDelete = (tags) => {
   filteredTagsDelete.value = tags;
+};
+
+const handleSelectedIds = (ids) => {
+  selectedIds.value = ids;
 };
 </script>
 <style scoped></style>
