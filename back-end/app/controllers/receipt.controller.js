@@ -5,24 +5,26 @@ const receiptService = require("../services/receipt.service");
 
 exports.create = async (req, res, next) => {
   try {
-    const newSupplier = await receiptService.createReceipt(req.body);
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    const newReceipt = await receiptService.createReceipt(req.body);
     return res.send({
       message: "Thêm nhập hàng thành công",
-      newSupplier,
+      newReceipt,
     });
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi thêm nhà cung cấp mới!"));
+    return next(new ApiError(500, "Lỗi khi thêm nhập hàng mới!"));
   }
 };
 
 exports.findAll = async (req, res, next) => {
+  let receipts = [];
   try {
-    console.log("find All");
+    receipts = await receiptService.getAllReceipts();
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi thêm nhà cung cấp mới!"));
+    return next(new ApiError(500, "Lỗi khi lấy nhập!"));
   }
+  return res.send(receipts);
 };

@@ -11,7 +11,7 @@ exports.create = async (req, res, next) => {
     if (checkNameExist) {
       return next(new ApiError(400, "Đã tồn tại tên danh mục"));
     }
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const newCategory = await categoryService.createCategory(req.body);
     return res.send({

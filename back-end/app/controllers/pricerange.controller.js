@@ -5,7 +5,7 @@ const priceRangeService = require("../services/pricerange.service");
 exports.create = async (req, res, next) => {
   try {
     const { startPrice, endPrice } = req.body;
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.name = `${startPrice}đ - ${endPrice}đ`;
     const newPriceRange = await priceRangeService.createPriceRange(req.body);

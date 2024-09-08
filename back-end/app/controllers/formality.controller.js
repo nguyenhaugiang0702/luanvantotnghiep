@@ -11,7 +11,7 @@ exports.create = async (req, res, next) => {
     if (checkNameExist) {
       return next(new ApiError(400, "Đã tồn tại tên hình thức"));
     }
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const newFormality = await formalityService.createFormality(req.body);
     return res.send({

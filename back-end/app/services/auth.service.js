@@ -2,73 +2,12 @@ const User = require("../models/user.model");
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
 
-const getUserById = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-  return await User.findById(userID);
+const getUserByPhoneNumber = async (phoneNumber) => {
+  return await User.findOne({phoneNumber: phoneNumber});
 };
 
-const activeUserAccount = async (userData) => {
-  const user = await User.findOne(userData);
-
-  if (user && user.isActive <= 0) {
-    user.isActive = 1;
-    user.updatedAt = moment().format("HH:mm:ss DD/MM/YYYY");
-    user.save();
-  }
-  return user;
-};
-
-const blockUserAccount = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-
-  const user = await User.findByIdAndUpdate(
-    userID,
-    {
-      isActive: 2,
-      updatedAt: moment().format("HH:mm:ss DD/MM/YYYY"),
-    },
-    { new: true }
-  );
-  return user;
-};
-
-const unBlockUserAccount = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-
-  const user = await User.findByIdAndUpdate(
-    userID,
-    {
-      isActive: 1,
-      updatedAt: moment().format("HH:mm:ss DD/MM/YYYY"),
-    },
-    { new: true }
-  );
-  return user;
-};
-
-const getAllUser = async () => {
-  return await User.find();
-};
-
-const updateUser = async (userId, updateData) => {
-  return await User.findByIdAndUpdate(userId, updateData, { new: true });
-};
-
-const deleteUserAccount = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-  return await User.findByIdAndDelete(userID);
-};
-
-const checkEmailExist = async (emailUser) => {
-  return await User.findOne({ email: emailUser });
+const checkEmailExist = async (email) => {
+  return await User.findOne({ email: email });
 };
 
 const checkPhoneNumberExist = async (phoneNumber) => {
@@ -76,14 +15,7 @@ const checkPhoneNumberExist = async (phoneNumber) => {
 };
 
 module.exports = {
-  createUser,
-  getUserById,
-  updateUser,
-  getAllUser,
-  activeUserAccount,
-  blockUserAccount,
-  unBlockUserAccount,
-  deleteUserAccount,
   checkEmailExist,
   checkPhoneNumberExist,
+  getUserByPhoneNumber,
 };

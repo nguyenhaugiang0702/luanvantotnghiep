@@ -28,6 +28,8 @@ exports.create = async (req, res, next) => {
     return next(new ApiError(400, "Số điện thoại không hợp lệ"));
   }
   try {
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const newSupplier = await supplierService.createSupplier(req.body);
     return res.send({
       message: "Thêm thành công nhà cung cấp",

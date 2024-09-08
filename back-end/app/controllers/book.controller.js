@@ -10,7 +10,7 @@ const { log } = require("console");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
 
     if (!req.files || req.files.length === 0) {
@@ -65,18 +65,43 @@ exports.findAll = async (req, res, next) => {
   return res.send(books);
 };
 
-exports.filterBooks = async (req, res, next) => {
+exports.findAllBookToReceipt = async (req, res, next) => {
   let books = [];
   try {
-    // Lấy chuỗi JSON từ query params và phân tích cú pháp nó
-    const filtersString = req.query.filters;
-    const filters = JSON.parse(filtersString);
-     // Tiến hành lọc sách theo filters
-    books = await bookService.getFilteredBooks(filters);
+    books = await bookService.getAllBooks();
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }
   return res.send(books);
+};
+
+exports.filterBooks = async (req, res, next) => {
+  let books = [];
+  let totalBooks = 0;
+  let totalPages = 0;
+  try {
+    const { filters, page, limit } = req.query;
+    const filtersString = JSON.parse(filters || {});
+
+    totalBooks = await bookService.getTotalBooks(filtersString);
+
+    totalPages = Math.ceil(totalBooks / parseInt(limit));
+
+    // Xác định số bản ghi để bỏ qua và số bản ghi trên mỗi trang
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    books = await bookService.getFilteredBooks(
+      filtersString,
+      skip,
+      parseInt(limit)
+    );
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
+  }
+  return res.send({
+    books,
+    totalPages,
+    currentPage: parseInt(req.query.page),
+  });
 };
 
 exports.findOne = async (req, res, next) => {
@@ -93,7 +118,7 @@ exports.findImages = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
     const book = await bookService.getBookImagesByID(bookID);
-    return res.send(book.images);
+    return res.send({ images: book.images, bookName: book.name });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy ảnh sách"));
   }

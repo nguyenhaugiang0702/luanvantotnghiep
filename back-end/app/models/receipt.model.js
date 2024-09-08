@@ -4,25 +4,25 @@ const moment = require("moment-timezone");
 const receiptSchema = new mongoose.Schema({
   supplierID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Supplier",
+  },
+  bookID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Book",
   },
   detail: {
     quantity: {
       type: Number,
-      required: false,
     },
     price: {
       type: Number,
-      required: true,
     },
   },
   createdAt: {
     type: Date,
-    required: false,
   },
   updatedAt: {
     type: Date,
-    required: false,
   },
 });
 

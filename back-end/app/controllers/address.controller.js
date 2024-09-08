@@ -4,7 +4,7 @@ const addressService = require("../services/address.service");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const userID = req.user.id;
     req.body.userID = userID;

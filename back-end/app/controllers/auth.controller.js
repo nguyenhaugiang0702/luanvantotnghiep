@@ -6,13 +6,25 @@ const ApiError = require("../api-error");
 const User = require("../models/user.model");
 const sendOTP = require("../twilio");
 const otpService = require("../services/otp.service");
+const authService = require("../services/auth.service");
 const sendEmail = require("../utils/email.util");
 const config = require("../config/index");
 
 exports.login = async (req, res, next) => {
   const { phoneNumber, password } = req.body;
+  const phoneRegex = /^0\d{9}$/;
+
+  // Kiểm tra nếu `phoneNumber` tồn tại và hợp lệ
+  if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+    return next(
+      new ApiError(
+        400,
+        "Số điện thoại không hợp lệ"
+      )
+    );
+  }
   try {
-    const user = await User.findOne({ phoneNumber: phoneNumber });
+    const user = await authService.getUserByPhoneNumber(phoneNumber);
 
     if (!user) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
@@ -32,9 +44,13 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = jwt.sign({ id: user._id }, "my_jwt_secret_key_bookstore", {
-      expiresIn: "1y",
-    });
+    const accessToken = jwt.sign(
+      { id: user._id },
+      "my_jwt_secret_key_bookstore",
+      {
+        expiresIn: "1y",
+      }
+    );
 
     res.send({
       isLoggedIn: true,

@@ -8,6 +8,7 @@ router
   .route("/")
   .get(books.findAll)
   .post(validateSupplier.createBookValidation, books.create);
+router.route("/receipts").get(books.findAll);
 router.route("/filters").get(books.filterBooks);
 router.route("/images/:bookID").post(books.createImages).get(books.findImages);
 

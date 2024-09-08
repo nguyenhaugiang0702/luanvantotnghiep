@@ -4,6 +4,8 @@ const ApiError = require("../api-error");
 
 exports.create = async (req, res, next) => {
   try {
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const newPublisher = await publisherService.createPublisher(req.body);
     return res.send({
       message: "Thêm thành công nhà xuất bản",

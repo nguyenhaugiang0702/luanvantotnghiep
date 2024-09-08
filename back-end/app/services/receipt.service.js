@@ -7,6 +7,11 @@ const createReceipt = async (receiptData) => {
   return await receipt.save();
 };
 
+const getAllReceipts = async () => {
+  return await Receipt.find({}).populate("supplierID");
+};
+
 module.exports = {
   createReceipt,
+  getAllReceipts,
 };

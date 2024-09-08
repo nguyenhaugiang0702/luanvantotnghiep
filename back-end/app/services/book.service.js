@@ -62,40 +62,42 @@ const findImageByBookIDAndImageID = async (bookID, imageID) => {
   };
 };
 
-const getFilteredBooks = async (filters) => {
+const buildFilterQuery = (filters) => {
   const query = {};
 
-  // Lọc sách theo priceRangeID
+  // Lọc theo các trường
   if (filters.price && filters.price.length > 0) {
     query.priceRangeID = { $in: filters.price };
   }
-  // Lọc sách theo categoryID
   if (filters.category && filters.category.length > 0) {
     query.categoryID = { $in: filters.category };
   }
-  // Lọc sách theo publisherID
   if (filters.publisher && filters.publisher.length > 0) {
     query.publisherID = { $in: filters.publisher };
   }
-
   if (filters.supplier && filters.supplier.length > 0) {
-    // Nếu bạn có trường supplierID trong mô hình, bạn có thể thêm vào đây
-    // query.supplierID = { $in: filters.supplier };
+    query.supplierID = { $in: filters.supplier };
   }
-
-  // Lọc sách theo formalityID
   if (filters.formality && filters.formality.length > 0) {
     query.formalityID = { $in: filters.formality };
   }
-
-  // Lọc sách theo authorID
   if (filters.author && filters.author.length > 0) {
     query.authorID = { $in: filters.author };
   }
 
-  // Tìm sách theo điều kiện
-  const books = await Book.find(query);
+  return query;
+};
+
+const getFilteredBooks = async (filters, skip, limit) => {
+  const query = buildFilterQuery(filters);
+  const books = await Book.find(query).skip(skip).limit(limit);
   return books;
+};
+
+const getTotalBooks = async (filters) => {
+  const query = buildFilterQuery(filters);
+  const totalBooks = await Book.countDocuments(query);
+  return totalBooks;
 };
 
 module.exports = {
@@ -108,4 +110,6 @@ module.exports = {
   getBookImagesByID,
   findImageByBookIDAndImageID,
   getFilteredBooks,
+  getTotalBooks,
+  buildFilterQuery,
 };
