@@ -81,6 +81,28 @@ exports.findAll = async (req, res, next) => {
   return res.send(books);
 };
 
+exports.findAllBooksCheckBox = async (req, res, next) => {
+  const userID = req.user.id;
+  let totalPrice = 0;
+  let totalQuantity = 0;
+  try {
+    const cart = await cartService.getCartByUserID(userID);
+    cart.books.forEach((book) => {
+      if (book.isCheckOut) {
+        totalPrice += book.price * book.quantity;
+        totalQuantity += book.quantity;
+      }
+    });
+    return res.send({
+      totalPrice,
+      totalQuantity,
+      message: "Tính tổng thành công cho các sách được check-out",
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất cả sách trong giỏ"));
+  }
+};
+
 exports.update = async (req, res, next) => {
   try {
     const userID = req.user.id;
@@ -89,9 +111,45 @@ exports.update = async (req, res, next) => {
     if (!cart) {
       return next(new ApiError(400, "Không tìm thấy giỏ hàng"));
     }
+    const book = cart.books.find((b) => b.bookID.toString() === bookID);
+    const newCheckOutStatus = !book.isCheckOut;
+    const updateCart = await cartService.updateCheckOutStatus(
+      userID,
+      bookID,
+      newCheckOutStatus
+    );
+    if (!updateCart) {
+      return next(new ApiError(400, "Lỗi khi cập nhật trạng thái checkbox"));
+    }
     return res.send({
-      message: "Cập nhật thành công sách",
-      book,
+      message: "Cập nhật thành công trạng thái checkbox",
+      updateCart,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi cập nhật sách"));
+  }
+};
+
+exports.updateCheckAll = async (req, res, next) => {
+  try {
+    const userID = req.user.id;
+    const cart = await cartService.getCartByUserID(userID);
+    if (!cart) {
+      return next(new ApiError(400, "Không tìm thấy giỏ hàng"));
+    }
+    const checkAll = cart.books.every((b) => b.isCheckOut);
+    const newCheckOutStatus = !checkAll;
+    const updateCart = await cartService.updateCheckOutAllStatus(
+      userID,
+      newCheckOutStatus
+    );
+
+    if (!updateCart) {
+      return next(new ApiError(400, "Lỗi khi cập nhật trạng thái checkbox"));
+    }
+    return res.send({
+      message: "Cập nhật thành công trạng thái checkbox",
+      updateCart,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi cập nhật sách"));

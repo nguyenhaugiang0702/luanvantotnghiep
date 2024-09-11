@@ -9,10 +9,15 @@ router
   .post(jwt.authenticateTokenFromHeader, cart.create)
   .delete(jwt.authenticateTokenFromHeader, cart.deleteAllBookFromCart);
 
+router.route("/booksCheckBox").get(jwt.authenticateTokenFromHeader, cart.findAllBooksCheckBox);
 
-  router
+router
+  .route("/checkAll")
+  .put(jwt.authenticateTokenFromHeader, cart.updateCheckAll);
+
+router
   .route("/:bookID")
-  .put(cart.update)
+  .put(jwt.authenticateTokenFromHeader, cart.update)
   .delete(jwt.authenticateTokenFromHeader, cart.deleteBookFromCart);
 
 module.exports = router;

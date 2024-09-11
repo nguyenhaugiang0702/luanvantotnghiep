@@ -4,14 +4,8 @@ const authenticateToken = require("../middlewares/jwt.middleware");
 
 const router = express.Router();
 
-router
-    .route("/")
-    .get(receipts.findAll)
-    .post(receipts.create);
-
-// router
-//   .route("/:receiptID")
-//   .get(receipts.findOne)
-//   .put(receipts.update)
+router.route("/").get(receipts.findAll).post(receipts.create);
+router.route("/stockProducts").get(receipts.findAllStockProducts);
+router.route("/:receiptID").get(receipts.findOne).put(receipts.update);
 //   .delete(receipts.delete);
 module.exports = router;

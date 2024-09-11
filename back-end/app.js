@@ -15,6 +15,8 @@ const bookRouter = require("./app/routes/book.route");
 const priceRangeRouter = require("./app/routes/pricerange.route");
 const cartRouter = require("./app/routes/cart.route");
 const addressRouter = require("./app/routes/address.route");
+const orderRouter = require("./app/routes/order.route");
+
 
 const upload = require("./app/utils/multer.util");
 
@@ -43,6 +45,8 @@ app.use("/api/v1/formalities", formalityRouter);
 app.use("/api/v1/priceRanges", priceRangeRouter);
 app.use("/api/v1/carts", cartRouter);
 app.use("/api/v1/address", addressRouter);
+app.use("/api/v1/orders", orderRouter);
+
 
 app.use("/api/v1/books", upload.array("images"), bookRouter);
 

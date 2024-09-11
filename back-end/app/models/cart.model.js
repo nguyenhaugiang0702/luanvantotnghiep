@@ -12,6 +12,10 @@ const cartSchema = new mongoose.Schema({
       },
       quantity: Number,
       price: Number,
+      isCheckOut: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
   totalPrice: {

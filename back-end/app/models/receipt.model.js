@@ -6,18 +6,20 @@ const receiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Supplier",
   },
-  bookID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Book",
-  },
-  detail: {
-    quantity: {
-      type: Number,
+  detail: [
+    {
+      bookID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Book",
+      },
+      quantity: {
+        type: Number,
+      },
+      price: {
+        type: Number,
+      },
     },
-    price: {
-      type: Number,
-    },
-  },
+  ],
   createdAt: {
     type: Date,
   },
