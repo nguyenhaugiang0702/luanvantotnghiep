@@ -12,30 +12,34 @@
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <div class="row" v-if="totalReceipts <= 0">Bạn chưa nhập hàng</div>
+        <div class="row" v-if="totalReceipts === 0">Bạn chưa nhập hàng</div>
         <div v-else class="row">
           <div class="col-12">
-            <ul class="nav nav-tabs border-bottom border-dark" id="myTab" role="tablist">
+            <ul
+              class="nav nav-tabs border-bottom border-dark"
+              id="myTab"
+              role="tablist"
+            >
               <li
                 v-for="(receipt, index) in receipts"
-                :key="receipt._id"
+                :key="receipt.supplierInfo._id"
                 class="nav-item"
                 role="presentation"
               >
                 <button
                   class="nav-link border border-dark border-bottom-0"
                   :class="{
-                    'active': index === 0,
+                    active: index === 0,
                   }"
-                  :id="'tab-' + receipt.supplierID._id"
+                  :id="'tab-' + receipt.supplierInfo._id"
                   data-bs-toggle="tab"
-                  :data-bs-target="'#pane-' + receipt.supplierID._id"
+                  :data-bs-target="'#pane-' + receipt.supplierInfo._id"
                   type="button"
                   role="tab"
-                  :aria-controls="'pane-' + receipt.supplierID._id"
+                  :aria-controls="'pane-' + receipt.supplierInfo._id"
                   :aria-selected="index === 0 ? 'true' : 'false'"
                 >
-                  {{ receipt.supplierID.name }}
+                  {{ receipt.supplierInfo.name }}
                 </button>
               </li>
             </ul>
@@ -43,18 +47,18 @@
               <div
                 v-for="(receipt, index) in receipts"
                 :key="receipt._id"
-                :id="'pane-' + receipt.supplierID._id"
-                class="tab-pane fade "
+                :id="'pane-' + receipt.supplierInfo._id"
+                class="tab-pane fade"
                 :class="{ 'show active': index === 0 }"
                 role="tabpanel"
-                :aria-labelledby="'tab-' + receipt.supplierID._id"
+                :aria-labelledby="'tab-' + receipt.supplierInfo._id"
               >
                 <!-- Table -->
                 <div class="table-responsive mt-4">
                   <DataTable
-                  :id="'datatable-' + receipt.supplierID._id"
-                  :columns="columns"
-                    :data="getItemsBySupplier(receipt.supplierID._id)"
+                    :id="'datatable-' + receipt.supplierInfo._id"
+                    :columns="columns"
+                    :data="receipt.receipts"
                     :options="{
                       responsive: false,
                       autoWidth: true,
@@ -68,7 +72,7 @@
                     <thead>
                       <tr>
                         <th class="text-start">#</th>
-                        <th class="text-start">Ngày tạo</th>
+                        <th class="text-start">Ngày nhập hàng</th>
                         <th class="text-start">Email</th>
                         <th class="text-start">Số điện thoại</th>
                         <th class="text-start">Thao tác</th>
@@ -109,6 +113,7 @@ import PublisherService from "@/service/publisher.service.js";
 import ReceiptService from "@/service/receipt.service.js";
 import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
+import moment from "moment";
 
 export default defineComponent({
   components: {
@@ -128,15 +133,17 @@ export default defineComponent({
       {
         data: "createdAt",
         width: "15%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
+        render: (data, type, row, meta) => {
+          return moment(data).format("DD/MM/YYYY HH:mm:ss");
+        },
       },
       {
-        data: "supplierID.email",
+        data: "supplierInfo.email",
         width: "15%",
         render: (data) => `<div class="text-start text-break">${data}</div>`,
       },
       {
-        data: "supplierID.phoneNumber",
+        data: "supplierInfo.phoneNumber",
         width: "20%",
         render: (data) => `<div class="text-start text-break">${data}</div>`,
       },
@@ -146,7 +153,7 @@ export default defineComponent({
         render: (data) => `
             <div class="row">
               <div class="col-sm-2 me-4 col-md-2">
-                <button ref="${data}" id="editPublisher" class="btn btn-warning" data-id=${data}>
+                <button ref="${data}" id="detailReceipt" class="btn btn-warning" data-id=${data}>
                   <i class="fa-solid fa-pencil"></i>
                 </button>
               </div>
@@ -164,15 +171,15 @@ export default defineComponent({
       const response = await receiptService.get("/");
       if (response.status === 200) {
         receipts.value = response.data;
-        console.log(response.data);
       }
     };
 
     const totalReceipts = computed(() => receipts.value.length);
 
-    const getItemsBySupplier = (supplierID) => {
-      return receipts.value
-        .filter(receipt => receipt.supplierID._id === supplierID) // Lọc theo `supplierID`
+    const getItemsBySupplier = (receipt) => {
+      return receipts.value.filter(
+        (receipt) => receipt.supplierID._id === supplierID
+      );
     };
 
     const deletePublisher = async (publisherID) => {
@@ -183,9 +190,12 @@ export default defineComponent({
       }
     };
 
-    $(document).on("click", "#editPublisher", (event) => {
-      const publisherID = $(event.currentTarget).data("id");
-      router.push({ name: "admin-publishers-edit", params: { publisherID } });
+    $(document).on("click", "#detailReceipt", (event) => {
+      const receiptID = $(event.currentTarget).data("id");
+      router.push({
+        name: "admin-receipts-detail",
+        params: { receiptID: receiptID },
+      });
     });
 
     $(document).on("click", "#deletePublisher", async (event) => {

@@ -18,7 +18,7 @@
         @click="navigateTo('admin-categories')"
       >
         <desktop-outlined />
-        <span>Danh mục</span>
+        <span>Thể loại</span>
       </a-menu-item>
       <a-menu-item
         key="admin-formalities"
@@ -106,10 +106,24 @@
           >Danh sách</a-menu-item
         >
       </a-sub-menu>
-      <a-menu-item key="9">
-        <file-outlined />
-        <span>File</span>
-      </a-menu-item>
+      <a-sub-menu key="admin-stockProduct-list">
+        <template #title>
+          <span>
+            <team-outlined />
+            <span>Thống kê</span>
+          </span>
+        </template>
+        <a-menu-item
+          key="admin-publishers-add"
+          @click="navigateTo('admin-publishers-add')"
+          >Thêm</a-menu-item
+        >
+        <a-menu-item
+          key="admin-stockProduct-list"
+          @click="navigateTo('admin-stockProduct-list')"
+          >Danh sách tồn kho</a-menu-item
+        >
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
 </template>

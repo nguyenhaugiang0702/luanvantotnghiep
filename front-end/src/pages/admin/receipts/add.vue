@@ -16,7 +16,9 @@
           <div class="row">
             <div class="form-group col-sm-6">
               <div class="dropdown">
-                <label class="form-label" for="supplierName">Nhà cung cấp</label>
+                <label class="form-label" for="supplierName"
+                  >Nhà cung cấp</label
+                >
                 <Field
                   class="form-control dropdown-toggle"
                   type="text"
@@ -81,8 +83,7 @@
                   :class="{
                     'is-invalid':
                       errors.bookName || (searchBookValue !== '' && !bookID),
-                    'is-valid':
-                      !errors.bookName && newReceipt.bookID !== '',
+                    'is-valid': !errors.bookName && newReceipt.detail[0].bookID !== '',
                   }"
                 />
                 <ul
@@ -135,12 +136,12 @@
                 :class="{
                   'is-invalid': errors.quantity,
                   'is-valid':
-                    !errors.quantity && newReceipt.detail.quantity !== '',
+                    !errors.quantity && newReceipt.detail[0].quantity !== '',
                 }"
                 type="text"
                 name="quantity"
                 id="quantity"
-                v-model="newReceipt.detail.quantity"
+                v-model="newReceipt.detail[0].quantity"
                 placeholder="Nhập số lượng"
               />
               <ErrorMessage name="quantity" class="invalid-feedback" />
@@ -151,12 +152,12 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.price,
-                  'is-valid': !errors.price && newReceipt.detail.price !== '',
+                  'is-valid': !errors.price && newReceipt.detail[0].price !== '',
                 }"
                 type="text"
                 name="price"
                 id="price"
-                v-model="newReceipt.detail.price"
+                v-model="newReceipt.detail[0].price"
                 placeholder="Nhập đơn giá nhập hàng"
               />
               <ErrorMessage name="price" class="invalid-feedback" />
@@ -193,11 +194,13 @@ export default {
     });
     const newReceipt = ref({
       supplierID: "",
-      bookID: "",
-      detail: {
-        quantity: "",
-        price: "",
-      },
+      detail: [
+        {
+          bookID: "",
+          quantity: "",
+          price: "",
+        },
+      ],
     });
 
     // Load nhà cung cấp từ server
@@ -221,7 +224,7 @@ export default {
           dangerouslyHTMLString: true,
         });
         newReceipt.value.supplierID = "";
-        newReceipt.value.bookID = "";
+        newReceipt.value.detail[0].bookID = "";
         bookFormality.value = null;
         resetForm();
       }
@@ -257,7 +260,7 @@ export default {
     // Theo dõi sự thay đổi của authorID
     watch(bookID, (newVal) => {
       if (newVal) {
-        newReceipt.value.bookID = newVal;
+        newReceipt.value.detail[0].bookID = newVal;
         console.log("Nhà cung cấp đã chọn: ", newVal);
       }
     });

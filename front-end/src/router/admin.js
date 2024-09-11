@@ -65,11 +65,18 @@ const admin = [
             path: "",
             name: "admin-receipts-list",
             component: () => import("../pages/admin/receipts/index.vue"),
+            props: true,
           },
           {
             path: "add",
             name: "admin-receipts-add",
             component: () => import("../pages/admin/receipts/add.vue"),
+            props: true,
+          },
+          {
+            path: "detail/:receiptID",
+            name: "admin-receipts-detail",
+            component: () => import("../pages/admin/receipts/receiptDetail.vue"),
             props: true,
           },
         ],
@@ -152,6 +159,19 @@ const admin = [
             path: "edit/detail/:bookID",
             name: "admin-books-edit-detail",
             component: () => import("../pages/admin/books/editDetail.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
+        path: "stock-product",
+        name: "admin-stockProduct",
+        redirect: { name: "admin-stockProduct-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-stockProduct-list",
+            component: () => import("../pages/admin/statistic/stockProduct.vue"),
             props: true,
           },
         ],
