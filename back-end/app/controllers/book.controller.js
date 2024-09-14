@@ -57,8 +57,14 @@ exports.createImages = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   let books = [];
+  const { searchKey } = req.query;
   try {
-    books = await bookService.getFullInfoAllBooks();
+    if (searchKey) {
+      // Tìm kiếm
+      books = await bookService.searchBooks(searchKey);
+    } else {
+      books = await bookService.getFullInfoAllBooks();
+    }
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }

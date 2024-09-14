@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
         ref: "Book",
       },
       quantity: Number,
-      realPrice: Number
+      realPrice: Number,
     },
   ],
   addressID: {
@@ -24,12 +24,12 @@ const orderSchema = new mongoose.Schema({
   notes: String,
   status: {
     type: Number,
-    enum: [1, 2], // 1 là đang chờ xác nhận, 2 là đã xác nhận
-    default: 1,   // Đặt giá trị mặc định là 1 (Đang chờ xác nhận)
+    enum: [1, 2, 3, 4], // 1 là đang chờ xác nhận, 2 là đã xác nhận, 3 là đã hủy, 4 là yêu cầu hủy (client)
+    default: 1, // Đặt giá trị mặc định là 1 (Đang chờ xác nhận)
   },
   wasPaided: {
     type: Boolean,
-    default: false,  
+    default: false,
   },
   createdAt: Date,
   updatedAt: Date,

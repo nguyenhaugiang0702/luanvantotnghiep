@@ -9,6 +9,12 @@ const validateSupplier = require("../middlewares/validateSupplier.middleware");
 const router = express.Router();
 
 router.route("/").post(jwt.authenticateTokenFromHeader, order.create);
+router
+  .route("/:token")
+  .get(jwt.authenticateTokenFromParams, order.findAllOrdersByUserID);
+router
+  .route("/cancelOrder/:orderID")
+  .put(jwt.authenticateTokenFromHeader, order.cancelOrder);
 
 // MOMO
 router

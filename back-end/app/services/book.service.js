@@ -22,6 +22,12 @@ const getFullInfoBookByID = async (bookId) => {
     .populate("formalityID");
 };
 
+const searchBooks = async (searchValue) => {
+  return await Book.find({
+    name: { $regex: new RegExp(searchValue), $options: "i" },
+  });
+};
+
 const getBookByID = async (bookId) => {
   return await Book.findById(bookId);
 };
@@ -125,4 +131,5 @@ module.exports = {
   getTotalBooks,
   buildFilterQuery,
   getBookByID,
+  searchBooks,
 };

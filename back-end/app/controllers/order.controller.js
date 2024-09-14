@@ -33,3 +33,36 @@ exports.create = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi đặt hàng!"));
   }
 };
+
+exports.findAllOrdersByUserID = async (req, res, next) => {
+  let orders = [];
+  try {
+    const userID = req.user.id;
+    orders = await orderService.getOrdersByUserID(userID);
+    return res.send({
+      message: "Đặt hàng thành công",
+      orders,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
+  }
+};
+
+exports.cancelOrder = async (req, res, next) => {
+  // 4 là yêu cầu hủy đơn
+  const userID = req.user.id;
+  const orderID = req.params.orderID;
+  try {
+    const orderUpdateStatus = await orderService.requestCancelOrder(userID, orderID);
+    if(!orderUpdateStatus){
+      return next(new ApiError(400, "Lỗi khi hủy đơn hàng!"));
+    }
+    return res.send({
+      message: "Đã yêu cầu hủy thành công"
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
+  }
+};
