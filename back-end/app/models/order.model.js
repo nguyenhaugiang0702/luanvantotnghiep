@@ -21,7 +21,17 @@ const orderSchema = new mongoose.Schema({
     ref: "Address",
   },
   payment: String,
-  createAt: Date,
+  notes: String,
+  status: {
+    type: Number,
+    enum: [1, 2], // 1 là đang chờ xác nhận, 2 là đã xác nhận
+    default: 1,   // Đặt giá trị mặc định là 1 (Đang chờ xác nhận)
+  },
+  wasPaided: {
+    type: Boolean,
+    default: false,  
+  },
+  createdAt: Date,
   updatedAt: Date,
 });
 

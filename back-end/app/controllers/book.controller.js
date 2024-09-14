@@ -58,7 +58,7 @@ exports.createImages = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   let books = [];
   try {
-    books = await bookService.getAllBooks();
+    books = await bookService.getFullInfoAllBooks();
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }
@@ -68,7 +68,7 @@ exports.findAll = async (req, res, next) => {
 exports.findAllBookToReceipt = async (req, res, next) => {
   let books = [];
   try {
-    books = await bookService.getAllBooks();
+    books = await bookService.getFullInfoAllBooks();
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }
@@ -80,7 +80,7 @@ exports.filterBooks = async (req, res, next) => {
   let totalBooks = 0;
   let totalPages = 0;
   try {
-    const { filters, page, limit } = req.query;
+    const { filters, page, limit, sortBy } = req.query;
     const filtersString = JSON.parse(filters || {});
 
     totalBooks = await bookService.getTotalBooks(filtersString);
@@ -92,7 +92,8 @@ exports.filterBooks = async (req, res, next) => {
     books = await bookService.getFilteredBooks(
       filtersString,
       skip,
-      parseInt(limit)
+      parseInt(limit),
+      sortBy
     );
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
@@ -107,7 +108,7 @@ exports.filterBooks = async (req, res, next) => {
 exports.findOne = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
-    const book = await bookService.getBookByID(bookID);
+    const book = await bookService.getFullInfoBookByID(bookID);
     return res.send(book);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy sách"));

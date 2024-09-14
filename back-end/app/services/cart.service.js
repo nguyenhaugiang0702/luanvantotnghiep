@@ -24,6 +24,34 @@ const deleteBookFromCart = async (userID, bookID) => {
   return updatedCart;
 };
 
+const deleteBookFromCartWhenCheckOut = async (userID) => {
+  const updatedCart = await Cart.findOneAndUpdate(
+    { userID: userID },
+    { $pull: { books: { isCheckOut: true } } },
+    { new: true }
+  );
+  return updatedCart;
+};
+
+const calculateTotalPriceWhenCheckOut = async (userID) => {
+  const cart = await Cart.findOne({ userID: userID });
+  const remainingBooks = cart.books.filter((book) => !book.isCheckOut);
+  const newTotalPrice = remainingBooks.reduce((total, book) => {
+    return total + book.quantity * book.price;
+  }, 0);
+  cart.totalPrice = newTotalPrice;
+  await cart.save();
+};
+
+const calculateTotalPrice = async (userID) => {
+  const cart = await Cart.findOne({ userID: userID });
+  const newTotalPrice = cart.books.reduce((total, book) => {
+    return total + book.quantity * book.price;
+  }, 0);
+  cart.totalPrice = newTotalPrice;
+  await cart.save();
+};
+
 const clearCart = async (userID) => {
   const updatedCart = await Cart.findOneAndUpdate(
     { userID: userID },
@@ -63,4 +91,7 @@ module.exports = {
   clearCart,
   updateCheckOutStatus,
   updateCheckOutAllStatus,
+  deleteBookFromCartWhenCheckOut,
+  calculateTotalPriceWhenCheckOut,
+  calculateTotalPrice
 };

@@ -85,17 +85,21 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
   const userID = req.user.id;
   let totalPrice = 0;
   let totalQuantity = 0;
+  let checkedOutBooks = [];
+
   try {
-    const cart = await cartService.getCartByUserID(userID);
+    const cart = await cartService.getFullInfoCartByUserID(userID);
     cart.books.forEach((book) => {
       if (book.isCheckOut) {
         totalPrice += book.price * book.quantity;
         totalQuantity += book.quantity;
+        checkedOutBooks.push(book); 
       }
     });
     return res.send({
       totalPrice,
       totalQuantity,
+      books: checkedOutBooks,
       message: "Tính tổng thành công cho các sách được check-out",
     });
   } catch (error) {

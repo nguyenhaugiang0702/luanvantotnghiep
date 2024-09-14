@@ -34,6 +34,17 @@ exports.findAll = async (req, res, next) => {
   return res.send(address);
 };
 
+exports.findAddressDefault = async (req, res, next) => {
+  try {
+    const userID = req.user.id;
+    const address = await addressService.getAllAddressByUserID(userID);
+    return res.send(address);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
+  }
+  r
+};
+
 exports.findOne = async (req, res, next) => {
   let address = [];
   try {

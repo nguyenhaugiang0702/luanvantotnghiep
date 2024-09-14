@@ -6,7 +6,7 @@ const createBook = async (bookData) => {
   return await newBook.save();
 };
 
-const getAllBooks = async () => {
+const getFullInfoAllBooks = async () => {
   return await Book.find({})
     .populate("authorID")
     .populate("publisherID")
@@ -14,22 +14,20 @@ const getAllBooks = async () => {
     .populate("formalityID");
 };
 
-const getBookByID = async (bookId) => {
-  const bookID = {
-    _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-  };
-  return await Book.findById(bookID)
+const getFullInfoBookByID = async (bookId) => {
+  return await Book.findById(bookId)
     .populate("authorID")
     .populate("publisherID")
     .populate("categoryID")
     .populate("formalityID");
 };
 
+const getBookByID = async (bookId) => {
+  return await Book.findById(bookId);
+};
+
 const getBookImagesByID = async (bookId) => {
-  const bookID = {
-    _id: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-  };
-  return await Book.findById(bookID);
+  return await Book.findById(bookId);
 };
 
 const updateBook = async (bookId, bookData) => {
@@ -88,9 +86,23 @@ const buildFilterQuery = (filters) => {
   return query;
 };
 
-const getFilteredBooks = async (filters, skip, limit) => {
+const getFilteredBooks = async (filters, skip, limit, sortBy) => {
   const query = buildFilterQuery(filters);
-  const books = await Book.find(query).skip(skip).limit(limit);
+  let books = await Book.find(query).skip(skip).limit(limit);
+  books = books.map((book) => {
+    const originalPrice = book.detail.originalPrice || 0;
+    const discountPrice = book.detail.discountPrice || 0;
+    book.finalPrice = originalPrice - discountPrice;
+    return book;
+  });
+
+  // Sắp xếp theo giá sau giảm giá
+  if (sortBy === "asc") {
+    books.sort((a, b) => a.finalPrice - b.finalPrice);
+  } else if (sortBy === "desc") {
+    books.sort((a, b) => b.finalPrice - a.finalPrice);
+  }
+
   return books;
 };
 
@@ -105,11 +117,12 @@ module.exports = {
   updateBook,
   deleteBook,
   checkNameExist,
-  getAllBooks,
-  getBookByID,
+  getFullInfoAllBooks,
+  getFullInfoBookByID,
   getBookImagesByID,
   findImageByBookIDAndImageID,
   getFilteredBooks,
   getTotalBooks,
   buildFilterQuery,
+  getBookByID,
 };
