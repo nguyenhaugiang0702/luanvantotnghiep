@@ -90,6 +90,19 @@ const client = [
               },
             ],
           },
+          {
+            path: "orders",
+            name: "profile-orders",
+            redirect: {name: 'profile-orders-list'},
+            children: [
+              {
+                path: "",
+                name: "profile-orders-list",
+                component: () =>
+                  import("../components/client/profile/orders/MyOrders.vue"),
+              },
+            ],
+          },
         ],
       },
     ],

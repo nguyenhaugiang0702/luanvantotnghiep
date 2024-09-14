@@ -399,7 +399,6 @@ export default {
             formality: [],
             author: [],
           };
-          console.log(1);
         } else {
           // Cập nhật selectedFilters dựa trên newFilters
           Object.keys(newFilters).forEach((key) => {

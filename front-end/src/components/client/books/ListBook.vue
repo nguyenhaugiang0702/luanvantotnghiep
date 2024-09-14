@@ -4,7 +4,6 @@
     <!-- Filters Tag -->
     <div v-if="hasFilteredTags" class="row ms-4 pt-4">
       <span class="col-sm-2 text-center">Lọc theo : </span>
-
       <div class="col-sm-9 float-start">
         <div class="row">
           <div
@@ -56,7 +55,7 @@
           >
             <img
               :src="`${config.imgUrl}/` + book.images[0].path"
-              class="card-img-top w-75"
+              class="card-img-top w-75 mx-4"
               alt="book image"
             />
           </router-link>

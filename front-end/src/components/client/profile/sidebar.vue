@@ -10,7 +10,7 @@
           <router-link :to="{name: 'profile-address'}" class="nav-link">Số địa chỉ</router-link>
         </li>
         <li class="nav-item">
-          <router-link :to="{name: ''}" class="nav-link">Đơn hàng của tôi</router-link>
+          <router-link :to="{name: 'profile-orders'}" class="nav-link">Đơn hàng của tôi</router-link>
         </li>
         <li class="nav-item">
           <router-link :to="{name: 'profile-password'}" class="nav-link">Đổi mật khẩu</router-link>

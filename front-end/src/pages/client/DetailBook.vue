@@ -278,7 +278,7 @@ const addToCart = async (method) => {
     const data = {
       books: [
         {
-          bookID: bookID,
+          bookID: bookID.value,
           quantity: quantity.value,
           price:
             book.value.detail.originalPrice - book.value.detail.discountPrice,

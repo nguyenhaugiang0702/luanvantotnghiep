@@ -81,9 +81,14 @@
           <label class="form-check-label" for="payment1"
             ><img
               src="../../assets/images/payments/zalopay.png"
-              style="width: 40px; height: 20px; object-fit: cover"
-              class="me-2 border border-dark"
-              alt=""
+              style="
+                width: 40px;
+                height: 25px;
+                border-radius: 2px;
+                object-fit: cover;
+              "
+              class="me-2 border border-dark border-1"
+F              alt=""
               srcset=""
             />Thanh toán ZALOPAY</label
           >
@@ -117,8 +122,9 @@
           />
           <label class="form-check-label" for="payment1"
             ><img
-              src="../../assets/images/payments/momo.svg"
-              class="me-2"
+              src="../../assets/images/payments/paypal.png"
+              style="width: 40px; height: 25px; border-radius: 2px"
+              class="me-2 border border-dark border-1"
               alt=""
               srcset=""
             />Thanh toán PAYPAL</label
@@ -284,6 +290,7 @@ const getBookCheckOut = async () => {
   const response = await cartService.get("/booksCheckBox", token);
   if (response.status === 200) {
     selectedBooks.value.books = response.data.books;
+    console.log(selectedBooks.value.books);
     selectedBooks.value.totalPrice = response.data.totalPrice;
     selectedBooks.value.totalQuantity = response.data.totalQuantity;
   }
@@ -298,13 +305,14 @@ const confirmPayment = async () => {
     detail: selectedBooks.value.books.map((book) => ({
       bookID: book.bookID._id,
       quantity: book.quantity,
-      price: book.price,
+      realPrice: book.price,
     })),
     totalPrice: selectedBooks.value.totalPrice,
     totalQuantity: selectedBooks.value.totalQuantity,
     notes: notes.value,
     payment: paymentMethod.value,
   };
+  console.log(orderData);
   switch (paymentMethod.value) {
     case "MOMO":
       try {
@@ -347,7 +355,6 @@ const confirmPayment = async () => {
         );
 
         if (zalopayResponse.status === 200) {
-          console.log(zalopayResponse.data);
           const { order_url, order_token } = zalopayResponse.data;
           if (order_url) {
             window.open(order_url, "_blank");
