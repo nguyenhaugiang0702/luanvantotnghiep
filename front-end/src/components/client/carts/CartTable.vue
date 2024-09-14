@@ -6,7 +6,7 @@
           <input
             type="checkbox"
             class="w-100"
-            :checked="selectAll"
+            :checked="selectAll && booksInCart.length !== 0"
             @change="toggleSelectAll"
           />
         </th>
@@ -137,9 +137,13 @@ export default {
         const response = await cartService.get("/", token);
         if (response.status === 200) {
           booksInCart.value = response.data;
-          selectAll.value = response.data.books.every(
-            (book) => book.isCheckOut
-          );
+          if (response.data.books.length === 0) {
+            selectAll.value = false;
+          } else {
+            selectAll.value = response.data.books.every(
+              (book) => book.isCheckOut
+            );
+          }
         }
       }
     };

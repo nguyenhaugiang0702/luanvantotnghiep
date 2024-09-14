@@ -20,6 +20,16 @@ const client = [
         component: () => import("../pages/client/Cart.vue"),
       },
       {
+        path: "checkout",
+        name: "checkout",
+        component: () => import("../pages/client/CheckOut.vue"),
+      },
+      {
+        path: "thanks",
+        name: "thanks",
+        component: () => import("../pages/client/Thanks.vue"),
+      },
+      {
         path: "/books",
         name: "books",
         redirect: { name: "book-list" },

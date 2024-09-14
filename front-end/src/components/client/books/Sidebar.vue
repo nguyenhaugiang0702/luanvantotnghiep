@@ -247,7 +247,7 @@ import PriceRangeService from "@/service/priceRange.service";
 import BookService from "@/service/book.service";
 
 export default {
-  emit: ["filteredBooks", "filteredTags", "selected-ids"],
+  emit: ["selected-ids"],
   props: {
     filteredTagsDelete: {
       type: Object,
@@ -269,14 +269,6 @@ export default {
     const suppliers = ref([]);
     const priceranges = ref([]);
     const selectedFilters = ref({
-      price: [],
-      category: [],
-      publisher: [],
-      supplier: [],
-      formality: [],
-      author: [],
-    });
-    const selectedTags = ref({
       price: [],
       category: [],
       publisher: [],
@@ -378,8 +370,6 @@ export default {
       }
       // Cập nhật các bộ lọc
       emit("selected-ids", selectedFilters.value);
-      // Gọi API để lấy sách đã được lọc
-      // fetchFilteredBooks(selectedFilters.value);
     };
 
     const updateCheckboxes = (filters, newFilters) => {
@@ -400,14 +390,27 @@ export default {
     watch(
       () => props.filteredTagsDelete,
       async (newFilters) => {
-        // Cập nhật selectedFilters dựa trên newFilters
-        Object.keys(newFilters).forEach((key) => {
-          const ids = newFilters[key].map((item) => item.id);
-          // Cập nhật selectedFilters với các id còn lại
-          selectedFilters.value[key] = selectedFilters.value[key].filter(
-            (item) => ids.includes(item.id)
-          );
-        });
+        if (Object.keys(newFilters).length === 0) {
+          selectedFilters.value = {
+            price: [],
+            category: [],
+            publisher: [],
+            supplier: [],
+            formality: [],
+            author: [],
+          };
+          console.log(1);
+        } else {
+          // Cập nhật selectedFilters dựa trên newFilters
+          Object.keys(newFilters).forEach((key) => {
+            const ids = newFilters[key].map((item) => item.id);
+            // Cập nhật selectedFilters với các id còn lại
+            selectedFilters.value[key] = selectedFilters.value[key].filter(
+              (item) => ids.includes(item.id)
+            );
+          });
+        }
+
         // Cập nhật checkbox sau khi selectedFilters đã được cập nhật
         updateCheckboxes(
           {

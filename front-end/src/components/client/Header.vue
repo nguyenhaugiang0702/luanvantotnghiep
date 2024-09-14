@@ -17,6 +17,7 @@
       <!-- Giỏ Hàng -->
       <div class="col-auto dropdown my-4">
         <button
+          @click="handleNavigateRoute('cart')"
           class="btn btn-outline-secondary dropdown-toggle position-relative"
           type="button"
           data-bs-toggle="dropdown"
@@ -58,7 +59,8 @@
                 </div>
                 <div class="col-sm-9">
                   <div class="row text-break fw-bold">
-                    <router-link class="text-decoration-none text-dark"
+                    <router-link
+                      class="text-decoration-none text-dark"
                       :to="{
                         name: 'book-detail',
                         params: { bookID: book.bookID._id },
@@ -177,7 +179,7 @@ import ApiService from "../../service/ApiService";
 import CartService from "@/service/cart.service";
 import { useRouter } from "vue-router";
 import config from "@/config/index";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, handleNavigate } from "@/utils/utils";
 
 export default {
   components: {
@@ -192,6 +194,7 @@ export default {
     const token = Cookies.get("accessToken");
     const isLoggedIn = Cookies.get("isLoggedIn");
     const updateCart = inject("updateCart");
+    const isDropdownOpen = ref(false);
     const getUser = async () => {
       try {
         if (token) {
@@ -204,6 +207,11 @@ export default {
         console.log(error);
       }
     };
+
+    const handleNavigateRoute = (routeName) => {
+      $('.dropdown-menu').removeClass('show');
+      handleNavigate(routeName);
+    }
 
     const logOut = () => {
       Swal.fire({
@@ -289,6 +297,7 @@ export default {
       config,
       totalPrice,
       formatPrice,
+      handleNavigateRoute
     };
   },
 };

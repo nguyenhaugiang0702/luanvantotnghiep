@@ -26,17 +26,28 @@
         </div>
       </div>
     </div>
-    <!-- Sắp xếp theo và số sản phẩm trên trang -->
-    <div class="py-4 ps-2">
-      <select class="form-select w-auto" v-model="itemsPerPage">
-        <option value="8">8 sản phẩm</option>
-        <option value="12">12 sản phẩm</option>
-        <option value="24">24 sản phẩm</option>
-      </select>
+    <div class="d-flex">
+      <!-- Sắp xếp theo và số sản phẩm trên trang -->
+      <div class="py-4 ps-2">
+        <select class="form-select w-auto" v-model="itemsPerPage">
+          <option value="8">8 sản phẩm</option>
+          <option value="12">12 sản phẩm</option>
+          <option value="24">24 sản phẩm</option>
+        </select>
+      </div>
+
+      <!-- Sắp xếp theo và số sản phẩm trên trang -->
+      <div class="py-4 ps-2">
+        <select class="form-select w-auto" v-model="sortBy">
+          <option selected value="">Sắp xếp theo</option>
+          <option value="asc">Giá tăng</option>
+          <option value="desc">Giá giảm</option>
+        </select>
+      </div>
     </div>
 
     <!-- Danh sách sản phẩm -->
-    <div class="row" v-if="books.length > 0">
+    <div class="row" v-if="books.length !== 0">
       <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">
         <div class="book-card book card h-100 position-relative">
           <router-link
@@ -144,6 +155,7 @@ const itemsPerPage = ref(8);
 const totalPages = ref();
 const filters = ref({});
 const updatedItems = ref({});
+const sortBy = ref("");
 
 const props = defineProps({
   selectedIds: {
@@ -151,7 +163,7 @@ const props = defineProps({
     default: () => {},
   },
 });
-const emit = defineEmits(["filteredTagsDelete", "cartUpdated"]);
+const emit = defineEmits(["filteredTagsDelete"]);
 
 // Hàm cắt ngắn tên sách nếu quá dài
 const truncateTitle = (title) => {
@@ -222,8 +234,19 @@ const clearFilter = (id) => {
       },
       {}
     );
-    getBooks(filtersWithIds, currentPage.value, itemsPerPage.value);
+    getBooks(
+      filtersWithIds,
+      currentPage.value,
+      itemsPerPage.value,
+      sortBy.value
+    );
   }
+};
+
+const handleClearFilters = async () => {
+  const updatedTags = {};
+  emit("filteredTagsDelete", updatedTags);
+  await getBooks({}, currentPage.value, itemsPerPage.value, sortBy.value);
 };
 
 const getKeyById = (id) => {
@@ -273,10 +296,10 @@ const addToCart = async (book) => {
   }
 };
 
-const getBooks = async (filters, page, limit) => {
+const getBooks = async (filters, page, limit, sortBy) => {
   const filtersString = JSON.stringify(filters);
   const response = await bookService.get(
-    `/filters?filters=${filtersString}&page=${page}&limit=${limit}`
+    `/filters?filters=${filtersString}&page=${page}&limit=${limit}&sortBy=${sortBy}`
   );
   if (response.status === 200) {
     books.value = response.data.books;
@@ -286,12 +309,12 @@ const getBooks = async (filters, page, limit) => {
 };
 
 onMounted(() => {
-  getBooks({}, currentPage.value, itemsPerPage.value);
+  getBooks({}, currentPage.value, itemsPerPage.value, sortBy.value);
 });
 
 watch(
-  [() => props.selectedIds, () => itemsPerPage.value],
-  async ([newSelectedIds, newItemsPerPage]) => {
+  [() => props.selectedIds, () => itemsPerPage.value, () => sortBy.value],
+  async ([newSelectedIds, newItemsPerPage, newSortBy]) => {
     if (newItemsPerPage) {
       currentPage.value = 1;
     }
@@ -309,7 +332,12 @@ watch(
     );
 
     // Gọi API để lấy sách mới
-    await getBooks(filtersWithIds, currentPage.value, newItemsPerPage);
+    await getBooks(
+      filtersWithIds,
+      currentPage.value,
+      newItemsPerPage,
+      newSortBy
+    );
   },
   { deep: true }
 );
@@ -317,7 +345,12 @@ watch(
 const handlePage = async (page) => {
   currentPage.value = page;
   const filtersString = JSON.stringify(filters.value);
-  await getBooks(filtersString, currentPage.value, itemsPerPage.value);
+  await getBooks(
+    filtersString,
+    currentPage.value,
+    itemsPerPage.value,
+    sortBy.value
+  );
 };
 
 // Chuyển sang trang trước
@@ -325,7 +358,12 @@ const goToPreviousPage = async () => {
   if (currentPage.value > 1) {
     currentPage.value--;
     const filtersString = JSON.stringify(filters.value);
-    await getBooks(filtersString, currentPage.value, itemsPerPage.value);
+    await getBooks(
+      filtersString,
+      currentPage.value,
+      itemsPerPage.value,
+      sortBy.value
+    );
   }
 };
 
@@ -334,7 +372,12 @@ const goToNextPage = async () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
     const filtersString = JSON.stringify(filters.value);
-    await getBooks(filtersString, currentPage.value, itemsPerPage.value);
+    await getBooks(
+      filtersString,
+      currentPage.value,
+      itemsPerPage.value,
+      sortBy.value
+    );
   }
 };
 </script>

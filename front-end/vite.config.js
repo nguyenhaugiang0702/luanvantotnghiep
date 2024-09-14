@@ -19,6 +19,22 @@ export default defineConfig({
         target: "http://localhost:3000/",
         changeOrigin: true,
       },
+      "/api/v1/orders/momo/callback": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
+      "/api/v1/orders/zalopay/callback": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
+      "/api/v1/orders/paypal/success": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
+      "/api/v1/orders/paypal/cancel": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
     },
   },
 });

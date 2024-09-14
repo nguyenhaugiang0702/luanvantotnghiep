@@ -1,162 +1,167 @@
 <template>
-  <div class="row">
-    <div class="d-flex justify-content-start">
-      <router-link :to="{ name: 'home' }">
-        <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
-      </router-link>
-      <p class="my-2 fw-bold col-12 text-uppercase ms-2">/ Chi tiết</p>
+  <div class="container">
+    <div class="row">
+      <div class="d-flex justify-content-start">
+        <router-link :to="{ name: 'home' }">
+          <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
+        </router-link>
+        <p class="my-2 fw-bold col-12 text-uppercase ms-2">/ Chi tiết</p>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-5 bg-white sticky-side" ref="leftContainer">
-      <!-- Thêm padding-right -->
-      <Carousel
-        id="gallery"
-        :items-to-show="1"
-        :wrap-around="false"
-        v-model="currentSlide"
-      >
-        <Slide v-for="(image, index) in book.images" :key="index">
-          <div class="carousel__item">
-            <img
-              :src="`${config.imgUrl}/` + image.path"
-              alt="Product Image"
-              class="carousel-image"
-            />
-          </div>
-        </Slide>
-      </Carousel>
+    <div class="row">
+      <div class="col-md-5 bg-white sticky-side" ref="leftContainer">
+        <!-- Thêm padding-right -->
+        <Carousel
+          id="gallery"
+          :items-to-show="1"
+          :wrap-around="false"
+          v-model="currentSlide"
+        >
+          <Slide v-for="(image, index) in book.images" :key="index">
+            <div class="carousel__item">
+              <img
+                :src="`${config.imgUrl}/` + image.path"
+                alt="Product Image"
+                class="carousel-image"
+              />
+            </div>
+          </Slide>
+        </Carousel>
 
-      <Carousel
-        id="thumbnails"
-        :items-to-show="4"
-        :wrap-around="true"
-        v-model="currentSlide"
-        ref="carousel"
-      >
-        <Slide v-for="(image, index) in book.images" :key="index">
-          <div class="carousel__item" @click="slideTo(index)">
-            <img
-              :src="`${config.imgUrl}/` + image.path"
-              alt="Thumbnail"
-              class="thumbnail-image border border-dark me-2"
-            />
-          </div>
-        </Slide>
-      </Carousel>
-    </div>
+        <Carousel
+          id="thumbnails"
+          :items-to-show="4"
+          :wrap-around="true"
+          v-model="currentSlide"
+          ref="carousel"
+        >
+          <Slide v-for="(image, index) in book.images" :key="index">
+            <div class="carousel__item" @click="slideTo(index)">
+              <img
+                :src="`${config.imgUrl}/` + image.path"
+                alt="Thumbnail"
+                class="thumbnail-image border border-dark me-2"
+              />
+            </div>
+          </Slide>
+        </Carousel>
+      </div>
 
-    <div class="col-md-7 product-info" ref="rightContainer">
-      <div class="container">
-        <div class="row bg-white">
-          <div class="container py-3">
-            <h2>{{ book.name }}</h2>
-            <p class="font-weight-bold">
-              <span class="fs-3 fw-bold text-danger">
-                {{
-                  formatPrice(
-                    book.detail?.originalPrice - book.detail?.discountPrice
-                  )
-                }}
-              </span>
-              <span class="text-decoration-line-through ms-2 fs-5">{{
-                formatPrice(book.detail?.discountPrice)
-              }}</span>
-              -25%
-            </p>
-            <div class="row">
-              <div class="col">
-                <p>Nhà cung cấp: Nhà Xuất Bản Kim Đồng</p>
+      <div class="col-md-7 product-info" ref="rightContainer">
+        <div class="container">
+          <div class="row bg-white">
+            <div class="container py-3">
+              <h2>{{ book.name }}</h2>
+              <p class="font-weight-bold">
+                <span class="fs-3 fw-bold text-danger">
+                  {{
+                    formatPrice(
+                      book.detail?.originalPrice - book.detail?.discountPrice
+                    )
+                  }}
+                </span>
+                <span class="text-decoration-line-through ms-2 fs-5">{{
+                  formatPrice(book.detail?.discountPrice)
+                }}</span>
+                -25%
+              </p>
+              <div class="row">
+                <div class="col">
+                  <p>Nhà cung cấp: Nhà Xuất Bản Kim Đồng</p>
+                </div>
+                <div class="col">
+                  <p>Tác giả: {{ book.authorID?.name }}</p>
+                </div>
               </div>
-              <div class="col">
-                <p>Tác giả: {{ book.authorID?.name }}</p>
+              <div class="row">
+                <div class="col">
+                  <p>Nhà xuất bản: {{ book.publisherID?.name }}</p>
+                </div>
+                <div class="col">
+                  <p>Năm XB: {{ book.detail?.publisherYear }}</p>
+                </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <p>Nhà xuất bản: {{ book.publisherID?.name }}</p>
+              <div class="row">
+                <div class="col">
+                  <p>Trọng lượng: {{ book.detail?.weight }} g</p>
+                </div>
+                <div class="col">
+                  <p>
+                    Kích thước: {{ book.detail?.length }} x
+                    {{ book.detail?.width }} cm
+                  </p>
+                </div>
               </div>
-              <div class="col">
-                <p>Năm XB: {{ book.detail?.publisherYear }}</p>
+              <div class="row">
+                <div class="col">
+                  <p>Hình thức: {{ book.formalityID?.name }}</p>
+                </div>
+                <div class="col">
+                  <p>Số trang: {{ book.detail?.pageNumber }}</p>
+                </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <p>Trọng lượng: {{ book.detail?.weight }} g</p>
-              </div>
-              <div class="col">
-                <p>
-                  Kích thước: {{ book.detail?.length }} x
-                  {{ book.detail?.width }} cm
-                </p>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <p>Hình thức: {{ book.formalityID?.name }}</p>
-              </div>
-              <div class="col">
-                <p>Số trang: {{ book.detail?.pageNumber }}</p>
-              </div>
-            </div>
 
-            <div class="rating">★★★★★ (5 đánh giá)</div>
-            <!-- Bootstrap component for quantity -->
-            <div class="d-flex align-items-center mt-3">
-              <label for="quantity" class="me-2">Số lượng:</label>
-              <div class="input-group" style="width: 180px">
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  @click="decreaseQuantity"
-                >
-                  -
-                </button>
-                <input
-                  type="text"
-                  class="form-control text-center border border-3"
-                  v-model="quantity"
-                />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  @click="increaseQuantity"
-                >
-                  +
-                </button>
+              <div class="rating">★★★★★ (5 đánh giá)</div>
+              <!-- Bootstrap component for quantity -->
+              <div class="d-flex align-items-center mt-3">
+                <label for="quantity" class="me-2">Số lượng:</label>
+                <div class="input-group" style="width: 180px">
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    @click="decreaseQuantity"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="text"
+                    class="form-control text-center border border-3"
+                    v-model="quantity"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    @click="increaseQuantity"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            </div>
-            <button
-              @click="addToCart((method = 'BUYNOW'))"
-              class="btn btn-danger mt-3"
-            >
-              Mua ngay
-            </button>
-            <button
-              @click="addToCart((method = 'ADDTOCART'))"
-              class="btn btn-primary mt-3 ms-3"
-            >
-              Thêm vào giỏ
-            </button>
-          </div>
-        </div>
-        <!-- Phần mô tả sản phẩm có thể cuộn -->
-        <div class="row bg-white mt-3">
-          <div class="container">
-            <div
-              class="mt-4 description-container"
-              :class="{ expanded: isExpanded }"
-            >
-              <h3>Mô tả sản phẩm</h3>
-              <!-- Phần mô tả sản phẩm có thể cuộn -->
-              <div class="description-content" v-html="book.description"></div>
               <button
-                v-if="isLongDescription"
-                @click="toggleDescription"
-                class="btn btn-link"
+                @click="addToCart((method = 'BUYNOW'))"
+                class="btn btn-danger mt-3"
               >
-                {{ isExpanded ? "Thu gọn" : "Xem thêm" }}
+                Mua ngay
               </button>
+              <button
+                @click="addToCart((method = 'ADDTOCART'))"
+                class="btn btn-primary mt-3 ms-3"
+              >
+                Thêm vào giỏ
+              </button>
+            </div>
+          </div>
+          <!-- Phần mô tả sản phẩm có thể cuộn -->
+          <div class="row bg-white mt-3">
+            <div class="container">
+              <div
+                class="mt-4 description-container"
+                :class="{ expanded: isExpanded }"
+              >
+                <h3>Mô tả sản phẩm</h3>
+                <!-- Phần mô tả sản phẩm có thể cuộn -->
+                <div
+                  class="description-content"
+                  v-html="book.description"
+                ></div>
+                <button
+                  v-if="isLongDescription"
+                  @click="toggleDescription"
+                  class="btn btn-link"
+                >
+                  {{ isExpanded ? "Thu gọn" : "Xem thêm" }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
