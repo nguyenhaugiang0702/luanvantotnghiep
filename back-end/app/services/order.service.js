@@ -11,6 +11,20 @@ const getOrderByID = async (orderID) => {
   return await Order.findById(orderID);
 };
 
+const getOrderByIDAndUserID = async (orderID, userID) => {
+  return await Order.findOne({ _id: orderID, userID: userID })
+    .populate({
+      path: "detail.bookID",
+      populate: [
+        { path: "categoryID", select: "name" },
+        { path: "formalityID", select: "name" },
+        { path: "publisherID", select: "name" },
+      ],
+    })
+    .populate("userID")
+    .populate("addressID");
+};
+
 const getOrdersByUserID = async (userID) => {
   const orders = await Order.find({ userID: userID })
     .populate({
@@ -54,4 +68,5 @@ module.exports = {
   getOrderByID,
   getOrdersByUserID,
   requestCancelOrder,
+  getOrderByIDAndUserID,
 };

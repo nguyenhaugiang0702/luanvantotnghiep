@@ -54,13 +54,34 @@ exports.cancelOrder = async (req, res, next) => {
   const userID = req.user.id;
   const orderID = req.params.orderID;
   try {
-    const orderUpdateStatus = await orderService.requestCancelOrder(userID, orderID);
-    if(!orderUpdateStatus){
+    const orderUpdateStatus = await orderService.requestCancelOrder(
+      userID,
+      orderID
+    );
+    if (!orderUpdateStatus) {
       return next(new ApiError(400, "Lỗi khi hủy đơn hàng!"));
     }
     return res.send({
-      message: "Đã yêu cầu hủy thành công"
+      message: "Đã yêu cầu hủy thành công",
     });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
+  }
+};
+
+exports.findOne = async (req, res, next) => {
+  const userID = req.user.id;
+  const orderID = req.params.orderID;
+  try {
+    const orderDetail = await orderService.getOrderByIDAndUserID(
+      orderID,
+      userID
+    );
+    if (!orderDetail) {
+      return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
+    }
+    return res.send(orderDetail);
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi đặt hàng!"));

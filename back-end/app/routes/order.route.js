@@ -10,6 +10,9 @@ const router = express.Router();
 
 router.route("/").post(jwt.authenticateTokenFromHeader, order.create);
 router
+  .route("/detail/:orderID")
+  .get(jwt.authenticateTokenFromHeader, order.findOne);
+router
   .route("/:token")
   .get(jwt.authenticateTokenFromParams, order.findAllOrdersByUserID);
 router

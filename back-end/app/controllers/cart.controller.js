@@ -71,14 +71,19 @@ exports.create = async (req, res, next) => {
 };
 
 exports.findAll = async (req, res, next) => {
-  let books = [];
+  let totalQuantity = 0;
   const userID = req.user.id;
   try {
-    books = await cartService.getFullInfoCartByUserID(userID);
+    const cart = await cartService.getFullInfoCartByUserID(userID);
+    totalQuantity = cart.books.length;
+    const cartWithQuantity = {
+      ...cart._doc,
+      totalQuantity: totalQuantity,
+    };
+    return res.send(cartWithQuantity);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách trong giỏ"));
   }
-  return res.send(books);
 };
 
 exports.findAllBooksCheckBox = async (req, res, next) => {
@@ -93,7 +98,7 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
       if (book.isCheckOut) {
         totalPrice += book.price * book.quantity;
         totalQuantity += book.quantity;
-        checkedOutBooks.push(book); 
+        checkedOutBooks.push(book);
       }
     });
     return res.send({
