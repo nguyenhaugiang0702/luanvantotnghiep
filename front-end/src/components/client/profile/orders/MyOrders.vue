@@ -1,7 +1,7 @@
 <template>
   <div class="container bg-white">
     <h4 class="p-3">ĐƠN HÀNG</h4>
-    <div class="container py-3">
+    <div class="container pb-3">
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item" @click="setActiveTab('all')">
@@ -60,9 +60,25 @@
                   alt=""
                   class="me-3 book-image"
                 />
-                <span>{{ book.bookID.name }} x{{ book.quantity }}</span>
+                <div class="d-flex flex-column">
+                  <span>{{ book.bookID.name }}</span>
+                  <div class="d-flex flex-row">
+                    <span>{{ book.quantity }} x</span>
+                    <span class="text-danger fw-bold mx-2">
+                      {{
+                        formatPrice(
+                          book.bookID.detail.originalPrice -
+                            book.bookID.detail.discountPrice
+                        )
+                      }}</span
+                    >
+                    <span class="opacity-75 text-decoration-line-through">{{
+                      formatPrice(book.bookID.detail.originalPrice)
+                    }}</span>
+                  </div>
+                </div>
               </div>
-              <span class="d-flex align-items-center">{{
+              <span class="d-flex align-items-center fw-bold">{{
                 formatPrice(book.realPrice * book.quantity)
               }}</span>
             </li>
@@ -70,11 +86,25 @@
           <hr />
           <div class="d-flex justify-content-between fw-bold">
             <span>Tổng cộng</span>
-            <span>{{ formatPrice(order.totalPrice) }}</span>
+            <span class="text-danger fw-bold">{{
+              formatPrice(order.totalPrice)
+            }}</span>
           </div>
         </div>
         <div class="card-footer d-flex justify-content-end gap-2">
-          <button class="btn btn-outline-secondary">Chi tiết</button>
+          <button
+            @click="
+              handleNavigate(
+                router,
+                'profile-orders-detail',
+                'orderID',
+                order._id
+              )
+            "
+            class="btn btn-outline-secondary"
+          >
+            Chi tiết
+          </button>
           <button
             @click="requestCancelOrder(order._id)"
             v-if="order.status === 1"
@@ -119,12 +149,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, handleNavigate } from "@/utils/utils";
 import OrderService from "@/service/order.service";
 import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
 import { showConfirmation } from "@/utils/swalUtils";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const orderService = new OrderService();
 
 const token = Cookies.get("accessToken");

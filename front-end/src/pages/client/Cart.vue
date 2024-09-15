@@ -39,7 +39,7 @@
                   selectedBooks.totalPrice === 0 ||
                   selectedBooks.totalQuantity === 0
                 "
-                @click="handleNavigate('checkout')"
+                @click="handleNavigate(router, 'checkout')"
                 class="btn btn-success col-sm-2 my-3"
               >
                 Tiếp Tục
@@ -52,7 +52,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
@@ -62,40 +62,27 @@ import { formatPrice, handleNavigate } from "@/utils/utils";
 import CartService from "@/service/cart.service";
 import { toast } from "vue3-toastify";
 
-export default {
-  components: {
-    CartTable,
-  },
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const selectedBooks = ref({
-      totalQuantity: 0,
-      totalPrice: 0,
-    });
-    const token = Cookies.get("accessToken");
-    const cartService = new CartService();
-    const updateCart = inject("updateCart");
-    const getCartsWithCheckbox = async () => {
-      const response = await cartService.get("/booksCheckBox", token);
-      if (response.status === 200) {
-        selectedBooks.value = response.data;
-      }
-    };
-
-    watch(updateCart, (newValue) => {
-      getCartsWithCheckbox();
-    });
-
-    onMounted(() => {
-      getCartsWithCheckbox();
-    });
-
-    return {
-      formatPrice,
-      selectedBooks,
-      handleNavigate,
-    };
-  },
+const router = useRouter();
+const route = useRoute();
+const selectedBooks = ref({
+  totalQuantity: 0,
+  totalPrice: 0,
+});
+const token = Cookies.get("accessToken");
+const cartService = new CartService();
+const updateCart = inject("updateCart");
+const getCartsWithCheckbox = async () => {
+  const response = await cartService.get("/booksCheckBox", token);
+  if (response.status === 200) {
+    selectedBooks.value = response.data;
+  }
 };
+
+watch(updateCart, (newValue) => {
+  getCartsWithCheckbox();
+});
+
+onMounted(() => {
+  getCartsWithCheckbox();
+});
 </script>

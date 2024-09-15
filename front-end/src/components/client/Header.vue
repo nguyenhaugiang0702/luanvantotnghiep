@@ -27,7 +27,7 @@
           <span
             class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
           >
-            {{ totalQuantityInCart }}
+            {{ booksInCart.totalQuantity }}
             <span class="visually-hidden">unread messages</span>
           </span>
         </button>
@@ -35,7 +35,7 @@
           <li class="mx-4 my-2">
             <i class="fa-solid fa-cart-shopping"></i>
             <span class="fw-bold ms-2"
-              >Giỏ hàng ({{ totalQuantityInCart }})</span
+              >Giỏ hàng ({{ booksInCart.totalQuantity }})</span
             >
           </li>
           <hr />
@@ -85,11 +85,12 @@
               <hr />
             </li>
           </div>
+
           <div class="row" v-if="isLoggedIn && token">
             <div class="col-sm-6 text-start mx-4">
               Tổng cộng:
               <span class="text-danger fw-bold">{{
-                formatPrice(totalPrice)
+                formatPrice(booksInCart.totalPrice)
               }}</span>
             </div>
             <div class="col-sm-3 text-center">
@@ -124,7 +125,11 @@
                   >Tài khoản</router-link
                 >
               </li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
+              <li>
+                <router-link class="dropdown-item" :to="{name: 'profile-orders'}"
+                  >Đơn hàng</router-link
+                >
+              </li>
               <li>
                 <hr class="dropdown-divider" />
               </li>
@@ -162,7 +167,7 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import Search from "./Search.vue";
 import {
   computed,
@@ -181,125 +186,89 @@ import { useRouter } from "vue-router";
 import config from "@/config/index";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 
-export default {
-  components: {
-    // SignInModal,
-    Search,
-  },
-  setup() {
-    const userInfo = ref({});
-    const router = useRouter();
-    const apiService = new ApiService();
-    const cartService = new CartService();
-    const token = Cookies.get("accessToken");
-    const isLoggedIn = Cookies.get("isLoggedIn");
-    const updateCart = inject("updateCart");
-    const isDropdownOpen = ref(false);
-    const getUser = async () => {
-      try {
-        if (token) {
-          const response = await apiService.get(`users/${token}`);
-          if (response.status === 200) {
-            userInfo.value = response.data;
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
+const userInfo = ref({});
+const router = useRouter();
+const apiService = new ApiService();
+const cartService = new CartService();
+const token = Cookies.get("accessToken");
+const isLoggedIn = Cookies.get("isLoggedIn");
+const updateCart = inject("updateCart");
+const isDropdownOpen = ref(false);
+const booksInCart = ref({
+  books: [],
+  totalPrice: 0,
+  totalQuantity: 0,
+});
 
-    const handleNavigateRoute = (routeName) => {
-      $('.dropdown-menu').removeClass('show');
-      handleNavigate(routeName);
+const getUser = async () => {
+  try {
+    if (token) {
+      const response = await apiService.get(`users/${token}`);
+      if (response.status === 200) {
+        userInfo.value = response.data;
+      }
     }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-    const logOut = () => {
-      Swal.fire({
-        title: "Xác nhận đăng xuất",
-        text: "Bạn có chắc chắn muốn đăng xuất?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Hủy bỏ",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          sessionStorage.clear();
-          document.cookie =
-            "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-          document.cookie =
-            "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-          delete axios.defaults.headers.common["Authorization"];
-          window.location.reload();
-        }
-      });
-    };
+const handleNavigateRoute = (routeName) => {
+  $(".dropdown-menu").removeClass("show");
+  handleNavigate(router, routeName);
+};
 
-    const booksInCart = ref([]);
-    const getCarts = async () => {
-      if (token) {
-        const response = await cartService.get("/", token);
-        if (response.status === 200) {
-          booksInCart.value = response.data;
-        }
-      }
-    };
+const logOut = () => {
+  Swal.fire({
+    title: "Xác nhận đăng xuất",
+    text: "Bạn có chắc chắn muốn đăng xuất?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Hủy bỏ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      sessionStorage.clear();
+      document.cookie =
+        "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+      document.cookie =
+        "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+      delete axios.defaults.headers.common["Authorization"];
+      window.location.reload();
+    }
+  });
+};
 
-    const totalPrice = computed(() => {
-      return booksInCart.value.totalPrice || 0;
-    });
+const getCarts = async () => {
+  if (token) {
+    const response = await cartService.get("/", token);
+    if (response.status === 200) {
+      booksInCart.value = response.data;
+    }
+  }
+};
 
-    // Quan sát sự thay đổi của updateCart và gọi getCarts mỗi khi nó thay đổi
-    watch(updateCart, (newValue) => {
-      if (newValue) {
-        getCarts();
-      }
-    });
+// Quan sát sự thay đổi của updateCart và gọi getCarts mỗi khi nó thay đổi
+watch(updateCart, (newValue) => {
+  if (newValue) {
+    getCarts();
+  }
+});
 
-    onMounted(() => {
-      getCarts();
-    });
+onMounted(() => {
+  getCarts();
+});
 
-    const totalQuantityInCart = computed(() => {
-      // Kiểm tra nếu booksInCart.value không tồn tại hoặc không phải là một object
-      if (!booksInCart.value || typeof booksInCart.value !== "object") {
-        return 0;
-      }
-      const booksArray = booksInCart.value.books;
-      if (!Array.isArray(booksArray)) {
-        return 0;
-      }
-      return booksArray.length;
-    });
+const setLogin = () => {
+  localStorage.setItem("isSignInActive", true);
+  router.push({ name: "login" });
+  //   window.location.reload();
+};
 
-    const setLogin = () => {
-      localStorage.setItem("isSignInActive", true);
-      router.push({ name: "login" });
-      //   window.location.reload();
-    };
-
-    const setSignUp = () => {
-      localStorage.setItem("isSignInActive", false);
-      router.push({ name: "login" });
-      //   window.location.reload();
-    };
-
-    return {
-      booksInCart,
-      logOut,
-      getCarts,
-      totalQuantityInCart,
-      getUser,
-      userInfo,
-      setLogin,
-      setSignUp,
-      isLoggedIn,
-      token,
-      config,
-      totalPrice,
-      formatPrice,
-      handleNavigateRoute
-    };
-  },
+const setSignUp = () => {
+  localStorage.setItem("isSignInActive", false);
+  router.push({ name: "login" });
+  //   window.location.reload();
 };
 </script>
 <style scoped>

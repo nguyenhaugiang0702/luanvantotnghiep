@@ -68,7 +68,7 @@ const client = [
           {
             path: "address",
             name: "profile-address",
-            redirect: {name: 'profile-address-list'},
+            redirect: { name: "profile-address-list" },
             children: [
               {
                 path: "",
@@ -80,7 +80,9 @@ const client = [
                 path: "edit/:addressID",
                 name: "profile-address-edit",
                 component: () =>
-                  import("../components/client/profile/address/editAddress.vue"),
+                  import(
+                    "../components/client/profile/address/editAddress.vue"
+                  ),
               },
               {
                 path: "add",
@@ -93,13 +95,19 @@ const client = [
           {
             path: "orders",
             name: "profile-orders",
-            redirect: {name: 'profile-orders-list'},
+            redirect: { name: "profile-orders-list" },
             children: [
               {
                 path: "",
                 name: "profile-orders-list",
                 component: () =>
                   import("../components/client/profile/orders/MyOrders.vue"),
+              },
+              {
+                path: "detail/:orderID",
+                name: "profile-orders-detail",
+                component: () =>
+                  import("../components/client/profile/orders/DetailOrder.vue"),
               },
             ],
           },

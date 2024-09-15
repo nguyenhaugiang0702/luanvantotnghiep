@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white">
+  <div class="container bg-white pb-4">
     <h4 class="p-3">ĐỔI MẬT KHẨU</h4>
     <form
       @submit.prevent="changePassword"
