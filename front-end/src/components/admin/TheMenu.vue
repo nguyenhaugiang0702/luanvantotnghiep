@@ -21,6 +21,13 @@
         <span>Thể loại</span>
       </a-menu-item>
       <a-menu-item
+        key="admin-orders-list"
+        @click="navigateTo('admin-orders-list')"
+      >
+        <desktop-outlined />
+        <span>Đơn hàng</span>
+      </a-menu-item>
+      <a-menu-item
         key="admin-formalities"
         @click="navigateTo('admin-formalities')"
       >
@@ -78,7 +85,7 @@
           </span>
         </template>
         <a-menu-item
-          key="admin-publishers-add"
+          key="admin-chats"
           @click="navigateTo('admin-publishers-add')"
           >Thêm</a-menu-item
         >
@@ -124,6 +131,10 @@
           >Danh sách tồn kho</a-menu-item
         >
       </a-sub-menu>
+      <a-menu-item key="admin-chats" @click="navigateTo('admin-chats')">
+        <pie-chart-outlined />
+        <span>Tin nhắn</span>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>

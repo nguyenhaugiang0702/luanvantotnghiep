@@ -182,15 +182,15 @@
 </template>
 <script>
 import { ref, computed, onMounted, watch, watchEffect, inject, nextTick } from "vue";
-import AuthService from "@/service/auth.service";
+import AuthUserService from "@/service/auth/authUser.service";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
-import Cookies from "js-cookie";
+import Cookies from "js-cookie";  
 
 export default {
   setup() {
-    const authService = new AuthService();
+    const authUserService = new AuthUserService();
     const isSignInActive = ref(true);
     const phoneNumber = ref({
       phoneNumberSignUp: "",
@@ -256,7 +256,7 @@ export default {
       }
       try {
         isLoading.value = true;
-        const response = await authService.post("/createOTP", {
+        const response = await authUserService.post("/createOTP", {
           phoneNumber: phoneNumber.value.phoneNumberSignUp,
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -289,7 +289,7 @@ export default {
       }
       const otpNumber = Number(otp.value);
       try {
-        const response = await authService.post("/signUp/verifyOTP", {
+        const response = await authUserService.post("/signUp/verifyOTP", {
           phoneNumber: phoneNumber.value.phoneNumberSignUp,
           otp: otpNumber,
         });
@@ -320,7 +320,7 @@ export default {
       }
       try {
         isLoadingSignUp.value = true;
-        const response = await authService.post("/users", {
+        const response = await authUserService.post("/users", {
           password: password.value.passwordSignUp,
           phoneNumber: phoneNumber.value.phoneNumberSignUp,
         });
@@ -356,7 +356,7 @@ export default {
     const signIn = async () => {
       try {
         isLoadingSignIn.value = true;
-        const response = await authService.post("/", {
+        const response = await authUserService.post("/", {
           password: password.value.passwordSignIn,
           phoneNumber: phoneNumber.value.phoneNumberSignIn,
         });

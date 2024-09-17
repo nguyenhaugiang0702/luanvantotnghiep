@@ -1,9 +1,9 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 
-class AuthService {
+class AuthUserService {
   constructor() {
-    this.baseUrl = "http://localhost:3000/api/v1/auth";
+    this.baseUrl = "http://localhost:3000/api/v1/auth/user";
   }
 
   async get(endpoint, token) {
@@ -51,4 +51,4 @@ class AuthService {
   }
 }
 
-export default AuthService;
+export default AuthUserService;

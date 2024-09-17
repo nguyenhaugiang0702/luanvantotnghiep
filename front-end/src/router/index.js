@@ -1,7 +1,12 @@
 import { createWebHistory, createRouter } from "vue-router";
 import admin from "./admin.js";
 import client from "./client.js";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import {
+  checkAdminAccess,
+  checkLoginAndRedirect,
+} from "@/utils/checkRoleAndProceed";
+import AuthAdminService from "@/service/auth/authAdmin.service";
 
 const routes = [...admin, ...client];
 
@@ -10,14 +15,24 @@ const router = createRouter({
   routes,
 });
 
-// Guard để kiểm tra token trước khi truy cập vào trang đăng nhập
-router.beforeEach((to, from, next) => {
-  const token = Cookies.get('accessToken');
-  const isLoggedIn = Cookies.get('isLoggedIn');
-  if (token && isLoggedIn && to.name === 'login') {
-    next({ path: '/' });
+// Guard toàn cục
+router.beforeEach(async (to, from, next) => {
+  const isLoggedIn = Cookies.get("isLoggedIn");
+  const token = Cookies.get("accessToken");
+  // Kiểm tra nếu route yêu cầu quyền admin
+  if (to.meta.requiresAuth && to.meta.requiresAdmin) {
+    if (!isLoggedIn || !token) {
+      // Nếu không đăng nhập, chuyển hướng đến trang login admin
+      return next({ name: "admin-login" });
+    }
+
+    // Gọi hàm kiểm tra quyền admin
+    await checkAdminAccess(to, from, next);
+  } else if (to.meta.requiresAuth && !to.meta.requiresAdmin) {
+    // Nếu chỉ yêu cầu đăng nhập nhưng không yêu cầu quyền admin (cho client)
+    await checkLoginAndRedirect(to, from, next);
   } else {
-    next();
+    next(); // Nếu route không yêu cầu đăng nhập hoặc quyền, tiếp tục điều hướng
   }
 });
 

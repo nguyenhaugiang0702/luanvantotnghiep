@@ -35,13 +35,12 @@
                 <i class="fa-solid fa-location-dot me-2"></i>
                 {{
                   orderDetail.addressID.detailAddress +
-                  " " +
+                  ", " +
                   orderDetail.addressID.ward +
-                  " " +
+                  ", " +
                   orderDetail.addressID.district +
-                  " " +
-                  orderDetail.addressID.province +
-                  " "
+                  ", " +
+                  orderDetail.addressID.province
                 }}
               </p>
             </div>
@@ -94,9 +93,7 @@
         <div class="card-header">
           <h5 class="card-title mb-0">Tóm tắt đơn hàng</h5>
         </div>
-        <div
-          class="card-body"
-        >
+        <div class="card-body">
           <p class="d-flex justify-content-between">
             <span
               ><i class="fa-solid fa-calendar-days me-2"></i>Ngày đặt
@@ -117,7 +114,9 @@
           </p>
           <p class="d-flex justify-content-between font-weight-bold">
             <span>Tổng giá:</span>
-            <span class="text-danger fw-bold">{{ formatPrice(orderDetail.totalPrice) }}</span>
+            <span class="text-danger fw-bold">{{
+              formatPrice(orderDetail.totalPrice)
+            }}</span>
           </p>
         </div>
       </div>

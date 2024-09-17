@@ -108,5 +108,14 @@
         </a>
       </div>
     </div>
+    <!-- Chat component fixed at the bottom-right -->
+    <div class="position-fixed bottom-0 end-0 p-2">
+      <Chat />
+    </div>
+
   </div>
+
 </template>
+<script setup>
+import Chat from './Chat.vue';
+</script>

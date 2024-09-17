@@ -23,6 +23,7 @@ const client = [
         path: "checkout",
         name: "checkout",
         component: () => import("../pages/client/CheckOut.vue"),
+        meta: { requiresAuth: true, requiresAdmin: false },
       },
       {
         path: "thanks",
@@ -50,6 +51,7 @@ const client = [
       {
         path: "/customer/account/edit/",
         name: "profile",
+        meta: { requiresAuth: true, requiresAdmin: false },
         redirect: { name: "profile-infoUser" },
         component: () => import("../layouts/client/profile.vue"),
         children: [
@@ -112,6 +114,11 @@ const client = [
             ],
           },
         ],
+      },
+      {
+        path: "notfound",
+        component: () =>
+          import("../pages/Notfound.vue"),
       },
     ],
   },

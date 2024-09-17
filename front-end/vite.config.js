@@ -27,6 +27,10 @@ export default defineConfig({
         target: "https://nhgbookstore.serveo.net",
         changeOrigin: true,
       },
+      "/api/v1/orders/zalopay/refund": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
       "/api/v1/orders/paypal/success": {
         target: "https://nhgbookstore.serveo.net",
         changeOrigin: true,

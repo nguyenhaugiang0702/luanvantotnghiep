@@ -128,7 +128,7 @@ import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changeEmailSchema } from "@/utils/schema.util";
 import UserService from "@/service/user.service";
-import AuthService from "@/service/auth.service";
+import AuthService from "@/service/auth/authUser.service";
 export default {
   components: {
     Form,

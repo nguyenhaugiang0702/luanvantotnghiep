@@ -163,15 +163,18 @@ const token = Cookies.get("accessToken");
 const orders = ref([]);
 
 const getOrders = async () => {
-  const response = await orderService.get(`/${token}`);
+  const response = await orderService.get(`/getAll/${token}`);
   if (response.status === 200) {
     orders.value = response.data.orders;
-    console.log(response.data.orders);
   }
 };
 
 const handleCancelOrder = async (orderID) => {
-  const response = await orderService.put(`/cancelOrder/${orderID}`, {}, token);
+  const response = await orderService.put(
+    `/updateStatus/${orderID}`,
+    { status: 4 },
+    token
+  );
   if (response.status === 200) {
     toast(response.data.message, {
       theme: "auto",

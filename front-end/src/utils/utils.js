@@ -1,6 +1,4 @@
-import { useRouter } from "vue-router";
-// const router = useRouter();
-
+import moment from "moment";
 export const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -14,4 +12,8 @@ export const handleNavigate = (router, nameRoute, paramName = null, paramID = nu
   }else{
     router.push({ name: nameRoute });
   }
+};
+
+export const formatDate = (date) => {
+  return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };

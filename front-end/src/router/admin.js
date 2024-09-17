@@ -1,19 +1,18 @@
+import { useAuthStore } from "@/stores/auth";
+
 const admin = [
-  // {
-  //   path: "/forgotpassword",
-  //   name: "forgotpassword",
-  //   component: () => import("../pages/admin/teachers/forgot_password.vue"),
-  // },
-  // {
-  //   path: '/resetpassword/:token',
-  //   name: 'resetpassword',
-  //   component: () => import("../pages/admin/teachers/resetpassword.vue"),
-  // },
+  {
+    path: "/admin/login",
+    name: "admin-login",
+    component: () => import("../components/admin/Login.vue"),
+    prop: true,
+  },
   {
     path: "/admin",
     name: "admin",
     component: () => import("../layouts/admin/admin.vue"),
     prop: true,
+    meta: { requiresAuth: true, requiresAdmin: true },
     redirect: { name: "admin-users" },
     children: [
       {
@@ -76,7 +75,8 @@ const admin = [
           {
             path: "detail/:receiptID",
             name: "admin-receipts-detail",
-            component: () => import("../pages/admin/receipts/receiptDetail.vue"),
+            component: () =>
+              import("../pages/admin/receipts/receiptDetail.vue"),
             props: true,
           },
         ],
@@ -171,12 +171,42 @@ const admin = [
           {
             path: "",
             name: "admin-stockProduct-list",
-            component: () => import("../pages/admin/statistic/stockProduct.vue"),
+            component: () =>
+              import("../pages/admin/statistic/stockProduct.vue"),
             props: true,
           },
         ],
       },
+      {
+        path: "orders",
+        name: "admin-orders",
+        redirect: { name: "admin-orders-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-orders-list",
+            component: () => import("../pages/admin/orders/index.vue"),
+            props: true,
+          },
+          {
+            path: "detail/:orderID",
+            name: "admin-order-detail",
+            component: () => import("../pages/admin/orders/detailOrder.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
+        path: "chats",
+        name: "admin-chats",
+        component: () => import("../pages/admin/chats/index.vue"),
+      },
     ],
+  },
+  {
+    path: "/notfound",
+    name: "notfound",
+    component: () => import("../pages/Notfound.vue"),
   },
 ];
 

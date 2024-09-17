@@ -4,13 +4,12 @@
   </div>
   <div class="center">
     <h1>Đăng nhập</h1>
-    <Form class="form" @submit.prevent="loginAdmin()" :validation-schema="loginSchema">
-      
+    <Form class="form" @submit="loginAdmin">
       <div class="txt_field mt-5">
         <Field
           as="input"
           class="input"
-          v-model="admin.admin_email"
+          v-model="admin.email"
           type="email"
           name="admin_email"
           required
@@ -23,7 +22,7 @@
         <Field
           as="input"
           class="input-password input"
-          v-model="admin.admin_password"
+          v-model="admin.password"
           :type="showPassword ? 'text' : 'password'"
           name="admin_password"
           required
@@ -47,83 +46,62 @@
       </button>
       <div class="text_bottom">
         Quên mật khẩu?
-        <!-- <a class="forgot_route" @click="$router.push({ name: 'forgotpassword' })"
-          >Click Here</a
-        > -->
-        <a class="forgot_route"
-          >Click Here</a
-        >
+        <a class="forgot_route">Click Here</a>
         <br />
       </div>
     </Form>
   </div>
 </template>
-<script>
+
+<script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
-import ApiService from "@/service/ApiService";
-// import { showSuccess } from "@/utils/swalUtils";
-import { loginSchema } from "@/utils/validate";
+import AuthAdminService from "@/service/auth/authAdmin.service";
 import { Form, Field, ErrorMessage } from "vee-validate";
-export default {
-  components: {
-    Form,
-    Field,
-    ErrorMessage,
-  },
-  setup(_, { emit }) {
-    const admin = ref({
-      admin_email: "",
-      admin_password: "",
-    });
-    const router = useRouter();
-    const api = new ApiService();
-    const showPassword = ref(false);
-    const isLoading = ref(false);
+import { useAuthStore } from "../../stores/auth";
 
-    const loginAdmin = async () => {
-      isLoading.value = true;
-      const adminData = {
-        ...admin.value,
+const admin = ref({
+  email: "",
+  password: "",
+});
+const authAdminService = new AuthAdminService();
+const router = useRouter();
+const showPassword = ref(false);
+const isLoading = ref(false);
+const authStore = useAuthStore();
+
+const loginAdmin = async () => {
+  isLoading.value = true;
+  try {
+    const apiCall = await authAdminService.post("/", admin.value);
+    const delay = new Promise((resolve) => setTimeout(resolve, 1500));
+    const [response] = await Promise.all([apiCall, delay]);
+    if (response?.status == 200) {
+      admin.value = {
+        admin_email: "",
+        admin_password: "",
       };
-      try {
-        const apiCall = await api.post("admin/login", adminData);
-        const delay = new Promise((resolve) => setTimeout(resolve, 1500));
-        const [response] = await Promise.all([apiCall, delay]);
-        if (response?.status == 200) {
-          admin.value = {
-            admin_email: "",
-            admin_password: "",
-          };
-          const token = response.data.accessToken;
-          Cookies.set("accessToken", token, { expires: 7 });
-          // await showSuccess({
-          //   text: "Đăng nhập thành công.",
-          // });
-          // router.push({ name: "admin" });
-          window.location.reload();
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        isLoading.value = false;
-      }
-    };
+      const token = response.data.accessToken;
+      Cookies.set("accessToken", token, { expires: 365 });
+      Cookies.set("isLoggedIn", response.data.isLoggedIn, { expires: 365 });
 
-    const togglePasswordVisibility = () => {
-      showPassword.value = !showPassword.value;
-    };
+      // Cập nhật trạng thái đăng nhập trong auth store
+      authStore.login(response.data.user); // Giả sử API trả về thông tin user
 
-    return {
-      loginAdmin,
-      admin,
-      showPassword,
-      togglePasswordVisibility,
-      loginSchema,
-      isLoading,
-    };
-  },
+      // Chuyển hướng đến trang admin
+      router.push({ name: "admin" });
+    }
+  } catch (error) {
+    console.log(error);
+    // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo lỗi
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
 };
 </script>
 
