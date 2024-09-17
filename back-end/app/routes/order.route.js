@@ -8,17 +8,21 @@ const validateSupplier = require("../middlewares/validateSupplier.middleware");
 
 const router = express.Router();
 
-router.route("/").post(jwt.authenticateTokenFromHeader, order.create);
+router
+  .route("/")
+  .post(jwt.authenticateTokenFromHeader, order.create)
+  .get(order.findAllByAdmin);
+router.route("/:orderID").get(order.findOneByAdmin);
 router
   .route("/detail/:orderID")
-  .get(jwt.authenticateTokenFromHeader, order.findOne);
+  .get(jwt.authenticateTokenFromHeader, order.findOne); // Chi tiết đơn hàng khách hàng
 router
-  .route("/:token")
-  .get(jwt.authenticateTokenFromParams, order.findAllOrdersByUserID);
+  .route("/getAll/:token")
+  .get(jwt.authenticateTokenFromParams, order.findAllOrdersByUserID); // Lấy tất cả đơn hàng của khách hàng
 router
-  .route("/cancelOrder/:orderID")
-  .put(jwt.authenticateTokenFromHeader, order.cancelOrder);
-
+  .route("/updateStatus/:orderID")
+  .put(jwt.authenticateTokenFromHeader, order.updateStatusByCustomer); // Cập nhật trạng thái bên customer
+router.route("/updateStatusByAd/:orderID").put(order.updateStatusByAd); // Cập nhật trạng thái bên admin
 // MOMO
 router
   .route("/momo/createLink")
@@ -42,6 +46,7 @@ router.route("/zalopay/callback").post(zalopay.handleZaloPayIPN);
 router
   .route("/zalopay/transaction-status/:app_trans_id")
   .post(zalopay.handleZaloPayIPNTransactionStatus);
+router.route("/zalopay/refund").post(zalopay.refundOrderZaloPay);
 
 // End ZALOPAY
 

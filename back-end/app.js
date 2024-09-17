@@ -4,7 +4,8 @@ const cors = require("cors");
 const app = express();
 const ApiError = require("./app/api-error");
 const userRouter = require("./app/routes/user.route");
-const authRouter = require("./app/routes/auth.route");
+const authUserRouter = require("./app/routes/auth/authUser.route");
+const authAdminRouter = require("./app/routes/auth/authAdmin.route");
 const supplierRouter = require("./app/routes/supplier.route");
 const receiptRouter = require("./app/routes/receipt.route");
 const authorRouter = require("./app/routes/author.route");
@@ -16,6 +17,7 @@ const priceRangeRouter = require("./app/routes/pricerange.route");
 const cartRouter = require("./app/routes/cart.route");
 const addressRouter = require("./app/routes/address.route");
 const orderRouter = require("./app/routes/order.route");
+const chatRouter = require("./app/routes/chat.route");
 
 const upload = require("./app/utils/multer.util");
 
@@ -34,7 +36,8 @@ app.use(
 
 app.use(express.json());
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/auth/user", authUserRouter); // user
+app.use("/api/v1/auth/admin", authAdminRouter); // admin
 app.use("/api/v1/suppliers", supplierRouter);
 app.use("/api/v1/receipts", receiptRouter);
 app.use("/api/v1/authors", authorRouter);
@@ -45,6 +48,8 @@ app.use("/api/v1/priceRanges", priceRangeRouter);
 app.use("/api/v1/carts", cartRouter);
 app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/chats", chatRouter);
+
 
 app.use("/api/v1/books", upload.array("images"), bookRouter);
 

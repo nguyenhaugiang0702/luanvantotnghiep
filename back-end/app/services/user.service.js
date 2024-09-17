@@ -11,10 +11,7 @@ const createUser = async (userData) => {
   }
 };
 
-const getUserById = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
+const getUserById = async (userID) => {
   return await User.findById(userID);
 };
 

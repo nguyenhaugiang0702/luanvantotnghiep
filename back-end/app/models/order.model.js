@@ -31,6 +31,16 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Mã giao dịch dùng để hoàn tiền từ cổng thanh toán
+  refundTransactionId: {
+    type: String,
+    default: null, // ID hoàn tiền từ cổng thanh toán (nếu có)
+  },
+  // URL thanh toán từ cổng thanh toán
+  paymentUrl: {
+    type: String,
+    default: null, // URL để người dùng thanh toán nếu thoát giữa chừng
+  },
   createdAt: Date,
   updatedAt: Date,
 });

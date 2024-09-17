@@ -7,7 +7,7 @@ const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const axios = require("axios");
 const CryptoJS = require("crypto-js");
-const qs = require('qs')
+const qs = require("qs");
 
 exports.createLinkOrderByZaloPay = async (req, res, next) => {
   try {
@@ -26,9 +26,10 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
 
     const items = [{}];
     const transID = newOrder._id;
+    let uid = Date.now();
     const order = {
       app_id: config.zalopay.app_id,
-      app_trans_id: `${moment().format("YYMMDD")}_${newOrder._id}`, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
+      app_trans_id: `${moment().format("YYMMDD")}_${uid}`, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
       app_user: "user123",
       app_time: Date.now(), // miliseconds
       item: JSON.stringify(items),
@@ -36,8 +37,7 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       amount: newOrder.totalPrice,
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "zalopayapp",
-      callback_url:
-        "https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback",
+      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?orderID=${newOrder._id}`,
     };
 
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item
@@ -62,7 +62,21 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       result = await axios.post(config.zalopay.endpoint, null, {
         params: order,
       });
-      return res.send(result.data);
+      // Kiểm tra phản hồi từ ZaloPay
+      if (result.data.return_code === 1) {
+        const paymentUrl = result.data.order_url; // URL thanh toán
+
+        // Cập nhật đơn hàng với URL thanh toán
+        await orderService.updateOrderById(newOrder._id, {
+          paymentUrl: paymentUrl,
+        });
+
+        return res.send(result.data);
+      } else {
+        return next(
+          new ApiError(500, "Lỗi khi tạo liên kết thanh toán ZaloPay!")
+        );
+      }
     } catch (error) {
       console.log(error.response ? error.response.data : error.message);
       return next(new ApiError(500, "Lôi khi thanh toán momo!"));
@@ -75,6 +89,7 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
 
 exports.handleZaloPayIPN = async (req, res, next) => {
   let result = {};
+  const { orderID } = req.query;
 
   try {
     let dataStr = req.body.data;
@@ -82,8 +97,6 @@ exports.handleZaloPayIPN = async (req, res, next) => {
 
     let dataObj = JSON.parse(dataStr);
     let appTransId = dataObj.app_trans_id;
-    let parts = appTransId.split("_");
-    let orderId = parts[1];
 
     let mac = CryptoJS.HmacSHA256(dataStr, config.zalopay.key2).toString();
     console.log("mac =", mac);
@@ -94,23 +107,24 @@ exports.handleZaloPayIPN = async (req, res, next) => {
       result.return_code = -1;
       result.return_message = "mac not equal";
     } else {
-      // thanh toán thành công
-      // merchant cập nhật trạng thái cho đơn hàng
-      let dataJson = JSON.parse(dataStr, config.zalopay.key2);
-      console.log(
-        "update order's status = success where app_trans_id =",
-        dataJson["app_trans_id"]
-      );
+      // Thanh toán thành công, cập nhật trạng thái đơn hàng và lưu zp_trans_id
+      let zpTransID = dataObj.zp_trans_id; // Đây là mã giao dịch thực tế bạn cần
+      console.log(`ZaloPay Transaction ID: ${zpTransID}`);
 
-      const curentOrder = await orderService.getOrderByID(orderId);
+      // Cập nhật trạng thái đơn hàng và lưu zpTransID
+      const updateOrder = await orderService.updateOrderById(orderID, {
+        wasPaided: true,
+        refundTransactionId: zpTransID, // Lưu zpTransID
+      });
 
-      // Thanh toán thành công
-      const updateOrder = await orderService.updateWasPaidedOrderByID(orderId);
       if (!updateOrder) {
         return next(
           new ApiError(400, "Lỗi khi cập nhật trạng thái thanh toán!")
         );
       }
+
+      // Thanh toán thành công, xóa giỏ hàng, tính lại tổng tiền
+      const curentOrder = await orderService.getOrderByID(orderID);
       await cartService.deleteBookFromCartWhenCheckOut(curentOrder.userID);
       await cartService.calculateTotalPriceWhenCheckOut(curentOrder.userID);
 
@@ -123,7 +137,7 @@ exports.handleZaloPayIPN = async (req, res, next) => {
   }
 
   // thông báo kết quả cho ZaloPay server
-  res.json(result);
+  // res.json(result);
 };
 
 exports.handleZaloPayIPNTransactionStatus = async (req, res, next) => {
@@ -152,5 +166,48 @@ exports.handleZaloPayIPNTransactionStatus = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lôi khi thanh toán momo!"));
+  }
+};
+
+exports.refundOrderZaloPay = async (zp_trans_id, amount, description) => {
+  try {
+    const timestamp = Date.now();
+    const uniqueId = `${timestamp}${Math.floor(111 + Math.random() * 999)}`;
+    const m_refund_id = `${moment().format("YYMMDD")}_${
+      config.zalopay.app_id
+    }_${uniqueId}`;
+
+    let params = {
+      app_id: config.zalopay.app_id,
+      m_refund_id: m_refund_id,
+      timestamp: Date.now(),
+      zp_trans_id,
+      amount: amount,
+      description: description,
+    };
+
+    let data =
+      params.app_id +
+      "|" +
+      params.zp_trans_id +
+      "|" +
+      params.amount +
+      "|" +
+      params.description +
+      "|" +
+      params.timestamp;
+    params.mac = CryptoJS.HmacSHA256(data, config.zalopay.key1).toString();
+
+    const response = await axios.post(
+      "https://sb-openapi.zalopay.vn/v2/refund",
+      null,
+      { params }
+    );
+
+    console.log("Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error.message);
+    throw new Error("Lỗi khi hoàn tiền qua ZaloPay");
   }
 };

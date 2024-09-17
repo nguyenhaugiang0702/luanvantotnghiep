@@ -24,7 +24,7 @@ const getFullInfoBookByID = async (bookId) => {
 
 const searchBooks = async (searchValue) => {
   return await Book.find({
-    name: { $regex: new RegExp(searchValue), $options: "i" },
+    name: { $regex: new RegExp(searchValue, "i") },
   });
 };
 

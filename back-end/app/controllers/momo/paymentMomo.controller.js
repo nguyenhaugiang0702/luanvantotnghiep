@@ -23,8 +23,7 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
     var secretKey = config.momo.secretKey;
     var orderInfo = `${newOrder.totalQuantity} quyển sách`;
     var partnerCode = "MOMO";
-    var redirectUrl =
-      "http://localhost:3001/thanks";
+    var redirectUrl = "http://localhost:3001/thanks";
     var ipnUrl = "https://nhgbookstore.serveo.net/api/v1/orders/momo/callback";
     var requestType = "payWithMethod";
     var amount = req.body.totalPrice;
@@ -151,3 +150,4 @@ exports.handleMomoIPNTransactionStatus = async (req, res, next) => {
     return next(new ApiError(500, "Lôi khi thanh toán momo!"));
   }
 };
+

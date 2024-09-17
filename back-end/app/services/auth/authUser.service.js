@@ -1,6 +1,4 @@
-const User = require("../models/user.model");
-const { ObjectId } = require("mongodb");
-const moment = require("moment");
+const User = require("../../models/user.model");
 
 const getUserByPhoneNumber = async (phoneNumber) => {
   return await User.findOne({phoneNumber: phoneNumber});

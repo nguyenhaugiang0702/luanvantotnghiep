@@ -5,9 +5,10 @@ const ApiError = require("../api-error");
 function authenticateTokenFromHeader(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
+  jwt.verify(token, "my_jwt_secret_key_bookstore_admin", (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -15,7 +16,7 @@ function authenticateTokenFromHeader(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.user = user;
+    req.admin = admin;
     next();
   });
 }
@@ -23,9 +24,10 @@ function authenticateTokenFromHeader(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParams(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
+  jwt.verify(token, "my_jwt_secret_key_bookstore_admin", (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -33,7 +35,7 @@ function authenticateTokenFromParams(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.user = user;
+    req.admin = admin;
     next();
   });
 }
@@ -41,9 +43,10 @@ function authenticateTokenFromParams(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParamsWithEmail(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
+  jwt.verify(token, "my_jwt_secret_key_bookstore_admin", (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -51,7 +54,7 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.user = user;
+    req.admin = admin;
     next();
   });
 }
@@ -59,9 +62,10 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParamsWithEmail(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
-  jwt.verify(token, "my_jwt_secret_key_bookstore", (err, email) => {
+  jwt.verify(token, "my_jwt_secret_key_bookstore_admin", (err, email) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
@@ -69,28 +73,14 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.user = email;
+    req.admin = email;
 
     next();
   });
 }
-
-// Hàm để xác thực token và lấy thông tin người dùng
-const authenticateToken = (token) => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
-      if (err) {
-        reject(err); // Trả về lỗi nếu có
-      } else {
-        resolve(user); // Trả về thông tin người dùng
-      }
-    });
-  });
-};
 
 module.exports = {
   authenticateTokenFromHeader,
   authenticateTokenFromParams,
   authenticateTokenFromParamsWithEmail,
-  authenticateToken
 };

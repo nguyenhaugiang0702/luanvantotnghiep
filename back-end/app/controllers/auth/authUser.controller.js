@@ -1,14 +1,14 @@
-const userService = require("../services/user.service");
+const userService = require("../../services/user.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const User = require("../models/user.model");
-const sendOTP = require("../twilio");
-const otpService = require("../services/otp.service");
-const authService = require("../services/auth.service");
-const sendEmail = require("../utils/email.util");
-const config = require("../config/index");
+const ApiError = require("../../api-error");
+const User = require("../../models/user.model");
+const sendOTP = require("../../twilio");
+const otpService = require("../../services/otp.service");
+const authUserService = require("../../services/auth/authUser.service");
+const sendEmail = require("../../utils/email.util");
+const config = require("../../config/index");
 
 exports.login = async (req, res, next) => {
   const { phoneNumber, password } = req.body;
@@ -24,7 +24,7 @@ exports.login = async (req, res, next) => {
     );
   }
   try {
-    const user = await authService.getUserByPhoneNumber(phoneNumber);
+    const user = await authUserService.getUserByPhoneNumber(phoneNumber);
 
     if (!user) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
@@ -188,5 +188,53 @@ exports.signUpVerify = async (req, res, next) => {
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi xác thực OTP"));
+  }
+};
+
+exports.loginByAdmin = async (req, res, next) => {
+  const { email, password } = req.body;
+  
+  try {
+    const admin = await authUserService.getUserByPhoneNumber(phoneNumber);
+
+    if (!admin) {
+      return next(new ApiError(404, "Tài khoản không tồn tại."));
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return next(new ApiError(400, "Mật khẩu không chính xác."));
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id },
+      "my_jwt_secret_key_bookstore",
+      {
+        expiresIn: "1y",
+      }
+    );
+
+    res.send({
+      isLoggedIn: true,
+      message: "Đăng nhập thành công!",
+      accessToken,
+      user: user,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đăng nhập"));
+  }
+};
+
+exports.checkRole = async (req, res, next) => {
+  const userID = req.user.id;
+  try {
+    const user = await userService.getUserById(userID);
+    if (!user) {
+      return next(new ApiError(404, "Không tồn tại userID"));
+    }
+    return res.send({ role: user.role });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
 };
