@@ -45,17 +45,13 @@ async function startServer() {
 
       // Lắng nghe khi client gửi tin nhắn
       socket.on("sendMessage", async (data) => {
-        console.log(data);
-        const { chatRoomId, sender, message, token } = data;
-
-        // const user = await jwt.authenticateToken(token);
-        // const senderId = user.id;
+        const { chatRoomId, sender, message } = data;
 
         // Cập nhật tin nhắn vào cơ sở dữ liệu
         await chatRoomService.updateMessage(chatRoomId, sender, message);
 
         // Phát tin nhắn mới tới tất cả các client trong phòng chat
-        io.to(chatRoomId).emit("receiveMessage", { sender, message });
+        io.to(chatRoomId).emit("receiveMessage", { chatRoomId, sender, message });
       });
 
       // Lắng nghe khi client ngắt kết nối

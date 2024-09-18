@@ -11,6 +11,12 @@ const getMessageByChatRoomID = async (chatRoomId) => {
   return await ChatRoom.findById(chatRoomId);
 };
 
+const getChatRooms = async () => {
+  return await ChatRoom.find()
+    .populate("adminID")
+    .populate("userID");
+};
+
 const getChatRoomByUserID = async (userID) => {
   return await ChatRoom.findOne({ userID: userID });
 };
@@ -45,7 +51,7 @@ const updateMessage = async (chatRoomId, sender, message) => {
       },
       updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
     },
-    { new: true } // Return the updated document
+    { new: true } 
   );
 };
 
@@ -55,4 +61,5 @@ module.exports = {
   getOrCreateChatRoom,
   getChatRoomByUserID,
   createChatRoom,
+  getChatRooms,
 };

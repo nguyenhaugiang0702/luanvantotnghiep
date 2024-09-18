@@ -14,7 +14,6 @@ exports.checkRoomChat = async (req, res, next) => {
         createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
         updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
       });
-      console.log(newChatRoom);
       if (!newChatRoom) {
         return next(new ApiError(400, "Lỗi khi tạo mới chat room"));
       }
@@ -26,3 +25,12 @@ exports.checkRoomChat = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
   }
 };
+
+exports.getChatRooms = async (req, res, next) => {
+  try {
+    const chatRooms = await chatRoomService.getChatRooms();
+    return res.send(chatRooms);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất cả tin nhắn"));
+  }
+}
