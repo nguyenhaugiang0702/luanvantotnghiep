@@ -19,18 +19,36 @@
           <i class="fa-solid fa-x"></i>
         </button>
       </div>
-      <div class="card-body p-3 overflow-auto" style="max-height: 25rem">
-        <div v-for="(message, index) in messages" :key="index" class="mb-3">
+      <div class="card-body overflow-auto" style="max-height: 25rem">
+        <div class="flex-grow-1" style="max-height: 25rem">
           <div
-            style="max-width: 75%"
+            v-for="(message, index) in messages"
+            :key="index"
             :class="[
-              'p-2 rounded',
-              message.sender === 'user'
-                ? 'bg-primary text-white text-end ms-auto'
-                : 'bg-light text-start',
+              'mb-3',
+              message.sender === 'user' ? 'text-end' : 'text-start',
             ]"
           >
-            {{ message.message }}
+            <div
+              :class="[
+                'd-inline-block p-2 rounded',
+                message.sender === 'user'
+                  ? 'bg-primary text-white'
+                  : 'bg-white border',
+              ]"
+            >
+              <p class="mb-0">{{ message.message }}</p>
+              <small
+                class="text-white"
+                :class="[
+                  'd-block mt-1',
+                  message.sender === 'user'
+                    ? 'text-white opacity-75'
+                    : 'text-muted',
+                ]"
+                >{{ formatDate(message.createdAt) }}</small
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -56,6 +74,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import ChatsService from "@/service/chat.service";
+import { formatDate } from "@/utils/utils";
 
 const socket = ref(null);
 const isOpen = ref(false);
@@ -97,7 +116,6 @@ onMounted(async () => {
 
   // Tải lịch sử tin nhắn khi tham gia phòng chat
   socket.value.on("loadMessages", (data) => {
-    console.log(data);
     chatRoomId.value = data.chatRoomId;
     messages.value = data.messages;
   });

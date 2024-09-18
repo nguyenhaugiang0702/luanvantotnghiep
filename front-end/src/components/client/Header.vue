@@ -32,7 +32,7 @@
           </span>
         </button>
         <ul class="dropdown-menu dropdown-menu-cart">
-          <li class="mx-4 my-2">
+          <li class="my-2 ms-3">
             <i class="fa-solid fa-cart-shopping"></i>
             <span class="fw-bold ms-2"
               >Giỏ hàng ({{ booksInCart.totalQuantity }})</span
@@ -41,8 +41,8 @@
           <hr />
           <div class="books-list">
             <li v-for="book in booksInCart.books" :key="book.bookID._id">
-              <div class="row align-items-center">
-                <div class="col-sm-3 text-center">
+              <div class="d-flex align-items-center">
+                <div class="text-center">
                   <router-link
                     :to="{
                       name: 'book-detail',

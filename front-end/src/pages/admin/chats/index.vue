@@ -22,7 +22,7 @@
                     <!-- <h2 class="h5 mb-3">Conversations</h2> -->
                     <div class="input-group">
                       <span class="input-group-text">
-                        <i class="bi bi-search"></i>
+                        <i class="fa-solid fa-magnifying-glass"></i>
                       </span>
                       <input
                         type="text"
@@ -32,7 +32,7 @@
                       />
                     </div>
                   </div>
-                  <div class="overflow-auto" style="height: calc(100% - 100px)">
+                  <div class="overflow-auto" style="max-height: 25rem">
                     <div
                       v-for="conv in filteredConversations"
                       :key="conv.id"
@@ -42,15 +42,17 @@
                       }"
                       @click="selectConversation(conv)"
                     >
-                      <div class="d-flex align-items-center">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
                         <img
-                          :src="conv.user.avatar"
+                          :src="`http://localhost:3000/` + conv.user.avatar"
                           :alt="conv.user.name"
                           class="rounded-circle me-3"
                           width="40"
                           height="40"
                         />
-                        <div class="flex-grow-1 min-width-0">
+                        <div class="flex-grow-1">
                           <p class="mb-0 font-weight-medium text-truncate">
                             {{ conv.user.name }}
                           </p>
@@ -58,7 +60,15 @@
                             {{ conv.lastMessage }}
                           </p>
                         </div>
-                        <small class="text-muted">{{ conv.timestamp }}</small>
+
+                        <small class="text-muted text-center">{{
+                          conv.updatedAt
+                        }}</small>
+                        <span
+                          v-if="conv.hasNewMessage"
+                          class="d-flex justify-content-center align-items-center translate-middle p-2 bg-danger border border-light rounded-circle"
+                        >
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -90,16 +100,19 @@
                       </div>
                       <div>
                         <button class="btn btn-outline-secondary me-2">
-                          <i class="bi bi-telephone"></i>
+                          <i class="fa-solid fa-phone"></i>
                         </button>
                         <button class="btn btn-outline-secondary">
-                          <i class="bi bi-camera-video"></i>
+                          <i class="fa-solid fa-video"></i>
                         </button>
                       </div>
                     </div>
 
                     <!-- Messages -->
-                    <div class="flex-grow-1 p-3 bg-light overflow-auto">
+                    <div
+                      class="flex-grow-1 p-3 bg-light overflow-auto"
+                      style="max-height: 25rem"
+                    >
                       <div
                         v-for="(
                           message, index
@@ -120,17 +133,24 @@
                               : 'bg-white border',
                           ]"
                         >
-                          <p class="mb-0">{{ message.text }}</p>
-                          <small class="text-muted d-block mt-1">{{
-                            message.timestamp
-                          }}</small>
+                          <p class="mb-0">{{ message.message }}</p>
+                          <small
+                            class="text-white"
+                            :class="[
+                              'd-block mt-1',
+                              message.sender === 'admin'
+                                ? 'text-white opacity-75'
+                                : 'text-muted',
+                            ]"
+                            >{{ message.createdAt }}</small
+                          >
                         </div>
                       </div>
                     </div>
 
                     <!-- Message Input -->
                     <form
-                      @submit.prevent="handleSendMessage"
+                      @submit.prevent="sendMessage"
                       class="p-3 bg-white border-top"
                     >
                       <div class="input-group">
@@ -152,7 +172,7 @@
                     class="flex-grow-1 d-flex align-items-center justify-content-center bg-light"
                   >
                     <p class="text-muted">
-                      Select a conversation to start chatting
+                      Chọn một cuộc trò chuyện để bắt đầu
                     </p>
                   </div>
                 </div>
@@ -165,60 +185,60 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { io } from "socket.io-client";
+import ChatsService from "@/service/chat.service";
+import moment from "moment";
+import { formatDate } from "@/utils/utils";
 
-const conversations = ref([
-  {
-    id: "1",
-    user: {
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    messages: [
-      {
-        sender: "user",
-        text: "Hi, I have a question about my order",
-        timestamp: "10:00 AM",
-      },
-      {
-        sender: "admin",
-        text: "Hello Alice, I'd be happy to help. What's your order number?",
-        timestamp: "10:02 AM",
-      },
-      { sender: "user", text: "It's #12345", timestamp: "10:03 AM" },
-    ],
-    lastMessage: "It's #12345",
-    timestamp: "10:03 AM",
-  },
-  {
-    id: "2",
-    user: {
-      name: "Bob Smith",
-      email: "bob@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    messages: [
-      {
-        sender: "user",
-        text: "Hello, is the blue shirt in stock?",
-        timestamp: "9:45 AM",
-      },
-      {
-        sender: "admin",
-        text: "Hi Bob, let me check that for you.",
-        timestamp: "9:47 AM",
-      },
-    ],
-    lastMessage: "Hi Bob, let me check that for you.",
-    timestamp: "9:47 AM",
-  },
-]);
-
-const selectedConversation = ref(conversations.value[0]);
+//
+const chatsService = new ChatsService();
+const conversations = ref([]);
+const socket = ref(null);
+const selectedConversation = ref(null);
 const newMessage = ref("");
 const searchTerm = ref("");
+//
+const loadConversations = async () => {
+  try {
+    const response = await chatsService.get("/chatrooms");
+    if (response.status === 200) {
+      conversations.value = response.data.map((room) => {
+        // LastMessage
+        const lastMessageObj = room.messages[room.messages.length - 1] || {};
+        const lastMessage = lastMessageObj.message || "";
+        const lastSender = lastMessageObj.sender || "";
 
+        return {
+          id: room._id,
+          user: {
+            name:
+              room.userID?.firstName + " " + room.userID?.lastName ||
+              "Unknown User",
+            email: room.userID?.email || "",
+            avatar:
+              room.userID?.avatar || "/placeholder.svg?height=40&width=40",
+          },
+          lastMessage: lastMessage,
+          hasNewMessage: lastSender !== "admin",
+          messages: room.messages.map((msg) => ({
+            sender: msg.sender,
+            message: msg.message,
+            createdAt: formatDate(msg.createdAt),
+            updatedAt: formatDate(msg.updatedAt),
+          })),
+          createdAt: formatDate(room.createdAt),
+          updatedAt: formatDate(room.updatedA),
+        };
+      });
+      console.log(conversations.value);
+    }
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách phòng chat:", error);
+  }
+};
+
+// Lọc các cuộc trò chuyện theo từ khóa tìm kiếm
 const filteredConversations = computed(() => {
   const term = searchTerm.value.toLowerCase();
   return conversations.value.filter(
@@ -229,20 +249,67 @@ const filteredConversations = computed(() => {
   );
 });
 
+// Chọn cuộc trò chuyện
 const selectConversation = (conversation) => {
   selectedConversation.value = conversation;
+  conversation.hasNewMessage = false;
+  socket.value.emit("joinRoom", conversation.id);
 };
 
-const handleSendMessage = () => {
-  if (newMessage.value.trim() && selectedConversation.value) {
-    // In a real application, you would send this message to a backend
-    console.log("Sending message:", newMessage.value);
+// Gửi tin nhắn từ admin
+const sendMessage = () => {
+  if (newMessage.value.trim() !== "" && selectedConversation.value) {
+    socket.value.emit("sendMessage", {
+      chatRoomId: selectedConversation.value.id,
+      sender: "admin",
+      message: newMessage.value,
+    });
+
     newMessage.value = "";
   }
 };
 
-onMounted(() => {
-  // Any initialization logic can go here
+// Xử lý logic kết nối socket và quản lý tin nhắn
+onMounted(async () => {
+  await loadConversations(); // Tải danh sách phòng chat
+  socket.value = io("http://localhost:3000");
+
+  // Nhận tin nhắn từ server
+  socket.value.on("receiveMessage", (data) => {
+    // Kiểm tra xem tin nhắn có thuộc cuộc trò chuyện hiện tại không
+    if (
+      selectedConversation.value &&
+      data.chatRoomId === selectedConversation.value.id
+    ) {
+      selectedConversation.value.messages.push({
+        sender: data.sender,
+        message: data.message,
+        createdAt: formatDate(),
+      });
+    }
+  });
+
+  // Tải tin nhắn khi admin tham gia phòng chat
+  socket.value.on("loadMessages", (data) => {
+    // Kiểm tra xem có đúng phòng chat hiện tại hay không
+    if (
+      selectedConversation.value &&
+      data.chatRoomId === selectedConversation.value.id
+    ) {
+      selectedConversation.value.messages = data.messages.map((msg) => ({
+        sender: msg.sender,
+        message: msg.message,
+        createdAt: moment(msg.createdAt).format("DD/MM/YYYY HH:mm:ss"),
+      }));
+    }
+  });
+});
+
+onBeforeUnmount(() => {
+  // Ngắt kết nối khi component bị hủy
+  if (socket.value) {
+    socket.value.disconnect();
+  }
 });
 </script>
 
