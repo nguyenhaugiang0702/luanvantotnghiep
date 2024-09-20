@@ -1,23 +1,35 @@
 const Receipt = require("../models/receipt.model");
+const Book = require("../models/book.model");
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
+const ApiError = require("../api-error");
 
 const createReceipt = async (receiptData) => {
   const receipt = new Receipt(receiptData);
+  for (const detail of receiptData.detail) {
+    const book = await Book.findById(detail.bookID);
+
+    if (book) {
+      book.quantityImported += parseInt(detail.quantity);
+      await book.save();
+    }
+  }
   return await receipt.save();
 };
 
 const getAllReceipts = async () => {
-  return groupReceiptsBySupplier(await Receipt.find({}).populate("supplierID"));
+  return groupReceiptsBySupplier(
+    await Receipt.find({}).populate("supplierID").sort({ createdAt: -1 })
+  );
 };
 
 const getAllStockProducts = async () => {
   return await Receipt.find({}).populate({
-    path: "detail.bookID", 
+    path: "detail.bookID",
     populate: [
-      { path: "categoryID", select: "name" }, 
-      { path: "formalityID", select: "name" }, 
-      { path: "publisherID", select: "name" }, 
+      { path: "categoryID", select: "name" },
+      { path: "formalityID", select: "name" },
+      { path: "publisherID", select: "name" },
     ],
   });
 };
@@ -63,10 +75,35 @@ const groupReceiptsBySupplier = (receipts) => {
   }));
 };
 
+const addReceiptDetailAndUpdateBook = async (receipt, newDetail, next) => {
+  try {
+    // Thêm chi tiết mới vào receipt
+    receipt.detail.push(newDetail);
+
+    // Tìm sách và cập nhật số lượng
+    const book = await Book.findById(newDetail.bookID);
+    if (!book) {
+      throw new ApiError(400, "Sách không tồn tại!");
+    }
+
+    // Cập nhật số lượng sách
+    book.quantityImported += parseInt(newDetail.quantity);
+    await book.save();
+
+    // Lưu receipt sau khi cập nhật
+    await receipt.save();
+
+    return receipt;
+  } catch (error) {
+    return next(error); // Xử lý lỗi và truyền tiếp cho middleware
+  }
+};
+
 module.exports = {
   createReceipt,
   getAllReceipts,
   getReceiptByID,
   getReceiptBySupplierID,
   getAllStockProducts,
+  addReceiptDetailAndUpdateBook,
 };

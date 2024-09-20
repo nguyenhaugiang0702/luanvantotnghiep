@@ -18,6 +18,7 @@ const cartRouter = require("./app/routes/cart.route");
 const addressRouter = require("./app/routes/address.route");
 const orderRouter = require("./app/routes/order.route");
 const chatRouter = require("./app/routes/chat.route");
+const commentRouter = require("./app/routes/comment.route");
 
 const upload = require("./app/utils/multer.util");
 
@@ -33,9 +34,16 @@ app.use(
   "/app/images/uploads/books/",
   express.static("app/images/uploads/books/")
 );
-
+app.use(
+  "/app/images/uploads/avatars/",
+  express.static("app/images/uploads/avatars/")
+);
+app.use(
+  "/app/images/uploads/comments/",
+  express.static("app/images/uploads/comments/")
+);
 app.use(express.json());
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/users", upload.single("avatar"), userRouter);
 app.use("/api/v1/auth/user", authUserRouter); // user
 app.use("/api/v1/auth/admin", authAdminRouter); // admin
 app.use("/api/v1/suppliers", supplierRouter);
@@ -49,7 +57,7 @@ app.use("/api/v1/carts", cartRouter);
 app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/chats", chatRouter);
-
+app.use("/api/v1/comments", upload.array("images"), commentRouter);
 
 app.use("/api/v1/books", upload.array("images"), bookRouter);
 

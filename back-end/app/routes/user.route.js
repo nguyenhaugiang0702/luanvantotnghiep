@@ -1,14 +1,22 @@
 const express = require("express");
 const users = require("../controllers/user.controller");
 const authenticateToken = require("../middlewares/jwt.middleware");
+const upload = require("../utils/multer.util");
 
 const router = express.Router();
 
 router
   .route("/:token")
   .get(authenticateToken.authenticateTokenFromParams, users.findOne)
-  .put(authenticateToken.authenticateTokenFromParams, users.update)
+  .put(
+    authenticateToken.authenticateTokenFromParams,
+    upload.single("avatar"),
+    users.update
+  )
   .delete(users.delete);
+router
+  .route("/updateProfile/:token")
+  .put(authenticateToken.authenticateTokenFromParams, users.updateProfile);
 router
   .route("/changePassword/:token")
   .put(authenticateToken.authenticateTokenFromParams, users.changePassword);

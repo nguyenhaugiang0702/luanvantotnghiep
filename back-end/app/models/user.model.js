@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  image: {
+  avatar: {
     type: String,
     required: false,
   },
@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   accessToken: {
+    type: String,
+    required: false,
+  },
+  image: {
     type: String,
     required: false,
   },

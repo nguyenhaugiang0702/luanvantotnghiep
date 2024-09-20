@@ -6,7 +6,6 @@ const fs = require("fs").promises;
 const path = require("path");
 const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
-const { log } = require("console");
 
 exports.create = async (req, res, next) => {
   try {
@@ -115,7 +114,15 @@ exports.findOne = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
     const book = await bookService.getFullInfoBookByID(bookID);
-    return res.send(book);
+    const discountPercent =
+      (book.detail.discountPrice / book.detail.originalPrice) * 100;
+
+    const bookDetail = {
+      ...book._doc,
+      discountPercent,
+    };
+
+    return res.send(bookDetail);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy sách"));
   }
@@ -135,12 +142,12 @@ exports.update = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
     const book = await bookService.updateBook(bookID, req.body);
-
     return res.send({
       message: "Cập nhật thành công sách",
       book,
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi cập nhật sách"));
   }
 };

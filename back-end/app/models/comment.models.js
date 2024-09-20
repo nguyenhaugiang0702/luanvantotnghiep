@@ -1,39 +1,49 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
   bookID: {
     type: Schema.Types.ObjectId,
-    ref: 'Book', // Reference tới sách mà comment thuộc về
-    required: true,
+    ref: "Book",
   },
   userID: {
     type: Schema.Types.ObjectId,
-    ref: 'User', // Reference tới user comment
-    required: true,
+    ref: "User",
   },
   content: {
     type: String,
-    required: true,
-    trim: true,
   },
+  star: {
+    type: Number,
+  },
+  images: [
+    {
+      path: {
+        type: String,
+        default: null,
+      },
+    },
+  ],
   isAdminReply: {
     type: Boolean,
-    default: false, // Admin reply sẽ có isAdminReply = true
+    default: false,
   },
   parentCommentID: {
     type: Schema.Types.ObjectId,
-    ref: 'Comment', // Nếu là reply, thì lưu id comment cha
-    default: null,  // Nếu không phải reply, để là null
+    ref: "Comment",
+    default: null,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  replies: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Comment', // Danh sách các replies (comment trả lời)
-  }],
+  replies: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+      default: null,
+    },
+  ],
 });
 const Comment = mongoose.model("Comment", commentSchema);
 

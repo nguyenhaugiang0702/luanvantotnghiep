@@ -27,12 +27,17 @@ exports.update = async (req, res, next) => {
     if (!receipt) {
       return next(new ApiError(400, "Không tồn tại đơn nhập hàng!"));
     }
-    const newReceipt = req.body.detail[0];
-    receipt.detail.push(newReceipt);
-    receipt.save();
+    const newReceiptDetail = req.body.detail[0];
+    // Sử dụng service để thêm chi tiết và cập nhật sách
+    await receiptService.addReceiptDetailAndUpdateBook(
+      receipt,
+      newReceiptDetail,
+      next
+    );
+
     return res.send({
       message: "Thêm nhập hàng thành công",
-      newReceipt,
+      newReceipt: newReceiptDetail,
     });
   } catch (error) {
     console.log(error);
@@ -68,10 +73,10 @@ exports.findAllStockProducts = async (req, res, next) => {
           // Nếu chưa tồn tại, thêm mới vào đối tượng với số lượng ban đầu
           totalBooks[bookID._id] = {
             bookID: bookID._id,
-            bookName: bookID.name, 
-            categoryName: bookID.categoryID?.name || 'N/A', // Tên danh mục
-            formalityName: bookID.formalityID?.name || 'N/A', // Hình thức
-            publisherName: bookID.publisherID?.name || 'N/A', // Nhà xuất bản
+            bookName: bookID.name,
+            categoryName: bookID.categoryID?.name || "N/A", // Tên danh mục
+            formalityName: bookID.formalityID?.name || "N/A", // Hình thức
+            publisherName: bookID.publisherID?.name || "N/A", // Nhà xuất bản
             quantity: quantity,
           };
         }

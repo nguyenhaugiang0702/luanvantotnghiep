@@ -11,41 +11,42 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
   try {
     const userID = req.user.id;
     req.body.userID = userID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    const newOrder = await orderService.createOrder(req.body);
-    if (!newOrder) {
-      return next(new ApiError(400, "Lỗi khi đặt hàng!"));
-    }
+    // req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    // req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    // const newOrder = await orderService.createOrder(req.body);
+    // if (!newOrder) {
+    //   return next(new ApiError(400, "Lỗi khi đặt hàng!"));
+    // }
     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
     //parameters
-    var accessKey = config.momo.accessKey;
-    var secretKey = config.momo.secretKey;
-    var orderInfo = `${newOrder.totalQuantity} quyển sách`;
-    var partnerCode = "MOMO";
-    var redirectUrl = "http://localhost:3001/thanks";
-    var ipnUrl = "https://nhgbookstore.serveo.net/api/v1/orders/momo/callback";
-    var requestType = "payWithMethod";
-    var amount = req.body.totalPrice;
-    var orderId = newOrder._id;
-    var requestId = orderId;
-    var extraData = "";
-    var orderExpireTime = 5;
-    var paymentCode =
+    const accessKey = config.momo.accessKey;
+    const secretKey = config.momo.secretKey;
+    const orderInfo = `${req.body.totalQuantity} quyển sách`;
+    const partnerCode = "MOMO";
+    const redirectUrl = "http://localhost:3001/thanks";
+    const ipnUrl =
+      "https://nhgbookstore.serveo.net/api/v1/orders/momo/callback";
+    const requestType = "payWithMethod";
+    const amount = req.body.totalPrice;
+    const orderId = Date.now();
+    const requestId = orderId;
+    const extraData = JSON.stringify(req.body);
+    const orderExpireTime = 5;
+    const paymentCode =
       "T8Qii53fAXyUftPV3m9ysyRhEanUs9KlOPfHgpMR0ON50U10Bh+vZdpJU7VY4z+Z2y77fJHkoDc69scwwzLuW5MzeUKTwPo3ZMaB29imm6YulqnWfTkgzqRaion+EuD7FN9wZ4aXE1+mRt0gHsU193y+yxtRgpmY7SDMU9hCKoQtYyHsfFR5FUAOAKMdw2fzQqpToei3rnaYvZuYaxolprm9+/+WIETnPUDlxCYOiw7vPeaaYQQH0BF0TxyU3zu36ODx980rJvPAgtJzH1gUrlxcSS1HQeQ9ZaVM1eOK/jl8KJm6ijOwErHGbgf/hVymUQG65rHU2MWz9U8QUjvDWA==";
-    var orderGroupId = "";
-    var autoCapture = true;
-    var lang = "vi";
+    const orderGroupId = "";
+    const autoCapture = true;
+    const lang = "vi";
 
     //before sign HMAC SHA256 with format
     //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
-    var rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+    const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
     //puts raw signature
     console.log("--------------------RAW SIGNATURE----------------");
     console.log(rawSignature);
     //signature
     const crypto = require("crypto");
-    var signature = crypto
+    const signature = crypto
       .createHmac("sha256", secretKey)
       .update(rawSignature)
       .digest("hex");
@@ -86,7 +87,6 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
     let result;
     try {
       result = await axios(options);
-      console.log(result.data);
       return res.send(result.data);
     } catch (error) {
       console.log(error.response ? error.response.data : error.message);
@@ -99,20 +99,23 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
 };
 
 exports.handleMomoIPN = async (req, res, next) => {
-  const { orderId, resultCode } = req.body;
+  const { orderId, resultCode, extraData } = req.body;
   if (resultCode !== 0) {
     // Thanh toán không thành công
     return next(new ApiError(400, "Thanh toán thất bại!"));
   }
-  const curentOrder = await orderService.getOrderByID(orderId);
-
-  // Thanh toán thành công
-  const updateOrder = await orderService.updateWasPaidedOrderByID(orderId);
-  if (!updateOrder) {
-    return next(new ApiError(400, "Lỗi khi cập nhật trạng thái thanh toán!"));
+  const extraDataObj = JSON.parse(extraData);
+  extraDataObj.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
+  extraDataObj.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
+  extraDataObj.wasPaided = true;
+  console.log(extraDataObj);
+  const newOrder = await orderService.createOrder(extraDataObj);
+  if (!newOrder) {
+    return next(new ApiError(400, "Lỗi khi tạo đơn hàng sau thanh toán"));
   }
-  await cartService.deleteBookFromCartWhenCheckOut(curentOrder.userID);
-  await cartService.calculateTotalPriceWhenCheckOut(curentOrder.userID);
+  // Thanh toán thành công
+  await cartService.deleteBookFromCartWhenCheckOut(extraDataObj.userID);
+  await cartService.calculateTotalPriceWhenCheckOut(extraDataObj.userID);
 };
 
 exports.handleMomoIPNTransactionStatus = async (req, res, next) => {
@@ -150,4 +153,3 @@ exports.handleMomoIPNTransactionStatus = async (req, res, next) => {
     return next(new ApiError(500, "Lôi khi thanh toán momo!"));
   }
 };
-

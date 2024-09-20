@@ -29,7 +29,7 @@ const bookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Formality",
   },
-  priceRangeID:{
+  priceRangeID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "PriceRange",
   },
@@ -42,6 +42,14 @@ const bookSchema = new mongoose.Schema({
       },
     },
   ],
+  quantityImported: {
+    type: Number,
+    default: 0,
+  },
+  quantitySold: {
+    type: Number,
+    default: 0,
+  },
   createAt: Date,
   updatedAt: Date,
 });

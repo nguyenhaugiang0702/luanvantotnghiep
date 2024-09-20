@@ -1,19 +1,20 @@
 const moment = require("moment-timezone");
 const ApiError = require("../api-error");
 const priceRangeService = require("../services/pricerange.service");
-
+const { formatPrice } = require("../utils/formatPrice.utils");
 exports.create = async (req, res, next) => {
   try {
     const { startPrice, endPrice } = req.body;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.name = `${startPrice}đ - ${endPrice}đ`;
+    req.body.name = `${formatPrice(startPrice)} - ${formatPrice(endPrice)}`;
     const newPriceRange = await priceRangeService.createPriceRange(req.body);
     return res.send({
       message: "Thêm khoản giá thành công",
       newPriceRange,
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi thêm mới khoản giá"));
   }
 };

@@ -9,6 +9,7 @@ exports.createBookValidation = async (req, res, next) => {
     await schema.updateBookSchema.validate(req.body);
     next();
   } catch (err) {
+    console.log(err.message);
     return next(new ApiError(400, err.message));
   }
 };

@@ -8,6 +8,7 @@ const moment = require("moment-timezone");
 const ApiError = require("../api-error");
 const User = require("../models/user.model");
 const ValidateService = require("../utils/validate.util");
+const fs = require("fs").promises;
 
 exports.create = async (req, res, next) => {
   try {
@@ -138,7 +139,8 @@ exports.findALL = async (req, res) => {
 
 exports.findOne = async (req, res, next) => {
   try {
-    const user = await userService.getUserById(req.user.id);
+    const userID = req.user.id;
+    const user = await userService.getUserById(userID);
     return res.send(user);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi tìm thông tin của người dùng"));
@@ -148,6 +150,7 @@ exports.findOne = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   const userID = req.user.id;
   const { newPhoneNumber, otpSMS, otpEmail, userData, email } = req.body;
+  const avatar = req.file ? req.file.filename : null;
   try {
     console.log(req.body);
     // Update Phone Number
@@ -180,7 +183,6 @@ exports.update = async (req, res, next) => {
       });
     } else if (email && otpEmail) {
       // Update email
-      console.log(123);
       const otpRecord = await otpService.findRecordByOTPAndEmail(
         email,
         otpEmail
@@ -205,6 +207,44 @@ exports.update = async (req, res, next) => {
   }
 };
 
+exports.updateProfile = async (req, res, next) => {
+  const userID = req.user.id;
+  let updatedUser;
+  try {
+    const { firstName, lastName, gender, dob, fileType } = req.body;
+    if (!req.file) {
+      updatedUser = await userService.updateUser(userID, {
+        firstName: firstName,
+        lastName: lastName,
+        gender: gender,
+        dob: dob,
+      });
+    } else {
+      const user = await userService.getUserById(userID);
+      await fs.unlink(user.avatar);
+
+      const pathAvatar = req.file.path;
+
+      updatedUser = await userService.updateUser(userID, {
+        firstName: firstName,
+        lastName: lastName,
+        gender: gender,
+        dob: dob,
+        avatar: pathAvatar,
+      });
+    }
+    if (!updatedUser) {
+      return next(new ApiError(400, "Lỗi khi cập nhật profile"));
+    }
+    return res.send({
+      message: "Cập nhật thành công",
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi cập nhật profile"));
+  }
+};
+
 exports.changePassword = async (req, res, next) => {
   const userID = req.user.id;
   try {
@@ -214,7 +254,6 @@ exports.changePassword = async (req, res, next) => {
       user.password
     );
     console.log(req.body);
-    
 
     if (!isMatch) {
       return next(new ApiError(400, "Mật khẩu hiện tại không đúng"));
@@ -229,7 +268,7 @@ exports.changePassword = async (req, res, next) => {
       password: hashedNewPassword,
     });
     return res.send({
-      message: "Đổi mật khẩu thành công"
+      message: "Đổi mật khẩu thành công",
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi đổi mật khẩu"));

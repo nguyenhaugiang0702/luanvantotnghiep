@@ -12,32 +12,35 @@ const qs = require("qs");
 exports.createLinkOrderByZaloPay = async (req, res, next) => {
   try {
     const userID = req.user.id;
-    req.body.userID = userID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    const newOrder = await orderService.createOrder(req.body);
-    if (!newOrder) {
-      return next(new ApiError(400, "Lỗi khi đặt hàng!"));
-    }
-
+    const { addressID, totalQuantity, notes, payment } = req.body;
     const embed_data = {
       redirecturl: "http://localhost:3001/thanks",
+      userID: userID,
+      totalQuantity: totalQuantity,
+      addressID: addressID,
+      notes: notes,
+      payment: payment,
     };
 
-    const items = [{}];
-    const transID = newOrder._id;
+    // Chuyển đổi req.body.detail thành định dạng phù hợp
+    const items = req.body.detail.map((item) => ({
+      bookID: item.bookID,
+      realPrice: item.realPrice,
+      quantity: item.quantity,
+    }));
+
     let uid = Date.now();
     const order = {
       app_id: config.zalopay.app_id,
       app_trans_id: `${moment().format("YYMMDD")}_${uid}`, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
       app_user: "user123",
-      app_time: Date.now(), // miliseconds
+      app_time: Date.now(),
       item: JSON.stringify(items),
       embed_data: JSON.stringify(embed_data),
-      amount: newOrder.totalPrice,
-      description: `Lazada - Payment for the order #${transID}`,
+      amount: req.body.totalPrice,
+      description: `Lazada - Payment for the order`,
       bank_code: "zalopayapp",
-      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?orderID=${newOrder._id}`,
+      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?usserID=${userID}`,
     };
 
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item
@@ -57,20 +60,14 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       order.item;
     order.mac = CryptoJS.HmacSHA256(data, config.zalopay.key1).toString();
 
-    let result;
     try {
+      let result;
+
       result = await axios.post(config.zalopay.endpoint, null, {
         params: order,
       });
       // Kiểm tra phản hồi từ ZaloPay
       if (result.data.return_code === 1) {
-        const paymentUrl = result.data.order_url; // URL thanh toán
-
-        // Cập nhật đơn hàng với URL thanh toán
-        await orderService.updateOrderById(newOrder._id, {
-          paymentUrl: paymentUrl,
-        });
-
         return res.send(result.data);
       } else {
         return next(
@@ -89,7 +86,6 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
 
 exports.handleZaloPayIPN = async (req, res, next) => {
   let result = {};
-  const { orderID } = req.query;
 
   try {
     let dataStr = req.body.data;
@@ -98,8 +94,10 @@ exports.handleZaloPayIPN = async (req, res, next) => {
     let dataObj = JSON.parse(dataStr);
     let appTransId = dataObj.app_trans_id;
 
+    const embedData = JSON.parse(dataObj.embed_data);
+    const items = JSON.parse(dataObj.item);
+
     let mac = CryptoJS.HmacSHA256(dataStr, config.zalopay.key2).toString();
-    console.log("mac =", mac);
 
     // kiểm tra callback hợp lệ (đến từ ZaloPay server)
     if (reqMac !== mac) {
@@ -107,27 +105,29 @@ exports.handleZaloPayIPN = async (req, res, next) => {
       result.return_code = -1;
       result.return_message = "mac not equal";
     } else {
-      // Thanh toán thành công, cập nhật trạng thái đơn hàng và lưu zp_trans_id
-      let zpTransID = dataObj.zp_trans_id; // Đây là mã giao dịch thực tế bạn cần
-      console.log(`ZaloPay Transaction ID: ${zpTransID}`);
 
-      // Cập nhật trạng thái đơn hàng và lưu zpTransID
-      const updateOrder = await orderService.updateOrderById(orderID, {
+      // Lưu đơn hàng từ thông tin req.body khi thanh toán thành công
+      const newOrderData = {
+        userID: embedData.userID,
+        addressID: embedData.addressID,
+        totalPrice: dataObj.amount,
+        totalQuantity: embedData.totalQuantity,
+        notes: embedData.notes,
+        payment: embedData.payment,
+        detail: items,
         wasPaided: true,
-        refundTransactionId: zpTransID, // Lưu zpTransID
-      });
-
-      if (!updateOrder) {
-        return next(
-          new ApiError(400, "Lỗi khi cập nhật trạng thái thanh toán!")
-        );
+        createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+        updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+      };
+      // Tạo đơn hàng trong cơ sở dữ liệu
+      const newOrder = await orderService.createOrder(newOrderData);
+      if (!newOrder) {
+        return next(new ApiError(400, "Lỗi khi tạo đơn hàng sau thanh toán"));
       }
 
       // Thanh toán thành công, xóa giỏ hàng, tính lại tổng tiền
-      const curentOrder = await orderService.getOrderByID(orderID);
-      await cartService.deleteBookFromCartWhenCheckOut(curentOrder.userID);
-      await cartService.calculateTotalPriceWhenCheckOut(curentOrder.userID);
-
+      await cartService.deleteBookFromCartWhenCheckOut(embedData.userID);
+      await cartService.calculateTotalPriceWhenCheckOut(embedData.userID);
       result.return_code = 1;
       result.return_message = "success";
     }
@@ -137,7 +137,7 @@ exports.handleZaloPayIPN = async (req, res, next) => {
   }
 
   // thông báo kết quả cho ZaloPay server
-  // res.json(result);
+  return res.redirect(302, "http://localhost:3001/thanks");
 };
 
 exports.handleZaloPayIPNTransactionStatus = async (req, res, next) => {

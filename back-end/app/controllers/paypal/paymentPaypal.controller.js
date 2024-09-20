@@ -17,7 +17,8 @@ paypal.configure({
 
 exports.createLinkOrderByPayPal = async (req, res, next) => {
   try {
-    const { detail } = req.body;
+    const { detail, addressID, notes } = req.body;
+    const userID = req.user.id;
     // Tạo danh sách sách sau khi lấy tên sách từ bookID
     const books = await Promise.all(
       detail.map(async (item) => {
@@ -25,13 +26,13 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
         if (!book) {
           throw new ApiError(404, `Không tìm thấy sách với ID: ${item._id}`);
         }
-        const priceUSD = await convert.convertVNDToUSD(item.price);
+        const priceUSD = await convert.convertVNDToUSD(item.realPrice);
         return {
-          name: book.name, // Tên sách
-          sku: book._id, // ID sách
-          price: priceUSD, // Định dạng giá tiền
-          currency: "USD", // Đơn vị tiền tệ
-          quantity: item.quantity, // Số lượng sách
+          name: book.name,
+          sku: book._id, 
+          price: priceUSD, 
+          currency: "USD", 
+          quantity: item.quantity,
         };
       })
     );
@@ -42,24 +43,13 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
       0
     );
 
-    // Tạo đơn hàng
-    const userID = req.user.id;
-    req.body.userID = userID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.totalPrice = totalAmount;
-    const newOrder = await orderService.createOrder(req.body);
-    if (!newOrder) {
-      return next(new ApiError(400, "Lỗi khi đặt hàng!"));
-    }
-
     const create_payment_json = {
       intent: "sale",
       payer: {
         payment_method: "paypal",
       },
       redirect_urls: {
-        return_url: `https://nhgbookstore.serveo.net/api/v1/orders/paypal/success?orderId=${newOrder._id}&totalAmount=${totalAmount}`,
+        return_url: `https://nhgbookstore.serveo.net/api/v1/orders/paypal/success?totalAmount=${totalAmount}`,
         cancel_url:
           "https://nhgbookstore.serveo.net/api/v1/orders/paypal/cancel",
       },
@@ -73,13 +63,14 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
             total: totalAmount.toFixed(2),
           },
           description: "Thanh toán đơn hàng sách",
+          custom: JSON.stringify({ userID, addressID, notes }),
         },
       ],
     };
 
     paypal.payment.create(create_payment_json, function (error, payment) {
       if (error) {
-        throw error;
+        return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
       } else {
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === "approval_url") {
@@ -90,7 +81,7 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi thêm mới địa chỉ"));
+    return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
   }
 };
 
@@ -114,21 +105,29 @@ exports.handlePayPalSuccess = async (req, res, next) => {
     execute_payment_json,
     async function (error, payment) {
       if (error) {
-        console.log(error.response);
-        throw error;
+        return next(new ApiError(500, "Lỗi khi xác nhận thanh toán"));
       } else {
-        const curentOrder = await orderService.getOrderByID(orderId);
-        // Thanh toán thành công
-        const updateOrder = await orderService.updateWasPaidedOrderByID(
-          orderId
-        );
-        if (!updateOrder) {
-          return next(
-            new ApiError(400, "Lỗi khi cập nhật trạng thái thanh toán!")
-          );
+        const customObj = JSON.parse(payment.transactions[0]?.custom);
+        const orderData = {
+          userID: customObj.userID,
+          detail: payment.transactions[0].item_list.items.map((item) => ({
+            bookID: item.sku,
+            quantity: item.quantity,
+            realPrice: parseFloat(item.price),
+          })),
+          notes: customObj.notes,
+          addressID: customObj.addressID,
+          totalPrice: parseFloat(totalAmount),
+          wasPaided: true,
+          createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+          updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+        };
+        const newOrder = await orderService.createOrder(orderData);
+        if (!newOrder) {
+          return next(new ApiError(400, "Lỗi khi tạo đơn hàng!"));
         }
-        await cartService.deleteBookFromCartWhenCheckOut(curentOrder.userID);
-        await cartService.calculateTotalPriceWhenCheckOut(curentOrder.userID);
+        await cartService.deleteBookFromCartWhenCheckOut(customObj.userID);
+        await cartService.calculateTotalPriceWhenCheckOut(customObj.userID);
         return res.redirect("http://localhost:3001/thanks");
       }
     }

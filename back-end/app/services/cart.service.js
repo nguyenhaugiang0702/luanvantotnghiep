@@ -93,5 +93,5 @@ module.exports = {
   updateCheckOutAllStatus,
   deleteBookFromCartWhenCheckOut,
   calculateTotalPriceWhenCheckOut,
-  calculateTotalPrice
+  calculateTotalPrice,
 };

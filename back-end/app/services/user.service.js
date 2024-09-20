@@ -63,10 +63,7 @@ const getAllUser = async () => {
 };
 
 const updateUser = async (userId, updateData) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-  return await User.findByIdAndUpdate(userID, updateData, { new: true });
+  return await User.findByIdAndUpdate(userId, updateData, { new: true });
 };
 
 const deleteUserAccount = async (userId) => {
