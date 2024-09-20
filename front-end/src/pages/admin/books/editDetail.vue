@@ -9,7 +9,11 @@
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item class="fw-bold">Sách</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
+        <a-breadcrumb-item
+          class="fw-bold hoverPointer"
+          @click="handleNavigate(router, 'admin-books')"
+          >Danh sách</a-breadcrumb-item
+        >
         <a-breadcrumb-item class="fw-bold">{{ bookName }}</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">Hình ảnh</a-breadcrumb-item>
       </a-breadcrumb>
@@ -161,221 +165,195 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import config from "@/config";
 import BookService from "@/service/book.service";
 import { showConfirmation } from "@/utils/swalUtils";
+import { handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
+const images = ref([]);
+const bookService = new BookService();
+const route = useRoute();
+const router = useRouter();
+const bookID = route.params.bookID;
+const bookName = ref("");
+// lấy ảnh của sách
+const getImages = async () => {
+  const response = await bookService.get(`/images/${bookID}`);
+  if (response.status === 200) {
+    images.value = response.data.images.map((image) => {
+      return {
+        _id: image._id,
+        path: `${config.imgUrl}/${image.path}`,
+      };
+    });
+    bookName.value = response.data.bookName;
+  }
+};
+const currentPage = ref(1);
+const itemsPerPage = ref(8);
+const pageSizes = ["8", "12", "16", "20"];
 
-export default {
-  setup() {
-    const images = ref([]);
-    const bookService = new BookService();
-    const route = useRoute();
-    const bookID = route.params.bookID;
-    const bookName = ref("");
-    // lấy ảnh của sách
-    const getImages = async () => {
-      const response = await bookService.get(`/images/${bookID}`);
-      if (response.status === 200) {
-        images.value = response.data.images.map((image) => {
-          return {
-            _id: image._id,
-            path: `${config.imgUrl}/${image.path}`,
-          };
-        });
-        bookName.value = response.data.bookName;
-      }
-    };
-    const currentPage = ref(1);
-    const itemsPerPage = ref(8);
-    const pageSizes = ["8", "12", "16", "20"];
+const totalImages = computed(() => images.value.length);
 
-    const totalImages = computed(() => images.value.length);
+const handlePageChange = (page, pageSize) => {
+  currentPage.value = page;
+  itemsPerPage.value = pageSize;
+};
 
-    const handlePageChange = (page, pageSize) => {
-      currentPage.value = page;
-      itemsPerPage.value = pageSize;
-    };
+const paginatedImages = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return images.value.slice(start, end);
+});
 
-    const paginatedImages = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage.value;
-      const end = start + itemsPerPage.value;
-      return images.value.slice(start, end);
+onMounted(() => {
+  getImages();
+});
+
+const isEditing = ref(false);
+const currentImageID = ref(null);
+const newImageFiles = ref([]);
+const previewImages = ref([]);
+
+// Thêm ảnh mới
+const addNewImage = () => {
+  isEditing.value = false;
+  previewImages.value = [];
+  newImageFiles.value = [];
+  $("#imageModal").modal("show");
+};
+
+// Chỉnh sửa ảnh hiện có
+const editImage = (imageID) => {
+  isEditing.value = true;
+  currentImageID.value = imageID;
+  const image = images.value.find((img) => img._id == imageID);
+  previewImages.value = [image.path];
+  newImageFiles.value = [];
+  $("#imageModal").modal("show");
+};
+
+const resetForm = () => {
+  newImageFiles.value = [];
+  previewImages.value = [];
+  $("#imageModal").modal("hide");
+  $("input[type='file']").val("");
+};
+
+const removeImage = (index) => {
+  newImageFiles.value.splice(index, 1);
+  previewImages.value.splice(index, 1);
+
+  $("input[type='file']").val("");
+  // Nếu còn ảnh trong danh sách newImageFiles, cần cập nhật lại thẻ input
+  if (newImageFiles.value.length > 0) {
+    // Tạo đối tượng DataTransfer để giữ các tệp còn lại
+    const dataTransfer = new DataTransfer();
+
+    // Thêm lại các tệp còn lại vào DataTransfer
+    newImageFiles.value.forEach((file) => {
+      dataTransfer.items.add(file);
     });
 
-    onMounted(() => {
-      getImages();
-    });
+    // Cập nhật lại thẻ input với các tệp mới
+    $("input[type='file']")[0].files = dataTransfer.files;
+  }
+};
 
-    const isEditing = ref(false);
-    const currentImageID = ref(null);
-    const newImageFiles = ref([]);
-    const previewImages = ref([]);
+const clearImages = () => {
+  newImageFiles.value = [];
+  previewImages.value = [];
+  $("input[type='file']").val("");
+};
 
-    // Thêm ảnh mới
-    const addNewImage = () => {
-      isEditing.value = false;
-      previewImages.value = [];
-      newImageFiles.value = [];
-      $("#imageModal").modal("show");
-    };
-
-    // Chỉnh sửa ảnh hiện có
-    const editImage = (imageID) => {
-      isEditing.value = true;
-      currentImageID.value = imageID;
-      const image = images.value.find((img) => img._id == imageID);
-      previewImages.value = [image.path];
-      newImageFiles.value = [];
-      $("#imageModal").modal("show");
-    };
-
-    const resetForm = () => {
-      newImageFiles.value = [];
-      previewImages.value = [];
-      $("#imageModal").modal("hide");
-      $("input[type='file']").val("");
-    };
-
-    const removeImage = (index) => {
-      newImageFiles.value.splice(index, 1);
-      previewImages.value.splice(index, 1);
-
-      $("input[type='file']").val("");
-      // Nếu còn ảnh trong danh sách newImageFiles, cần cập nhật lại thẻ input
-      if (newImageFiles.value.length > 0) {
-        // Tạo đối tượng DataTransfer để giữ các tệp còn lại
-        const dataTransfer = new DataTransfer();
-
-        // Thêm lại các tệp còn lại vào DataTransfer
-        newImageFiles.value.forEach((file) => {
-          dataTransfer.items.add(file);
-        });
-
-        // Cập nhật lại thẻ input với các tệp mới
-        $("input[type='file']")[0].files = dataTransfer.files;
-      }
-    };
-
-    const clearImages = () => {
-      newImageFiles.value = [];
-      previewImages.value = [];
-      $("input[type='file']").val("");
-    };
-
-    const handleDeleteImage = async (imageID) => {
-      try {
-        const response = await bookService.delete(
-          `/images/${bookID}/${imageID}`
-        );
-        if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-          getImages();
-        }
-      } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      }
-    };
-
-    // Xóa ảnh
-    const deleteImage = async (imageID) => {
-      const isConfirmed = await showConfirmation({
-        title: "Bạn chắn chắn muốn xóa hình này?",
+const handleDeleteImage = async (imageID) => {
+  try {
+    const response = await bookService.delete(`/images/${bookID}/${imageID}`);
+    if (response.status === 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
       });
-      if (isConfirmed.isConfirmed) {
-        await handleDeleteImage(imageID);
-      }
-    };
+      getImages();
+    }
+  } catch (error) {
+    toast(error.response?.data?.message, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
 
-    // Chọn ảnh mới để upload
-    const onFileChange = (event) => {
-      newImageFiles.value = [];
-      previewImages.value = [];
-      const files = event.target.files;
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        newImageFiles.value.push(file);
-        previewImages.value.push(URL.createObjectURL(file));
-      }
-    };
+// Xóa ảnh
+const deleteImage = async (imageID) => {
+  const isConfirmed = await showConfirmation({
+    title: "Bạn chắn chắn muốn xóa hình này?",
+  });
+  if (isConfirmed.isConfirmed) {
+    await handleDeleteImage(imageID);
+  }
+};
 
-    const handleImage = async (formData, imageID = null, method) => {
-      try {
-        let response;
-        if (method == "add") {
-          console.log(1);
-          response = await bookService.post(`/images/${bookID}`, formData);
-        } else if (method == "update") {
-          console.log(2);
-          response = await bookService.put(
-            `/images/${bookID}/${imageID}`,
-            formData
-          );
-        }
-        if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-          resetForm();
-          getImages();
-        }
-      } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      }
-    };
+// Chọn ảnh mới để upload
+const onFileChange = (event) => {
+  newImageFiles.value = [];
+  previewImages.value = [];
+  const files = event.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    newImageFiles.value.push(file);
+    previewImages.value.push(URL.createObjectURL(file));
+  }
+};
 
-    // Lưu ảnh mới hoặc cập nhật ảnh hiện có
-    const saveImage = (e) => {
-      e.preventDefault();
-      const formData = new FormData();
-      if (newImageFiles.value.length > 0) {
-        newImageFiles.value.forEach((file) => {
-          formData.append("images", file);
-        });
-        let method = isEditing.value ? "update" : "add";
-        handleImage(formData, currentImageID.value, method);
-      }
-    };
+const handleImage = async (formData, imageID = null, method) => {
+  try {
+    let response;
+    if (method == "add") {
+      console.log(1);
+      response = await bookService.post(`/images/${bookID}`, formData);
+    } else if (method == "update") {
+      console.log(2);
+      response = await bookService.put(
+        `/images/${bookID}/${imageID}`,
+        formData
+      );
+    }
+    if (response.status === 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      resetForm();
+      getImages();
+    }
+  } catch (error) {
+    toast(error.response?.data?.message, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
 
-    return {
-      bookName,
-      images,
-      isEditing,
-      previewImages,
-      addNewImage,
-      editImage,
-      deleteImage,
-      onFileChange,
-      saveImage,
-      removeImage,
-      clearImages,
-      // Pagination
-      itemsPerPage,
-      // totalPages,
-      currentPage,
-      totalImages,
-      paginatedImages,
-      handlePageChange,
-      pageSizes,
-    };
-  },
+// Lưu ảnh mới hoặc cập nhật ảnh hiện có
+const saveImage = (e) => {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append("fileType", "book");
+  if (newImageFiles.value.length > 0) {
+    newImageFiles.value.forEach((file) => {
+      formData.append("images", file);
+    });
+    let method = isEditing.value ? "update" : "add";
+    handleImage(formData, currentImageID.value, method);
+  }
 };
 </script>
 
@@ -412,5 +390,13 @@ export default {
 .listPreviewImg {
   max-height: 31.25rem; /* 500px */
   overflow-y: scroll;
+}
+
+.hoverPointer{
+  cursor: pointer;
+}
+.hoverPointer:hover{
+  cursor: pointer;
+  color: black;
 }
 </style>

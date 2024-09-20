@@ -47,14 +47,23 @@
                       >
                         <img
                           :src="`http://localhost:3000/` + conv.user.avatar"
-                          :alt="conv.user.name"
+                          :alt="conv.user.phoneNumber"
                           class="rounded-circle me-3"
                           width="40"
                           height="40"
                         />
                         <div class="flex-grow-1">
-                          <p class="mb-0 font-weight-medium text-truncate">
+                          <p
+                            v-if="conv.user.name"
+                            class="mb-0 font-weight-medium text-truncate"
+                          >
                             {{ conv.user.name }}
+                          </p>
+                          <p
+                            v-else
+                            class="mb-0 font-weight-medium text-truncate"
+                          >
+                            {{ conv.user.phoneNumber }}
                           </p>
                           <p class="mb-0 small text-muted text-truncate">
                             {{ conv.lastMessage }}
@@ -83,19 +92,32 @@
                     >
                       <div class="d-flex align-items-center">
                         <img
-                          :src="selectedConversation.user.avatar"
+                          :src="
+                            `http://localhost:3000/` +
+                            selectedConversation.user.avatar
+                          "
                           :alt="selectedConversation.user.name"
                           class="rounded-circle me-3"
                           width="40"
                           height="40"
                         />
-                        <div>
+                        <div
+                          v-if="
+                            selectedConversation.user.name &&
+                            selectedConversation.user.email
+                          "
+                        >
                           <h2 class="h5 mb-0">
                             {{ selectedConversation.user.name }}
                           </h2>
                           <p class="mb-0 small text-muted">
                             {{ selectedConversation.user.email }}
                           </p>
+                        </div>
+                        <div v-else>
+                          <h2 class="h5 mb-0">
+                            {{ selectedConversation.user.phoneNumber }}
+                          </h2>
                         </div>
                       </div>
                       <div>
@@ -110,6 +132,7 @@
 
                     <!-- Messages -->
                     <div
+                      ref="chatContainer"
                       class="flex-grow-1 p-3 bg-light overflow-auto"
                       style="max-height: 25rem"
                     >
@@ -185,7 +208,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { io } from "socket.io-client";
 import ChatsService from "@/service/chat.service";
 import moment from "moment";
@@ -198,6 +221,7 @@ const socket = ref(null);
 const selectedConversation = ref(null);
 const newMessage = ref("");
 const searchTerm = ref("");
+const chatContainer = ref(null);
 //
 const loadConversations = async () => {
   try {
@@ -216,6 +240,7 @@ const loadConversations = async () => {
               room.userID?.firstName + " " + room.userID?.lastName ||
               "Unknown User",
             email: room.userID?.email || "",
+            phoneNumber: room.userID?.phoneNumber,
             avatar:
               room.userID?.avatar || "/placeholder.svg?height=40&width=40",
           },
@@ -231,11 +256,18 @@ const loadConversations = async () => {
           updatedAt: formatDate(room.updatedA),
         };
       });
-      console.log(conversations.value);
     }
   } catch (error) {
     console.error("Lỗi khi lấy danh sách phòng chat:", error);
   }
+};
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+  });
 };
 
 // Lọc các cuộc trò chuyện theo từ khóa tìm kiếm
@@ -253,6 +285,7 @@ const filteredConversations = computed(() => {
 const selectConversation = (conversation) => {
   selectedConversation.value = conversation;
   conversation.hasNewMessage = false;
+  scrollToBottom();
   socket.value.emit("joinRoom", conversation.id);
 };
 
@@ -286,6 +319,7 @@ onMounted(async () => {
         message: data.message,
         createdAt: formatDate(),
       });
+      scrollToBottom();
     }
   });
 
@@ -301,6 +335,7 @@ onMounted(async () => {
         message: msg.message,
         createdAt: moment(msg.createdAt).format("DD/MM/YYYY HH:mm:ss"),
       }));
+      scrollToBottom();
     }
   });
 });

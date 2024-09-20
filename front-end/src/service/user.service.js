@@ -31,7 +31,7 @@ class UserService {
   async put(endpoint, data, token) {
     const url = this.baseUrl + endpoint;
     const headers = {
-      "Content-Type": "application/json",
+      "Content-Type": "multipart/form-data",
     };
     if (token != null) {
       headers["Authorization"] = "Bearer " + token;

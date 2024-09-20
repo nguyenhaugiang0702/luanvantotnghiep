@@ -459,11 +459,6 @@
                   }"
                 />
                 <ErrorMessage name="images" class="invalid-feedback" />
-                <!-- <span
-                  v-if="newBook.images.length === 0 && !errors.images"
-                  style="color: #dc3545; font-size: 0.875em"
-                  >Ảnh là bắt buộc</span
-                > -->
               </div>
             </div>
             <div class="col-sm-2">
@@ -603,7 +598,7 @@ export default {
     // Hàm để thêm hình ảnh vào FormData
     const addImagesToFormData = (formData, images) => {
       images.forEach((image, index) => {
-        formData.append(`images`, image);
+        formData.append("images", image);
       });
     };
 
@@ -613,11 +608,12 @@ export default {
         return;
       }
       const formData = new FormData();
+      formData.append("fileType", "book");
       addFieldsToFormData(formData, newBook.value);
       addImagesToFormData(formData, images.value);
 
       try {
-        const response = await bookService.post("/", formData);
+        const response = await bookService.post("/", formData, null);
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",
@@ -678,7 +674,7 @@ export default {
       itemID: formalityID,
     } = useDropdown("formalities");
 
-    // Dropdown cho hình thức
+    // Dropdown cho khoản giá
     const {
       searchValue: searchPriceRangeValue,
       filteredOptions: priceRangeOptions,

@@ -107,6 +107,7 @@ export default {
       email: "",
       address: "",
       phoneNumber: "",
+      method: "add"
     });
     const store = useMenu();
     store.onSelectedKeys(["admin-suppliers-add"]);

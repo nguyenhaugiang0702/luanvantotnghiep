@@ -50,7 +50,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted, defineComponent, computed } from "vue";
 //
 import DataTable from "datatables.net-vue3";
@@ -71,122 +71,106 @@ import "datatables.net-select-bs5";
 //
 import PublisherService from "@/service/publisher.service.js";
 import ReceiptService from "@/service/receipt.service.js";
+import BookService from "@/service/book.service";
 import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import moment from "moment";
 
-export default defineComponent({
-  components: {
-    DataTable,
+const router = useRouter();
+const publisherService = new PublisherService();
+const receiptService = new ReceiptService();
+const bookService = new BookService();
+const columns = [
+  {
+    data: null,
+    width: "5%",
+    render: (data, type, row, meta) =>
+      `<div class="text-start">${meta.row + 1}</div>`,
   },
-  setup() {
-    const router = useRouter();
-    const publisherService = new PublisherService();
-    const receiptService = new ReceiptService();
-    const columns = [
-      {
-        data: null,
-        width: "5%",
-        render: (data, type, row, meta) =>
-          `<div class="text-start">${meta.row + 1}</div>`,
-      },
-      {
-        data: "bookName",
-        width: "40%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
-      },
-      {
-        data: "categoryName",
-        width: "15%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
-      },
-      {
-        data: "publisherName",
-        width: "15%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
-      },
-      {
-        data: "formalityName",
-        width: "10%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
-      },
-      {
-        data: "quantity",
-        width: "25%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
-      },
-    ];
-    const stockProducts = ref([]);
-
-    const getStockProducts = async () => {
-      const response = await receiptService.get("/stockProducts");
-      if (response.status === 200) {
-        stockProducts.value = response.data;
-        console.log(response.data);
-      }
-    };
-
-    const deletePublisher = async (publisherID) => {
-      const response = await publisherService.delete(`/${publisherID}`);
-      if (response.status == 200) {
-        toast(response.data.message, { theme: "auto", type: "success" });
-        getReceipts();
-      }
-    };
-
-    $(document).on("click", "#detailReceipt", (event) => {
-      const receiptID = $(event.currentTarget).data("id");
-      router.push({
-        name: "admin-receipts-detail",
-        params: { receiptID: receiptID },
-      });
-    });
-
-    $(document).on("click", "#deletePublisher", async (event) => {
-      const publisherID = $(event.currentTarget).data("id");
-      const isConfirmed = confirm(
-        "Bạn có chắc chắn muốn xóa nhà xuất bản này?"
-      );
-      if (isConfirmed) {
-        await deletePublisher(publisherID);
-      }
-    });
-
-    onMounted(getStockProducts);
-
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      { extend: "copy", exportOptions },
-      { extend: "csv", exportOptions },
-      { extend: "pdf", exportOptions },
-      { extend: "print", exportOptions },
-    ];
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
-
-    return {
-      getStockProducts,
-      columns,
-      stockProducts,
-      buttons,
-      language,
-    };
+  {
+    data: "name",
+    width: "40%",
+    render: (data) => `<div class="text-start text-break">${data}</div>`,
   },
+  {
+    data: "categoryID.name",
+    width: "15%",
+    render: (data) => `<div class="text-start text-break">${data}</div>`,
+  },
+  {
+    data: "publisherID.name",
+    width: "15%",
+    render: (data) => `<div class="text-start text-break">${data}</div>`,
+  },
+  {
+    data: "formalityID.name",
+    width: "10%",
+    render: (data) => `<div class="text-start text-break">${data}</div>`,
+  },
+  {
+    data: "quantityImported",
+    width: "25%",
+    render: (data) => `<div class="text-start text-break">${data}</div>`,
+  },
+];
+const stockProducts = ref([]);
+
+const getStockProducts = async () => {
+  const response = await bookService.get("/");
+  if (response.status === 200) {
+    stockProducts.value = response.data;
+  }
+};
+
+const deletePublisher = async (publisherID) => {
+  const response = await publisherService.delete(`/${publisherID}`);
+  if (response.status == 200) {
+    toast(response.data.message, { theme: "auto", type: "success" });
+    getReceipts();
+  }
+};
+
+$(document).on("click", "#detailReceipt", (event) => {
+  const receiptID = $(event.currentTarget).data("id");
+  router.push({
+    name: "admin-receipts-detail",
+    params: { receiptID: receiptID },
+  });
 });
+
+$(document).on("click", "#deletePublisher", async (event) => {
+  const publisherID = $(event.currentTarget).data("id");
+  const isConfirmed = confirm("Bạn có chắc chắn muốn xóa nhà xuất bản này?");
+  if (isConfirmed) {
+    await deletePublisher(publisherID);
+  }
+});
+
+onMounted(getStockProducts);
+
+const exportOptions = {
+  columns: ":not(:last-child)",
+};
+
+const buttons = [
+  { extend: "copy", exportOptions },
+  { extend: "csv", exportOptions },
+  { extend: "pdf", exportOptions },
+  { extend: "print", exportOptions },
+];
+
+const language = {
+  search: "_INPUT_",
+  searchPlaceholder: "Tìm kiếm...",
+  lengthMenu: "Hiển thị _MENU_ hàng",
+  paginate: {
+    first: "Đầu tiên",
+    last: "Cuối cùng",
+    next: "Tiếp theo",
+    previous: "Trước đó",
+  },
+  info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+};
 </script>
 
 <style>

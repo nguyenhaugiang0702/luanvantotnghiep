@@ -135,6 +135,13 @@
         <pie-chart-outlined />
         <span>Tin nhắn</span>
       </a-menu-item>
+      <a-menu-item
+        key="admin-comments-list"
+        @click="navigateTo('admin-comments-list')"
+      >
+        <desktop-outlined />
+        <span>Đánh giá</span>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>

@@ -388,14 +388,14 @@ const confirmPayment = async () => {
             window.open(paypal_url, "_blank");
           }
         } else {
-          toast("Đã xảy ra lỗi khi gọi API ZALOPAY", {
+          toast("Đã xảy ra lỗi khi gọi API PAYPAL", {
             theme: "auto",
             type: "error",
             dangerouslyHTMLString: true,
           });
         }
       } catch (error) {
-        toast("Đã xảy ra lỗi khi gọi API ZALOPAY", {
+        toast(error.response?.data?.message, {
           theme: "auto",
           type: "error",
           dangerouslyHTMLString: true,

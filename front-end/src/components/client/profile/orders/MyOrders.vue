@@ -47,7 +47,7 @@
             >{{ getStatusLabel(order.status) }}
           </span>
         </div>
-        <div class="card-body">
+        <div class="card-body mh-100">
           <ul class="list-unstyled mb-3">
             <li
               v-for="(book, index) in order.detail"

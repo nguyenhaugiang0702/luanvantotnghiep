@@ -9,7 +9,9 @@
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item class="fw-bold">Nhà cung cấp</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold breadcrumb-item-hover" @click="handleNaviagte"
+        <a-breadcrumb-item
+          class="fw-bold hoverPointer"
+          @click="handleNavigate(router, 'admin-suppliers-list')"
           >Danh sách</a-breadcrumb-item
         >
         <a-breadcrumb-item class="fw-bold">Chỉnh sửa</a-breadcrumb-item>
@@ -96,7 +98,7 @@
     </a-layout-content>
   </div>
 </template>
-<script>
+<script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SupplierService from "@/service/supplier.service";
@@ -104,76 +106,65 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { supllierSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
 import { useMenu } from "../../../stores/use-menu.js";
+import {handleNavigate} from "@/utils/utils.js"
 
-export default {
-  components: { Form, Field, ErrorMessage },
-  setup() {
-    const supplier = ref({});
-    const route = useRoute();
-    const router = useRouter();
-    const supplierID = route.params.supplierID;
-    const supplierService = new SupplierService();
-    const store = useMenu();
-    store.onSelectedKeys(["admin-suppliers-edit"]);
+const supplier = ref({});
+const route = useRoute();
+const router = useRouter();
+const supplierID = route.params.supplierID;
+const supplierService = new SupplierService();
+const store = useMenu();
+store.onSelectedKeys(["admin-suppliers-edit"]);
 
-    const { errors, validate, resetForm } = useForm({
-      validationSchema: supllierSchema,
-    });
+const { errors, validate, resetForm } = useForm({
+  validationSchema: supllierSchema,
+});
 
-    const getSupplier = async () => {
-      const response = await supplierService.get(`/${supplierID}`);
-      if (response.status === 200) {
-        supplier.value = response.data;
-      }
-    };
-
-    const updateSupplier = async () => {
-      try {
-        const { valid } = await validate();
-        if (!valid) {
-          return;
-        }
-        const response = await supplierService.put(
-          `/${supplierID}`,
-          supplier.value
-        );
-        if (response.status == 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-        }
-      } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      }
-    };
-
-    const handleNaviagte = () => {
-      router.push({ name: "admin-suppliers-list" });
-    };
-
-    onMounted(() => {
-      getSupplier();
-    });
-
-    return {
-      supplier,
-      updateSupplier,
-      supllierSchema,
-      errors,
-      supplierID,
-      handleNaviagte,
-    };
-  },
+const getSupplier = async () => {
+  const response = await supplierService.get(`/${supplierID}`);
+  if (response.status === 200) {
+    supplier.value = response.data;
+  }
 };
+
+const updateSupplier = async () => {
+  try {
+    const { valid } = await validate();
+    if (!valid) {
+      return;
+    }
+    const data = {
+      ...supplier.value,
+      method: "edit",
+    };
+    const response = await supplierService.put(`/${supplierID}`, data);
+    if (response.status == 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+    }
+  } catch (error) {
+    toast(error.response?.data?.message, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
+
+onMounted(() => {
+  getSupplier();
+});
+
 </script>
 <style scoped>
-.breadcrumb-item-hover{
+.hoverPointer {
   cursor: pointer;
+}
+.hoverPointer:hover {
+  cursor: pointer;
+  color: black;
 }
 </style>

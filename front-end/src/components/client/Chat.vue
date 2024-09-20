@@ -4,7 +4,7 @@
     <button
       v-if="!isOpen"
       class="btn btn-primary rounded-circle p-3"
-      @click="isOpen = true"
+      @click="openChat"
     >
       <i class="fa-regular fa-comments fs-4"></i>
     </button>
@@ -19,8 +19,12 @@
           <i class="fa-solid fa-x"></i>
         </button>
       </div>
-      <div class="card-body overflow-auto" style="max-height: 25rem">
-        <div class="flex-grow-1" style="max-height: 25rem">
+      <div
+        ref="chatContainer"
+        class="card-body overflow-auto"
+        style="max-height: 25rem"
+      >
+        <div class="flex-grow-1">
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -70,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import ChatsService from "@/service/chat.service";
@@ -82,7 +86,10 @@ const newMessage = ref("");
 const messages = ref([]); // Khởi tạo danh sách tin nhắn rỗng
 const chatRoomId = ref(""); // Khởi tạo chatRoomId rỗng
 const token = Cookies.get("accessToken");
+const chatContainer = ref(null);
+//
 const chatsService = new ChatsService();
+
 const sendMessage = () => {
   if (newMessage.value.trim() !== "") {
     // Gửi tin nhắn lên server
@@ -104,6 +111,20 @@ const checkRoomChat = async () => {
   }
 };
 
+// Hàm cuộn tới cuối phần chứa tin nhắn
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+  });
+};
+
+const openChat = async () => {
+  isOpen.value = true;
+  await scrollToBottom();
+};
+
 onMounted(async () => {
   await checkRoomChat();
   // Kết nối tới server Socket.IO
@@ -112,12 +133,14 @@ onMounted(async () => {
   // Nhận tin nhắn từ server
   socket.value.on("receiveMessage", (message) => {
     messages.value.push(message);
+    scrollToBottom();
   });
 
   // Tải lịch sử tin nhắn khi tham gia phòng chat
   socket.value.on("loadMessages", (data) => {
     chatRoomId.value = data.chatRoomId;
     messages.value = data.messages;
+    scrollToBottom();
   });
 
   // Gửi thông báo tham gia phòng chat

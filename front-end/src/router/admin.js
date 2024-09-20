@@ -197,6 +197,19 @@ const admin = [
         ],
       },
       {
+        path: "comments",
+        name: "admin-comments",
+        redirect: { name: "admin-comments-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-comments-list",
+            component: () => import("../pages/admin/comments/index.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
         path: "chats",
         name: "admin-chats",
         component: () => import("../pages/admin/chats/index.vue"),

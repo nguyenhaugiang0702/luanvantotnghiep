@@ -1,9 +1,9 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 
-class BookService {
+class CommentService {
   constructor() {
-    this.baseUrl = "http://localhost:3000/api/v1/books";
+    this.baseUrl = "http://localhost:3000/api/v1/comments";
   }
 
   async get(endpoint, token) {
@@ -39,17 +39,6 @@ class BookService {
     return await axios.put(url, data, { headers });
   }
 
-  async putBookEdit(endpoint, data, token) {
-    const url = this.baseUrl + endpoint;
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (token != null) {
-      headers["Authorization"] = "Bearer " + token;
-    }
-    return await axios.put(url, data, { headers });
-  }
-
   async delete(endpoint, token) {
     const url = this.baseUrl + endpoint;
     const headers = {
@@ -62,4 +51,4 @@ class BookService {
   }
 }
 
-export default BookService;
+export default CommentService;

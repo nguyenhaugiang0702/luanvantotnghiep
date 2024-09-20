@@ -51,7 +51,7 @@
                   >
                     <img
                       v-if="book.bookID.images && book.bookID.images.length > 0"
-                      class="ms-2"
+                      class="ms-2 me-4"
                       style="width: 80px; height: 80px"
                       :src="`${config.imgUrl}/` + book.bookID?.images[0]?.path"
                       alt=""
@@ -104,18 +104,30 @@
       <!-- End Giỏ Hàng -->
 
       <!-- Tài Khoản -->
-      <div class="col-sm-2 dropdown">
+      <div class="col-2 dropdown">
         <div v-if="isLoggedIn && token" class="my-4" style="z-index: 1021">
           <div class="dropdown">
             <a
-              class="nav-link dropdown-toggle"
+              class="nav-link dropdown-toggle d-flex align-items-center"
               href="#"
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i class="fa-solid fa-user fs-3 mt-1"></i>
-              {{ userInfo.user_name }}
+              <img
+                v-if="userInfo.avatar"
+                style="width: 40px; border-radius: 50%"
+                :src="`http://localhost:3000/` + userInfo.avatar"
+                alt=""
+              />
+              <i v-else class="fa-solid fa-user fs-3 mt-1"></i>
+
+              <span class="ms-2">
+                <div v-if="userInfo.firstName && userInfo.lastName">
+                  {{ userInfo.firstName + " " + userInfo.lastName }}
+                </div>
+                <div v-else>{{ userInfo.phoneNumber }}</div>
+              </span>
             </a>
             <ul class="dropdown-menu">
               <li>
@@ -126,7 +138,9 @@
                 >
               </li>
               <li>
-                <router-link class="dropdown-item" :to="{name: 'profile-orders'}"
+                <router-link
+                  class="dropdown-item"
+                  :to="{ name: 'profile-orders' }"
                   >Đơn hàng</router-link
                 >
               </li>
@@ -180,7 +194,7 @@ import {
 } from "vue";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
-import ApiService from "../../service/ApiService";
+import UserService from "@/service/user.service";
 import CartService from "@/service/cart.service";
 import { useRouter } from "vue-router";
 import config from "@/config/index";
@@ -188,7 +202,7 @@ import { formatPrice, handleNavigate } from "@/utils/utils";
 
 const userInfo = ref({});
 const router = useRouter();
-const apiService = new ApiService();
+const userService = new UserService();
 const cartService = new CartService();
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
@@ -201,17 +215,17 @@ const booksInCart = ref({
 });
 
 const getUser = async () => {
-  try {
-    if (token) {
-      const response = await apiService.get(`users/${token}`);
-      if (response.status === 200) {
-        userInfo.value = response.data;
-      }
+  if (token) {
+    const response = await userService.get(`/${token}`);
+    if (response.status === 200) {
+      userInfo.value = response.data;
     }
-  } catch (error) {
-    console.log(error);
   }
 };
+
+onMounted(() => {
+  getUser();
+});
 
 const handleNavigateRoute = (routeName) => {
   $(".dropdown-menu").removeClass("show");

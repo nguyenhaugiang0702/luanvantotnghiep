@@ -12,7 +12,7 @@
         <a-breadcrumb-item class="fw-bold">Chỉnh sửa</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <form @submit.prevent="updateBook">
+        <form @submit.prevent="updateBook" :validationSchema="updateBookSchema">
           <div class="row">
             <div class="form-group col-sm-4">
               <label class="form-label" for="bookName">Tên sách</label>
@@ -239,7 +239,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="row mt-4">
             <div class="col-sm-12 form-group">
               <label class="form-label" for="name">Mô tả sản phẩm</label>
@@ -262,8 +262,7 @@
                 :class="{
                   'is-invalid': errors.publisherYear,
                   'is-valid':
-                    !errors.publisherYear &&
-                    book.detail.publisherYear !== '',
+                    !errors.publisherYear && book.detail.publisherYear !== '',
                 }"
               />
               <ErrorMessage name="publisherYear" class="invalid-feedback" />
@@ -341,7 +340,7 @@
             </div>
           </div>
           <div class="row mt-4">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="form-label" for="originalPrice">Giá gốc</label>
                 <Field
@@ -354,14 +353,13 @@
                   :class="{
                     'is-invalid': errors.originalPrice,
                     'is-valid':
-                      !errors.originalPrice &&
-                      book.detail.originalPrice !== '',
+                      !errors.originalPrice && book.detail.originalPrice !== '',
                   }"
                 />
                 <ErrorMessage name="originalPrice" class="invalid-feedback" />
               </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="form-label" for="discountPrice"
                   >Giá khuyến mãi</label
@@ -376,11 +374,67 @@
                   :class="{
                     'is-invalid': errors.discountPrice,
                     'is-valid':
-                      !errors.discountPrice &&
-                      book.detail.discountPrice !== '',
+                      !errors.discountPrice && book.detail.discountPrice !== '',
                   }"
                 />
                 <ErrorMessage name="discountPrice" class="invalid-feedback" />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <div class="dropdown">
+                  <label class="form-label" for="priceRangeName"
+                    >Khoản giá</label
+                  >
+                  <Field
+                    class="form-control dropdown-toggle"
+                    type="text"
+                    name="priceRangeName"
+                    id="priceRangeName"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    placeholder="Nhập tên khoản giá"
+                    @focus="showDropdown = true"
+                    v-model="searchPriceRangeValue"
+                    :class="{
+                      'is-invalid':
+                        errors.priceRangeName ||
+                        (searchPriceRangeValue !== '' && !priceRangeID),
+                      'is-valid':
+                        !errors.priceRangeName && book.priceRangeID !== '',
+                    }"
+                  />
+                  <ul
+                    class="dropdown-menu"
+                    :class="{
+                      'd-none': priceRangeSelectedID,
+                    }"
+                    style="max-height: 200px; overflow: auto"
+                  >
+                    <li
+                      style="max-width: 300px"
+                      class="dropdown-item"
+                      v-for="(priceRange, index) in priceRangeOptions"
+                      :key="priceRange._id"
+                      @click="selectPriceRangeID(priceRange)"
+                    >
+                      {{ priceRange.startPrice }}đ - {{ priceRange.endPrice }}đ
+                    </li>
+                  </ul>
+                  <ErrorMessage
+                    name="priceRangeName"
+                    class="invalid-feedback"
+                  />
+                  <span
+                    v-if="
+                      !errors.priceRangeName &&
+                      searchPriceRangeValue !== '' &&
+                      !priceRangeID
+                    "
+                    style="color: #dc3545; font-size: 0.875em"
+                    >Vui lòng chọn khoản giá</span
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -445,6 +499,7 @@ export default {
         searchCategoryValue.value = response.data.categoryID.name;
         searchFormalityValue.value = response.data.formalityID.name;
         searchPublisherValue.value = response.data.publisherID.name;
+        searchPriceRangeValue.value = response.data.priceRangeID.name;
       }
     };
 
@@ -454,11 +509,12 @@ export default {
       publisherID: "",
       formalityID: "",
       authorID: "",
-      description: ""
+      description: "",
+      priceRangeID: "",
     });
 
     const updateBook = async () => {
-      const { valid } = await validate();
+      const { valid, errors } = await validate();
       if (!valid) {
         return;
       }
@@ -523,11 +579,19 @@ export default {
       itemID: formalityID,
     } = useDropdown("formalities", book.value.formalityID._id);
 
+    // Dropdown cho khoản giá
+    const {
+      searchValue: searchPriceRangeValue,
+      filteredOptions: priceRangeOptions,
+      selected: priceRangeSelectedID,
+      selectItem: selectPriceRangeID,
+      itemID: priceRangeID,
+    } = useDropdown("priceranges");
+
     // Theo dõi sự thay đổi của authorSelectedID
     watch(authorSelectedID, (newVal) => {
       if (newVal) {
         authorSelectedID.value = newVal;
-        console.log("Tác giả đã chọn + An dropdown: ", authorSelectedID.value);
       }
     });
 
@@ -535,10 +599,6 @@ export default {
     watch(categorySelectedID, (newVal) => {
       if (newVal) {
         categorySelectedID.value = newVal;
-        console.log(
-          "Danh mục đã chọn + An dropdown: ",
-          categorySelectedID.value
-        );
       }
     });
 
@@ -546,10 +606,6 @@ export default {
     watch(formalitySelectedID, (newVal) => {
       if (newVal) {
         formalitySelectedID.value = newVal;
-        console.log(
-          "Hình thức đã chọn + An dropdown: ",
-          formalitySelectedID.value
-        );
       }
     });
 
@@ -557,10 +613,13 @@ export default {
     watch(publisherSelectedID, (newVal) => {
       if (newVal) {
         publisherSelectedID.value = newVal;
-        console.log(
-          "nhà xuất bản đã chọn + An dropdown: ",
-          publisherSelectedID.value
-        );
+      }
+    });
+
+    // Theo dõi sự thay đổi của priceRangeSelectedID
+    watch(priceRangeSelectedID, (newVal) => {
+      if (newVal) {
+        priceRangeSelectedID.value = newVal;
       }
     });
 
@@ -568,7 +627,6 @@ export default {
     watch(authorID, (newVal) => {
       if (newVal) {
         data.value.authorID = newVal;
-        console.log("Tác giả đã chọn: ", newVal);
       }
     });
 
@@ -576,7 +634,6 @@ export default {
     watch(publisherID, (newVal) => {
       if (newVal) {
         data.value.publisherID = newVal;
-        console.log("Nhà xuất bản đã chọn: ", newVal);
       }
     });
 
@@ -584,7 +641,6 @@ export default {
     watch(categoryID, (newVal) => {
       if (newVal) {
         data.value.categoryID = newVal;
-        console.log("Hình thức đã chọn: ", newVal);
       }
     });
 
@@ -592,7 +648,13 @@ export default {
     watch(formalityID, (newVal) => {
       if (newVal) {
         data.value.formalityID = newVal;
-        console.log("Hình thức đã chọn: ", newVal);
+      }
+    });
+
+    // Theo dõi sự thay đổi của priceRangeID
+    watch(priceRangeID, (newVal) => {
+      if (newVal) {
+        data.value.priceRangeID = newVal;
       }
     });
 
@@ -601,6 +663,7 @@ export default {
       errors,
       updateBook,
       data,
+      updateBookSchema,
       // Authors
       searchAuthorValue,
       authorOptions,
@@ -625,6 +688,12 @@ export default {
       formalitySelectedID,
       selectFormalityID,
       formalityID,
+      // PriceRanges
+      searchPriceRangeValue,
+      priceRangeOptions,
+      priceRangeSelectedID,
+      selectPriceRangeID,
+      priceRangeID,
     };
   },
 };

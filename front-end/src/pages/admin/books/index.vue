@@ -24,7 +24,7 @@
                   autoWidth: true,
                   dom: 'lBfrtip',
                   buttons: buttons,
-                  language: language
+                  language: language,
                 }"
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
@@ -50,7 +50,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from "vue";
 import { useMenu } from "../../../stores/use-menu";
 import DataTable from "datatables.net-vue3";
@@ -74,59 +74,56 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
-export default {
-  components: {
-    DataTable,
+import { handleNavigate } from "@/utils/utils";
+
+const router = useRouter();
+const store = useMenu();
+store.onSelectedKeys(["admin-books-list"]);
+const authorService = new AuthorsService();
+const bookService = new BookService();
+const editedAuthor = ref({});
+const columns = [
+  {
+    data: null,
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${meta.row + 1}</div>`;
+    },
   },
-  setup() {
-    const router = useRouter();
-    const store = useMenu();
-    store.onSelectedKeys(["admin-books-list"]);
-    const authorService = new AuthorsService();
-    const bookService = new BookService();
-    const editedAuthor = ref({});
-    const columns = [
-      {
-        data: null,
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${meta.row + 1}</div>`;
-        },
-      },
-      {
-        data: "name",
-        width: '25%',
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
-        },
-      },
-      {
-        data: "categoryID.name",
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
-        },
-      },
-      {
-        data: "formalityID.name",
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
-        },
-      },
-      {
-        data: "publisherID.name",
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
-        },
-      },
-      {
-        data: "authorID.name",
-        render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
-        },
-      },
-      {
-        data: "_id",
-        render: (data, type, row, meta) => {
-          return `<div class="row">
+  {
+    data: "name",
+    width: "25%",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "categoryID.name",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "formalityID.name",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "publisherID.name",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "authorID.name",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "_id",
+    render: (data, type, row, meta) => {
+      return `<div class="row">
             <div class="col-sm-2 me-3">
                   <button type="button" id="viewDetail" class="btn btn-secondary" data-id=${data} data-bs-toggle="tooltip" 
                         data-bs-placement="top" data-bs-title="Tooltip on top">
@@ -144,79 +141,72 @@ export default {
                   </button>
               </div>
             </div>`;
-        },
-      },
-    ];
-
-    const books = ref([]);
-    const getBooks = async () => {
-      const response = await bookService.get("/");
-      if (response.status === 200) {
-        books.value = response.data;
-        console.log(response.data);
-      }
-    };
-
-    $(document).on("click", "#editBook", (event) => {
-      let bookId = $(event.currentTarget).data("id");
-      router.push({ name: "admin-books-edit", params: { bookID: bookId } });
-    });
-
-    $(document).on("click", "#viewDetail", async (event) => {
-      let bookId = $(event.currentTarget).data("id");
-      router.push({ name: "admin-books-edit-detail", params: { bookID: bookId } });
-    });
-
-    onMounted(() => {
-      getBooks();
-    });
-
-    // Bỏ cột thao tác trong bảng
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      {
-        extend: "copy",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "csv",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "pdf",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "print",
-        exportOptions: exportOptions,
-      },
-    ];
-    // Bỏ cột thao tác trong bảng
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
-
-    return {
-      getBooks,
-      books,
-      columns,
-      buttons,
-      language
-    };
+    },
   },
+];
+
+const books = ref([]);
+const getBooks = async () => {
+  const response = await bookService.get("/");
+  if (response.status === 200) {
+    books.value = response.data;
+    console.log(response.data);
+  }
+};
+
+$(document).on("click", "#editBook", (event) => {
+  let bookId = $(event.currentTarget).data("id");
+  router.push({ name: "admin-books-edit", params: { bookID: bookId } });
+});
+
+$(document).on("click", "#viewDetail", async (event) => {
+  let bookId = $(event.currentTarget).data("id");
+  router.push({
+    name: "admin-books-edit-detail",
+    params: { bookID: bookId },
+  });
+});
+
+onMounted(() => {
+  getBooks();
+});
+
+// Bỏ cột thao tác trong bảng
+const exportOptions = {
+  columns: ":not(:last-child)",
+};
+
+const buttons = [
+  {
+    extend: "copy",
+    exportOptions: exportOptions,
+  },
+  {
+    extend: "csv",
+    exportOptions: exportOptions,
+  },
+  {
+    extend: "pdf",
+    exportOptions: exportOptions,
+  },
+  {
+    extend: "print",
+    exportOptions: exportOptions,
+  },
+];
+// Bỏ cột thao tác trong bảng
+
+const language = {
+  search: "_INPUT_",
+  searchPlaceholder: "Tìm kiếm...",
+  lengthMenu: "Hiển thị _MENU_ hàng",
+  paginate: {
+    first: "Đầu tiên",
+    last: "Cuối cùng",
+    next: "Tiếp theo",
+    previous: "Trước đó",
+  },
+  info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
 };
 </script>
 <style>

@@ -10,7 +10,7 @@
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item class="fw-bold">Nhà xuất bản</a-breadcrumb-item>
         <a-breadcrumb-item
-          class="fw-bold breadcrumb-item-hover"
+          class="fw-bold hoverPointer"
           @click="handleNaviagte"
           >Danh sách</a-breadcrumb-item
         >
@@ -135,10 +135,11 @@ export default {
         if (!valid) {
           return;
         }
-        const response = await publisherService.put(
-          `/${publisherID}`,
-          publisher.value
-        );
+        const data = {
+          ...publisher.value,
+          method: "edit",
+        };
+        const response = await publisherService.put(`/${publisherID}`, data);
         if (response.status == 200) {
           toast(response.data.message, {
             theme: "auto",
@@ -175,7 +176,11 @@ export default {
 };
 </script>
 <style scoped>
-.breadcrumb-item-hover {
+.hoverPointer{
   cursor: pointer;
+}
+.hoverPointer:hover{
+  cursor: pointer;
+  color: black;
 }
 </style>

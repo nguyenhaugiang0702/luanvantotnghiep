@@ -16,8 +16,7 @@
       <span
         >Bạn sẽ được chuyển hướng về trang giỏ hàng sau
         <span class="text-primary">{{ countdown }} giây.</span>
-        </span
-      >
+      </span>
     </div>
   </div>
 </template>
@@ -26,6 +25,10 @@ import { ref, onMounted } from "vue";
 import { handleNavigate } from "@/utils/utils";
 const countdown = ref(10);
 onMounted(() => {
+  if (window.location.href.includes("?")) {
+    // Chuyển hướng lần nữa mà không có tham số URL
+    window.history.replaceState({}, document.title, "/thanks");
+  }
   const interval = setInterval(() => {
     if (countdown.value > 0) {
       countdown.value--;

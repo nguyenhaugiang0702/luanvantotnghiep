@@ -8,20 +8,21 @@
         <p class="my-2 fw-bold col-12 text-uppercase ms-2">/ Chi tiết</p>
       </div>
     </div>
-    <div class="row">
+    <div class="row row2col">
       <div class="col-md-5 bg-white sticky-side" ref="leftContainer">
         <!-- Thêm padding-right -->
         <Carousel
           id="gallery"
           :items-to-show="1"
-          :wrap-around="false"
+          :wrap-around="true"
           v-model="currentSlide"
         >
           <Slide v-for="(image, index) in book.images" :key="index">
             <div class="carousel__item">
-              <img
+              <a-image
                 :src="`${config.imgUrl}/` + image.path"
                 alt="Product Image"
+                style="width: 65%"
                 class="carousel-image"
               />
             </div>
@@ -36,11 +37,15 @@
           ref="carousel"
         >
           <Slide v-for="(image, index) in book.images" :key="index">
-            <div class="carousel__item" @click="slideTo(index)">
+            <div
+              class="carousel__item"
+              @click="slideTo(index)"
+              :class="{ 'active-thumbnail': index === currentSlide }"
+            >
               <img
                 :src="`${config.imgUrl}/` + image.path"
                 alt="Thumbnail"
-                class="thumbnail-image border border-dark me-2"
+                class="thumbnail-image border me-2"
               />
             </div>
           </Slide>
@@ -61,9 +66,9 @@
                   }}
                 </span>
                 <span class="text-decoration-line-through ms-2 fs-5">{{
-                  formatPrice(book.detail?.discountPrice)
+                  formatPrice(book.detail?.originalPrice)
                 }}</span>
-                -25%
+                <span class="ms-2 badge text-bg-danger">{{'-'+ book.discountPercent + '%'}} </span>
               </p>
               <div class="row">
                 <div class="col">
@@ -167,11 +172,13 @@
         </div>
       </div>
     </div>
+    <div class="row mt-3 bg-white"><Comment :bookID="bookID" /></div>
   </div>
 </template>
 
 <script setup>
 import BookService from "@/service/book.service";
+import CartService from "@/service/cart.service";
 import { formatPrice } from "@/utils/utils";
 import { ref, onMounted, computed, nextTick, inject, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -180,7 +187,7 @@ import { Carousel, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
-import CartService from "@/service/cart.service";
+import Comment from "./Comment.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -198,6 +205,7 @@ const rightContainer = ref(null);
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const updateCart = inject("updateCart");
+const visible = ref(false);
 
 // Chuyển động của ảnh
 const slideTo = (val) => {
@@ -247,12 +255,21 @@ const decreaseQuantity = () => {
 const toggleDescription = () => {
   isExpanded.value = !isExpanded.value;
   nextTick(() => {
-    // Cập nhật chiều cao của phần bên trái để đồng bộ với phần bên phải khi mở rộng hoặc thu gọn
-    const rightHeight = rightContainer.value?.scrollHeight || 0;
-    if (leftContainer.value) {
-      leftContainer.value.style.height = isExpanded.value
-        ? `${rightHeight}px`
-        : "656px";
+    const descriptionElement = document.querySelector(".description-container");
+    if (descriptionElement) {
+      if (isExpanded.value) {
+        // Cuộn đến mô tả khi mở rộng
+        descriptionElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        // Cuộn lên phần mô tả khi thu gọn
+        window.scrollTo({
+          top: descriptionElement.offsetTop,
+          behavior: "smooth",
+        });
+      }
     }
   });
   document
@@ -325,16 +342,30 @@ onMounted(() => {
   width: 90px;
   height: 110px;
   cursor: pointer;
+  border: 2px solid black !important;
+  border-radius: 5px;
+}
+
+.active-thumbnail .thumbnail-image {
+  border: 2px solid red !important;
+}
+
+.row2col {
+  display: flex;
+  flex-wrap: nowrap;
 }
 
 .sticky-side {
   position: sticky;
   top: 65px;
-  overflow: auto;
+  overflow-y: auto;
+  max-height: 656px;
 }
 
 .product-info {
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .description-container {
@@ -343,14 +374,14 @@ onMounted(() => {
 }
 
 .description-content {
-  max-height: 65px; /* Giới hạn chiều cao khi thu gọn */
+  max-height: 90px; /* Giới hạn chiều cao khi thu gọn */
   opacity: 1; /* Ẩn nội dung khi thu gọn */
   overflow: hidden; /* Ẩn phần nội dung ngoài chiều cao giới hạn */
   transition: max-height 0.5s ease, opacity 0.5s ease; /* Hiệu ứng mượt mà cho max-height và opacity */
 }
 
 .description-container.expanded .description-content {
-  max-height: 1000px; /* Đặt chiều cao đủ lớn để hiển thị toàn bộ nội dung */
+  max-height: none; /* Đặt chiều cao đủ lớn để hiển thị toàn bộ nội dung */
   opacity: 1; /* Hiển thị nội dung khi mở rộng */
   transition: max-height 0.5s ease, opacity 0.5s ease; /* Hiệu ứng mượt mà cho max-height và opacity */
 }
