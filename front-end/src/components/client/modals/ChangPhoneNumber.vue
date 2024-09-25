@@ -189,7 +189,7 @@ export default {
       }
       try {
         isLoadingUpdate.value = true;
-        const response = await userService.put(`/${token}`, userUpdate.value);
+        const response = await userService.put("/updatePhoneAndEmail", userUpdate.value);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           toast(response.data.message, {

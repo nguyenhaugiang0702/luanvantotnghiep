@@ -216,7 +216,7 @@ const booksInCart = ref({
 
 const getUser = async () => {
   if (token) {
-    const response = await userService.get(`/${token}`);
+    const response = await userService.get("/getInfoUser");
     if (response.status === 200) {
       userInfo.value = response.data;
     }

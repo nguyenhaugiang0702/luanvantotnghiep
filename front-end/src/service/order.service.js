@@ -1,52 +1,44 @@
-import axios from "axios";
-import Swal from "sweetalert2";
+// import axios from "axios";
+import axios from "../utils/axiosConfig.util";
 
 class OrderService {
   constructor() {
-    this.baseUrl = "http://localhost:3000/api/v1/orders";
+    this.baseUrl = "/orders";
   }
 
-  async get(endpoint, token) {
+  async get(endpoint) {
     const url = this.baseUrl + endpoint;
     const headers = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = "Bearer " + token;
-    }
+    
     return await axios.get(url, { headers });
   }
 
-  async post(endpoint, data, token) {
+  async post(endpoint, data) {
     const url = this.baseUrl + endpoint;
     const headers = {
       "Content-Type": "application/json",
     };
-    if (token != null) {
-      headers["Authorization"] = "Bearer " + token;
-    }
+   
     return await axios.post(url, data, { headers });
   }
 
-  async put(endpoint, data, token) {
+  async put(endpoint, data) {
     const url = this.baseUrl + endpoint;
     const headers = {
       "Content-Type": "application/json",
     };
-    if (token != null) {
-      headers["Authorization"] = "Bearer " + token;
-    }
+    
     return await axios.put(url, data, { headers });
   }
 
-  async delete(endpoint, token) {
+  async delete(endpoint) {
     const url = this.baseUrl + endpoint;
     const headers = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = "Bearer " + token;
-    }
+
     return await axios.delete(url, { headers });
   }
 }

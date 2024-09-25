@@ -7,3 +7,4 @@ export default {
     app.config.globalProperties.$appState = _appState;
   },
 };
+    

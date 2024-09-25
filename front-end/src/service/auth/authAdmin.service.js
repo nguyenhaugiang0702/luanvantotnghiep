@@ -1,19 +1,17 @@
-import axios from "axios";
-import Swal from "sweetalert2";
+// import axios from "axios";
+import axios from "../../utils/axiosConfig.util";
 
 class AuthAdminService {
   constructor() {
     this.baseUrl = "http://localhost:3000/api/v1/auth/admin";
   }
 
-  async get(endpoint, token) {
+  async get(endpoint) {
     const url = this.baseUrl + endpoint;
     const headers = {
       "Content-Type": "application/json",
     };
-    if (token) {
-      headers["Authorization"] = "Bearer " + token;
-    }
+    
     return await axios.get(url, { headers });
   }
 

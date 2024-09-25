@@ -181,12 +181,20 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch, watchEffect, inject, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  watchEffect,
+  inject,
+  nextTick,
+} from "vue";
 import AuthUserService from "@/service/auth/authUser.service";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
-import Cookies from "js-cookie";  
+import Cookies from "js-cookie";
 
 export default {
   setup() {
@@ -362,14 +370,17 @@ export default {
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response.status == 200) {
-          const token = response.data.accessToken;
+          const accessToken = response.data.accessToken;
+          const refreshToken = response.data.refreshToken;
           const isLoggedIn = response.data.isLoggedIn;
-          Cookies.set("accessToken", token, { expires: 365 });
-          Cookies.set("isLoggedIn", isLoggedIn, { expires: 365 });
+          Cookies.set("accessToken", accessToken);
+          Cookies.set("refreshToken", refreshToken);
+          Cookies.set("isLoggedIn", isLoggedIn);
           router.push({ name: "profile" });
-          window.location.href = '/customer/account/edit/';
+          window.location.href = "/customer/account/edit/";
         }
       } catch (error) {
+        console.log(error);
         const errorMessage = error.response?.data?.message;
         errors.value.password.passwordSignUp = errorMessage;
         toast(errorMessage, {

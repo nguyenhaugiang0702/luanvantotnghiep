@@ -134,7 +134,7 @@ export default {
     const getCarts = async () => {
       const token = Cookies.get("accessToken");
       if (token) {
-        const response = await cartService.get("/", token);
+        const response = await cartService.get("/");
         if (response.status === 200) {
           booksInCart.value = response.data;
           if (response.data.books.length === 0) {
@@ -162,7 +162,7 @@ export default {
           },
         ],
       };
-      const response = await cartService.post("/", data, token);
+      const response = await cartService.post("/", data);
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
@@ -182,7 +182,7 @@ export default {
             },
           ],
         };
-        const response = await cartService.post("/", data, token);
+        const response = await cartService.post("/", data);
         if (response.status === 200) {
           await getCarts();
           updateCart.value += 1;
@@ -214,7 +214,7 @@ export default {
           },
         ],
       };
-      const response = await cartService.post("/", data, token);
+      const response = await cartService.post("/", data);
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
@@ -227,7 +227,7 @@ export default {
           title: "Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?",
         });
         if (isConfirmed.isConfirmed) {
-          const response = await cartService.delete(`/${bookID}`, token);
+          const response = await cartService.delete(`/${bookID}`);
           if (response.status == 200) {
             await getCarts();
             updateCart.value += 1;
@@ -237,7 +237,7 @@ export default {
     };
 
     const toggleSelectAll = async () => {
-      const response = await cartService.put("/checkAll", {}, token);
+      const response = await cartService.put("/checkAll", {});
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
@@ -251,7 +251,7 @@ export default {
           title: "Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?",
         });
         if (isConfirmed.isConfirmed) {
-          const response = await cartService.delete("/", token);
+          const response = await cartService.delete("/");
           if (response.status == 200) {
             getCarts();
             updateCart.value += 1;
@@ -261,7 +261,7 @@ export default {
     };
 
     const handleCheckboxChange = async (bookID) => {
-      const response = await cartService.put(`/${bookID}`, {}, token);
+      const response = await cartService.put(`/${bookID}`, {});
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;

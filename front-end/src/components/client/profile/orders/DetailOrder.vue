@@ -146,7 +146,7 @@ const orderDetail = ref({
   ],
 });
 const getOrderDetail = async () => {
-  const response = await orderService.get(`/detail/${orderID.value}`, token);
+  const response = await orderService.get(`/detail/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
     console.log(response.data);

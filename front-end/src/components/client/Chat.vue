@@ -86,6 +86,8 @@ const newMessage = ref("");
 const messages = ref([]); // Khởi tạo danh sách tin nhắn rỗng
 const chatRoomId = ref(""); // Khởi tạo chatRoomId rỗng
 const token = Cookies.get("accessToken");
+const isLoggedIn = Cookies.get("isLoggedIn");
+
 const chatContainer = ref(null);
 //
 const chatsService = new ChatsService();
@@ -105,7 +107,7 @@ const sendMessage = () => {
 };
 
 const checkRoomChat = async () => {
-  const response = await chatsService.get("/checkRoomChat", token);
+  const response = await chatsService.get("/checkRoomChat");
   if (response.status === 200) {
     chatRoomId.value = response.data.chatRoomID;
   }

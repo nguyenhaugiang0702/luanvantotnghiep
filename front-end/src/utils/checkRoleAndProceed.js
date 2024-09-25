@@ -5,13 +5,13 @@ import AuthUserService from "@/service/auth/authUser.service";
 
 // Hàm kiểm tra quyền admin và cho phép truy cập nếu đúng quyền
 const checkAdminAccess = async (to, from, next) => {
-  const token = Cookies.get("accessToken");
+  // const token = Cookies.get("accessToken");
   const isLoggedIn = Cookies.get("isLoggedIn");
 
-  if (token && isLoggedIn) {
+  if (isLoggedIn) {
     const authAdminService = new AuthAdminService();
     try {
-      const response = await authAdminService.get("/checkRole", token);
+      const response = await authAdminService.get("/checkRole");
 
       if (response.data.role === "admin") {
         return next(); // Cho phép truy cập nếu role là admin
@@ -28,15 +28,16 @@ const checkAdminAccess = async (to, from, next) => {
 
 // Hàm kiểm tra đăng nhập và điều hướng đến trang admin nếu đúng quyền
 const checkLoginAndRedirect = async (to, from, next) => {
-  const token = Cookies.get("accessToken");
+  // const token = Cookies.get("accessToken");
   const isLoggedIn = Cookies.get("isLoggedIn");
 
-  if (token && isLoggedIn) {
+  if (isLoggedIn) {
     const authUserService = new AuthUserService();
     try {
-      const response = await authUserService.get("/checkRole", token);
+      const response = await authUserService.get("/checkRole");
 
       if (response.data.role === "customer") {
+        console.log(1);
         next();
       } else {
         next({ name: "notfound" });

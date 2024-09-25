@@ -279,7 +279,7 @@ export default {
       dayOfBirthday: "",
       monthOfBirthday: "",
       yearOfBirthday: "",
-      avatar: ""
+      avatar: "",
     });
     const isLoadingUpdate = ref(false);
 
@@ -288,7 +288,7 @@ export default {
     });
 
     const getUser = async () => {
-      const response = await userService.get(`/${token}`);
+      const response = await userService.get("/getInfoUser");
       if (response?.status === 200) {
         const dobMoment = moment(response.data.dob, "DD/MM/YYYY");
         user.value.dayOfBirthday = dobMoment.date(); // Ngày
@@ -339,11 +339,7 @@ export default {
             formData.append(key, user.value[key]);
           }
         });
-        const response = await userService.put(
-          `/updateProfile/${token}`,
-          formData,
-          null
-        );
+        const response = await userService.put("/updateProfile/", formData);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           toast(response.data.message, {

@@ -85,7 +85,7 @@
           </span>
         </template>
         <a-menu-item
-          key="admin-chats"
+          key="admin-publishers-add"
           @click="navigateTo('admin-publishers-add')"
           >Thêm</a-menu-item
         >

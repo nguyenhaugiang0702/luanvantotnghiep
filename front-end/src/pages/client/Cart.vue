@@ -68,11 +68,10 @@ const selectedBooks = ref({
   totalQuantity: 0,
   totalPrice: 0,
 });
-const token = Cookies.get("accessToken");
 const cartService = new CartService();
 const updateCart = inject("updateCart");
 const getCartsWithCheckbox = async () => {
-  const response = await cartService.get("/booksCheckBox", token);
+  const response = await cartService.get("/booksCheckBox");
   if (response.status === 200) {
     selectedBooks.value = response.data;
   }
