@@ -44,9 +44,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  accessToken: {
+  refreshToken: {
     type: String,
-    required: false,
+    default: null,
   },
   image: {
     type: String,
@@ -60,9 +60,9 @@ const userSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
-  role:{
-    type: String
-  }
+  role: {
+    type: String,
+  },
 });
 
 const User = mongoose.model("User", userSchema);

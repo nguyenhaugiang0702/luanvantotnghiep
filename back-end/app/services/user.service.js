@@ -81,6 +81,10 @@ const checkPhoneNumberExist = async (phoneNumber) => {
   return await User.findOne({ phoneNumber: phoneNumber });
 };
 
+const saveRefreshToken = async (userId, refreshToken) => {
+  await User.findByIdAndUpdate(userId, { refreshToken });
+};
+
 module.exports = {
   createUser,
   getUserById,
@@ -92,4 +96,5 @@ module.exports = {
   deleteUserAccount,
   checkEmailExist,
   checkPhoneNumberExist,
+  saveRefreshToken,
 };

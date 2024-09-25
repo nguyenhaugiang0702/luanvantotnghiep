@@ -9,8 +9,12 @@ const jwt = require("../../middlewares/jwt.middleware");
 router.route("/").post(authUser.login);
 router.route("/createOTP").post(authUser.createOTP);
 router.route("/signUp/verifyOTP").post(authUser.signUpVerify);
-router.route("/checkRole").get(jwt.authenticateTokenFromHeader, authUser.checkRole);
-
+router
+  .route("/checkRole")
+  .get(jwt.authenticateTokenFromHeader, authUser.checkRole);
+router
+  .route("/refreshToken")
+  .post(jwt.authenticateTokenFromHeader, authUser.refreshToken);
 
 ///////////////
 // router.route("/facebook").get(

@@ -5,6 +5,7 @@ const ApiError = require("../api-error");
 function authenticateTokenFromHeader(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
+
   if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
@@ -15,7 +16,7 @@ function authenticateTokenFromHeader(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.user = user;
+    req.user = { ...user, token };
     next();
   });
 }
@@ -92,5 +93,5 @@ module.exports = {
   authenticateTokenFromHeader,
   authenticateTokenFromParams,
   authenticateTokenFromParamsWithEmail,
-  authenticateToken
+  authenticateToken,
 };

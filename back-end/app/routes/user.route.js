@@ -6,17 +6,19 @@ const upload = require("../utils/multer.util");
 const router = express.Router();
 
 router
-  .route("/:token")
-  .get(authenticateToken.authenticateTokenFromParams, users.findOne)
+  .route("/getInfoUser")
+  .get(authenticateToken.authenticateTokenFromHeader, users.findOne);
+router
+  .route("/updatePhoneAndEmail")
   .put(
-    authenticateToken.authenticateTokenFromParams,
+    authenticateToken.authenticateTokenFromHeader,
     upload.single("avatar"),
     users.update
   )
   .delete(users.delete);
 router
-  .route("/updateProfile/:token")
-  .put(authenticateToken.authenticateTokenFromParams, users.updateProfile);
+  .route("/updateProfile")
+  .put(authenticateToken.authenticateTokenFromHeader, users.updateProfile);
 router
   .route("/changePassword/:token")
   .put(authenticateToken.authenticateTokenFromParams, users.changePassword);

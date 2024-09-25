@@ -40,7 +40,7 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       amount: req.body.totalPrice,
       description: `Lazada - Payment for the order`,
       bank_code: "zalopayapp",
-      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?usserID=${userID}`,
+      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?userID=${userID}`,
     };
 
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item

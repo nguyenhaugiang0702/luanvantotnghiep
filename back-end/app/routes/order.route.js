@@ -12,13 +12,14 @@ router
   .route("/")
   .post(jwt.authenticateTokenFromHeader, order.create)
   .get(order.findAllByAdmin);
+router
+  .route("/getAll")
+  .get(jwt.authenticateTokenFromHeader, order.findAllOrdersByUserID); // Lấy tất cả đơn hàng của khách hàng
 router.route("/:orderID").get(order.findOneByAdmin);
 router
   .route("/detail/:orderID")
   .get(jwt.authenticateTokenFromHeader, order.findOne); // Chi tiết đơn hàng khách hàng
-router
-  .route("/getAll/:token")
-  .get(jwt.authenticateTokenFromParams, order.findAllOrdersByUserID); // Lấy tất cả đơn hàng của khách hàng
+
 router
   .route("/updateStatus/:orderID")
   .put(jwt.authenticateTokenFromHeader, order.updateStatusByCustomer); // Cập nhật trạng thái bên customer
