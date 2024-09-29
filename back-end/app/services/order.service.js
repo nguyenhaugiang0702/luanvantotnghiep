@@ -97,52 +97,9 @@ const updateStatus = async (orderID, status) => {
   return order;
 };
 
-const generateMRefundId = () => {
-  const date = new Date();
-  const yymmdd =
-    date.getFullYear().toString().substr(-2) +
-    (date.getMonth() + 1).toString().padStart(2, "0") +
-    date.getDate().toString().padStart(2, "0");
-  const randomPart = Math.random().toString(36).substr(2, 9);
-  return `${yymmdd}_${config.zalopay.app_id}_${randomPart}`;
-};
-
-const refundOrder = async (zp_trans_id, amount, description) => {
-  try {
-    const params = {
-      app_id: config.zalopay.app_id,
-      m_refund_id: generateMRefundId(),
-      zp_trans_id,
-      amount,
-      timestamp: Date.now(),
-      description,
-    };
-
-    // Tạo chuỗi mac
-    const hmac_input = `${params.app_id}|${params.zp_trans_id}|${params.amount}|${params.description}|${params.timestamp}`;
-
-    params.mac = CryptoJS.HmacSHA256(
-      hmac_input,
-      config.zalopay.key1
-    ).toString();
-
-    console.log("Refund params:", params);
-
-    const response = await axios.post(
-      "https://sb-openapi.zalopay.vn/v2/refund",
-      null,
-      { params }
-    );
-
-    console.log("Refund response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Refund error:",
-      error.response ? error.response.data : error.message
-    );
-    throw new Error("Lỗi khi hoàn tiền qua ZaloPay");
-  }
+const hasUserPurchasedBook = async (userID, bookID) => {
+  const order = await Order.findOne({ userID: userID, "detail.bookID": bookID });
+  return order ? true : false;
 };
 
 module.exports = {
@@ -154,6 +111,6 @@ module.exports = {
   updateStatus,
   getOrderByIDAndUserID,
   getAllOrdersByAdmin,
-  refundOrder,
   updateOrderById,
+  hasUserPurchasedBook
 };

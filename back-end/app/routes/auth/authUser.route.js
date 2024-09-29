@@ -6,16 +6,24 @@ const router = express.Router();
 require("../../passport");
 const jwt = require("../../middlewares/jwt.middleware");
 const validation = require("../../middlewares/validateUser.middelware");
+const authenticateToken = require("../../middlewares/jwt.middleware");
 
 router.route("/login").post(validation.loginUserValidation, authUser.login); // Đăng nhập (validated)
 router
-  .route("/register") 
+  .route("/register")
   .post(validation.registerUserValidation, authUser.register); // Đăng ký (validated)
 router
-  .route("/forgotPassword") 
+  .route("/forgotPassword")
   .post(validation.forgotPasswordValidation, authUser.forgotPassword); // Quên mật khẩu (validated)
 router.route("/createOTP").post(authUser.createOTP); // Tạo OTP
 router.route("/register/verifyOTP").post(authUser.verifyOTP); // Xác thực OTP (validated)
+router
+  .route("/changePassword")
+  .put(
+    authenticateToken.authenticateTokenFromHeader,
+    validation.changePasswordValidation,
+    authUser.changePassword
+  );
 router
   .route("/checkRole")
   .get(jwt.authenticateTokenFromHeader, authUser.checkRole); // Check Role

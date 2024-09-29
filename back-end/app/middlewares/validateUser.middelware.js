@@ -27,3 +27,21 @@ exports.forgotPasswordValidation = async (req, res, next) => {
     return next(new ApiError(400, err.message));
   }
 };
+
+exports.changePasswordValidation = async (req, res, next) => {
+  try {
+    await schema.changePasswordSchema.validate(req.body);
+    next();
+  } catch (err) {
+    return next(new ApiError(400, err.message));
+  }
+};
+
+exports.updateUserValidation = async (req, res, next) => {
+  try {
+    await schema.updateUserSchema.validate(req.body);
+    next();
+  } catch (err) {
+    return next(new ApiError(400, err.message));
+  }
+};

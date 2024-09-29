@@ -62,24 +62,19 @@ exports.login = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
   try {
-    console.log(req.body);
-    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    // req.body.password = hashedPassword;
-    // req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
-    // req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
-    // req.body.isActive = 1;
-    // req.body.typeLogin = "SMS";
-    // const newUser = await userService.createUser(req.body);
-    // const accessToken = jwt.sign(
-    //   { _id: newUser._id },
-    //   "my_secret_key_with_email_to_active"
-    // );
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    req.body.password = hashedPassword;
+    req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.isActive = 1;
+    req.body.typeLogin = "SMS";
+    req.body.role = "customer";
+    const newUser = await userService.createUser(req.body);
 
-    // return res.send({
-    //   message: "Đăng ký thành công!",
-    //   newUser,
-    //   accessToken,
-    // });
+    return res.send({
+      message: "Đăng ký thành công!",
+      newUser,
+    });
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi đăng ký tài khoản!"));
@@ -104,6 +99,28 @@ exports.forgotPassword = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại sau!"));
+  }
+};
+
+exports.changePassword = async (req, res, next) => {
+  const userID = req.user.id;
+  const { currentPassword, newPassword, cfNewPassword } = req.body;
+  try {
+    const user = await userService.getUserById(userID);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      return next(new ApiError(400, "Mật khẩu hiện tại không đúng"));
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await userService.updateUser(userID, {
+      password: hashedNewPassword,
+    });
+    return res.send({
+      message: "Đổi mật khẩu thành công",
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đổi mật khẩu"));
   }
 };
 

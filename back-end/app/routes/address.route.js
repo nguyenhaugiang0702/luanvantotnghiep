@@ -6,21 +6,21 @@ const jwt = require("../middlewares/jwt.middleware");
 
 router
   .route("/")
-  .get(jwt.authenticateTokenFromHeader, address.findAll)
+  .get(jwt.authenticateTokenFromHeader, address.findAll) // Lấy tất cả địa chỉ
   .post(
     validation.createAddressValidation,
     jwt.authenticateTokenFromHeader,
     address.create
-  );
+  ); // Thêm địa chỉ mới (validated)
 
 router
   .route("/:addressID")
-  .get(jwt.authenticateTokenFromHeader, address.findOne)
+  .get(jwt.authenticateTokenFromHeader, address.findOne) // Chi tiết địa chỉ
   .put(
     validation.createAddressValidation,
     jwt.authenticateTokenFromHeader,
     address.update
-  )
-  .delete(jwt.authenticateTokenFromHeader, address.delete);
+  ) // Cập nhật địa chỉ (validated)
+  .delete(jwt.authenticateTokenFromHeader, address.delete); // Xóa địa chỉ
 
 module.exports = router;

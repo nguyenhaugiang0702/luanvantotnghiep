@@ -71,12 +71,22 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   const userID = req.user.id;
-  const { newPhoneNumber, otpSMS, otpEmail, userData, email } = req.body;
-  const avatar = req.file ? req.file.filename : null;
+  const { newPhoneNumber, otpSMS, otpEmail, email } = req.body;
+  const phoneRegex = /^0\d{9}$/;
+  const otpRegex = /^\d{6}$/;
+
+  if (newPhoneNumber && !phoneRegex.test(newPhoneNumber)) {
+    return next(new ApiError(400, "Số điện thoại không hợp lệ"));
+  }
+  if (
+    (otpSMS && !otpRegex.test(otpSMS)) ||
+    (otpEmail && !otpRegex.test(otpEmail))
+  ) {
+    return next(new ApiError(400, "Mã OTP không hợp lệ"));
+  }
   try {
-    console.log(req.body);
-    // Update Phone Number
     if (newPhoneNumber && otpSMS) {
+      // Update Phone Number
       const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
         newPhoneNumber,
         otpSMS
@@ -94,13 +104,6 @@ exports.update = async (req, res, next) => {
       const userUpdate = await userService.updateUser(userID, req.body);
       return res.send({
         message: "Cập nhật thành công",
-        userUpdate,
-      });
-    } else if (userData) {
-      // Update firstName, lastName, gender and dob
-      const userUpdate = await userService.updateUser(userID, userData);
-      return res.send({
-        message: "Cập nhât thành công",
         userUpdate,
       });
     } else if (email && otpEmail) {
@@ -164,36 +167,6 @@ exports.updateProfile = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi cập nhật profile"));
-  }
-};
-
-exports.changePassword = async (req, res, next) => {
-  const userID = req.user.id;
-  try {
-    const user = await userService.getUserById(userID);
-    const isMatch = await bcrypt.compare(
-      req.body.currentPassword,
-      user.password
-    );
-    console.log(req.body);
-
-    if (!isMatch) {
-      return next(new ApiError(400, "Mật khẩu hiện tại không đúng"));
-    }
-    if (req.body.newPassword != req.body.cfNewPassword) {
-      return next(
-        new ApiError(400, "Mật khẩu mới và mật khẩu xác nhận không đúng")
-      );
-    }
-    const hashedNewPassword = await bcrypt.hash(req.body.newPassword, 10);
-    await userService.updateUser(userID, {
-      password: hashedNewPassword,
-    });
-    return res.send({
-      message: "Đổi mật khẩu thành công",
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi đổi mật khẩu"));
   }
 };
 
