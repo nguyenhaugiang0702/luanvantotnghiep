@@ -1,13 +1,26 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="d-flex justify-content-start">
-        <router-link :to="{ name: 'home' }">
-          <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
-        </router-link>
-        <p class="my-2 fw-bold col-12 text-uppercase ms-2">/ Chi tiết</p>
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
+      >
+        <div class="d-flex flex-column mb-3 mb-md-0">
+          <div class="fw-bold text-uppercase fs-5">Chi tiết</div>
+          <div>
+            Thông tin chi tiết của <span class="fw-bold">{{ book.name }}</span>
+          </div>
+        </div>
+        <div class="align-self-md-center">
+          <div>
+            <span @click="handleNavigate(router, 'home')">Trang chủ</span>
+            /<span @click="handleNavigate(router, 'books')"> Cửa hàng</span> /
+            <span>Chi tiết</span>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+  <div class="container py-4">
     <div class="row row2col">
       <div class="col-md-5 bg-white sticky-side" ref="leftContainer">
         <!-- Thêm padding-right -->
@@ -68,7 +81,9 @@
                 <span class="text-decoration-line-through ms-2 fs-5">{{
                   formatPrice(book.detail?.originalPrice)
                 }}</span>
-                <span class="ms-2 badge text-bg-danger">{{'-'+ book.discountPercent + '%'}} </span>
+                <span class="ms-2 badge text-bg-danger"
+                  >{{ "-" + book.discountPercent + "%" }}
+                </span>
               </p>
               <div class="row">
                 <div class="col">
@@ -179,7 +194,7 @@
 <script setup>
 import BookService from "@/service/book.service";
 import CartService from "@/service/cart.service";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, nextTick, inject, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import config from "@/config/index";
@@ -357,7 +372,7 @@ onMounted(() => {
 
 .sticky-side {
   position: sticky;
-  top: 65px;
+  top: 35px;
   overflow-y: auto;
   max-height: 656px;
 }
@@ -384,5 +399,30 @@ onMounted(() => {
   max-height: none; /* Đặt chiều cao đủ lớn để hiển thị toàn bộ nội dung */
   opacity: 1; /* Hiển thị nội dung khi mở rộng */
   transition: max-height 0.5s ease, opacity 0.5s ease; /* Hiệu ứng mượt mà cho max-height và opacity */
+}
+
+/* Media Query cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .row2col {
+    flex-direction: column; /* Sắp xếp lại theo chiều dọc khi màn hình nhỏ */
+  }
+
+  .sticky-side {
+    max-height: none; /* Bỏ giới hạn chiều cao cho màn hình nhỏ */
+    position: relative; /* Đổi lại vị trí */
+    top: -10px;
+  }
+
+  .product-info {
+    margin-top: 10px; /* Thêm khoảng cách giữa hai cột */
+  }
+
+  .description-container {
+    max-height: none; /* Bỏ giới hạn chiều cao cho mô tả khi thu gọn */
+  }
+
+  .description-content {
+    max-height: 300px; /* Cho phép chiều cao lớn hơn khi mở rộng */
+  }
 }
 </style>

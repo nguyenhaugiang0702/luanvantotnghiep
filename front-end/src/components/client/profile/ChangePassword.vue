@@ -64,7 +64,10 @@
                 v-model="user.newPassword"
               />
             </div>
-            <div class="col-auto btn btn-outline-secondary btn-sm d-flex align-items-center" @click="handleShowNewPassword">
+            <div
+              class="col-auto btn btn-outline-secondary btn-sm d-flex align-items-center"
+              @click="handleShowNewPassword"
+            >
               <i
                 :class="['fa', showNewPassword ? 'fa-eye-slash' : 'fa-eye']"
               ></i>
@@ -130,6 +133,7 @@
 
 <script>
 import UserService from "@/service/user.service";
+import AuthUserService from "@/service/auth/authUser.service";
 import { changePasswordSchema } from "@/utils/schema.util";
 import Cookies from "js-cookie";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -143,11 +147,12 @@ export default {
     ErrorMessage,
   },
   setup() {
-    const { errors, validate } = useForm({
+    const { errors, validate, resetForm } = useForm({
       validationSchema: changePasswordSchema,
     });
     const isLoading = ref(false);
     const userService = new UserService();
+    const authUserService = new AuthUserService();
     const token = Cookies.get("accessToken");
     const user = ref({
       currentPassword: "",
@@ -165,8 +170,8 @@ export default {
       }
       try {
         isLoading.value = true;
-        const response = await userService.put(
-          `/changePassword/${token}`,
+        const response = await authUserService.put(
+          "/changePassword",
           user.value
         );
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -177,6 +182,7 @@ export default {
             type: "success",
             dangerouslyHTMLString: true,
           });
+          resetForm();
         }
         return;
       } catch (error) {

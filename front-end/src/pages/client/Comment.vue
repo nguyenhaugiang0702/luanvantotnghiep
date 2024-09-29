@@ -145,6 +145,7 @@ const value = ref(0);
 const desc = ref(["terrible", "bad", "normal", "good", "wonderful"]);
 const commentService = new CommentService();
 const token = Cookies.get("accessToken");
+const isLoggedIn = Cookies.get("isLoggedIn");
 const comments = ref([]);
 const props = defineProps({
   bookID: String,
@@ -176,6 +177,14 @@ const newComment = ref({
 
 // Thêm bình luận mới
 const addComment = async () => {
+  if(!token || !isLoggedIn){
+    toast("Vui lòng đăng nhập để đánh giá", {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+    return ;
+  }
   if (newComment.value.content && newComment.value.rating > 0) {
     const formData = new FormData();
     formData.append("fileType", "comment");

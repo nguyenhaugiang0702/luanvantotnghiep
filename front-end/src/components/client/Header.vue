@@ -236,12 +236,12 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li>
-                    <router-link to="login" class="dropdown-item">
+                    <router-link to="/login" class="dropdown-item">
                       Đăng Nhập
                     </router-link>
                   </li>
                   <li>
-                    <router-link to="register" class="dropdown-item">
+                    <router-link to="/register" class="dropdown-item">
                       Đăng Ký
                     </router-link>
                   </li>
@@ -415,10 +415,12 @@ const signOut = () => {
 };
 
 const getCarts = async () => {
-  const response = await cartService.get("/");
-  if (response.status === 200) {
-    booksInCart.value = response.data;
-    console.log(response.data);
+  if (token) {
+    const response = await cartService.get("/");
+    if (response.status === 200) {
+      booksInCart.value = response.data;
+      console.log(response.data);
+    }
   }
 };
 

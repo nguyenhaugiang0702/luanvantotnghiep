@@ -159,6 +159,7 @@ export default {
         }
         const data = {
           phoneNumber: userUpdate.value.newPhoneNumber,
+          method: "changePhoneNumber"
         };
 
         const response = await authService.post("/createOTP", data);

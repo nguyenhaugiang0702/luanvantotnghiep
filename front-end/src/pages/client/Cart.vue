@@ -1,19 +1,19 @@
 <template>
   <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-column">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+        <div class="d-flex flex-column mb-3 mb-md-0">
           <div class="fw-bold text-uppercase fs-5">Giỏ hàng</div>
           <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
         </div>
-        <div>
+        <div class="align-self-md-center">
           <span @click="handleNavigate(router, 'home')">Trang chủ </span>
           <span>/ Giỏ hàng</span>
         </div>
       </div>
     </div>
   </div>
-  <div class="container mt-4">
+  <div class="container py-4">
     <div class="row" v-if="selectedBooks.bookInCart.length === 0">
       <EmptyCart />
     </div>

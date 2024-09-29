@@ -1,12 +1,14 @@
 <template>
   <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-column">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
+      >
+        <div class="d-flex flex-column mb-3 mb-md-0">
           <div class="fw-bold text-uppercase fs-5">Đăng nhập</div>
           <div>Chào mừng bạn đến với NHG BOOKSTORE</div>
         </div>
-        <div>
+        <div class="align-self-md-center">
           <span @click="handleNavigate(router, 'home')">Trang chủ </span>
           <span>/ Đăng nhập</span>
         </div>
@@ -86,16 +88,22 @@
                           role="status"
                           aria-hidden="true"
                         ></span>
-                        <span class="text-white" v-else>
-                          Đăng nhập
-                        </span>
+                        <span class="text-white" v-else> Đăng nhập </span>
                       </button>
                     </div>
 
-                    <a class="small text-muted" href="/forgotPassword">Quên mật khẩu?</a>
+                    <router-link
+                      class="small text-muted"
+                      :to="{ name: 'forgotPassword' }"
+                      >Quên mật khẩu?</router-link
+                    >
                     <p class="mb-5" style="color: #393f81">
                       Bạn chưa có tài khoản?
-                      <a href="/register" style="color: #393f81">Đăng ký</a>
+                      <router-link
+                        :to="{ name: 'register' }"
+                        style="color: #393f81"
+                        >Đăng ký</router-link
+                      >
                     </p>
                   </form>
                 </div>

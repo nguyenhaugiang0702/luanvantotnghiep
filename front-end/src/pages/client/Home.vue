@@ -1,12 +1,12 @@
 <template>
   <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-column">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+        <div class="d-flex flex-column mb-3 mb-md-0">
           <div class="fw-bold text-uppercase fs-5">Trang chủ</div>
           <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
         </div>
-        <div> <span>Trang chủ </span></div>
+        <div class="align-self-md-center"><span>Trang chủ </span></div>
       </div>
     </div>
   </div>

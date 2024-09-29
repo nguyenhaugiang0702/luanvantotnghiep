@@ -422,7 +422,7 @@ const placeOrder = async (orderData) => {
         dangerouslyHTMLString: true,
       });
       updateCart.value += 1;
-      router.push({ name: "cart" });
+      router.push({ name: "thanks" });
     }
   } catch (error) {
     toast("Đã xảy ra lỗi khi xác nhận đơn hàng", {

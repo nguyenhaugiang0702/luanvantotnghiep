@@ -14,7 +14,12 @@
             alt=""
             class="avt"
           />
-          <input type="file" class="my-4 mx-2" @change="handleChangeFile" />
+          <input
+            type="file"
+            ref="fileInput"
+            class="my-4 mx-2"
+            @change="handleChangeFile"
+          />
         </div>
         <div class="col-12 col-md-9">
           <div class="form-group row mx-2">
@@ -162,63 +167,20 @@
           <div class="form-group row mt-4 mx-2">
             <label for="birthday" class="col-3">Birthday*</label>
             <div class="col-8">
-              <div class="row">
-                <div class="col">
-                  <Field
-                    type="text"
-                    :class="{
-                      'form-control': true,
-                      'is-invalid': errors.dayOfBirthday,
-                      'is-valid':
-                        !errors.dayOfBirthday && user.dayOfBirthday !== '',
-                    }"
-                    placeholder="DD"
-                    name="dayOfBirthday"
-                    v-model="user.dayOfBirthday"
-                  />
-                </div>
-                <div class="col">
-                  <Field
-                    type="text"
-                    :class="{
-                      'form-control': true,
-                      'is-invalid': errors.monthOfBirthday,
-                      'is-valid':
-                        !errors.monthOfBirthday && user.monthOfBirthday !== '',
-                    }"
-                    placeholder="MM"
-                    name="monthOfBirthday"
-                    v-model="user.monthOfBirthday"
-                  />
-                </div>
-                <div class="col">
-                  <Field
-                    type="text"
-                    :class="{
-                      'form-control': true,
-                      'is-invalid': errors.yearOfBirthday,
-                      'is-valid':
-                        !errors.yearOfBirthday && user.yearOfBirthday !== '',
-                    }"
-                    placeholder="YYYY"
-                    name="yearOfBirthday"
-                    v-model="user.yearOfBirthday"
-                  />
-                </div>
-              </div>
-              <div class="row mx-2">
-                <ErrorMessage
-                  class="invalid-feedback d-block"
-                  name="dayOfBirthday"
+              <div class="col">
+                <Field
+                  type="text"
+                  id="formatDOB"
+                  :class="{
+                    'form-control': true,
+                    'is-invalid': errors.dob,
+                    'is-valid': !errors.dob && user.dob !== '',
+                  }"
+                  placeholder="DD/MM/YYYY || ngày/tháng/năm"
+                  name="dob"
+                  v-model="user.dob"
                 />
-                <ErrorMessage
-                  class="invalid-feedback d-block"
-                  name="monthOfBirthday"
-                />
-                <ErrorMessage
-                  class="invalid-feedback d-block"
-                  name="yearOfBirthday"
-                />
+                <ErrorMessage class="invalid-feedback" name="dob" />
               </div>
             </div>
           </div>
@@ -254,10 +216,10 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { updateUserSchema } from "@/utils/schema.util";
 import ChangPhoneNumber from "../modals/ChangPhoneNumber.vue";
 import ChangeEmail from "../modals/ChangeEmail.vue";
-
 import UserService from "@/service/user.service";
 import moment from "moment";
-
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.css";
 export default {
   components: {
     Form,
@@ -269,19 +231,19 @@ export default {
   setup() {
     const token = Cookies.get("accessToken");
     const userService = new UserService();
-    const image = ref(null);
+    const image = ref("");
     const user = ref({
       firstName: "",
       lastName: "",
       phoneNumber: "",
       email: "",
       gender: "",
-      dayOfBirthday: "",
-      monthOfBirthday: "",
-      yearOfBirthday: "",
+      dob: "",
       avatar: "",
     });
     const isLoadingUpdate = ref(false);
+    const fileInput = ref(null);
+    const datepickerRef = ref(null);
 
     const { errors, validate, validateField } = useForm({
       validationSchema: updateUserSchema,
@@ -290,10 +252,6 @@ export default {
     const getUser = async () => {
       const response = await userService.get("/getInfoUser");
       if (response?.status === 200) {
-        const dobMoment = moment(response.data.dob, "DD/MM/YYYY");
-        user.value.dayOfBirthday = dobMoment.date(); // Ngày
-        user.value.monthOfBirthday = dobMoment.month() + 1; // Tháng (cần +1 vì month() trả về giá trị 0-11)
-        user.value.yearOfBirthday = dobMoment.year(); // Năm
         Object.assign(user.value, response.data);
       }
     };
@@ -310,31 +268,16 @@ export default {
         if (!valid) {
           return;
         }
-
-        // Định dạng ngày sinh
-        const dob = moment({
-          day: user.value.dayOfBirthday,
-          month: user.value.monthOfBirthday - 1, // Month is zero-indexed in moment.js
-          year: user.value.yearOfBirthday,
-        }).format("DD/MM/YYYY");
-        console.log(dob);
-        // Thêm dob vào formData trước
-        // Kiểm tra nếu người dùng đã chọn file avatar
         const formData = new FormData();
         formData.append("fileType", "avatar");
         if (image.value) {
           formData.append("avatar", image.value); // Thêm tệp ảnh
         }
-        formData.append("dob", dob);
         // Dùng vòng lặp để thêm các thuộc tính khác vào formData
         Object.keys(user.value).forEach((key) => {
           if (
-            key !== "dayOfBirthday" &&
-            key !== "monthOfBirthday" &&
-            key !== "yearOfBirthday" &&
             key !== "email" &&
-            key !== "phoneNumber" &&
-            key !== "dob"
+            key !== "phoneNumber"
           ) {
             formData.append(key, user.value[key]);
           }
@@ -348,7 +291,8 @@ export default {
             dangerouslyHTMLString: true,
           });
           getUser();
-          image.value = null;
+          image.value = "";
+          fileInput.value.value = "";
         }
       } catch (error) {
         toast(error.response?.data?.message, {
@@ -363,6 +307,9 @@ export default {
 
     onMounted(() => {
       getUser();
+      $("#formatDOB").flatpickr({
+        dateFormat: "d/m/Y",
+      });
     });
 
     return {
@@ -373,6 +320,8 @@ export default {
       getUser,
       image,
       handleChangeFile,
+      fileInput,
+      datepickerRef,
     };
   },
 };

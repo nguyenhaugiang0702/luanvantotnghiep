@@ -1,27 +1,24 @@
 <template>
   <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-column">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
+      >
+        <div class="d-flex flex-column mb-3 mb-md-0">
           <div class="fw-bold text-uppercase fs-5">Danh mục cửa hàng</div>
           <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
         </div>
-        <div> <span @click="handleNavigate(router, 'home')">Trang chủ </span> <span>/ Cửa hàng</span></div>
+        <div class="align-self-md-center">
+          <div>
+            <span @click="handleNavigate(router, 'home')">Trang chủ </span>
+            <span>/ Cửa hàng</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container mt-4">
-    <!-- <div class="row">
-      <div class="d-flex mx-auto">
-        <div class="mx-2">
-          <router-link :to="{ name: 'home' }">
-            <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
-          </router-link>
-        </div>
-        <p class="my-2 fw-bold col-12 text-uppercase">/ Tất cả sách</p>
-      </div>
-    </div> -->
+  <div class="container py-4">
     <div class="row">
       <div class="col-md-3">
         <Sidebar

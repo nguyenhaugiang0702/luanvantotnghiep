@@ -131,11 +131,6 @@ const client = [
         component: () =>
           import("../pages/Notfound.vue"),
       },
-      {
-        path: "empty",
-        component: () =>
-          import("../components/client/carts/EmptyCart.vue"),
-      },
     ],
   },
 ];

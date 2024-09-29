@@ -1,12 +1,14 @@
 <template>
   <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-column">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
+      >
+        <div class="d-flex flex-column mb-3 mb-md-0">
           <div class="fw-bold text-uppercase fs-5">Đăng ký</div>
           <div>Chào mừng bạn đến với NHG BOOKSTORE</div>
         </div>
-        <div>
+        <div class="align-self-md-center">
           <span @click="handleNavigate(router, 'home')">Trang chủ </span>
           <span>/ Đăng ký</span>
         </div>
@@ -46,7 +48,6 @@
                           <label class="form-label" for="firstName">Họ</label>
                           <Field
                             type="text"
-                            id="form2Example17"
                             class="form-control"
                             placeholder="Nhập họ"
                             name="firstName"
@@ -68,7 +69,6 @@
                           <label class="form-label" for="lastName">Tên</label>
                           <Field
                             type="text"
-                            id="form2Example17"
                             class="form-control"
                             placeholder="Nhập tên"
                             name="lastName"
@@ -96,7 +96,6 @@
                             v-model="newUser.phoneNumber"
                             :disabled="otpVerified"
                             type="text"
-                            id="form2Example27"
                             class="form-control"
                             placeholder="Nhập số điện thoại"
                             name="phoneNumber"
@@ -140,7 +139,6 @@
                         <div class="col-9">
                           <Field
                             type="text"
-                            id="form2Example27"
                             class="form-control"
                             placeholder="Nhập mã OTP"
                             name="otp"
@@ -158,7 +156,9 @@
                             @click="checkOTP"
                             type="button"
                             class="btn btn-primary w-100"
-                            :disabled="isLoading || otpVerified"
+                            :disabled="
+                              isLoadingCheckOTP || !otpSent || otpVerified
+                            "
                           >
                             <span
                               v-if="isLoadingCheckOTP"
@@ -179,7 +179,6 @@
                       <label class="form-label" for="password">Mật khẩu</label>
                       <Field
                         type="password"
-                        id="form2Example27"
                         class="form-control"
                         placeholder="Nhập mật khẩu"
                         name="password"
@@ -217,7 +216,9 @@
 
                     <p class="mb-5" style="color: #393f81">
                       Bạn đã có tài khoản?
-                      <router-link to="login" style="color: #393f81"
+                      <router-link
+                        :to="{ name: 'login' }"
+                        style="color: #393f81"
                         >Đăng nhập</router-link
                       >
                     </p>
@@ -242,7 +243,7 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { registerUserSchema } from "@/utils/schema.util";
 import { handleNavigate } from "@/utils/utils";
 
-const { errors, validateField, validate } = useForm({
+const { errors, validateField, validate, resetForm } = useForm({
   validationSchema: registerUserSchema,
 });
 
@@ -269,20 +270,19 @@ const sendOTP = async () => {
 
   try {
     isLoadingSendOTP.value = true;
-    // const response = await authUserService.post("/createOTP", {
-    //   phoneNumber: newUser.value.phoneNumber,
-    // });
+    const response = await authUserService.post("/createOTP", {
+      phoneNumber: newUser.value.phoneNumber,
+      method: "register",
+    });
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    otpSent.value = true;
-    // if (response?.status === 200) {
-    //   otpSent.value = response.data.otpSent;
-    //   toast(response.data.message, {
-    //     theme: "auto",
-    //     type: "success",
-    //     dangerouslyHTMLString: true,
-    //   });
-    //   errors.value.phoneNumber.phoneNumberSignUp = "";
-    // }
+    if (response?.status === 200) {
+      otpSent.value = response.data.otpSent;
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+    }
   } catch (error) {
     const errorMessage = error.response?.data?.message;
     toast(errorMessage, {
@@ -313,7 +313,9 @@ const signUp = async () => {
         type: "success",
         dangerouslyHTMLString: true,
       });
-      router.push({ name: "profile" });
+      resetForm();
+      otpSent.value = false;
+      otpVerified.value = false;
     }
   } catch (error) {
     toast(error.response?.data?.message, {
@@ -335,25 +337,28 @@ const checkOTP = async () => {
     return;
   }
   try {
-    otpVerified.value = true;
-    // const response = await authUserService.post("/register/verifyOTP", {
-    //   phoneNumber: newUser.value.phoneNumber,
-    //   otp: newUser.value.otp,
-    // });
-    // if (response?.status === 200) {
-    //   otpVerified.value = response.data.otpVerified;
-    //   toast(response.data.message, {
-    //     theme: "auto",
-    //     type: "success",
-    //     dangerouslyHTMLString: true,
-    //   });
-    // }
+    isLoadingCheckOTP.value = true;
+    const response = await authUserService.post("/register/verifyOTP", {
+      phoneNumber: newUser.value.phoneNumber,
+      otpSMS: newUser.value.otp,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (response?.status === 200) {
+      otpVerified.value = response.data.otpVerified;
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+    }
   } catch (error) {
     toast(error.response?.data?.message, {
       theme: "auto",
       type: "error",
       dangerouslyHTMLString: true,
     });
+  } finally {
+    isLoadingCheckOTP.value = false;
   }
 };
 </script>

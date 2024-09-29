@@ -1,22 +1,34 @@
 <template>
-  <div class="container">
-    <div class="thank-you">Cảm Ơn Bạn!</div>
-    <div class="message">
-      Bạn đã đặt hàng thành công tại NHGBookstore.<br />Chúng tôi sẽ xử lý đơn
-      hàng của bạn sớm nhất có thể!
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column col-12">
+          <div class="fw-bold text-uppercase fs-5 ">Cảm ơn bạn</div>
+          <div>Chúng tôi xin chân thành cảm ơn bạn đã tin tưởng và ủng hộ</div>
+        </div>
+      </div>
     </div>
-    <img
-      src="../../assets/images/logo.jpg"
-      alt="NHGBookstore Logo"
-      class="logo"
-    />
-    <!-- Thay đổi URL hình ảnh ở đây -->
-    <div class="footer mt-4">
-      Hẹn gặp lại bạn trong những lần sau!<br />
-      <span
-        >Bạn sẽ được chuyển hướng về trang giỏ hàng sau
-        <span class="text-primary">{{ countdown }} giây.</span>
-      </span>
+  </div>
+  <div class="py-4">
+    <div class="container container-thanks">
+      <div class="thank-you">Cảm Ơn Bạn!</div>
+      <div class="message">
+        Bạn đã đặt hàng thành công tại NHGBookstore.<br />Chúng tôi sẽ xử lý đơn
+        hàng của bạn sớm nhất có thể!
+      </div>
+      <img
+        src="../../assets/images/logo.jpg"
+        alt="NHGBookstore Logo"
+        class="logo"
+      />
+      <!-- Thay đổi URL hình ảnh ở đây -->
+      <div class="footer mt-4">
+        Hẹn gặp lại bạn trong những lần sau!<br />
+        <span
+          >Bạn sẽ được chuyển hướng về trang giỏ hàng sau
+          <span class="text-primary">{{ countdown }} giây.</span>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -40,7 +52,7 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-.container {
+.container-thanks {
   text-align: center;
   padding: 30px;
   background: white;
