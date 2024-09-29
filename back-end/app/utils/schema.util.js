@@ -1,5 +1,45 @@
 const yup = require("yup");
 
+const registerUserSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
+});
+
+const loginUserSchema = yup.object({
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
+});
+
+const forgotPasswordSchema = yup.object({
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+  cfpassword: yup
+    .string()
+    .required("Xác nhận mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự")
+    .oneOf([yup.ref("password")], "Mật khẩu xác nhận không khớp"),
+});
+
 const supplierSchema = yup.object({
   name: yup.string().required("Tên nhà cung cấp là bắt buộc"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
@@ -128,7 +168,9 @@ const addressSchema = yup.object({
   province: yup.string().required("Tên tỉnh là bắt buộc"),
   district: yup.string().required("Tên quận/huyện là bắt buộc"),
   ward: yup.string().required("Tên xã là bắt buộc"),
-  detailAddress: yup.string().required("Thông tin này quan trọng.Vui lòng không để trống."),
+  detailAddress: yup
+    .string()
+    .required("Thông tin này quan trọng.Vui lòng không để trống."),
 });
 
 module.exports = {
@@ -139,4 +181,7 @@ module.exports = {
   updateBookSchema,
   priceRangeSchema,
   addressSchema,
+  registerUserSchema,
+  loginUserSchema,
+  forgotPasswordSchema
 };

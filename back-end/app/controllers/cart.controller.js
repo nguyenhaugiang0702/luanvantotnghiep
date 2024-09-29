@@ -80,6 +80,7 @@ exports.findAll = async (req, res, next) => {
       ...cart._doc,
       totalQuantity: totalQuantity,
     };
+    console.log(cartWithQuantity);
     return res.send(cartWithQuantity);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách trong giỏ"));
@@ -91,7 +92,7 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
   let totalPrice = 0;
   let totalQuantity = 0;
   let checkedOutBooks = [];
-
+  let bookInCart = [];
   try {
     const cart = await cartService.getFullInfoCartByUserID(userID);
     cart.books.forEach((book) => {
@@ -100,12 +101,13 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
         totalQuantity += book.quantity;
         checkedOutBooks.push(book);
       }
+      bookInCart.push(book);
     });
     return res.send({
       totalPrice,
       totalQuantity,
       books: checkedOutBooks,
-      message: "Tính tổng thành công cho các sách được check-out",
+      bookInCart: bookInCart,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách trong giỏ"));

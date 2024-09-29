@@ -15,12 +15,14 @@ const formatPhoneNumber = async (phoneNumber) => {
   return await phoneNumber;
 };
 
+
+
 const sendOTP = async (phoneNumber) => {
   try {
     const otpCode = Math.floor(100000 + Math.random() * 900000);
     const formattedPhoneNumber = await formatPhoneNumber(phoneNumber);
     const message = await client.messages.create({
-      body: `Mã OPT của bạn là ${otpCode}, bạn có 2 phút để xác nhận.`,
+      body: `[NHG BOOKSTORE] Mã OTP của bạn là ${otpCode}, bạn có 2 phút để xác nhận.`,
       from: phoneNumberHost,
       to: formattedPhoneNumber,
     });

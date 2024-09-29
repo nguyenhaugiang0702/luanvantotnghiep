@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const User = require("../../models/user.model");
-const sendOTP = require("../../twilio");
+const sendOTP = require("../../sendOTP");
 const otpService = require("../../services/otp.service");
 const authUserService = require("../../services/auth/authUser.service");
 const sendEmail = require("../../utils/email.util");
@@ -15,9 +15,12 @@ exports.login = async (req, res, next) => {
   const { phoneNumber, password } = req.body;
   const phoneRegex = /^0\d{9}$/;
 
-  // Kiểm tra nếu `phoneNumber` tồn tại và hợp lệ
+  // Validate phoneNumber and password
   if (phoneNumber && !phoneRegex.test(phoneNumber)) {
     return next(new ApiError(400, "Số điện thoại không hợp lệ"));
+  }
+  if (!password || password.length < 8) {
+    return next(new ApiError(400, "Kiểm tra lại mật khẩu"));
   }
   try {
     const user = await authUserService.getUserByPhoneNumber(phoneNumber);
@@ -52,12 +55,65 @@ exports.login = async (req, res, next) => {
       user: user,
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
 };
 
+exports.register = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    // req.body.password = hashedPassword;
+    // req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    // req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    // req.body.isActive = 1;
+    // req.body.typeLogin = "SMS";
+    // const newUser = await userService.createUser(req.body);
+    // const accessToken = jwt.sign(
+    //   { _id: newUser._id },
+    //   "my_secret_key_with_email_to_active"
+    // );
+
+    // return res.send({
+    //   message: "Đăng ký thành công!",
+    //   newUser,
+    //   accessToken,
+    // });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi đăng ký tài khoản!"));
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { phoneNumber, password, cfpassword } = req.body;
+    const userExistWithPhoneNumber = await authUserService.getUserByPhoneNumber(phoneNumber);
+    if(!userExistWithPhoneNumber){
+        return next(new ApiError(400, "Vui lòng kiểm tra lại số điện thoại"))
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    userExistWithPhoneNumber.password = hashedPassword;
+    userExistWithPhoneNumber.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    await userExistWithPhoneNumber.save();
+    return res.send({
+      message: "Cập nhật mật khẩu thành công!",
+      userExistWithPhoneNumber,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại sau!"));
+  }
+};
+
 exports.createOTP = async (req, res, next) => {
-  const { phoneNumber, email } = req.body;
+  const { phoneNumber, email, method } = req.body;
+  const phoneRegex = /^0\d{9}$/;
+
+  if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+    return next(new ApiError(400, "Số điện thoại không hợp lệ"));
+  }
   try {
     if (phoneNumber) {
       // Gửi mã OTP qua số điện thoại
@@ -67,9 +123,12 @@ exports.createOTP = async (req, res, next) => {
 
       // Nếu tài khoản tồn tại và đã được kích hoạt qua OTP
       if (userExistWithPhoneNumber && userExistWithPhoneNumber.isActive == 1) {
-        if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
-          return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+        if(method !== "forgotPassword"){
+          if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
+            return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
+          }
         }
+        
         const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
         const otpSMS = await sendOTP(phoneNumber);
         const expiresAt = moment()
@@ -157,8 +216,17 @@ exports.createOTP = async (req, res, next) => {
   }
 };
 
-exports.signUpVerify = async (req, res, next) => {
+exports.verifyOTP = async (req, res, next) => {
   const { phoneNumber, otpSMS } = req.body;
+  const phoneRegex = /^0\d{9}$/;
+  const otpSMSRegex = /^\d{6}$/;
+
+  if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+    return next(new ApiError(400, "Số điện thoại không hợp lệ"));
+  }
+  if (otpSMS && !otpSMSRegex.test(otpSMS)) {
+    return next(new ApiError(400, "Mã OTP không hợp lệ"));
+  }
   try {
     const otpRecord = await otpService.findRecordByOTPAndPhoneNumber(
       phoneNumber,
@@ -166,7 +234,9 @@ exports.signUpVerify = async (req, res, next) => {
     );
 
     if (!otpRecord) {
-      return next(new ApiError(400, "Mã OTP không chính xác hoặc đã hết hạn."));
+      return next(
+        new ApiError(400, "Vui lòng kiểm tra lại số điện thoại và mã OTP")
+      );
     }
 
     const currentTime = moment().tz("Asia/Ho_Chi_Minh");

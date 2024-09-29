@@ -22,8 +22,7 @@ router
 router
   .route("/changePassword/:token")
   .put(authenticateToken.authenticateTokenFromParams, users.changePassword);
-router.route("/").get(users.findALL).post(users.create).delete(users.deleteALL);
-router.route("/signIn").post(users.signIn);
+router.route("/").get(users.findALL).delete(users.deleteALL);
 // router.route("/facebook").post(users.signIn);
 router
   .route("/:userID")
