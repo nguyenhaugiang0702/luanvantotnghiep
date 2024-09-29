@@ -1,7 +1,7 @@
 <template>
-  <div class="container bg-white">
+  <div class="container bg-white pb-3">
     <h4 class="p-3">ĐƠN HÀNG</h4>
-    <div class="container pb-3">
+    <div class="container">
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item" @click="setActiveTab('all')">

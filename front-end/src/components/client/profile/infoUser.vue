@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white">
+  <div class="container bg-white pb-3">
     <h4 class="p-3">THÔNG TIN TÀI KHOẢN</h4>
     <form @submit.prevent="updateUser" :validation-schema="updateUserSchema">
       <div class="d-flex flex-column flex-md-row">

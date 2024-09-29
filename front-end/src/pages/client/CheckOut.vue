@@ -299,6 +299,7 @@ const getBookCheckOut = async () => {
 const handleSelectAddress = (addressID) => {
   selectedAddress.value = addressID;
 };
+
 const confirmPayment = async () => {
   const orderData = {
     addressID: selectedAddress.value,

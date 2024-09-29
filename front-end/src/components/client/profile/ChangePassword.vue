@@ -1,15 +1,18 @@
 <template>
-  <div class="container bg-white pb-4">
+  <div class="container bg-white pb-3">
     <h4 class="p-3">ĐỔI MẬT KHẨU</h4>
     <form
       @submit.prevent="changePassword"
       :validation-schema="changePasswordSchema"
     >
-      <div class="form-group row mx-2">
-        <label for="currentPassword" class="col-3">Mật khẩu hiện tại*</label>
-        <div class="col-8">
+      <!-- Mật khẩu hiện tại -->
+      <div class="form-group row mx-2 mb-3">
+        <label for="currentPassword" class="col-sm-12 col-md-3"
+          >Mật khẩu hiện tại*</label
+        >
+        <div class="col-sm-12 col-md-9">
           <div class="row">
-            <div class="col-11">
+            <div class="col-10">
               <Field
                 :type="showCurrentPassword ? 'text' : 'password'"
                 :class="{
@@ -25,29 +28,29 @@
               />
             </div>
             <div
-              class="col-1 btn btn-secondary"
+              class="col-auto btn btn-outline-secondary btn-sm d-flex align-items-center"
               @click="handleShowCurrentPassword"
             >
               <i
                 :class="['fa', showCurrentPassword ? 'fa-eye-slash' : 'fa-eye']"
-                class="password-toggle"
               ></i>
             </div>
           </div>
-
-          <div class="row">
-            <ErrorMessage
-              class="invalid-feedback col-12 d-block"
-              name="currentPassword"
-            />
-          </div>
+          <ErrorMessage
+            class="invalid-feedback d-block"
+            name="currentPassword"
+          />
         </div>
       </div>
-      <div class="form-group row mt-4 mx-2">
-        <label for="newPassword" class="col-3">Mật khẩu mới*</label>
-        <div class="col-8">
+
+      <!-- Mật khẩu mới -->
+      <div class="form-group row mx-2 mb-3">
+        <label for="newPassword" class="col-sm-12 col-md-3"
+          >Mật khẩu mới*</label
+        >
+        <div class="col-sm-12 col-md-9">
           <div class="row">
-            <div class="col-11">
+            <div class="col-10">
               <Field
                 :type="showNewPassword ? 'text' : 'password'"
                 :class="{
@@ -61,27 +64,24 @@
                 v-model="user.newPassword"
               />
             </div>
-            <div class="col-1 btn btn-secondary" @click="handleShowNewPassword">
+            <div class="col-auto btn btn-outline-secondary btn-sm d-flex align-items-center" @click="handleShowNewPassword">
               <i
                 :class="['fa', showNewPassword ? 'fa-eye-slash' : 'fa-eye']"
-                class="password-toggle"
               ></i>
             </div>
           </div>
-
-          <div class="row">
-            <ErrorMessage
-              class="invalid-feedback col-12 d-block"
-              name="newPassword"
-            />
-          </div>
+          <ErrorMessage class="invalid-feedback d-block" name="newPassword" />
         </div>
       </div>
-      <div class="form-group row mt-4 mx-2">
-        <label for="cfNewPassword" class="col-3">Nhập lại mật khẩu*</label>
-        <div class="col-8">
+
+      <!-- Nhập lại mật khẩu -->
+      <div class="form-group row mx-2 mb-3">
+        <label for="cfNewPassword" class="col-sm-12 col-md-3"
+          >Nhập lại mật khẩu*</label
+        >
+        <div class="col-sm-12 col-md-9">
           <div class="row">
-            <div class="col-11">
+            <div class="col-10">
               <Field
                 :type="showCfNewPassword ? 'text' : 'password'"
                 :class="{
@@ -96,43 +96,38 @@
                 v-model="user.cfNewPassword"
               />
             </div>
-
             <div
-              class="col-sm-1 btn btn-secondary"
+              class="col-auto btn btn-outline-secondary btn-sm d-flex align-items-center"
               @click="handleShowCfNewPassword"
             >
               <i
                 :class="['fa', showCfNewPassword ? 'fa-eye-slash' : 'fa-eye']"
-                class="password-toggle"
               ></i>
             </div>
           </div>
-          <div class="row">
-            <ErrorMessage
-              class="invalid-feedback col-12 d-block"
-              name="cfNewPassword"
-            />
-          </div>
+          <ErrorMessage class="invalid-feedback d-block" name="cfNewPassword" />
         </div>
       </div>
+
+      <!-- Nút Lưu thay đổi -->
       <div class="d-flex justify-content-center">
         <button
           type="submit"
-          class="btn btn-primary mt-4 col-3 text-center"
+          class="btn btn-primary mt-4 col-sm-12 col-md-6 text-center"
           :disabled="isLoading"
         >
           <span
             v-if="isLoading"
             class="spinner-border spinner-border-sm text-white"
             role="status"
-            aria-hidden="true"
           ></span>
-          <span class="text-white" v-else> Lưu thay đổi </span>
+          <span v-else> Lưu thay đổi </span>
         </button>
       </div>
     </form>
   </div>
 </template>
+
 <script>
 import UserService from "@/service/user.service";
 import { changePasswordSchema } from "@/utils/schema.util";

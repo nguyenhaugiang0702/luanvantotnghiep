@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white">
+  <div class="container bg-white pb-3">
     <div class="p-3 d-flex justify-content-between">
       <h4 class="text-uppercase">Địa chỉ</h4>
       <router-link

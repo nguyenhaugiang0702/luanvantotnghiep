@@ -1,108 +1,111 @@
 <template>
-  <table class="table">
-    <thead class="table-light">
-      <tr>
-        <th>
-          <input
-            type="checkbox"
-            class="w-100"
-            :checked="selectAll && booksInCart.length !== 0"
-            @change="toggleSelectAll"
-          />
-        </th>
-        <th>Hình</th>
-        <th>Tên Sách</th>
-        <th>Số Lượng</th>
-        <th>Tổng Giá</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="book in booksInCart.books" :key="book.bookID._id">
-        <td>
-          <input
-            type="checkbox"
-            class="w-100"
-            :checked="book.isCheckOut"
-            @change="handleCheckboxChange(book.bookID._id)"
-          />
-        </td>
-        <td style="width: 150px">
-          <router-link
-            :to="{
-              name: 'book-detail',
-              params: { bookID: book.bookID._id },
-            }"
-            ><img
-              v-if="book.bookID?.images && book.bookID?.images?.length > 0"
-              class="img-fluid"
-              :src="`http://localhost:3000/` + book.bookID?.images[0]?.path"
-              alt=""
-          /></router-link>
-        </td>
-        <td>
-          <router-link
-            class="text-decoration-none text-break text-dark"
-            :to="{
-              name: 'book-detail',
-              params: { bookID: book.bookID._id },
-            }"
-            >{{ book.bookID.name }}</router-link
-          >
-          <div>
-            <small>Còn lại 0</small>
-          </div>
-          <span class="price text-danger fw-bold">
-            {{ formatPrice(book.price) }}
-          </span>
-          <span class="ms-2 text-decoration-line-through opacity-75">{{
-            formatPrice(book.bookID.detail.originalPrice)
-          }}</span>
-        </td>
-        <td>
-          <div class="input-group">
-            <button
-              class="border p-2"
-              type="button"
-              @click="decreaseQuantity(book)"
-            >
-              -
-            </button>
+  <div class="table-responsive" >
+    <table class="table">
+      <thead class="table-light">
+        <tr>
+          <th>
             <input
-              :id="'inputQuantity_' + book.bookID._id"
-              class="border border-3 text-center col-md-3 col-sm-1"
-              @change="updateQuantity(book, $event)"
-              :value="book.quantity"
-              min="1"
+              type="checkbox"
+              class="w-100"
+              :checked="selectAll && booksInCart.length !== 0"
+              @change="toggleSelectAll"
             />
-            <button
-              class="border p-2"
-              type="button"
-              @click="increaseQuantity(book)"
+          </th>
+          <th>Hình</th>
+          <th>Tên Sách</th>
+          <th>Số Lượng</th>
+          <th>Tổng Giá</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="book in booksInCart.books" :key="book.bookID._id">
+          <td>
+            <input
+              type="checkbox"
+              class="w-100"
+              :checked="book.isCheckOut"
+              @change="handleCheckboxChange(book.bookID._id)"
+            />
+          </td>
+          <td style="width: 150px">
+            <router-link
+              :to="{
+                name: 'book-detail',
+                params: { bookID: book.bookID._id },
+              }"
+              ><img
+                v-if="book.bookID?.images && book.bookID?.images?.length > 0"
+                class="img-fluid"
+                :src="`http://localhost:3000/` + book.bookID?.images[0]?.path"
+                alt=""
+            /></router-link>
+          </td>
+          <td>
+            <router-link
+              class="text-decoration-none text-break text-dark"
+              :to="{
+                name: 'book-detail',
+                params: { bookID: book.bookID._id },
+              }"
+              >{{ book.bookID.name }}</router-link
             >
-              +
-            </button>
-          </div>
-        </td>
-        <td>
-          <span class="price text-danger fw-bold">
-            {{ formatPrice(book.quantity * book.price) }}
-          </span>
-        </td>
-        <td>
-          <a href="">
-            <button
-              @click.prevent="deleteBook(book.bookID._id)"
-              class="btn btn-danger"
-              type="button"
-            >
-              Xóa
-            </button>
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+            <div>
+              <small>Còn lại 0</small>
+            </div>
+            <span class="price text-danger fw-bold">
+              {{ formatPrice(book.price) }}
+            </span>
+            <span class="ms-2 text-decoration-line-through opacity-75">{{
+              formatPrice(book.bookID.detail.originalPrice)
+            }}</span>
+          </td>
+          <td>
+            <div class="d-flex justify-content-start align-items-center">
+              <button
+                class="btn btn-outline-secondary p-2"
+                type="button"
+                @click="decreaseQuantity(book)"
+              >
+                -
+              </button>
+              <input
+                :id="'inputQuantity_' + book.bookID._id"
+                class="form-control mx-2 text-center"
+                style="width: 50px"
+                @change="updateQuantity(book, $event)"
+                :value="book.quantity"
+                min="1"
+              />
+              <button
+                class="btn btn-outline-secondary p-2"
+                type="button"
+                @click="increaseQuantity(book)"
+              >
+                +
+              </button>
+            </div>
+          </td>
+          <td>
+            <span class="price text-danger fw-bold">
+              {{ formatPrice(book.quantity * book.price) }}
+            </span>
+          </td>
+          <td>
+            <a href="">
+              <button
+                @click.prevent="deleteBook(book.bookID._id)"
+                class="btn btn-danger"
+                type="button"
+              >
+                Xóa
+              </button>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div class="d-flex justify-content-end">
     <div class="mb-3">
       <a href="">
@@ -285,3 +288,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.table-responsive {
+  overflow-x: auto;
+}
+</style>

@@ -14,7 +14,9 @@ instance.interceptors.request.use(
     if (config.url.includes("/auth/user/refreshToken")) {
       config.headers.Authorization = `Bearer ${refreshToken}`;
     } else {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
     }
     return config;
   },

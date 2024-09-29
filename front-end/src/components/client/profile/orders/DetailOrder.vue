@@ -12,14 +12,14 @@
               <p class="mb-1">
                 <i class="fa-solid fa-user me-2"></i>
                 {{
-                  orderDetail.userID.firstName +
+                  orderDetail.addressID.firstName +
                   " " +
-                  orderDetail.userID.lastName
+                  orderDetail.addressID.lastName
                 }}
               </p>
               <p>
                 <i class="fa-solid fa-phone me-2"></i>
-                {{ orderDetail.userID.phoneNumber }}
+                {{ orderDetail.addressID.phoneNumber }}
               </p>
             </div>
           </div>

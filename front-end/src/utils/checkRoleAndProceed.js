@@ -37,7 +37,6 @@ const checkLoginAndRedirect = async (to, from, next) => {
       const response = await authUserService.get("/checkRole");
 
       if (response.data.role === "customer") {
-        console.log(1);
         next();
       } else {
         next({ name: "notfound" });

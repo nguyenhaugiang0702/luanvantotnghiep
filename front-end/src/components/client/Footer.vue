@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid bg-secondary">
+  <div class="container-fluid bg-primary">
     <div class="row mx-auto">
       <div class="col-sm-2 mt-4">
         <img class="w-100" src="../../assets/images/logo1.png" alt="" />

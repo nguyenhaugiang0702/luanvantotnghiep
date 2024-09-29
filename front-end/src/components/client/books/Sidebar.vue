@@ -1,6 +1,7 @@
 <template>
   <div class="sidebar p-3">
     <h5 class="mb-3">Giá</h5>
+    <hr class="custom-hr" />
     <ul class="list-unstyled">
       <li
         class="form-check mb-2"
@@ -40,6 +41,7 @@
 
     <!-- Thể loại -->
     <h5 class="mb-3">Thể loại</h5>
+    <hr class="custom-hr" />
     <ul class="list-unstyled">
       <li
         v-for="(category, index) in visibleCategories"
@@ -79,6 +81,7 @@
 
     <!-- Nhà cung cấp -->
     <h5 class="mb-3">Nhà xuất bản</h5>
+    <hr class="custom-hr" />
     <ul class="list-unstyled">
       <li
         v-for="publisher in visiblePublishers"
@@ -118,6 +121,7 @@
 
     <!-- Nhà cung cấp -->
     <h5 class="mb-3">Nhà cung cấp</h5>
+    <hr class="custom-hr" />
     <ul class="list-unstyled">
       <li
         v-for="supplier in visibleSuppliers"
@@ -157,6 +161,7 @@
 
     <!-- Hình thức -->
     <h5 class="mb-3">Hình thức</h5>
+    <hr class="custom-hr">
     <ul class="list-unstyled">
       <li
         v-for="formality in visibleFormalities"
@@ -196,6 +201,7 @@
 
     <!-- Tác giả -->
     <h5 class="mb-3">Tác giả</h5>
+    <hr class="custom-hr">
     <ul class="list-unstyled">
       <li
         v-for="author in visibleAuthors"
@@ -474,5 +480,10 @@ export default {
 .sidebar {
   background-color: #fff;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+.custom-hr {
+  height: 3px; /* Tăng độ dày của thanh */
+  background-color: var(--bs-primary); /* Màu chính của Bootstrap */
+  border: none; /* Loại bỏ đường viền mặc định */
 }
 </style>

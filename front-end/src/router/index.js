@@ -19,6 +19,14 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const isLoggedIn = Cookies.get("isLoggedIn");
   const token = Cookies.get("accessToken");
+  // Nếu người dùng đã đăng nhập và cố gắng truy cập trang login hoặc register
+  if (isLoggedIn && (to.name === "login" || to.name === "register")) {
+    return next({ name: "home" });
+  }
+  // Nếu người dùng đã đăng nhập và cố gắng truy cập trang login hoặc register
+  if (!isLoggedIn && to.name === "cart") {
+    return next({ name: "login" });
+  }
   // Kiểm tra nếu route yêu cầu quyền admin
   if (to.meta.requiresAuth && to.meta.requiresAdmin) {
     if (!isLoggedIn || !token) {

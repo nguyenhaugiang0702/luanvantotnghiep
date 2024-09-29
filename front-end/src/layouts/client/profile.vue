@@ -1,14 +1,20 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="d-flex mx-auto">
-        <div class="mx-2">
-          <router-link :to="{ name: 'home' }">
-            <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
-          </router-link>
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column col-6">
+          <div class="fw-bold text-uppercase fs-5">Quản lý tài khoản</div>
+          <div>Hãy quản lý thông tin cá nhân cẩn thận</div>
         </div>
-        <p class="my-2 fw-bold col-12 text-uppercase">/ Thông tin cá nhân</p>
+        <div class="col-6 text-end">
+          <span @click="handleNavigate(router, 'home')">Tài khoản </span>
+          <span>/ Thông tin cá nhân</span>
+        </div>
       </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row py-4">
       <!-- Sidebar Component -->
       <div class="col-md-3">
         <Sidebar />

@@ -1,16 +1,23 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="d-flex mx-auto">
-        <div class="mx-2">
-          <router-link :to="{ name: 'home' }">
-            <i style="color: black" class="fa-solid fa-house fs-4 my-1"></i>
-          </router-link>
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column">
+          <div class="fw-bold text-uppercase fs-5">Giỏ hàng</div>
+          <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
         </div>
-        <p class="my-2 fw-bold col-12 text-uppercase">/ GIỎ HÀNG</p>
+        <div>
+          <span @click="handleNavigate(router, 'home')">Trang chủ </span>
+          <span>/ Giỏ hàng</span>
+        </div>
       </div>
     </div>
-    <div class="row">
+  </div>
+  <div class="container mt-4">
+    <div class="row" v-if="selectedBooks.bookInCart.length === 0">
+      <EmptyCart />
+    </div>
+    <div class="row" v-else>
       <div class="col-md-12">
         <CartTable />
       </div>
@@ -55,18 +62,18 @@
 <script setup>
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import Swal from "sweetalert2";
 import CartTable from "../../components/client/carts/CartTable.vue";
-import Cookies from "js-cookie";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import CartService from "@/service/cart.service";
-import { toast } from "vue3-toastify";
+import EmptyCart from "@/components/client/carts/EmptyCart.vue";
 
 const router = useRouter();
 const route = useRoute();
 const selectedBooks = ref({
   totalQuantity: 0,
   totalPrice: 0,
+  books: [],
+  bookInCart: []
 });
 const cartService = new CartService();
 const updateCart = inject("updateCart");

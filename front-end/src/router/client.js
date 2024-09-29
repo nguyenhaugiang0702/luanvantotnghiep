@@ -1,4 +1,5 @@
 const client = [
+  
   {
     path: "/",
     component: () => import("../layouts/client/client.vue"),
@@ -7,7 +8,17 @@ const client = [
       {
         path: "login",
         name: "login",
-        component: () => import("../pages/client/Login_SignUp.vue"),
+        component: () => import("../pages/client/Login.vue"),
+      },
+      {
+        path: "register",
+        name: "register",
+        component: () => import("../pages/client/Register.vue"),
+      },
+      {
+        path: "forgotPassword",
+        name: "forgotPassword",
+        component: () => import("../pages/client/ForgotPassword.vue"),
       },
       {
         path: "",
@@ -119,6 +130,11 @@ const client = [
         path: "notfound",
         component: () =>
           import("../pages/Notfound.vue"),
+      },
+      {
+        path: "empty",
+        component: () =>
+          import("../components/client/carts/EmptyCart.vue"),
       },
     ],
   },

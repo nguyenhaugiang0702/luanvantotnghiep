@@ -1,5 +1,24 @@
 <template>
-  <div :class="['container', { active: isSignInActive }]" class="mx-auto my-3">
+  
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column">
+          <div class="fw-bold text-uppercase fs-5">Đăng ký tài khoản</div>
+          <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
+        </div>
+        <div>
+          <span @click="handleNavigate(router, 'home')">Trang chủ </span>
+          <span>/ Đăng ký</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    :class="['container-login-signup', { active: isSignInActive }]"
+    class="mx-auto my-3"
+  >
     <div class="box">
       <div class="form sign_in">
         <h3>Đăng nhập</h3>
@@ -180,7 +199,7 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import {
   ref,
   computed,
@@ -195,235 +214,229 @@ import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
-
-export default {
-  setup() {
-    const authUserService = new AuthUserService();
-    const isSignInActive = ref(true);
-    const phoneNumber = ref({
-      phoneNumberSignUp: "",
-      phoneNumberSignIn: "",
-    });
-    const isLoading = ref(false);
-    const otpSent = ref(false);
-    const otp = ref("");
-    const otpVerified = ref(false);
-    const isLoadingSignUp = ref(false);
-    const isLoadingSignIn = ref(false);
-    const password = ref({
-      passwordSignUp: "",
-      passwordSignIn: "",
-    });
-    const errors = ref({
-      phoneNumber: {
-        phoneNumberSignIn: "",
-        phoneNumberSignUp: "",
-      },
-      otp: "",
-      password: {
-        passwordSignIn: "",
-        passwordSignUp: "",
-      },
-    });
-    const router = useRouter();
-    const updateCart = inject("updateCart");
-
-    // Thêm biến để quản lý việc hiển thị mật khẩu
-    const showPasswordSignUp = ref(false);
-
-    const togglePasswordSignUpVisibility = () => {
-      showPasswordSignUp.value = !showPasswordSignUp.value;
-    };
-
-    // Thêm biến để quản lý việc hiển thị mật khẩu
-    const showPasswordSignIn = ref(false);
-
-    const togglePasswordSignInVisibility = () => {
-      showPasswordSignIn.value = !showPasswordSignIn.value;
-    };
-
-    const toggleSignIn = () => {
-      isSignInActive.value = true;
-      // localStorage.setItem("isSignInActive", true);
-      // isSignInActive.value = localStorage.getItem("isSignInActive");
-    };
-
-    const toggleSignUp = () => {
-      isSignInActive.value = false;
-
-      // localStorage.setItem("isSignInActive", false);
-      // isSignInActive.value = localStorage.getItem("isSignInActive");
-    };
-
-    const sendOTP = async () => {
-      if (
-        !validation.validatePhoneNumber(phoneNumber.value.phoneNumberSignUp)
-      ) {
-        errors.value.phoneNumber.phoneNumberSignUp = true;
-        return;
-      }
-      try {
-        isLoading.value = true;
-        const response = await authUserService.post("/createOTP", {
-          phoneNumber: phoneNumber.value.phoneNumberSignUp,
-        });
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (response?.status === 200) {
-          otpSent.value = response.data.otpSent;
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-          errors.value.phoneNumber.phoneNumberSignUp = "";
-        }
-      } catch (error) {
-        const errorMessage = error.response?.data?.message;
-        errors.value.phoneNumber.phoneNumberSignUp = errorMessage;
-        toast(errorMessage, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
-    const checkOTP = async () => {
-      if (!validation.validateOTP(otp.value)) {
-        errors.value.otp = true;
-        return;
-      }
-      const otpNumber = Number(otp.value);
-      try {
-        const response = await authUserService.post("/signUp/verifyOTP", {
-          phoneNumber: phoneNumber.value.phoneNumberSignUp,
-          otp: otpNumber,
-        });
-        if (response?.status === 200) {
-          otpVerified.value = response.data.otpVerified;
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-          errors.value.otp = "";
-        }
-      } catch (error) {
-        const errorMessage = error.response?.data?.message;
-        errors.value.otp = errorMessage;
-        toast(errorMessage, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      }
-    };
-
-    const signUp = async () => {
-      if (!validation.validatePassword(password.value.passwordSignUp)) {
-        errors.value.password.passwordSignUp = true;
-        return;
-      }
-      try {
-        isLoadingSignUp.value = true;
-        const response = await authUserService.post("/users", {
-          password: password.value.passwordSignUp,
-          phoneNumber: phoneNumber.value.phoneNumberSignUp,
-        });
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (response.status == 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
-          router.push({ name: "profile" });
-        }
-      } catch (error) {
-        const errorMessage = error.response?.data?.message;
-        errors.value.password.passwordSignUp = errorMessage;
-        toast(errorMessage, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      } finally {
-        isLoadingSignUp.value = false;
-      }
-    };
-
-    const isSignInFormValid = computed(() => {
-      return (
-        phoneNumber.value.phoneNumberSignIn.trim() !== "" &&
-        password.value.passwordSignIn.trim() !== ""
-      );
-    });
-
-    const signIn = async () => {
-      try {
-        isLoadingSignIn.value = true;
-        const response = await authUserService.post("/", {
-          password: password.value.passwordSignIn,
-          phoneNumber: phoneNumber.value.phoneNumberSignIn,
-        });
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (response.status == 200) {
-          const accessToken = response.data.accessToken;
-          const refreshToken = response.data.refreshToken;
-          const isLoggedIn = response.data.isLoggedIn;
-          Cookies.set("accessToken", accessToken);
-          Cookies.set("refreshToken", refreshToken);
-          Cookies.set("isLoggedIn", isLoggedIn);
-          router.push({ name: "profile" });
-          window.location.href = "/customer/account/edit/";
-        }
-      } catch (error) {
-        console.log(error);
-        const errorMessage = error.response?.data?.message;
-        errors.value.password.passwordSignUp = errorMessage;
-        toast(errorMessage, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
-      } finally {
-        isLoadingSignIn.value = false;
-      }
-    };
-
-    // watch(isSignInActive, (newValue) => {
-    //   localStorage.setItem("isSignInActive", newValue);
-    //   isSignInActive.value = localStorage.getItem("isSignInActive");
-    // });
-
-    return {
-      isSignInActive,
-      toggleSignIn,
-      toggleSignUp,
-      sendOTP,
-      phoneNumber,
-      isLoading,
-      otpSent,
-      checkOTP,
-      otp,
-      otpVerified,
-      signUp,
-      isLoadingSignIn,
-      isLoadingSignUp,
-      password,
-      signIn,
-      errors,
-      showPasswordSignUp,
-      togglePasswordSignUpVisibility,
-      togglePasswordSignInVisibility,
-      showPasswordSignIn,
-      isSignInFormValid,
-    };
+const authUserService = new AuthUserService();
+const isSignInActive = ref(true);
+const phoneNumber = ref({
+  phoneNumberSignUp: "",
+  phoneNumberSignIn: "",
+});
+const isLoading = ref(false);
+const otpSent = ref(false);
+const otp = ref("");
+const otpVerified = ref(false);
+const isLoadingSignUp = ref(false);
+const isLoadingSignIn = ref(false);
+const password = ref({
+  passwordSignUp: "",
+  passwordSignIn: "",
+});
+const errors = ref({
+  phoneNumber: {
+    phoneNumberSignIn: "",
+    phoneNumberSignUp: "",
   },
+  otp: "",
+  password: {
+    passwordSignIn: "",
+    passwordSignUp: "",
+  },
+});
+const router = useRouter();
+const updateCart = inject("updateCart");
+
+// Reactive form data
+const formData = ref({
+  firstName: "",
+  lastName: "",
+  phoneNumber: "",
+  otp: "",
+  password: "",
+});
+
+// Mock OTP sending process
+const handleSendOTP = () => {
+  console.log("Sending OTP to", formData.value.phoneNumber);
+  otpSent.value = true;
+};
+
+// Mock OTP verification process
+const handleVerifyOTP = () => {
+  console.log("Verifying OTP", formData.value.otp);
+  otpVerified.value = true;
+};
+
+// Form submission
+const handleSubmit = () => {
+  if (!otpVerified.value) {
+    alert("Please verify your phone number first.");
+    return;
+  }
+  console.log("Form submitted:", formData.value);
+};
+
+// Thêm biến để quản lý việc hiển thị mật khẩu
+const showPasswordSignUp = ref(false);
+
+const togglePasswordSignUpVisibility = () => {
+  showPasswordSignUp.value = !showPasswordSignUp.value;
+};
+
+// Thêm biến để quản lý việc hiển thị mật khẩu
+const showPasswordSignIn = ref(false);
+
+const togglePasswordSignInVisibility = () => {
+  showPasswordSignIn.value = !showPasswordSignIn.value;
+};
+
+const toggleSignIn = () => {
+  isSignInActive.value = true;
+  // localStorage.setItem("isSignInActive", true);
+  // isSignInActive.value = localStorage.getItem("isSignInActive");
+};
+
+const toggleSignUp = () => {
+  isSignInActive.value = false;
+
+  // localStorage.setItem("isSignInActive", false);
+  // isSignInActive.value = localStorage.getItem("isSignInActive");
+};
+
+const sendOTP = async () => {
+  if (!validation.validatePhoneNumber(phoneNumber.value.phoneNumberSignUp)) {
+    errors.value.phoneNumber.phoneNumberSignUp = true;
+    return;
+  }
+  try {
+    isLoading.value = true;
+    const response = await authUserService.post("/createOTP", {
+      phoneNumber: phoneNumber.value.phoneNumberSignUp,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (response?.status === 200) {
+      otpSent.value = response.data.otpSent;
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      errors.value.phoneNumber.phoneNumberSignUp = "";
+    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message;
+    errors.value.phoneNumber.phoneNumberSignUp = errorMessage;
+    toast(errorMessage, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const checkOTP = async () => {
+  if (!validation.validateOTP(otp.value)) {
+    errors.value.otp = true;
+    return;
+  }
+  const otpNumber = Number(otp.value);
+  try {
+    const response = await authUserService.post("/signUp/verifyOTP", {
+      phoneNumber: phoneNumber.value.phoneNumberSignUp,
+      otp: otpNumber,
+    });
+    if (response?.status === 200) {
+      otpVerified.value = response.data.otpVerified;
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      errors.value.otp = "";
+    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message;
+    errors.value.otp = errorMessage;
+    toast(errorMessage, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
+
+const signUp = async () => {
+  if (!validation.validatePassword(password.value.passwordSignUp)) {
+    errors.value.password.passwordSignUp = true;
+    return;
+  }
+  try {
+    isLoadingSignUp.value = true;
+    const response = await authUserService.post("/users", {
+      password: password.value.passwordSignUp,
+      phoneNumber: phoneNumber.value.phoneNumberSignUp,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (response.status == 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      router.push({ name: "profile" });
+    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message;
+    errors.value.password.passwordSignUp = errorMessage;
+    toast(errorMessage, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  } finally {
+    isLoadingSignUp.value = false;
+  }
+};
+
+const isSignInFormValid = computed(() => {
+  return (
+    phoneNumber.value.phoneNumberSignIn.trim() !== "" &&
+    password.value.passwordSignIn.trim() !== ""
+  );
+});
+
+const signIn = async () => {
+  try {
+    isLoadingSignIn.value = true;
+    const response = await authUserService.post("/", {
+      password: password.value.passwordSignIn,
+      phoneNumber: phoneNumber.value.phoneNumberSignIn,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (response.status == 200) {
+      const accessToken = response.data.accessToken;
+      const refreshToken = response.data.refreshToken;
+      const isLoggedIn = response.data.isLoggedIn;
+      Cookies.set("accessToken", accessToken);
+      Cookies.set("refreshToken", refreshToken);
+      Cookies.set("isLoggedIn", isLoggedIn);
+      router.push({ name: "profile" });
+      window.location.href = "/customer/account/edit/";
+    }
+  } catch (error) {
+    console.log(error);
+    const errorMessage = error.response?.data?.message;
+    errors.value.password.passwordSignUp = errorMessage;
+    toast(errorMessage, {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  } finally {
+    isLoadingSignIn.value = false;
+  }
 };
 </script>
 <style scoped>
-@import "../../assets/css/login_signup.css";
+/* @import "../../assets/css/login_signup.css";  */
 </style>

@@ -1,5 +1,53 @@
 import * as yup from "yup";
 
+export const registerUserSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  otp: yup
+    .string()
+    .matches(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số")
+    .required("Mã OTP là bắt buộc"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
+});
+
+export const loginUserSchema = yup.object({
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
+});
+
+export const forgotPasswordSchema = yup.object({
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  otp: yup
+    .string()
+    .matches(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số")
+    .required("Mã OTP là bắt buộc"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+  cfpassword: yup
+    .string()
+    .required("Xác nhận mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự")
+    .oneOf([yup.ref("password")], "Mật khẩu xác nhận không khớp"),
+});
+
 export const updateUserSchema = yup.object({
   firstName: yup.string().required("Họ là bắt buộc"),
   lastName: yup.string().required("Tên là bắt buộc"),
@@ -27,12 +75,19 @@ export const updateUserSchema = yup.object({
 });
 
 export const changePasswordSchema = yup.object({
-  currentPassword: yup.string().required("Mật khẩu hiện tại là bắt buộc"),
-  newPassword: yup.string().required("Mật khẩu mới là bắt buộc"),
+  currentPassword: yup
+    .string()
+    .required("Mật khẩu hiện tại là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
+  newPassword: yup
+    .string()
+    .required("Mật khẩu mới là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
   cfNewPassword: yup
     .string()
     .oneOf([yup.ref("newPassword"), null], "Mật khẩu xác nhận không khớp")
-    .required("Xác nhận mật khẩu là bắt buộc"),
+    .required("Xác nhận mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phair từ 8 ký tự"),
 });
 
 export const changePhoneNumberSchema = yup.object({
@@ -93,7 +148,6 @@ export const receiptSchema = yup.object({
     .required("Giá là bắt buộc")
     .min(1, "Giá không nhỏ hơn 1"),
 });
-
 
 export const addReceiptSchema = yup.object({
   bookName: yup.string().required("Tên sách là bắt buộc"),

@@ -1,9 +1,9 @@
 <template>
   <div>
     <Header />
-    <Navbar />
+    <!-- <Navbar /> -->
     <div class="bg-secondary-subtle">
-      <div class="py-3"><router-view></router-view></div>
+      <router-view></router-view>
     </div>
     <!-- Footer sẽ được hiển thị nếu không phải route "checkOut" -->
     <Footer v-if="!isCheckOutRoute" />

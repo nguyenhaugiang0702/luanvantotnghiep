@@ -1,213 +1,371 @@
 <template>
-  <div class="container-fluid">
-    <div class="row mx-auto">
-      <div class="col-sm-3 text-center">
-        <router-link to="/">
-          <img
-            src="../../assets/images/logo1.png"
-            alt="Logo"
-            style="width: 200px; height: 100px"
-          />
-        </router-link>
-      </div>
-      <!-- Tìm Kiếm -->
-      <Search />
-      <!-- End Tìm Kiếm -->
-
-      <!-- Giỏ Hàng -->
-      <div class="col-auto dropdown my-4">
-        <button
-          @click="handleNavigateRoute('cart')"
-          class="btn btn-outline-secondary dropdown-toggle position-relative"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <i class="fa-solid fa-cart-shopping"></i> Giỏ Hàng
-          <span
-            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-          >
-            {{ booksInCart.totalQuantity }}
-            <span class="visually-hidden">unread messages</span>
-          </span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-cart">
-          <li class="my-2 ms-3">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span class="fw-bold ms-2"
-              >Giỏ hàng ({{ booksInCart.totalQuantity }})</span
+  <header class="bg-white shadow-sm py-2">
+    <div class="container">
+      <nav class="navbar navbar-expand-md navbar-light">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <!-- Left: Logo (desktop) / Menu Icon (mobile) -->
+          <div class="d-flex align-items-center">
+            <button
+              class="navbar-toggler d-md-none me-2"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#mobileMenu"
             >
-          </li>
-          <hr />
-          <div class="books-list">
-            <li v-for="book in booksInCart.books" :key="book.bookID._id">
-              <div class="d-flex align-items-center">
-                <div class="text-center">
-                  <router-link
-                    :to="{
-                      name: 'book-detail',
-                      params: { bookID: book.bookID._id },
-                    }"
-                  >
-                    <img
-                      v-if="book.bookID.images && book.bookID.images.length > 0"
-                      class="ms-2 me-4"
-                      style="width: 80px; height: 80px"
-                      :src="`${config.imgUrl}/` + book.bookID?.images[0]?.path"
-                      alt=""
-                  /></router-link>
-                </div>
-                <div class="col-sm-9">
-                  <div class="row text-break fw-bold">
-                    <router-link
-                      class="text-decoration-none text-dark"
-                      :to="{
-                        name: 'book-detail',
-                        params: { bookID: book.bookID._id },
-                      }"
-                    >
-                      <div class="col-sm-12">
-                        {{ book.bookID.name }}
-                      </div></router-link
-                    >
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <span class="text-danger fw-bold">{{
-                        formatPrice(book.price)
-                      }}</span>
-                      x
-                      <span>{{ book.quantity }}</span>
-                    </div>
-                  </div>
-                </div>
+              <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="/">
+              <div class="d-none d-md-flex align-items-center">
+                <img
+                  class="img-fluid"
+                  style="width: 150px; object-fit: contain"
+                  src="../../assets/images/logo1.png"
+                  alt=""
+                />
+                <span class="ms-2 fw-bold text-primary">NHG Bookstore</span>
               </div>
-              <hr />
-            </li>
-          </div>
-
-          <div class="row" v-if="isLoggedIn && token">
-            <div class="col-sm-6 text-start mx-4">
-              Tổng cộng:
-              <span class="text-danger fw-bold">{{
-                formatPrice(booksInCart.totalPrice)
-              }}</span>
-            </div>
-            <div class="col-sm-3 text-center">
-              <router-link class="btn btn-warning" :to="{ name: 'cart' }"
-                >Giỏ hàng</router-link
-              >
-            </div>
-          </div>
-        </ul>
-      </div>
-      <!-- End Giỏ Hàng -->
-
-      <!-- Tài Khoản -->
-      <div class="col-2 dropdown">
-        <div v-if="isLoggedIn && token" class="my-4" style="z-index: 1021">
-          <div class="dropdown">
-            <a
-              class="nav-link dropdown-toggle d-flex align-items-center"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <img
-                v-if="userInfo.avatar"
-                style="width: 40px; border-radius: 50%"
-                :src="`http://localhost:3000/` + userInfo.avatar"
-                alt=""
-              />
-              <i v-else class="fa-solid fa-user fs-3 mt-1"></i>
-
-              <span class="ms-2">
-                <div v-if="userInfo.firstName && userInfo.lastName">
-                  {{ userInfo.firstName + " " + userInfo.lastName }}
-                </div>
-                <div v-else>{{ userInfo.phoneNumber }}</div>
-              </span>
             </a>
-            <ul class="dropdown-menu">
-              <li>
-                <router-link
-                  class="dropdown-item text-decoration-none"
-                  :to="{ name: 'profile' }"
-                  >Tài khoản</router-link
+          </div>
+
+          <!-- Center: Desktop Navigation -->
+          <div class="d-none d-md-block">
+            <ul class="navbar-nav text-uppercase fw-semibold">
+              <li class="nav-item me-2">
+                <a
+                  class="nav-link"
+                  :class="{ active: currentPage === 'home' }"
+                  href="/"
+                  >Trang chủ</a
                 >
               </li>
-              <li>
-                <router-link
-                  class="dropdown-item"
-                  :to="{ name: 'profile-orders' }"
-                  >Đơn hàng</router-link
+              <li class="nav-item me-2">
+                <a
+                  class="nav-link"
+                  :class="{ active: currentPage === 'book-list' }"
+                  href="/books"
+                  >Cửa hàng</a
                 >
               </li>
-              <li>
-                <hr class="dropdown-divider" />
+              <li class="nav-item me-2">
+                <a class="nav-link" href="/categories">Categories</a>
               </li>
-              <li>
-                <a class="dropdown-item" @click="logOut" href="#">Đăng xuất</a>
+              <li class="nav-item me-2">
+                <a class="nav-link" href="/about">About</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/contact">Contact</a>
               </li>
             </ul>
           </div>
-        </div>
 
-        <div v-else class="dropdown my-4">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="fa-solid fa-user mt-auto"></i> Tài Khoản
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <router-link to="login" class="dropdown-item" @click="setLogin">
-                Đăng Nhập
-              </router-link>
-            </li>
-            <li>
-              <router-link to="login" class="dropdown-item" @click="setSignUp">
-                Đăng Ký
-              </router-link>
-            </li>
-          </ul>
+          <!-- Right: Search, Cart, User Account -->
+          <div class="d-flex align-items-center">
+            <button @click="toggleSearch" class="btn btn-link text-dark me-2">
+              <i class="fas fa-search fs-5"></i>
+            </button>
+            <!-- cart -->
+            <div class="dropdown">
+              <button
+                @click="handleNavigateRoute('cart')"
+                class="btn dropdown-toggle position-relative me-2"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fa-solid fa-cart-shopping fs-5"></i>
+                <span
+                  class="badge-cart translate-middle badge rounded-pill bg-danger"
+                >
+                  {{ booksInCart.totalQuantity }}
+                  <span class="visually-hidden">unread messages</span>
+                </span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-cart">
+                <li class="my-2 ms-3">
+                  <i class="fa-solid fa-cart-shopping"></i>
+                  <span class="fw-bold ms-2"
+                    >Giỏ hàng ({{ booksInCart.totalQuantity }})</span
+                  >
+                </li>
+                <hr />
+                <div v-if="booksInCart.books.length !== 0">
+                  <div class="books-list">
+                    <li
+                      v-for="book in booksInCart.books"
+                      :key="book.bookID._id"
+                    >
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="text-center">
+                          <router-link
+                            :to="{
+                              name: 'book-detail',
+                              params: { bookID: book.bookID._id },
+                            }"
+                          >
+                            <img
+                              v-if="
+                                book.bookID.images &&
+                                book.bookID.images.length > 0
+                              "
+                              class="ms-2"
+                              style="width: 80px; height: 80px"
+                              :src="
+                                `${config.imgUrl}/` +
+                                book.bookID?.images[0]?.path
+                              "
+                              alt=""
+                          /></router-link>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                          <div class="text-break fw-bold">
+                            <router-link
+                              class="text-decoration-none text-dark"
+                              :to="{
+                                name: 'book-detail',
+                                params: { bookID: book.bookID._id },
+                              }"
+                            >
+                              <div class="col-12">
+                                {{ book.bookID.name }}
+                              </div></router-link
+                            >
+                          </div>
+                          <div class="col-12">
+                            <span class="text-danger fw-bold">{{
+                              formatPrice(book.price)
+                            }}</span>
+                            x
+                            <span>{{ book.quantity }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <hr />
+                    </li>
+                  </div>
+
+                  <div class="d-flex justify-content-around align-items-center">
+                    <div class="d-flex flex-column">
+                      <span>Tổng cộng:</span>
+                      <span class="text-danger fw-bold">{{
+                        formatPrice(booksInCart.totalPrice)
+                      }}</span>
+                    </div>
+                    <div class="text-center">
+                      <router-link
+                        class="btn btn-primary"
+                        :to="{ name: 'cart' }"
+                        >Xem giỏ hàng</router-link
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <EmptyCart />
+                </div>
+              </ul>
+            </div>
+
+            <!-- Desktop: User Account Dropdown -->
+            <div class="dropdown d-none d-md-block d-sm-none">
+              <div
+                v-if="isLoggedIn && token"
+                class="my-4"
+                style="z-index: 1021"
+              >
+                <div class="dropdown">
+                  <a
+                    class="nav-link dropdown-toggle d-flex align-items-center"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <div v-if="userInfo.avatar">
+                      <img
+                        style="width: 40px; border-radius: 50%"
+                        :src="`http://localhost:3000/` + userInfo.avatar"
+                        alt=""
+                      />
+                      <span class="ms-2">{{
+                        userInfo.firstName + " " + userInfo.lastName
+                      }}</span>
+                    </div>
+                    <div v-else>
+                      <i class="fa-solid fa-user fs-4 mt-1"></i
+                      ><span class="ms-2">{{
+                        userInfo.firstName + " " + userInfo.lastName
+                      }}</span>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <router-link
+                        class="dropdown-item text-decoration-none"
+                        :to="{ name: 'profile' }"
+                        >Tài khoản</router-link
+                      >
+                    </li>
+                    <li>
+                      <router-link
+                        class="dropdown-item"
+                        :to="{ name: 'profile-orders' }"
+                        >Đơn hàng</router-link
+                      >
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                      <a class="dropdown-item" @click="logOut" href="#"
+                        >Đăng xuất</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div v-else class="dropdown my-4">
+                <button
+                  class="btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i class="fa-solid fa-user mt-auto fs-5"></i> Tài Khoản
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <router-link to="login" class="dropdown-item">
+                      Đăng Nhập
+                    </router-link>
+                  </li>
+                  <li>
+                    <router-link to="register" class="dropdown-item">
+                      Đăng Ký
+                    </router-link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- Mobile: User Account Icon -->
+            <div class="d-md-none d-sm-block">
+              <div v-if="token && isLoggedIn && userInfo">
+                <img
+                  style="width: 40px; border-radius: 50%"
+                  :src="`http://localhost:3000/` + userInfo.avatar"
+                  alt=""
+                  data-bs-toggle="offcanvas"
+                  data-bs-target="#userMenu"
+                />
+              </div>
+              <div v-else>
+                <button
+                  class="btn btn-link text-dark d-md-none"
+                  type="button"
+                  data-bs-toggle="offcanvas"
+                  data-bs-target="#userMenu"
+                >
+                  <i class="fas fa-user fs-5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      </nav>
+
+      <!-- Search Bar -->
+      <div v-if="isSearchOpen" class="py-3">
+        <form @submit.prevent="submitSearch" class="d-flex">
+          <input
+            v-model="searchQuery"
+            type="search"
+            class="form-control me-2"
+            placeholder="Search for books..."
+          />
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
       </div>
-      <!-- End Tài Khoản -->
     </div>
-  </div>
-</template>
-<script setup>
-import Search from "./Search.vue";
-import {
-  computed,
-  onMounted,
-  ref,
-  inject,
-  watch,
-  nextTick,
-  watchEffect,
-} from "vue";
-import Swal from "sweetalert2";
-import Cookies from "js-cookie";
-import UserService from "@/service/user.service";
-import CartService from "@/service/cart.service";
-import { useRouter } from "vue-router";
-import config from "@/config/index";
-import { formatPrice, handleNavigate } from "@/utils/utils";
 
-const userInfo = ref({});
+    <!-- Mobile Menu (Offcanvas) -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button
+          type="button"
+          class="btn-close text-reset"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="/books">Books</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="/categories">Categories</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="/contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Mobile User Account Menu (Offcanvas) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="userMenu">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Your Account</h5>
+        <button
+          type="button"
+          class="btn-close text-reset"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/account">My Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/orders">My Orders</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/wishlist">Wishlist</a>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link btn btn-link" @click="signOut">
+              Sign Out
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch, inject } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import CartService from "@/service/cart.service";
+import UserService from "@/service/user.service";
+import { formatPrice, handleNavigate } from "@/utils/utils";
+import config from "@/config/index";
+import EmptyCart from "./carts/EmptyCart.vue";
+import Cookies from "js-cookie";
+import { showConfirmation } from "@/utils/swalUtils";
+
+const isSearchOpen = ref(false);
+const searchQuery = ref("");
+const route = useRoute();
 const router = useRouter();
-const userService = new UserService();
+const currentPage = computed(() => route.name);
+const updateCart = inject("updateCart");
 const cartService = new CartService();
+const userService = new UserService();
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
-const updateCart = inject("updateCart");
-const isDropdownOpen = ref(false);
+const userInfo = ref({});
 const booksInCart = ref({
   books: [],
   totalPrice: 0,
@@ -223,42 +381,44 @@ const getUser = async () => {
   }
 };
 
-onMounted(() => {
-  getUser();
-});
+const logOut = async () => {
+  const isConfirm = await showConfirmation({
+    title: "Bạn có muốn đăng xuất?",
+  });
+  if (isConfirm.isConfirmed) {
+    Cookies.remove("accessToken");
+    Cookies.remove("isLoggedIn");
+    Cookies.remove("refreshToken");
+    window.location.reload();
+  }
+};
+
+const toggleSearch = () => {
+  isSearchOpen.value = !isSearchOpen.value;
+};
 
 const handleNavigateRoute = (routeName) => {
   $(".dropdown-menu").removeClass("show");
   handleNavigate(router, routeName);
 };
 
-const logOut = () => {
-  Swal.fire({
-    title: "Xác nhận đăng xuất",
-    text: "Bạn có chắc chắn muốn đăng xuất?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Đồng ý",
-    cancelButtonText: "Hủy bỏ",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      sessionStorage.clear();
-      document.cookie =
-        "accessToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-      document.cookie =
-        "user_name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
-      delete axios.defaults.headers.common["Authorization"];
-      window.location.reload();
-    }
-  });
+const submitSearch = () => {
+  // Implement search functionality
+  console.log("Searching for:", searchQuery.value);
+  searchQuery.value = "";
+  isSearchOpen.value = false;
+};
+
+const signOut = () => {
+  // Implement sign out functionality
+  console.log("Signing out");
 };
 
 const getCarts = async () => {
-  if (token) {
-    const response = await cartService.get("/", token);
-    if (response.status === 200) {
-      booksInCart.value = response.data;
-    }
+  const response = await cartService.get("/");
+  if (response.status === 200) {
+    booksInCart.value = response.data;
+    console.log(response.data);
   }
 };
 
@@ -271,52 +431,122 @@ watch(updateCart, (newValue) => {
 
 onMounted(() => {
   getCarts();
+  getUser();
 });
-
-const setLogin = () => {
-  localStorage.setItem("isSignInActive", true);
-  router.push({ name: "login" });
-  //   window.location.reload();
-};
-
-const setSignUp = () => {
-  localStorage.setItem("isSignInActive", false);
-  router.push({ name: "login" });
-  //   window.location.reload();
-};
 </script>
+
 <style scoped>
-.books-list {
-  overflow-y: auto;
-  max-height: 450px;
-}
-.dropdown:hover .dropdown-menu {
-  display: block;
-  animation: fadeInUp 0.35s ease-in-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@media (min-width: 768px) {
+  .navbar-nav {
+    display: flex;
+    justify-content: center;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .books-list {
+    overflow-y: auto;
+    max-height: 450px;
+  }
+  .dropdown:hover .dropdown-menu {
+    display: block;
+    animation: fadeInUp 0.35s ease-in-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .dropdown-menu-cart {
+    position: absolute;
+    top: 30px;
+    width: 400px;
+    left: -15rem;
+  }
+
+  .dropdown-menu {
+    z-index: 1021;
+  }
+
+  /* Đảm bảo các li bên trong không làm dropdown menu bị kéo dài */
+  .dropdown-menu .books-list {
+    list-style: none; /* Loại bỏ dấu gạch đầu dòng của li */
+    padding: 0; /* Xóa padding của ul */
+    margin: 0; /* Xóa margin của ul */
   }
 }
-.dropdown-menu-cart {
-  width: 500px;
+
+@media (max-width: 768px) {
+  .dropdown:hover .dropdown-menu {
+    display: none; /* Ngăn không cho dropdown hiển thị khi hover */
+    opacity: 0; /* Tùy chọn: ẩn opacity */
+  }
+
+  /* Hoặc nếu bạn muốn tắt hoàn toàn hiệu ứng dropdown */
+  .dropdown .dropdown-menu {
+    display: none; /* Đảm bảo dropdown không hiển thị trên màn hình nhỏ */
+  }
+}
+/* Hover and active */
+.nav-link {
+  position: relative; /* Đặt vị trí của phần tử cha */
+  overflow: hidden; /* Đảm bảo hiệu ứng không vượt ra ngoài phần tử */
+  padding-bottom: 5px; /* Khoảng cách giữa văn bản và gạch dưới */
+  color: #000;
+  transition: color 0.3s ease;
 }
 
-.dropdown-menu {
-  z-index: 1021;
+.nav-link::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0; /* Đặt bắt đầu từ trái của phần tử */
+  height: 2px; /* Độ dày của gạch dưới */
+  width: 100%; /* Độ rộng của gạch dưới */
+  background-color: var(
+    --bs-primary
+  ); /* Màu gạch dưới, sử dụng màu primary của Bootstrap */
+  transition: transform 0.3s ease, width 0.3s ease; /* Hiệu ứng chuyển động */
+  transform: scaleX(0); /* Gạch dưới ban đầu sẽ có chiều rộng bằng 0 */
+  transform-origin: left; /* Bắt đầu từ trái khi mở rộng */
 }
 
-/* Đảm bảo các li bên trong không làm dropdown menu bị kéo dài */
-.dropdown-menu .books-list {
-  list-style: none; /* Loại bỏ dấu gạch đầu dòng của li */
-  padding: 0; /* Xóa padding của ul */
-  margin: 0; /* Xóa margin của ul */
+.nav-link:hover {
+  color: var(--bs-primary); /* Đổi màu chữ khi hover thành màu xanh Bootstrap */
+}
+
+.nav-link:hover::before {
+  transform: scaleX(1); /* Hiển thị gạch dưới khi hover */
+}
+
+.nav-link.active {
+  color: var(--bs-primary); /* Màu xanh khi mục được chọn */
+}
+
+.nav-link.active::before {
+  transform: scaleX(1); /* Gạch dưới sẽ hiện đầy đủ khi mục được chọn */
+}
+
+.dropdown .dropdown-toggle .ms-2 {
+  max-width: 150px; /* Đặt chiều rộng tối đa cho phần tên */
+  white-space: nowrap; /* Không cho văn bản xuống dòng */
+  overflow: hidden; /* Ẩn phần văn bản vượt quá chiều rộng */
+  text-overflow: ellipsis; /* Thêm dấu chấm lửng nếu tên bị cắt */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.badge-cart {
+  position: absolute;
+  top: 5px;
+  right: -15px;
 }
 </style>
