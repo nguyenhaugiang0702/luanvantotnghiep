@@ -71,6 +71,15 @@ exports.findAll = async (req, res, next) => {
 };
 
 exports.findAllBookToReceipt = async (req, res, next) => {
+  try {
+    const books = await bookService.getTopViewedBooks();
+    return res.send(books);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy sách có lượt xem nhiều nhất"));
+  }
+};
+
+exports.findTopViewedBooks  = async (req, res, next) => {
   let books = [];
   try {
     books = await bookService.getFullInfoAllBooks();
@@ -85,10 +94,10 @@ exports.filterBooks = async (req, res, next) => {
   let totalBooks = 0;
   let totalPages = 0;
   try {
-    const { filters, page, limit, sortBy } = req.query;
+    const { filters, page, limit, sortBy, searchQuery } = req.query;
     const filtersString = JSON.parse(filters || {});
 
-    totalBooks = await bookService.getTotalBooks(filtersString);
+    totalBooks = await bookService.getTotalBooks(filtersString, searchQuery);
 
     totalPages = Math.ceil(totalBooks / parseInt(limit));
 
@@ -98,7 +107,8 @@ exports.filterBooks = async (req, res, next) => {
       filtersString,
       skip,
       parseInt(limit),
-      sortBy
+      sortBy,
+      searchQuery
     );
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
@@ -114,8 +124,9 @@ exports.findOne = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
     const book = await bookService.getFullInfoBookByID(bookID);
-    const discountPercent =
-      (book.detail.discountPrice / book.detail.originalPrice) * 100;
+    const discountPercent = Math.ceil(
+      (book.detail.discountPrice / book.detail.originalPrice) * 100
+    );
 
     const bookDetail = {
       ...book._doc,
@@ -141,7 +152,25 @@ exports.findImages = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const book = await bookService.updateBook(bookID, req.body);
+    return res.send({
+      message: "Cập nhật thành công sách",
+      book,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi cập nhật sách"));
+  }
+};
+
+exports.updateView = async (req, res, next) => {
+  try {
+    const bookID = req.params.bookID;
+    const { view } = req.body;
+    const book = await bookService.getBookByID(bookID);
+    book.view += parseInt(view);
+    await book.save();
     return res.send({
       message: "Cập nhật thành công sách",
       book,
@@ -175,6 +204,7 @@ exports.updateImage = async (req, res, next) => {
       message: "Cập nhật thành công sách",
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi cập nhật sách"));
   }
 };

@@ -1,12 +1,12 @@
 const express = require("express");
-const authUser = require("../../controllers/auth/authUser.controller");
+const authUser = require("../../../controllers/auth/authUser.controller");
 const passport = require("passport");
-const config = require("../../config/index");
+const config = require("../../../config/index");
 const router = express.Router();
-require("../../passport");
-const jwt = require("../../middlewares/jwt.middleware");
-const validation = require("../../middlewares/validateUser.middelware");
-const authenticateToken = require("../../middlewares/jwt.middleware");
+// require("../../passport");
+const jwt = require("../../../middlewares/jwt.middleware");
+const validation = require("../../../middlewares/validateUser.middelware");
+const authenticateToken = require("../../../middlewares/jwt.middleware");
 
 router.route("/login").post(validation.loginUserValidation, authUser.login); // Đăng nhập (validated)
 router
@@ -16,7 +16,7 @@ router
   .route("/forgotPassword")
   .post(validation.forgotPasswordValidation, authUser.forgotPassword); // Quên mật khẩu (validated)
 router.route("/createOTP").post(authUser.createOTP); // Tạo OTP
-router.route("/register/verifyOTP").post(authUser.verifyOTP); // Xác thực OTP (validated)
+router.route("/verifyOTP").post(authUser.verifyOTP); // Xác thực OTP (validated)
 router
   .route("/changePassword")
   .put(

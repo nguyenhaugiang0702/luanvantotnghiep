@@ -11,8 +11,9 @@ const qs = require("qs");
 
 exports.createLinkOrderByZaloPay = async (req, res, next) => {
   try {
+    console.log(1);
     const userID = req.user.id;
-    const { addressID, totalQuantity, notes, payment } = req.body;
+    const { addressID, totalQuantity, notes, payment, voucherID, shippingFee } = req.body;
     const embed_data = {
       redirecturl: "http://localhost:3001/thanks",
       userID: userID,
@@ -20,6 +21,8 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       addressID: addressID,
       notes: notes,
       payment: payment,
+      voucherID: voucherID,
+      shippingFee: shippingFee
     };
 
     // Chuyển đổi req.body.detail thành định dạng phù hợp
@@ -113,8 +116,10 @@ exports.handleZaloPayIPN = async (req, res, next) => {
         totalQuantity: embedData.totalQuantity,
         notes: embedData.notes,
         payment: embedData.payment,
+        voucherID: embedData.voucherID,
         detail: items,
         wasPaided: true,
+        shippingFee: embedData.shippingFee,
         createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
         updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
       };

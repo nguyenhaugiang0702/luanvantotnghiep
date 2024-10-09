@@ -50,7 +50,11 @@ const bookSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  createAt: Date,
+  view: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: Date,
   updatedAt: Date,
 });
 

@@ -68,7 +68,7 @@ const findImageByBookIDAndImageID = async (bookID, imageID) => {
   };
 };
 
-const buildFilterQuery = (filters) => {
+const buildFilterQuery = (filters, searchQuery) => {
   const query = {};
 
   // Lọc theo các trường
@@ -91,11 +91,20 @@ const buildFilterQuery = (filters) => {
     query.authorID = { $in: filters.author };
   }
 
+  // Add search logic
+  if (searchQuery) {
+    query.$or = [
+      { name: { $regex: searchQuery, $options: "i" } }, // Search by name (title)
+      { "detail.description": { $regex: searchQuery, $options: "i" } }, // Search in description
+      // Here you can include other fields if necessary
+    ];
+  }
+
   return query;
 };
 
-const getFilteredBooks = async (filters, skip, limit, sortBy) => {
-  const query = buildFilterQuery(filters);
+const getFilteredBooks = async (filters, skip, limit, sortBy, searchQuery) => {
+  const query = buildFilterQuery(filters, searchQuery);
   let books = await Book.find(query).skip(skip).limit(limit);
   books = books.map((book) => {
     const originalPrice = book.detail.originalPrice || 0;
@@ -114,10 +123,18 @@ const getFilteredBooks = async (filters, skip, limit, sortBy) => {
   return books;
 };
 
-const getTotalBooks = async (filters) => {
-  const query = buildFilterQuery(filters);
+const getTotalBooks = async (filters, searchQuery) => {
+  const query = buildFilterQuery(filters, searchQuery);
   const totalBooks = await Book.countDocuments(query);
   return totalBooks;
+};
+
+const getTopViewedBooks = async () => {
+  const books = await Book.find()
+    .sort({ view: -1 }) 
+    .limit(4); 
+
+  return books;
 };
 
 module.exports = {
@@ -134,4 +151,5 @@ module.exports = {
   buildFilterQuery,
   getBookByID,
   searchBooks,
+  getTopViewedBooks,
 };

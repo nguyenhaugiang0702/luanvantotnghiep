@@ -17,7 +17,7 @@ paypal.configure({
 
 exports.createLinkOrderByPayPal = async (req, res, next) => {
   try {
-    const { detail, addressID, notes } = req.body;
+    const { detail, addressID, notes, voucherID } = req.body;
     const userID = req.user.id;
     // Tạo danh sách sách sau khi lấy tên sách từ bookID
     const books = await Promise.all(
@@ -29,9 +29,9 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
         const priceUSD = await convert.convertVNDToUSD(item.realPrice);
         return {
           name: book.name,
-          sku: book._id, 
-          price: priceUSD, 
-          currency: "USD", 
+          sku: book._id,
+          price: priceUSD,
+          currency: "USD",
           quantity: item.quantity,
         };
       })
@@ -63,7 +63,7 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
             total: totalAmount.toFixed(2),
           },
           description: "Thanh toán đơn hàng sách",
-          custom: JSON.stringify({ userID, addressID, notes }),
+          custom: JSON.stringify({ userID, addressID, notes, voucherID, shippingFee }),
         },
       ],
     };
@@ -118,7 +118,10 @@ exports.handlePayPalSuccess = async (req, res, next) => {
           notes: customObj.notes,
           addressID: customObj.addressID,
           totalPrice: parseFloat(totalAmount),
+          payment: "PAYPAL",
+          voucherID: customObj.voucherID,
           wasPaided: true,
+          shippingFee: customObj.shippingFee,
           createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
           updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
         };

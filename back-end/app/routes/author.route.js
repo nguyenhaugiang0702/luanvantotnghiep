@@ -8,8 +8,7 @@ router
   .get(authors.findAll)
   .post(validateSupplier.createAuthorValidation, authors.create);
 
-
-  router
+router
   .route("/:authorID")
   .put(validateSupplier.createAuthorValidation, authors.update)
   .delete(authors.delete);

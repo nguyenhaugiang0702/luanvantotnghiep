@@ -3,7 +3,7 @@ const priceRangeSchema = new mongoose.Schema({
   name: String,
   startPrice: Number,
   endPrice: Number,
-  createAt: Date,
+  createdAt: Date,
   updatedAt: Date,
 });
 

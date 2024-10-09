@@ -16,7 +16,7 @@ function authenticateTokenFromHeader(req, res, next) {
         return next(new ApiError(403, "Vui lòng kiểm tra lại"));
       }
     }
-    req.admin = admin;
+    req.admin = { ...admin, token };
     next();
   });
 }

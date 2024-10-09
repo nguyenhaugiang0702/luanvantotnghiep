@@ -5,7 +5,7 @@ const authorSchema = new mongoose.Schema({
     required: true,
   },
   dob: String,
-  createAt: Date,
+  createdAt: Date,
   updatedAt: Date,
 });
 

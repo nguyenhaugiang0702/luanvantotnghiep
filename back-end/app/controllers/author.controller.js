@@ -6,10 +6,6 @@ exports.create = async (req, res, next) => {
   try {
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    // const formattedDob = moment
-    //   .tz(req.body.dob, "YYYY-MM-DD", "Asia/Ho_Chi_Minh")
-    //   .format("DD/MM/YYYY");
-    // req.body.dob = formattedDob;
     const newAuthor = await auhorService.createAuthor(req.body);
     return res.send({
       message: "Thêm tác giả thành công",
@@ -33,10 +29,11 @@ exports.findAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const authorID = req.params.authorID;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const author = await auhorService.updateAuthor(authorID, req.body);
     return res.send({
       message: "Cập nhật thành công tác giả",
-      author
+      author,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi cập nhật tác giả"));

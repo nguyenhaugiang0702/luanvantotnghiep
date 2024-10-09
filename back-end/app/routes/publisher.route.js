@@ -1,7 +1,10 @@
 const express = require("express");
-const router = express.Router();
 const publishers = require("../controllers/publisher.controller");
 const validation = require("../middlewares/validatePublisher.middelware");
+const jwtAdmin = require("../middlewares/jwtAdmin.middleware");
+
+const router = express.Router();
+router.use(jwtAdmin.authenticateTokenFromHeader);
 
 router
   .route("/")

@@ -10,23 +10,6 @@ const User = require("../models/user.model");
 const ValidateService = require("../utils/validate.util");
 const fs = require("fs").promises;
 
-exports.activeAccount = async (req, res, next) => {
-  const userID = req.user._id;
-  const userEmail = req.user.email;
-  try {
-    const userEmailExist = await userService.activeUserAccount({
-      _id: userID,
-      email: userEmail,
-    });
-    res.send({
-      message: "Tài khoản được kích hoạt!",
-      userEmailExist,
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi kích hoạt tài khoản"));
-  }
-};
-
 exports.blockAccount = async (req, res, next) => {
   try {
     await userService.blockUserAccount(req.params.userID);
@@ -146,7 +129,9 @@ exports.updateProfile = async (req, res, next) => {
       });
     } else {
       const user = await userService.getUserById(userID);
-      await fs.unlink(user.avatar);
+      if (user.avatar) {
+        await fs.unlink(user.avatar);
+      }
 
       const pathAvatar = req.file.path;
 

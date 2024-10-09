@@ -4,15 +4,17 @@ const formalityService = require("../services/formality.service");
 
 exports.create = async (req, res, next) => {
   try {
-    if (!req.body?.name) {
+    const { name } = req.body;
+    if (!name) {
       return next(new ApiError(404, "Tên hình thức là bắt buộc"));
     }
-    const checkNameExist = await formalityService.checkNameExist(req.body.name);
+    const checkNameExist = await formalityService.checkNameExist(name.trim());
     if (checkNameExist) {
       return next(new ApiError(400, "Đã tồn tại tên hình thức"));
     }
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.name = name.trim();
     const newFormality = await formalityService.createFormality(req.body);
     return res.send({
       message: "Thêm mới hình thức thành công",
@@ -35,14 +37,18 @@ exports.findAll = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    if (!req.body?.name) {
+    const { name } = req.body;
+    const { formalityID } = req.params;
+
+    if (!name) {
       return next(new ApiError(404, "Tên hình thức là bắt buộc"));
     }
-    const checkNameExist = await formalityService.checkNameExist(req.body.name);
+    const checkNameExist = await formalityService.checkNameExist(name.trim());
     if (checkNameExist) {
       return next(new ApiError(400, "Đã tồn tại tên hình thức"));
     }
-    const formalityID = req.params.formalityID;
+    req.body.name = name.trim();
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const formality = await formalityService.updateFormality(
       formalityID,
       req.body

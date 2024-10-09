@@ -29,14 +29,23 @@ exports.login = async (req, res, next) => {
       { id: admin._id },
       "my_jwt_secret_key_bookstore_admin",
       {
+        expiresIn: "30s",
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: admin._id },
+      "my_jwt_secret_key_bookstore_admin",
+      {
         expiresIn: "1y",
       }
     );
 
-    res.send({
+    return res.send({
       isLoggedIn: true,
       message: "Đăng nhập thành công!",
       accessToken,
+      refreshToken,
       admin: admin,
     });
   } catch (error) {
@@ -54,5 +63,34 @@ exports.checkRole = async (req, res, next) => {
     return res.send({ role: admin.role });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi đăng nhập"));
+  }
+};
+
+exports.refreshToken = async (req, res, next) => {
+  const adminID = req.admin.id;
+  const refreshToken = req.admin.token;
+
+  try {
+    const admin = await adminService.getAdminByID(adminID);
+
+    if (!admin) {
+      return next(new ApiError(404, "Tài khoản không tồn tại."));
+    }
+    const newAccessToken = jwt.sign(
+      { id: adminID },
+      "my_jwt_secret_key_bookstore_admin",
+      {
+        expiresIn: "30m",
+      }
+    );
+    return res.send({
+      accessToken: newAccessToken,
+      isLoggedIn: true,
+      refreshToken: refreshToken,
+    });
+  } catch (error) {
+    return next(
+      new ApiError(403, "Refresh token không hợp lệ hoặc đã hết hạn.")
+    );
   }
 };

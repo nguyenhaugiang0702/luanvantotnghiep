@@ -1,5 +1,5 @@
 const yup = require("yup");
-
+const moment = require("moment");
 // Schema Register
 const registerUserSchema = yup.object({
   firstName: yup.string().required("Họ là bắt buộc"),
@@ -76,9 +76,26 @@ const addressSchema = yup.object({
     .string()
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
-  province: yup.string().required("Tên tỉnh là bắt buộc"),
-  district: yup.string().required("Tên quận/huyện là bắt buộc"),
-  ward: yup.string().required("Tên xã là bắt buộc"),
+  province: yup
+    .object({
+      name: yup.string().required("Tên tỉnh là bắt buộc"),
+      code: yup.number().required("Mã tỉnh là bắt buộc"),
+    })
+    .required("Thông tin tỉnh là bắt buộc"),
+
+  district: yup
+    .object({
+      name: yup.string().required("Tên quận/huyện là bắt buộc"),
+      code: yup.number().required("Mã quận/huyện là bắt buộc"),
+    })
+    .required("Thông tin quận/huyện là bắt buộc"),
+
+  ward: yup
+    .object({
+      name: yup.string().required("Tên xã là bắt buộc"),
+      code: yup.string().required("Mã xã là bắt buộc"),
+    })
+    .required("Thông tin xã là bắt buộc"),
   detailAddress: yup
     .string()
     .required("Thông tin này quan trọng.Vui lòng không để trống."),
@@ -116,10 +133,10 @@ const orderSchema = yup.object().shape({
     .min(1, "Tổng số lượng phải lớn hơn hoặc bằng 1")
     .required("Cần nhập tổng số lượng"), // Tổng số lượng >= 1, bắt buộc
   notes: yup.string().optional(), // Chuỗi, không bắt buộc
+  voucherID: yup.string().optional(), // Chuỗi, không bắt buộc
   payment: yup
     .string()
-    .oneOf(["COD", "online"], "Hình thức thanh toán phải là COD hoặc online")
-    .required("Cần nhập phương thức thanh toán"), // Chuỗi, chỉ được là 'COD' hoặc 'online', bắt buộc
+    .required("Cần nhập phương thức thanh toán"), 
 });
 
 // Schema Supplier
@@ -246,6 +263,88 @@ const priceRangeSchema = yup.object({
     .required("Giá kết thúc là bắt buộc"),
 });
 
+const voucherCategorySchema = yup.object().shape({
+  discountType: yup
+    .string()
+    .oneOf(["percent", "amount"], "Kiểu giảm giá không hợp lệ")
+    .required("Loại giảm giá là bắt buộc"),
+
+  value: yup.number().when("discountType", {
+    is: "percent",
+    then: () =>
+      yup
+        .number()
+        .min(1, "Giá trị phải từ 1 đến 100")
+        .max(100, "Giá trị phải từ 1 đến 100")
+        .required("Giá trị là bắt buộc"),
+    otherwise: () =>
+      yup
+        .number()
+        .min(0, "Giá trị không được âm")
+        .required("Giá trị là bắt buộc"),
+  }),
+
+  minValue: yup
+    .number()
+    .required("Giá trị giảm từ là bắt buộc")
+    .min(0, "Giá trị giảm phải lớn hơn hoặc bằng 0")
+    .typeError("Giá trị phải là số"),
+
+  maxValue: yup
+    .number()
+    .required("Giá trị giảm đến là bắt buộc")
+    .min(0, "Giá trị giảm phải lớn hơn hoặc bằng 0")
+    .typeError("Giá trị phải là số")
+    .test(
+      "max-greater-than-min",
+      "Giá trị giảm đến phải lớn hơn Giá trị giảm từ",
+      function (maxValue) {
+        return maxValue > this.parent.minValue;
+      }
+    ),
+});
+
+const voucherSchema = yup.object().shape({
+  voucherCategoryID: yup.string().required("Loại giảm giá là bắt buộc"),
+
+  quantity: yup
+    .number()
+    .required("Số lượng là bắt buộc")
+    .min(0, "Số lượng phải lớn hơn hoặc bằng 0")
+    .typeError("Số lượng phải là số"),
+
+  startDate: yup
+    .string()
+    .required("Ngày bắt đầu là bắt buộc")
+    .test("is-valid-date", "Ngày bắt đầu không hợp lệ", (value) => {
+      return moment(value, "DD/MM/YYYY", true).isValid();
+    }),
+
+  endDate: yup
+    .string()
+    .required("Ngày kết thúc là bắt buộc")
+    .test("is-valid-date", "Ngày kết thúc không hợp lệ", (value) => {
+      return moment(value, "DD/MM/YYYY", true).isValid();
+    })
+    .test(
+      "end-date-after-start-date",
+      "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu",
+      function (endDate) {
+        const { startDate } = this.parent;
+        const isValidStartDate = moment(
+          startDate,
+          "DD/MM/YYYY",
+          true
+        ).isValid();
+        return isValidStartDate
+          ? moment(endDate, "DD/MM/YYYY", true).isSameOrAfter(
+              moment(startDate, "DD/MM/YYYY", true)
+            )
+          : true;
+      }
+    ),
+});
+
 module.exports = {
   supplierSchema,
   authorSchema,
@@ -260,4 +359,6 @@ module.exports = {
   changePasswordSchema,
   updateUserSchema,
   orderSchema,
+  voucherCategorySchema,
+  voucherSchema,
 };

@@ -12,13 +12,16 @@ const addressSchema = new mongoose.Schema({
   },
   phoneNumber: String,
   province: {
-    type: String,
+    name: String,
+    code: Number,
   },
   district: {
-    type: String,
+    name: String,
+    code: Number,
   },
   ward: {
-    type: String,
+    name: String,
+    code: Number,
   },
   detailAddress: {
     type: String,
@@ -26,7 +29,7 @@ const addressSchema = new mongoose.Schema({
   isDefault: {
     type: Boolean,
     default: false,
-  },  
+  },
   createdAt: {
     type: Date,
   },

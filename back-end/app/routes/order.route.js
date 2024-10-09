@@ -4,6 +4,7 @@ const momo = require("../controllers/momo/paymentMomo.controller");
 const zalopay = require("../controllers/zalopay/paymentZalopay.controller");
 const paypal = require("../controllers/paypal/paymentPaypal.controller");
 const jwt = require("../middlewares/jwt.middleware");
+const jwtAdmin = require("../middlewares/jwtAdmin.middleware");
 const validation = require("../middlewares/validateOrder.middelware");
 
 const router = express.Router();
@@ -15,11 +16,13 @@ router
     validation.ordersValidation,
     order.create
   )
-  .get(order.findAllByAdmin);
+  .get(jwtAdmin.authenticateTokenFromHeader, order.findAllByAdmin);
 router
   .route("/getAll")
   .get(jwt.authenticateTokenFromHeader, order.findAllOrdersByUserID); // Lấy tất cả đơn hàng của khách hàng
-router.route("/:orderID").get(order.findOneByAdmin);
+router
+  .route("/:orderID")
+  .get(jwtAdmin.authenticateTokenFromHeader, order.findOneByAdmin);
 router
   .route("/detail/:orderID")
   .get(jwt.authenticateTokenFromHeader, order.findOne); // Chi tiết đơn hàng khách hàng
@@ -27,7 +30,9 @@ router
 router
   .route("/updateStatus/:orderID")
   .put(jwt.authenticateTokenFromHeader, order.updateStatusByCustomer); // Cập nhật trạng thái bên customer
-router.route("/updateStatusByAd/:orderID").put(order.updateStatusByAd); // Cập nhật trạng thái bên admin
+router
+  .route("/updateStatusByAd/:orderID")
+  .put(jwtAdmin.authenticateTokenFromHeader, order.updateStatusByAd); // Cập nhật trạng thái bên admin
 
 // MOMO
 router

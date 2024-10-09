@@ -1,9 +1,11 @@
 const express = require("express");
 const suppliers = require("../controllers/supplier.controller");
-const authenticateToken = require("../middlewares/jwt.middleware");
+const jwt = require("../middlewares/jwt.middleware");
+const jwtAdmin = require("../middlewares/jwtAdmin.middleware");
 const validateSupplier = require("../middlewares/validateSupplier.middleware");
 
 const router = express.Router();
+router.use(jwtAdmin.authenticateTokenFromHeader);
 
 router
   .route("/")

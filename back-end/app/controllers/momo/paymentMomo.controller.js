@@ -11,12 +11,6 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
   try {
     const userID = req.user.id;
     req.body.userID = userID;
-    // req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    // req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    // const newOrder = await orderService.createOrder(req.body);
-    // if (!newOrder) {
-    //   return next(new ApiError(400, "Lỗi khi đặt hàng!"));
-    // }
     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
     //parameters
     const accessKey = config.momo.accessKey;
@@ -108,7 +102,6 @@ exports.handleMomoIPN = async (req, res, next) => {
   extraDataObj.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
   extraDataObj.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
   extraDataObj.wasPaided = true;
-  console.log(extraDataObj);
   const newOrder = await orderService.createOrder(extraDataObj);
   if (!newOrder) {
     return next(new ApiError(400, "Lỗi khi tạo đơn hàng sau thanh toán"));

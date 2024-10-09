@@ -16,7 +16,7 @@ const publisherSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  createAt: Date,
+  createdAt: Date,
   updatedAt: Date,
 });
 

@@ -5,20 +5,9 @@ const voucherSchema = new mongoose.Schema({
   code: {
     type: String,
   },
-  categoryVoucherID: {
+  voucherCategoryID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "VoucherCategory",
-  },
-  value: {
-    type: Number,
-  },
-  minValue: {
-    type: Number,
-    default: 0,
-  },
-  maxValue: {
-    type: Number,
-    default: null,
   },
   quantity: {
     type: Number,
@@ -38,11 +27,22 @@ const voucherSchema = new mongoose.Schema({
 });
 
 const voucherCategorySchema = new mongoose.Schema({
+  discountType: {
+    type: String,
+  },
   name: {
     type: String,
   },
-  description: {
-    type: String,
+  value: {
+    type: Number,
+  },
+  minValue: {
+    type: Number,
+    default: 0,
+  },
+  maxValue: {
+    type: Number,
+    default: null,
   },
   createdAt: {
     type: Date,

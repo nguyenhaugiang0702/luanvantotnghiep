@@ -31,6 +31,15 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  shippingFee:{
+    type: Number,
+    default: 0,
+  },
+  voucherID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Voucher",
+    default: null,
+  },
   createdAt: Date,
   updatedAt: Date,
 });
