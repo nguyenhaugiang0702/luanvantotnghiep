@@ -109,10 +109,9 @@ DataTable.use(ButtonsHtml5);
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 //
-import PublisherService from "@/service/publisher.service.js";
-import ReceiptService from "@/service/receipt.service.js";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
+
 import { useRouter } from "vue-router";
-import { toast } from "vue3-toastify";
 import moment from "moment";
 
 export default defineComponent({
@@ -121,8 +120,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
-    const publisherService = new PublisherService();
-    const receiptService = new ReceiptService();
+    const apiAdmin = new ApiAdmin();
     const columns = [
       {
         data: null,
@@ -168,7 +166,7 @@ export default defineComponent({
     const receipts = ref([]);
 
     const getReceipts = async () => {
-      const response = await receiptService.get("/");
+      const response = await apiAdmin.get("/receipts");
       if (response.status === 200) {
         receipts.value = response.data;
       }
@@ -182,30 +180,12 @@ export default defineComponent({
       );
     };
 
-    const deletePublisher = async (publisherID) => {
-      const response = await publisherService.delete(`/${publisherID}`);
-      if (response.status == 200) {
-        toast(response.data.message, { theme: "auto", type: "success" });
-        getReceipts();
-      }
-    };
-
     $(document).on("click", "#detailReceipt", (event) => {
       const receiptID = $(event.currentTarget).data("id");
       router.push({
         name: "admin-receipts-detail",
         params: { receiptID: receiptID },
       });
-    });
-
-    $(document).on("click", "#deletePublisher", async (event) => {
-      const publisherID = $(event.currentTarget).data("id");
-      const isConfirmed = confirm(
-        "Bạn có chắc chắn muốn xóa nhà xuất bản này?"
-      );
-      if (isConfirmed) {
-        await deletePublisher(publisherID);
-      }
     });
 
     onMounted(getReceipts);

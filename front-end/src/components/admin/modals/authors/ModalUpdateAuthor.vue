@@ -40,13 +40,14 @@
               <label for="authorDob" class="form-label">Ngày sinh</label>
               <Field
                 name="authorDob"
-                type="date"
+                id="authorDob"
+                type="text"
                 class="form-control"
                 :class="{
                   'is-invalid': errors.authorDob,
                   'is-valid': !errors.authorDob && authorToEdit.dob !== '',
                 }"
-                id="authorDob"
+                placeholder="Nhập ngày sinh"
                 v-model="authorToEdit.dob"
               />
               <ErrorMessage name="authorDob" class="invalid-feedback" />
@@ -71,12 +72,13 @@
 </template>
 
 <script>
-import { ref, watch, defineComponent } from "vue";
+import { ref, watch, defineComponent, onMounted, nextTick } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { authorSchema } from "@/utils/schema.util";
-import AuthorsService from "@/service/author.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
-
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.css";
 export default defineComponent({
   components: { Field, ErrorMessage },
   props: {
@@ -91,12 +93,12 @@ export default defineComponent({
   emits: ["refreshAuthors"],
   setup(props, { emit }) {
     const authorToEdit = ref({ ...props.authorToEdit });
-
+    const authorDobRef = ref(null);
     const { errors, validate, resetForm } = useForm({
       validationSchema: authorSchema,
     });
 
-    const authorService = new AuthorsService();
+    const apiAdmin = new ApiAdmin();
 
     const updateAuthor = async () => {
       const { valid } = await validate();
@@ -108,10 +110,10 @@ export default defineComponent({
           name: authorToEdit.value.name,
           dob: authorToEdit.value.dob,
         };
-        console.log(props.authorToEdit._id);
-        const response = await authorService.put(
-          `/${props.authorToEdit._id}`,
-          authorToEdit.value
+
+        const response = await apiAdmin.put(
+          `/authors/${props.authorToEdit._id}`,
+          data
         );
         if (response.status === 200) {
           toast(response.data.message, {
@@ -133,6 +135,12 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      flatpickr("#authorDob", {
+        dateFormat: "d/m/Y",
+      });
+    });
+
     // Watch prop để cập nhật trạng thái nếu prop thay đổi
     watch(
       () => props.authorToEdit,
@@ -147,6 +155,7 @@ export default defineComponent({
       authorToEdit,
       errors,
       updateAuthor,
+      authorDobRef,
     };
   },
 });

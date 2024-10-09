@@ -71,7 +71,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import ModalAddFormality from "@/components/admin/modals/formalities/ModalAddFormality.vue";
 import ModalUpdateFormality from "@/components/admin/modals/formalities/ModalUpdateFormality.vue";
-import FormalityService from "@/service/formality.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
@@ -86,7 +86,7 @@ export default {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-formalities"]);
-    const formalityService = new FormalityService();
+    const apiAdmin = new ApiAdmin();
     const editedFormality = ref({});
     const columns = [
       {
@@ -129,7 +129,7 @@ export default {
     // const editedNxb = ref({});
     const formalities = ref([]);
     const getFormalities = async () => {
-      const response = await formalityService.get("/");
+      const response = await apiAdmin.get("/formalities");
       if (response.status === 200) {
         formalities.value = response.data;
       }
@@ -146,7 +146,7 @@ export default {
     });
 
     const deleteFormality = async (formalityID) => {
-      const response = await formalityService.delete(`/${formalityID}`);
+      const response = await apiAdmin.delete(`/formalities/${formalityID}`);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",

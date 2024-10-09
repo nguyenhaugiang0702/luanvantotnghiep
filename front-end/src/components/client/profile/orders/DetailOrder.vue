@@ -127,7 +127,7 @@
 <script setup>
 import { useRoute } from "vue-router";
 import { ref, onMounted, watch } from "vue";
-import OrderService from "@/service/order.service";
+import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
 import { formatPrice } from "@/utils/utils";
 import moment from "moment";
@@ -135,7 +135,7 @@ import moment from "moment";
 const route = useRoute();
 const token = Cookies.get("accessToken");
 const orderID = ref(route.params.orderID);
-const orderService = new OrderService();
+const apiUser = new ApiUser();
 const orderDetail = ref({
   userID: {},
   addressID: {},
@@ -146,10 +146,9 @@ const orderDetail = ref({
   ],
 });
 const getOrderDetail = async () => {
-  const response = await orderService.get(`/detail/${orderID.value}`);
+  const response = await apiUser.get(`/orders/detail/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
-    console.log(response.data);
   }
 };
 

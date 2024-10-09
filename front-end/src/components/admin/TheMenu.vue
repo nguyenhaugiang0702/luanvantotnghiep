@@ -142,6 +142,24 @@
         <desktop-outlined />
         <span>Đánh giá</span>
       </a-menu-item>
+      <a-sub-menu key="admin-vouchers-list">
+        <template #title>
+          <span>
+            <team-outlined />
+            <span>Mã giảm giá</span>
+          </span>
+        </template>
+        <a-menu-item
+          key="admin-vouchers-list"
+          @click="navigateTo('admin-vouchers-list')"
+          >Danh sách</a-menu-item
+        >
+        <a-menu-item
+          key="admin-vouchers-voucherCategory-list"
+          @click="navigateTo('admin-vouchers-voucherCategory-list')"
+          >Loại giảm giá</a-menu-item
+        >
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
 </template>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import AuthUserService from "../service/auth/authUser.service";
+import ApiUser from "../../../service/user/apiUser.service";
 
 const instance = axios.create({
   baseURL: "http://localhost:3000/api/v1",
@@ -11,12 +11,17 @@ instance.interceptors.request.use(
     const accessToken = Cookies.get("accessToken");
     const isLoggedIn = Cookies.get("isLoggedIn");
     const refreshToken = Cookies.get("refreshToken");
-    if (config.url.includes("/auth/user/refreshToken")) {
+    if (config.url.includes("/auth/refreshToken")) {
       config.headers.Authorization = `Bearer ${refreshToken}`;
     } else {
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
+    }
+    // Kiểm tra nếu config.data là FormData
+    if (config.data instanceof FormData) {
+      // Không thiết lập Content-Type vì axios sẽ tự động làm điều đó
+      delete config.headers["Content-Type"];
     }
     return config;
   },
@@ -38,8 +43,8 @@ instance.interceptors.response.use(
       // Cookies.set("isLoggedIn", false);
       originalRequest._retry = true; // Đánh dấu rằng đã thử làm mới token
       try {
-        const authUserService = new AuthUserService();
-        const data = await authUserService.refreshAccessToken();
+        const apiUser = new ApiUser();
+        const data = await apiUser.refreshAccessToken();
         const newAccessToken = data.accessToken;
         Cookies.set("accessToken", newAccessToken);
         Cookies.set("refreshToken", data.refreshToken);

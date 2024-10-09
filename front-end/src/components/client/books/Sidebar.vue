@@ -119,46 +119,6 @@
       </span>
     </div>
 
-    <!-- Nhà cung cấp -->
-    <h5 class="mb-3">Nhà cung cấp</h5>
-    <hr class="custom-hr" />
-    <ul class="list-unstyled">
-      <li
-        v-for="supplier in visibleSuppliers"
-        :key="supplier._id"
-        class="form-check mb-2"
-      >
-        <div :title="supplier.name">
-          <input
-            class="form-check-input border border-dark"
-            type="checkbox"
-            :id="`supplier-${supplier._id}`"
-            :value="supplier._id"
-            @change="
-              handleFilterChange('supplier', supplier, $event.target.checked)
-            "
-          />
-          <label class="form-check-label" :for="`supplier-${supplier._id}`">{{
-            supplier.name
-          }}</label>
-        </div>
-      </li>
-    </ul>
-    <div
-      v-if="visibleSuppliers.length >= 8"
-      class="mb-2 text-center text-primary"
-    >
-      <span @click="toggleSuppliers" class="showMore">
-        {{ showMoreSuppliers ? "Thu gọn" : "Xem thêm" }}
-        <i
-          :class="[
-            'fa-solid',
-            showMoreSuppliers ? 'fa-arrow-turn-up' : 'fa-arrow-turn-down',
-          ]"
-        ></i>
-      </span>
-    </div>
-
     <!-- Hình thức -->
     <h5 class="mb-3">Hình thức</h5>
     <hr class="custom-hr">
@@ -244,13 +204,7 @@
 <script>
 import { ref, computed, onMounted, watch } from "vue";
 import { useExpandableList } from "@/composables/useExpandableList";
-import AuthorsService from "@/service/author.service";
-import PublisherService from "@/service/publisher.service";
-import CategoryService from "@/service/category.service";
-import FormalityService from "@/service/formality.service";
-import SupplierService from "@/service/supplier.service";
-import PriceRangeService from "@/service/priceRange.service";
-import BookService from "@/service/book.service";
+import ApiUser from "@/service/user/apiUser.service";
 
 export default {
   emit: ["selected-ids"],
@@ -263,7 +217,6 @@ export default {
         formality: [],
         price: [],
         publisher: [],
-        supplier: [],
       }),
     },
   },
@@ -272,25 +225,17 @@ export default {
     const publishers = ref([]);
     const categories = ref([]);
     const formalities = ref([]);
-    const suppliers = ref([]);
     const priceranges = ref([]);
     const selectedFilters = ref({
       price: [],
       category: [],
       publisher: [],
-      supplier: [],
       formality: [],
       author: [],
     });
 
     // Services
-    const authorsService = new AuthorsService();
-    const publishersService = new PublisherService();
-    const categoriesService = new CategoryService();
-    const formalitiesService = new FormalityService();
-    const supplierService = new SupplierService();
-    const priceRangeService = new PriceRangeService();
-    const bookService = new BookService();
+    const apiUser = new ApiUser();
 
     const fetchData = async () => {
       const [
@@ -298,15 +243,13 @@ export default {
         publishersResponse,
         categoriesResponse,
         formalitiesResponse,
-        suppliersResponse,
         pricerangesResponse,
       ] = await Promise.all([
-        authorsService.get("/"),
-        publishersService.get("/"),
-        categoriesService.get("/"),
-        formalitiesService.get("/"),
-        supplierService.get("/"),
-        priceRangeService.get("/"),
+        apiUser.get("/filters/authors"),
+        apiUser.get("/filters/publishers"),
+        apiUser.get("/filters/categories"),
+        apiUser.get("/filters/formalities"),
+        apiUser.get("/filters/priceranges"),
       ]);
 
       if (authorsResponse.status === 200) {
@@ -320,9 +263,6 @@ export default {
       }
       if (formalitiesResponse.status === 200) {
         formalities.value = formalitiesResponse.data;
-      }
-      if (suppliersResponse.status === 200) {
-        suppliers.value = suppliersResponse.data;
       }
       if (pricerangesResponse.status === 200) {
         priceranges.value = pricerangesResponse.data;
@@ -350,11 +290,6 @@ export default {
       showMore: showMorePublishers,
       toggleItems: togglePublishers,
     } = useExpandableList(publishers);
-    const {
-      visibleItems: visibleSuppliers,
-      showMore: showMoreSuppliers,
-      toggleItems: toggleSuppliers,
-    } = useExpandableList(suppliers);
     const {
       visibleItems: visiblePriceRange,
       showMore: showMorePriceRange,
@@ -401,7 +336,6 @@ export default {
             price: [],
             category: [],
             publisher: [],
-            supplier: [],
             formality: [],
             author: [],
           };
@@ -422,7 +356,6 @@ export default {
             price: priceranges.value,
             category: categories.value,
             publisher: publishers.value,
-            supplier: suppliers.value,
             formality: formalities.value,
             author: authors.value,
           },
@@ -454,10 +387,6 @@ export default {
       visibleFormalities,
       showMoreFormalities,
       toggleFormalities,
-      /* Suppliers */
-      visibleSuppliers,
-      showMoreSuppliers,
-      toggleSuppliers,
       /* Publishers */
       visiblePublishers,
       showMorePublishers,

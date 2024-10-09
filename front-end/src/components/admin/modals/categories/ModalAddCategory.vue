@@ -64,7 +64,7 @@
   </div>
 </template>
 <script>
-import CategoryService from "@/service/category.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 import { ref } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -79,14 +79,14 @@ export default {
     const { errors, validate, resetForm } = useForm({
       validationSchema: categorySchema,
     });
-    const categoryService = new CategoryService();
+    const apiAdmin = new ApiAdmin();
     const addCategory = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
-        const response = await categoryService.post("/", newCategory.value);
+        const response = await apiAdmin.post("/categories", newCategory.value);
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",

@@ -157,8 +157,7 @@
 import { ref, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { addressSchema } from "@/utils/schema.util";
-import axios from "axios";
-import AddressService from "@/service/address.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRouter, useRoute } from "vue-router";
@@ -175,48 +174,51 @@ export default {
     const selectedProvince = ref(0);
     const selectedDistrict = ref(0);
     const selectedWard = ref(0);
-    const addressService = new AddressService();
+    let apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const router = useRouter();
     const route = useRoute();
     const addressID = route.params.addressID;
     const address = ref({});
-    const newAddress = ref({
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      detailAddress: "",
-      province: "",
-      district: "",
-      ward: "",
-    });
 
     const { errors, validate, resetForm } = useForm({
       validationSchema: addressSchema,
     });
 
-    watch(selectedProvince, (newValue) => {
+    watch(selectedProvince, async (newValue) => {
       const selectedProvinceObj = provinces.value.find(
-        (province) => province.id === newValue
+        (province) => province.id === newValue.toString()
       );
-      selectedDistrict.value = 0;
-      selectedWard.value = 0;
-      address.value.province = selectedProvinceObj
-        ? selectedProvinceObj.full_name
-        : "";
+      address.value.province = {
+        name: selectedProvinceObj ? selectedProvinceObj.full_name : "",
+        code: selectedProvinceObj ? parseInt(selectedProvinceObj.id) : "",
+      };
+
+      // Gọi fetchDistricts khi province thay đổi
+      await fetchDistricts();
     });
-    watch(selectedDistrict, (newValue) => {
+
+    watch(selectedDistrict, async (newValue) => {
       const selectedDistrictObj = districts.value.find(
-        (district) => district.id === newValue
+        (district) => district.id === newValue.toString()
       );
-      selectedWard.value = 0;
-      address.value.district = selectedDistrictObj
-        ? selectedDistrictObj.full_name
-        : "";
+      address.value.district = {
+        name: selectedDistrictObj ? selectedDistrictObj.full_name : "",
+        code: selectedDistrictObj ? parseInt(selectedDistrictObj.id) : "",
+      };
+
+      // Gọi fetchWards khi district thay đổi
+      await fetchWards();
     });
+
     watch(selectedWard, (newValue) => {
-      const selectedWardObj = wards.value.find((ward) => ward.id === newValue);
-      address.value.ward = selectedWardObj ? selectedWardObj.full_name : "";
+      const selectedWardObj = wards.value.find(
+        (ward) => ward.id === newValue.toString()
+      );
+      address.value.ward = {
+        name: selectedWardObj ? selectedWardObj.full_name : "",
+        code: selectedWardObj ? parseInt(selectedWardObj.id) : "",
+      };
     });
 
     const updateAddress = async () => {
@@ -224,11 +226,12 @@ export default {
       if (!valid) {
         return;
       }
+
       const { createdAt, updatedAt, ...addressData } = address.value;
-      const response = await addressService.put(
-        `/${addressID}`,
-        addressData,
-        token
+      console.log(addressData);
+      const response = await apiUser.put(
+        `/addresses/${addressID}`,
+        addressData
       );
       if (response.status === 200) {
         toast(response.data.message, {
@@ -288,38 +291,14 @@ export default {
     };
 
     const getAddress = async () => {
-      const response = await addressService.get(`/${addressID}`, token);
+      const response = await apiUser.get(`/addresses/${addressID}`);
       if (response.status === 200) {
         address.value = response.data;
-        // Set giá trị của selectedProvince dựa trên tên tỉnh
-        const selectedProvinceObj = provinces.value.find(
-          (province) => province.full_name === address.value.province
-        );
-        if (selectedProvinceObj) {
-          selectedProvince.value = selectedProvinceObj.id;
-
-          // Fetch districts based on selected province
-          await fetchDistricts();
-
-          // Set giá trị của selectedDistrict dựa trên tên quận/huyện
-          const selectedDistrictObj = districts.value.find(
-            (district) => district.full_name === address.value.district
-          );
-          if (selectedDistrictObj) {
-            selectedDistrict.value = selectedDistrictObj.id;
-
-            // Fetch wards based on selected district
-            await fetchWards();
-
-            // Set giá trị của selectedWard dựa trên tên xã/phường
-            const selectedWardObj = wards.value.find(
-              (ward) => ward.full_name === address.value.ward
-            );
-            if (selectedWardObj) {
-              selectedWard.value = selectedWardObj.id;
-            }
-          }
-        }
+        selectedProvince.value = response.data.province.code;
+        await fetchDistricts();
+        selectedDistrict.value = response.data.district.code;
+        await fetchWards();
+        selectedWard.value = response.data.ward.code;
       }
     };
 
@@ -331,7 +310,6 @@ export default {
     return {
       errors,
       address,
-      newAddress,
       updateAddress,
       provinces,
       districts,

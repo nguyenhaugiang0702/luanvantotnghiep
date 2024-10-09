@@ -59,7 +59,7 @@
 import { ref, watch, defineComponent } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { categorySchema } from "@/utils/schema.util";
-import CategoryService from "@/service/category.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 
 export default defineComponent({
@@ -80,7 +80,7 @@ export default defineComponent({
       validationSchema: categorySchema,
     });
 
-    const categoryService = new CategoryService();
+    const apiAdmin = new ApiAdmin();
 
     const updateCategory = async () => {
       const { valid } = await validate();
@@ -88,8 +88,8 @@ export default defineComponent({
         return;
       }
       try {
-        const response = await categoryService.put(
-          `/${props.categoryToEdit._id}`,
+        const response = await apiAdmin.put(
+          `/categories/${props.categoryToEdit._id}`,
           categoryToEdit.value
         );
         if (response.status === 200) {

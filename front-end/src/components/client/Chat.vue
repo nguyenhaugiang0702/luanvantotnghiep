@@ -10,7 +10,7 @@
     </button>
 
     <!-- Chat box -->
-    <div v-if="isOpen" class="card" style="width: 27rem">
+    <div v-if="isOpen" class="card" style="width: 27rem; height: 25rem;">
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
@@ -77,7 +77,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
-import ChatsService from "@/service/chat.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { formatDate } from "@/utils/utils";
 
 const socket = ref(null);
@@ -90,7 +90,7 @@ const isLoggedIn = Cookies.get("isLoggedIn");
 
 const chatContainer = ref(null);
 //
-const chatsService = new ChatsService();
+const apiUser = new ApiUser();
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== "") {
@@ -107,7 +107,7 @@ const sendMessage = () => {
 };
 
 const checkRoomChat = async () => {
-  const response = await chatsService.get("/checkRoomChat");
+  const response = await apiUser.get("/chats/checkRoomChat");
   if (response.status === 200) {
     chatRoomId.value = response.data.chatRoomID;
   }

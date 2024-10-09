@@ -71,7 +71,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import ModalAddCategory from "@/components/admin/modals/categories/ModalAddCategory.vue";
 import ModalUpdateCategory from "@/components/admin/modals/categories/ModalUpdateCategory.vue";
-import CategoryService from "@/service/category.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
@@ -86,7 +86,7 @@ export default {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-categories"]);
-    const categoryService = new CategoryService();
+    const apiAdmin = new ApiAdmin();
     const editedCategory = ref({});
     const columns = [
       {
@@ -129,7 +129,7 @@ export default {
     // const editedNxb = ref({});
     const categories = ref([]);
     const getCategories = async () => {
-      const response = await categoryService.get("/");
+      const response = await apiAdmin.get("/categories");
       if (response.status === 200) {
         categories.value = response.data;
       }
@@ -146,7 +146,7 @@ export default {
     });
 
     const deleteCategory = async (categoryID) => {
-      const response = await categoryService.delete(`/${categoryID}`);
+      const response = await apiAdmin.delete(`/categories/${categoryID}`);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",
@@ -215,7 +215,7 @@ export default {
       columns,
       editedCategory,
       buttons,
-      language
+      language,
     };
   },
 };

@@ -60,6 +60,11 @@ const client = [
         ],
       },
       {
+        path: "/discountCode",
+        name: "discountCode",
+        component: () => import("../pages/client/DiscountCode.vue"),
+      },
+      {
         path: "/customer/account/edit/",
         name: "profile",
         meta: { requiresAuth: true, requiresAdmin: false },
@@ -77,6 +82,12 @@ const client = [
             name: "profile-password",
             component: () =>
               import("../components/client/profile/ChangePassword.vue"),
+          },
+          {
+            path: "vouchers",
+            name: "profile-vouchers",
+            component: () =>
+              import("../components/client/profile/Vouchers.vue"),
           },
           {
             path: "address",

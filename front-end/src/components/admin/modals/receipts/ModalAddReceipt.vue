@@ -147,7 +147,7 @@
   </div>
 </template>
 <script>
-import ReceiptService from "@/service/receipt.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 import { ref, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -166,7 +166,7 @@ export default {
     },
   },
   setup(props, { emit }) {
-    const receiptService = new ReceiptService();
+    const apiAdmin = new ApiAdmin();
     const supplierID = ref(props.supplierID);
     const receiptID = ref(props.receiptID);
     const newReceipt = ref({
@@ -224,8 +224,8 @@ export default {
       if (!valid) {
         return;
       }
-      const response = await receiptService.put(
-        `/${receiptID.value}`,
+      const response = await apiAdmin.put(
+        `/receipts/${receiptID.value}`,
         newReceipt.value
       );
       if (response.status === 200) {

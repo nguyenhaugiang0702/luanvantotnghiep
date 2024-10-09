@@ -72,7 +72,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import ModalAddAuthor from "@/components/admin/modals/authors/ModalAddAuthor.vue";
 import ModalUpdateAuthor from "@/components/admin/modals/authors/ModalUpdateAuthor.vue";
-import CommentService from "@/service/comment.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
@@ -87,7 +87,7 @@ export default {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-comments-list"]);
-    const commentService = new CommentService();
+    const apiAdmin = new ApiAdmin();
     const editedAuthor = ref({});
     const columns = [
       {
@@ -154,7 +154,7 @@ export default {
     // const editedNxb = ref({});
     const comments = ref([]);
     const getComments = async () => {
-      const response = await commentService.get("/");
+      const response = await apiAdmin.get("/comments");
       if (response.status === 200) {
         console.log(response.data);
         comments.value = response.data;

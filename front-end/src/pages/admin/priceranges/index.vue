@@ -72,7 +72,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import ModalAddPriceRange from "@/components/admin/modals/priceranges/ModalAddPriceRange.vue";
 import ModalUpdatePriceRange from "@/components/admin/modals/priceranges/ModalUpdatePriceRange.vue";
-import PriceRangeService from "@/service/priceRange.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
@@ -87,7 +87,7 @@ export default {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-priceranges-list"]);
-    const priceRangeService = new PriceRangeService();
+    const apiAdmin = new ApiAdmin();
     const editedPriceRange = ref({});
     const columns = [
       {
@@ -134,7 +134,7 @@ export default {
     // const editedNxb = ref({});
     const priceranges = ref([]);
     const getPriceRanges = async () => {
-      const response = await priceRangeService.get("/");
+      const response = await apiAdmin.get("/priceranges");
       if (response.status === 200) {
         priceranges.value = response.data;
       }
@@ -152,7 +152,7 @@ export default {
     });
 
     const deletePriceRange = async (priceRangeID) => {
-      const response = await priceRangeService.delete(`/${priceRangeID}`);
+      const response = await apiAdmin.delete(`/priceranges/${priceRangeID}`);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",
@@ -220,8 +220,8 @@ export default {
       priceranges,
       columns,
       editedPriceRange,
-      buttons, 
-      language
+      buttons,
+      language,
     };
   },
 };

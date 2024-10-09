@@ -158,12 +158,11 @@
 import { ref, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { addressSchema } from "@/utils/schema.util";
-import axios from "axios";
-import AddressService from "@/service/address.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
-
+import config from "@/config";
 export default {
   components: {
     Field,
@@ -176,7 +175,7 @@ export default {
     const selectedProvince = ref(0);
     const selectedDistrict = ref(0);
     const selectedWard = ref(0);
-    const addressService = new AddressService();
+    const apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const router = useRouter();
     const address = ref([]);
@@ -185,9 +184,18 @@ export default {
       lastName: "",
       phoneNumber: "",
       detailAddress: "",
-      province: "",
-      district: "",
-      ward: "",
+      province: {
+        name: "",
+        code: null,
+      },
+      district: {
+        name: "",
+        code: null,
+      },
+      ward: {
+        name: "",
+        code: null,
+      },
     });
 
     const { errors, validate, resetForm } = useForm({
@@ -198,21 +206,26 @@ export default {
       const selectedProvinceObj = provinces.value.find(
         (province) => province.id === newValue
       );
-      newAddress.value.province = selectedProvinceObj
-        ? selectedProvinceObj.full_name
-        : "";
+      newAddress.value.province = {
+        name: selectedProvinceObj ? selectedProvinceObj.full_name : "",
+        code: selectedProvinceObj ? parseInt(selectedProvinceObj.id) : "",
+      };
     });
     watch(selectedDistrict, (newValue) => {
       const selectedDistrictObj = districts.value.find(
         (district) => district.id === newValue
       );
-      newAddress.value.district = selectedDistrictObj
-        ? selectedDistrictObj.full_name
-        : "";
+      newAddress.value.district = {
+        name: selectedDistrictObj ? selectedDistrictObj.full_name : "",
+        code: selectedDistrictObj ? parseInt(selectedDistrictObj.id) : "",
+      };
     });
     watch(selectedWard, (newValue) => {
       const selectedWardObj = wards.value.find((ward) => ward.id === newValue);
-      newAddress.value.ward = selectedWardObj ? selectedWardObj.full_name : "";
+      newAddress.value.ward = {
+        name: selectedWardObj ? selectedWardObj.full_name : "",
+        code: selectedWardObj ? parseInt(selectedWardObj.id) : "",
+      };
     });
 
     const addAddress = async () => {
@@ -220,15 +233,20 @@ export default {
       if (!valid) {
         return;
       }
-      const response = await addressService.post("/", newAddress.value, token);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        resetForm();
-        router.push({ name: "profile-address-list" });
+      try {
+        console.log(newAddress.value);
+        const response = await apiUser.post("/addresses", newAddress.value);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          resetForm();
+          router.push({ name: "profile-address-list" });
+        }
+      } catch (error) {
+        console.log(error);
       }
     };
 

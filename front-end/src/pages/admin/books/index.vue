@@ -68,8 +68,7 @@ window.JsZip = JsZip;
 DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
-import AuthorsService from "@/service/author.service";
-import BookService from "@/service/book.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
@@ -79,8 +78,7 @@ import { handleNavigate } from "@/utils/utils";
 const router = useRouter();
 const store = useMenu();
 store.onSelectedKeys(["admin-books-list"]);
-const authorService = new AuthorsService();
-const bookService = new BookService();
+const apiAdmin = new ApiAdmin();
 const editedAuthor = ref({});
 const columns = [
   {
@@ -147,7 +145,7 @@ const columns = [
 
 const books = ref([]);
 const getBooks = async () => {
-  const response = await bookService.get("/");
+  const response = await apiAdmin.get("/books");
   if (response.status === 200) {
     books.value = response.data;
     console.log(response.data);

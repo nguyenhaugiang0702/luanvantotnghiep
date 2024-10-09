@@ -57,7 +57,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
-import AuthAdminService from "@/service/auth/authAdmin.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { useAuthStore } from "../../stores/auth";
 
@@ -65,7 +65,7 @@ const admin = ref({
   email: "",
   password: "",
 });
-const authAdminService = new AuthAdminService();
+const apiAdmin = new ApiAdmin();
 const router = useRouter();
 const showPassword = ref(false);
 const isLoading = ref(false);
@@ -74,7 +74,7 @@ const authStore = useAuthStore();
 const loginAdmin = async () => {
   isLoading.value = true;
   try {
-    const apiCall = await authAdminService.post("/", admin.value);
+    const apiCall = await apiAdmin.post("/auth/login", admin.value);
     const delay = new Promise((resolve) => setTimeout(resolve, 1500));
     const [response] = await Promise.all([apiCall, delay]);
     if (response?.status == 200) {
@@ -82,9 +82,9 @@ const loginAdmin = async () => {
         admin_email: "",
         admin_password: "",
       };
-      const token = response.data.accessToken;
-      Cookies.set("accessToken", token, { expires: 365 });
-      Cookies.set("isLoggedIn", response.data.isLoggedIn, { expires: 365 });
+      Cookies.set("accessToken", response.data.accessToken);
+      Cookies.set("isLoggedIn", response.data.isLoggedIn);
+      Cookies.set("refreshToken", response.data.refreshToken);
 
       // Cập nhật trạng thái đăng nhập trong auth store
       authStore.login(response.data.user); // Giả sử API trả về thông tin user

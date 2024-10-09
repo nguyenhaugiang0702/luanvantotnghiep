@@ -122,13 +122,11 @@
 <script>
 import { ref, onMounted } from "vue";
 import Cookies from "js-cookie";
-import ApiService from "@/service/ApiService";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changeEmailSchema } from "@/utils/schema.util";
-import UserService from "@/service/user.service";
-import AuthService from "@/service/auth/authUser.service";
+import ApiUser from "@/service/user/apiUser.service";
 export default {
   components: {
     Form,
@@ -145,8 +143,7 @@ export default {
       validationSchema: changeEmailSchema,
     });
     const token = Cookies.get("accessToken");
-    const userService = new UserService();
-    const authService = new AuthService();
+    const apiUser = new ApiUser();
     const otpSent = ref(false);
     const isLoading = ref(false);
     const isLoadingUpdate = ref(false);
@@ -163,7 +160,7 @@ export default {
           email: userUpdate.value.email,
         };
 
-        const response = await authService.post("/createOTP", data);
+        const response = await apiUser.post("/auth/createOTP", data);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
@@ -191,7 +188,7 @@ export default {
       }
       try {
         isLoadingUpdate.value = true;
-        const response = await userService.put("/updatePhoneAndEmail", userUpdate.value);
+        const response = await apiUser.put("/profile/updatePhoneAndEmail", userUpdate.value);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           toast(response.data.message, {

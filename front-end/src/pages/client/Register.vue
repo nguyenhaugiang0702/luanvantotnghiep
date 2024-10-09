@@ -235,7 +235,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import AuthUserService from "@/service/auth/authUser.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
@@ -247,7 +247,7 @@ const { errors, validateField, validate, resetForm } = useForm({
   validationSchema: registerUserSchema,
 });
 
-const authUserService = new AuthUserService();
+const apiUser = new ApiUser();
 const isLoading = ref(false);
 const isLoadingSendOTP = ref(false);
 const isLoadingCheckOTP = ref(false);
@@ -270,7 +270,7 @@ const sendOTP = async () => {
 
   try {
     isLoadingSendOTP.value = true;
-    const response = await authUserService.post("/createOTP", {
+    const response = await apiUser.post("/auth/createOTP", {
       phoneNumber: newUser.value.phoneNumber,
       method: "register",
     });
@@ -300,7 +300,7 @@ const signUp = async () => {
   if (!valid) return;
   try {
     isLoading.value = true;
-    const response = await authUserService.post("/register", {
+    const response = await apiUser.post("/auth/register", {
       password: newUser.value.password,
       phoneNumber: newUser.value.phoneNumber,
       firstName: newUser.value.firstName,
@@ -338,7 +338,7 @@ const checkOTP = async () => {
   }
   try {
     isLoadingCheckOTP.value = true;
-    const response = await authUserService.post("/register/verifyOTP", {
+    const response = await apiUser.post("/auth/verifyOTP", {
       phoneNumber: newUser.value.phoneNumber,
       otpSMS: newUser.value.otp,
     });

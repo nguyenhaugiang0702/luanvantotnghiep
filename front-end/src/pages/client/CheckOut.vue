@@ -1,4 +1,20 @@
 <template>
+  <div class="container-fluid bg-primary py-4">
+    <div class="container text-white">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
+      >
+        <div class="d-flex flex-column mb-3 mb-md-0">
+          <div class="fw-bold text-uppercase fs-5">Thanh toán</div>
+          <div>Hãy kiểm tra cẩn thận trước khi thanh toán</div>
+        </div>
+        <div class="align-self-md-center">
+          <span @click="handleNavigate(router, 'home')">Trang chủ </span>
+          <span>/ Thanh toán</span>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="container pb-5 container-pb">
     <!-- address -->
     <div class="row bg-white">
@@ -30,17 +46,25 @@
               " | " +
               addr.detailAddress +
               ", " +
-              addr.ward +
+              addr.ward.name +
               ", " +
-              addr.district +
+              addr.district.name +
               ", " +
-              addr.province +
+              addr.province.name +
               " | " +
               addr.phoneNumber
             }}
           </label>
         </div>
       </div>
+    </div>
+
+    <div class="row bg-white mt-4">
+      <div class="text-uppercase fw-bold col-md-6 pt-3 ps-3">
+        Hình thức giao hàng & Cước phí vận chuyển
+      </div>
+      <div class="col-md-12"><hr /></div>
+      <div class="col-md-12"></div>
     </div>
 
     <!-- Payment -->
@@ -88,7 +112,8 @@
                 object-fit: cover;
               "
               class="me-2 border border-dark border-1"
-F              alt=""
+              F
+              alt=""
               srcset=""
             />Thanh toán ZALOPAY</label
           >
@@ -135,17 +160,24 @@ F              alt=""
 
     <!-- Vouchers -->
     <div class="row bg-white mt-4 pb-4">
-      <div class="text-uppercase fw-bold col-md-6 pt-3 ps-3">mã khuyến mãi</div>
+      <div class="text-uppercase fw-bold pt-3 ps-3">Mã khuyến mãi</div>
       <div class="col-md-12"><hr /></div>
-      <div class="col-md-2 text-center pt-1">Mã khuyến mãi</div>
-      <div class="col-md-4">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Nhập mã khuyễn mãi"
-        />
+      <div class="row">
+        <div class="col-2">Mã khuyến mãi</div>
+        <div class="col-4 text-start">
+          <input
+            readonly
+            type="text"
+            class="form-control"
+            placeholder="Mã khuyễn mãi"
+            value="MAGIAM50%"
+            v-model="voucher.code"
+          />
+        </div>
+        <div class="col-4">
+          <VoucherModal @refreshCart:update="refreshCartMethod" />
+        </div>
       </div>
-      <div class="col-md-4 pt-1">Chọn mã khuyến mãi</div>
     </div>
 
     <!-- Notes -->
@@ -205,16 +237,27 @@ F              alt=""
       <div class="row d-flex justify-content-end text-end">
         <div class="col-md-10 col-sm-10">
           <div class="text-end">Thành tiền:</div>
-          <div class="text-end">Phí vận chuyển (Giao hàng tiêu chuẩn):</div>
+          <div class="text-end">
+            Phí vận chuyển (Giao hàng tiêu chuẩn):
+            <span v-if="isCalculatingFee" class="ms-2">
+              <i class="fas fa-spinner fa-spin"></i>
+            </span>
+          </div>
           <div class="text-end fw-bold my-1">Tổng Số Tiền (gồm VAT):</div>
         </div>
         <div class="col-md-2 col-sm-2">
           <div class="text-end">
             {{ formatPrice(selectedBooks.totalPrice) }}
           </div>
-          <div class="text-end">0 đ</div>
+          <div class="text-end">
+            {{ isCalculatingFee ? "Đang tính..." : formatPrice(shippingFee) }}
+          </div>
           <div class="text-end fs-5 fw-bold text-danger">
-            {{ formatPrice(selectedBooks.totalPrice) }}
+            {{
+              isCalculatingFee
+                ? "Đang tính..."
+                : formatPrice(selectedBooks.totalPrice + shippingFee)
+            }}
           </div>
         </div>
       </div>
@@ -230,14 +273,14 @@ F              alt=""
             />
             <label class="form-check-label" for="termsCheckbox">
               Bằng việc tiến hành Mua hàng, Bạn đã đồng ý với <br />
-              <a href="#">Điều khoản & Điều kiện của Fahasa.com</a>
+              <a href="#">Điều khoản & Điều kiện của nhgbookstore.com</a>
             </label>
           </div>
         </div>
         <div class="col-sm-6 col-md-6 text-end">
           <button
-            class="btn btn-danger px-4"
-            :disabled="!acceptedTerms"
+            class="btn btn-primary px-4"
+            :disabled="!acceptedTerms || isCalculatingFee"
             @click="confirmPayment"
           >
             Xác nhận thanh toán
@@ -250,23 +293,27 @@ F              alt=""
 <script setup>
 import { ref, onMounted, watch, computed, inject } from "vue";
 import Cookies from "js-cookie";
-import AddressService from "@/service/address.service";
-import CartService from "@/service/cart.service";
+import ApiUser from "@/service/user/apiUser.service";
 import config from "@/config";
-import { formatPrice } from "@/utils/utils";
-import OrderService from "@/service/order.service";
 import { toast } from "vue3-toastify";
 import { useRouter } from "vue-router";
+import { formatPrice, handleNavigate } from "@/utils/utils";
+import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
 
 const token = Cookies.get("accessToken");
-const addressService = new AddressService();
-const cartService = new CartService();
-const orderService = new OrderService();
+const apiUser = new ApiUser();
 const address = ref([]);
+const voucher = ref({
+  code: "",
+  voucherID: "",
+});
 const selectedBooks = ref({
-  totalPrice: 0,
+  originalTotalPrice: 0,
   totalQuantity: 0,
+  totalPrice: 0,
+  discountValue: 0,
   books: [],
+  bookInCart: [],
 });
 const selectedAddress = ref(""); // Địa chỉ giao hàng đã chọn
 const paymentMethod = ref("COD"); // Phương thức thanh toán mặc định là COD
@@ -274,9 +321,19 @@ const notes = ref(""); // Ghi chú cho người bán
 const acceptedTerms = ref(false);
 const router = useRouter();
 const updateCart = inject("updateCart");
-
+const vouchersEmit = ref([]);
+const dataToCalculateShippingFee = ref({
+  province: "",
+  district: "",
+  ward: "",
+  address: "",
+  weight: null,
+});
+const shippingFee = ref(0);
+const isCalculatingFee = ref(false);
+let voucherUsed;
 const getAddress = async () => {
-  const response = await addressService.get(`/`, token);
+  const response = await apiUser.get("/addresses");
   if (response.status === 200) {
     address.value = response.data;
     const defaultAddress = address.value.find((addr) => addr.isDefault);
@@ -287,18 +344,36 @@ const getAddress = async () => {
 };
 
 const getBookCheckOut = async () => {
-  const response = await cartService.get("/booksCheckBox", token);
+  const response = await apiUser.get("/cart/booksCheckBox");
   if (response.status === 200) {
-    selectedBooks.value.books = response.data.books;
-    console.log(selectedBooks.value.books);
-    selectedBooks.value.totalPrice = response.data.totalPrice;
-    selectedBooks.value.totalQuantity = response.data.totalQuantity;
+    selectedBooks.value = response.data;
+    dataToCalculateShippingFee.value.weight = response.data.totalWeight;
+    console.log(dataToCalculateShippingFee.value.weight);
+  }
+};
+
+const refreshCartMethod = async (data) => {
+  await getBookCheckOut();
+  if (data.length > 0) {
+    vouchersEmit.value = data;
+    voucherUsed = vouchersEmit.value.find((v) => v.isApplied);
+    if (voucherUsed) {
+      voucher.value.code = voucherUsed.voucherID?.code || "";
+      voucher.value.voucherID = voucherUsed.voucherID?._id || "";
+    } else {
+      voucher.value.code = "";
+      voucher.value.voucherID = "";
+    }
   }
 };
 
 const handleSelectAddress = (addressID) => {
   selectedAddress.value = addressID;
 };
+
+const selectedAddressData = computed(() => {
+  return address.value.find((addr) => addr._id === selectedAddress.value);
+});
 
 const confirmPayment = async () => {
   const orderData = {
@@ -308,20 +383,20 @@ const confirmPayment = async () => {
       quantity: book.quantity,
       realPrice: book.price,
     })),
-    totalPrice: selectedBooks.value.totalPrice,
+    totalPrice: selectedBooks.value.totalPrice + shippingFee.value,
+    shippingFee: shippingFee.value,
     totalQuantity: selectedBooks.value.totalQuantity,
     notes: notes.value,
+    voucherID: voucher.value.voucherID || undefined,
     payment: paymentMethod.value,
   };
-  console.log(orderData);
   switch (paymentMethod.value) {
     case "MOMO":
       try {
         // Gọi API MOMO ở đây
-        const momoResponse = await orderService.post(
-          "/momo/createLink",
-          orderData,
-          token
+        const momoResponse = await apiUser.post(
+          "/orders/momo/createLink",
+          orderData
         );
 
         if (momoResponse.status === 200) {
@@ -349,10 +424,9 @@ const confirmPayment = async () => {
 
     case "ZALOPAY":
       try {
-        const zalopayResponse = await orderService.post(
-          "/zalopay/createLink",
-          orderData,
-          token
+        const zalopayResponse = await apiUser.post(
+          "/orders/zalopay/createLink",
+          orderData
         );
 
         if (zalopayResponse.status === 200) {
@@ -368,6 +442,7 @@ const confirmPayment = async () => {
           });
         }
       } catch (error) {
+        console.log(error.response?.data?.message);
         toast("Đã xảy ra lỗi khi gọi API ZALOPAY", {
           theme: "auto",
           type: "error",
@@ -377,10 +452,9 @@ const confirmPayment = async () => {
       break;
     case "PAYPAL":
       try {
-        const paypalResponse = await orderService.post(
-          "/paypal/createLink",
-          orderData,
-          token
+        const paypalResponse = await apiUser.post(
+          "/orders/paypal/createLink",
+          orderData
         );
 
         if (paypalResponse.status === 200) {
@@ -414,7 +488,7 @@ const confirmPayment = async () => {
 // Tạo một phương thức riêng để xử lý đơn hàng
 const placeOrder = async (orderData) => {
   try {
-    const response = await orderService.post("/", orderData, token);
+    const response = await apiUser.post("/orders", orderData);
     if (response.status === 200) {
       toast(response.data.message, {
         theme: "auto",
@@ -425,11 +499,59 @@ const placeOrder = async (orderData) => {
       router.push({ name: "thanks" });
     }
   } catch (error) {
-    toast("Đã xảy ra lỗi khi xác nhận đơn hàng", {
+    console.log(error);
+    toast(error.response?.data?.message, {
       theme: "auto",
       type: "error",
       dangerouslyHTMLString: true,
     });
+  }
+};
+
+watch(
+  [selectedAddress, () => dataToCalculateShippingFee.value.weight],
+  async ([newAddressId, newWeight], [oldAddressId, oldWeight]) => {
+    if (selectedAddressData.value && dataToCalculateShippingFee.value.weight) {
+      const params = {
+        province: selectedAddressData.value.province.name,
+        district: selectedAddressData.value.district.name,
+        ward: selectedAddressData.value.ward.name,
+        address: selectedAddressData.value.detailAddress,
+        weight: dataToCalculateShippingFee.value.weight,
+      };
+      console.log(params);
+
+      try {
+        const fee = await getShippingFee(params);
+        shippingFee.value = fee;
+      } catch (error) {
+        console.error("Error calculating shipping fee:", error);
+        toast("Lỗi khi tính phí vận chuyển", {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
+      }
+    }
+  }
+);
+
+const getShippingFee = async (params) => {
+  try {
+    isCalculatingFee.value = true;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await apiUser.post("/orders/shipping-fee", params);
+    return response.data;
+  } catch (error) {
+    console.error("Error calculating shipping fee:", error);
+    toast("Lỗi khi tính phí vận chuyển", {
+      theme: "auto",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+    shippingFee.value = 0;
+  } finally {
+    isCalculatingFee.value = false;
   }
 };
 
@@ -444,5 +566,8 @@ onMounted(() => {
   bottom: 0;
   z-index: 1000;
   width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
 </style>

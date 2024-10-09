@@ -1,7 +1,6 @@
 import Cookies from "js-cookie";
-import AuthAdminService from "@/service/auth/authAdmin.service";
-import AuthUserService from "@/service/auth/authUser.service";
-
+import ApiAdmin from "@/service/admin/apiAdmin.service";
+import ApiUser from "@/service/user/apiUser.service";
 
 // Hàm kiểm tra quyền admin và cho phép truy cập nếu đúng quyền
 const checkAdminAccess = async (to, from, next) => {
@@ -9,9 +8,9 @@ const checkAdminAccess = async (to, from, next) => {
   const isLoggedIn = Cookies.get("isLoggedIn");
 
   if (isLoggedIn) {
-    const authAdminService = new AuthAdminService();
+    const apiAdmin = new ApiAdmin();
     try {
-      const response = await authAdminService.get("/checkRole");
+      const response = await apiAdmin.get("/auth/checkRole");
 
       if (response.data.role === "admin") {
         return next(); // Cho phép truy cập nếu role là admin
@@ -32,9 +31,9 @@ const checkLoginAndRedirect = async (to, from, next) => {
   const isLoggedIn = Cookies.get("isLoggedIn");
 
   if (isLoggedIn) {
-    const authUserService = new AuthUserService();
+    const apiUser = new ApiUser();
     try {
-      const response = await authUserService.get("/checkRole");
+      const response = await apiUser.get("/auth/checkRole");
 
       if (response.data.role === "customer") {
         next();

@@ -101,18 +101,18 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import SupplierService from "@/service/supplier.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { supllierSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
 import { useMenu } from "../../../stores/use-menu.js";
-import {handleNavigate} from "@/utils/utils.js"
+import { handleNavigate } from "@/utils/utils.js";
 
 const supplier = ref({});
 const route = useRoute();
 const router = useRouter();
 const supplierID = route.params.supplierID;
-const supplierService = new SupplierService();
+const apiAdmin = new ApiAdmin();
 const store = useMenu();
 store.onSelectedKeys(["admin-suppliers-edit"]);
 
@@ -121,7 +121,7 @@ const { errors, validate, resetForm } = useForm({
 });
 
 const getSupplier = async () => {
-  const response = await supplierService.get(`/${supplierID}`);
+  const response = await apiAdmin.get(`/suppliers/${supplierID}`);
   if (response.status === 200) {
     supplier.value = response.data;
   }
@@ -137,7 +137,7 @@ const updateSupplier = async () => {
       ...supplier.value,
       method: "edit",
     };
-    const response = await supplierService.put(`/${supplierID}`, data);
+    const response = await apiAdmin.put(`/suppliers/${supplierID}`, data);
     if (response.status == 200) {
       toast(response.data.message, {
         theme: "auto",
@@ -157,7 +157,6 @@ const updateSupplier = async () => {
 onMounted(() => {
   getSupplier();
 });
-
 </script>
 <style scoped>
 .hoverPointer {

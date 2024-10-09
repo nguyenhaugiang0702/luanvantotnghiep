@@ -28,7 +28,8 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.startPrice,
-                  'is-valid': !errors.startPrice && priceRangeToEdit.startPrice !== '',
+                  'is-valid':
+                    !errors.startPrice && priceRangeToEdit.startPrice !== '',
                 }"
                 id="startPrice"
                 placeholder="Tên tác giả"
@@ -44,7 +45,8 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.endPrice,
-                  'is-valid': !errors.endPrice && priceRangeToEdit.endPrice !== '',
+                  'is-valid':
+                    !errors.endPrice && priceRangeToEdit.endPrice !== '',
                 }"
                 id="endPrice"
                 placeholder="Tên tác giả"
@@ -75,7 +77,7 @@
 import { ref, watch, defineComponent } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { priceRangeSchema } from "@/utils/schema.util";
-import PriceRangeService from "@/service/priceRange.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 
 export default defineComponent({
@@ -97,7 +99,7 @@ export default defineComponent({
       validationSchema: priceRangeSchema,
     });
 
-    const priceRangeService = new PriceRangeService();
+    const apiAdmin = new ApiAdmin();
 
     const updatePriceRange = async () => {
       const { valid } = await validate();
@@ -105,8 +107,8 @@ export default defineComponent({
         return;
       }
       try {
-        const response = await priceRangeService.put(
-          `/${props.priceRangeToEdit._id}`,
+        const response = await apiAdmin.put(
+          `/priceranges/${props.priceRangeToEdit._id}`,
           priceRangeToEdit.value
         );
         if (response.status === 200) {

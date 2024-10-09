@@ -1,8 +1,7 @@
 <template>
   <div>
     <Header />
-    <!-- <Navbar /> -->
-    <div class="bg-secondary-subtle">
+    <div class="">
       <router-view></router-view>
     </div>
     <!-- Footer sẽ được hiển thị nếu không phải route "checkOut" -->
@@ -15,13 +14,11 @@ import { defineComponent, ref, provide, watch } from "vue";
 import { useRoute } from "vue-router";
 import Header from "../../components/client/Header.vue";
 import Footer from "../../components/client/Footer.vue";
-import Navbar from "../../components/client/Navbar.vue";
 
 export default defineComponent({
   components: {
     Header,
     Footer,
-    Navbar,
   },
   setup() {
     const updateCart = ref(0); // Biến chia sẻ cho việc theo dõi trạng thái giỏ hàng

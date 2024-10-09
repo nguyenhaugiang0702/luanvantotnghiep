@@ -120,7 +120,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
-import AuthUserService from "@/service/auth/authUser.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import { loginUserSchema } from "@/utils/schema.util";
 import Cookies from "js-cookie";
@@ -128,7 +128,7 @@ import Cookies from "js-cookie";
 const { errors, validate } = useForm({
   validationSchema: loginUserSchema,
 });
-const authUserService = new AuthUserService();
+const apiUser = new ApiUser();
 const isLoading = ref(false);
 const router = useRouter();
 const user = ref({
@@ -143,7 +143,7 @@ const Login = async () => {
   }
   try {
     isLoading.value = true;
-    const response = await authUserService.post("/login", user.value);
+    const response = await apiUser.post("/auth/login", user.value);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response.status == 200) {
       const accessToken = response.data.accessToken;

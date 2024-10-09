@@ -2,32 +2,50 @@
   <!-- Nội dung sản phẩm bên phải -->
   <div class="content">
     <!-- Filters Tag -->
-    <div v-if="hasFilteredTags" class="row ms-4 pt-4">
-      <span class="col-sm-2 text-center">Lọc theo : </span>
-      <div class="col-sm-9 float-start">
-        <div class="row">
+    <div
+      v-if="hasFilteredTags"
+      class="filter-section p-3 mb-4 bg-light rounded-3"
+    >
+      <div class="d-flex flex-wrap gap-3">
+        <!-- Filter label -->
+        <div class="filter-label d-flex align-items-center">
+          <i class="fas fa-filter me-2"></i>
+          <span class="fw-medium">Lọc theo:</span>
+        </div>
+
+        <!-- Filter tags container -->
+        <div class="filter-tags-container d-flex flex-wrap gap-2 flex-grow-1">
           <div
-            class="col-sm-5 mb-3"
             v-for="filter in filterMessages"
             :key="filter.id"
+            class="filter-tag d-inline-flex align-items-center bg-white rounded-pill px-3 py-2"
           >
-            <button class="btn btn-outline-secondary">
-              {{ filter.message }}
-            </button>
-            <button @click="clearFilter(filter.id)" class="btn-tag">Xóa</button>
-          </div>
-          <!-- Nút xóa tất cả bộ lọc -->
-          <div class="col-sm-12 mt-3">
-            <button @click="handleClearFilters" class="btn btn-outline-danger">
-              Xóa tất cả
+            <span class="filter-text me-2">{{ filter.message }}</span>
+            <button
+              @click="clearFilter(filter.id)"
+              class="btn-clear d-flex align-items-center justify-content-center"
+              title="Xóa filter"
+            >
+              <i class="fas fa-times"></i>
             </button>
           </div>
+
+          <!-- Clear all button -->
+          <button
+            v-if="filterMessages.length > 1"
+            @click="handleClearFilters"
+            class="btn-clear-all d-inline-flex align-items-center rounded-pill px-3 py-2"
+          >
+            <i class="fas fa-times-circle me-2"></i>
+            Xóa tất cả
+          </button>
         </div>
       </div>
     </div>
-    <div class="d-flex">
-      <!-- Sắp xếp theo và số sản phẩm trên trang -->
-      <div class="py-4 ps-2">
+
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <!-- Số sản phẩm trên trang -->
+      <div class="ps-2">
         <select class="form-select w-auto" v-model="itemsPerPage">
           <option value="8">8 sản phẩm</option>
           <option value="12">12 sản phẩm</option>
@@ -35,13 +53,30 @@
         </select>
       </div>
 
-      <!-- Sắp xếp theo và số sản phẩm trên trang -->
-      <div class="py-4 ps-2">
+      <!-- Sắp xếp theo giá -->
+      <div class="py-2 ps-2">
         <select class="form-select w-auto" v-model="sortBy">
           <option selected value="">Sắp xếp theo</option>
           <option value="asc">Giá tăng</option>
           <option value="desc">Giá giảm</option>
         </select>
+      </div>
+
+      <!-- Tìm kiếm -->
+      <div class="py-4 ps-2" style="flex-grow: 1">
+        <div class="d-flex align-items-center">
+          <input
+            type="search"
+            v-model="searchQuery"
+            class="form-control me-2"
+            placeholder="Search..."
+            @keyup.enter="handleSearch"
+            style="flex-grow: 1"
+          />
+          <button class="btn btn-primary me-2">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -49,26 +84,45 @@
     <div class="row" v-if="books.length !== 0">
       <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">
         <div class="book-card book card h-100 position-relative">
-          <router-link
-            :title="book.name"
-            :to="{ name: 'book-detail', params: { bookID: book._id } }"
-          >
-            <img
-              :src="`${config.imgUrl}/` + book.images[0].path"
-              class="card-img-top w-75 mx-4"
-              alt="book image"
-            />
-          </router-link>
+          <div class="image-container">
+            <router-link
+              @click="updateView(book._id)"
+              :title="book.name"
+              :to="{ name: 'book-detail', params: { bookID: book._id } }"
+            >
+              <img
+                :src="`${config.imgUrl}/` + book.images[0].path"
+                class="card-img-top w-75 mx-4"
+                alt="book image"
+              />
+            </router-link>
+            <!-- Nút Xem và Add to Cart hiển thị khi hover -->
+            <div class="hover-overlay">
+              <div class="hover-buttons">
+                <router-link
+                  @click="updateView(book._id)"
+                  :to="{ name: 'book-detail', params: { bookID: book._id } }"
+                  class="btn btn-outline-primary me-2"
+                  ><i class="fa-solid fa-eye"></i
+                ></router-link>
+                <button v-if="book.quantityImported !== 0" class="btn btn-primary" @click="addToCart(book)">
+                  <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div>
 
           <div class="card-body">
             <router-link
+              @click="updateView(book._id)"
               class="text-decoration-none"
               :title="book.name"
               :to="{ name: 'book-detail', params: { bookID: book._id } }"
-              ><p class="card-title text-dark">
-                {{ truncateTitle(book.name) }}
-              </p></router-link
             >
+              <p class="card-title text-dark">
+                {{ truncateTitle(book.name) }}
+              </p>
+            </router-link>
             <div class="card-text">
               <span class="text-danger fw-bold fs-5">
                 {{
@@ -81,20 +135,12 @@
               <div class="text-decoration-line-through opacity-75">
                 {{ formatPrice(book.detail.originalPrice) }}
               </div>
-            </div>
-
-            <!-- Nút Xem và Add to Cart hiển thị khi hover -->
-            <div
-              class="hover-buttons position-absolute bottom-0 start-0 end-0 p-3 text-center"
-            >
-              <router-link
-                :to="{ name: 'book-detail', params: { bookID: book._id } }"
-                class="btn btn-primary me-2"
-                >Xem</router-link
-              >
-              <button class="btn btn-success" @click="addToCart(book)">
-                Add to Cart
-              </button>
+              <div v-if="book.quantityImported !== 0">
+                Còn lại: ({{ book.quantityImported - book.quantitySold }}) quyển
+              </div>
+              <div v-else>
+                Đang nhập hàng
+              </div>
             </div>
           </div>
         </div>
@@ -136,16 +182,16 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, inject } from "vue";
-import BookService from "@/service/book.service";
+import ApiUser from "@/service/user/apiUser.service";
 import config from "@/config/index";
 import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
-import CartService from "@/service/cart.service";
 import { formatPrice } from "@/utils/utils";
+import { useRouter } from "vue-router";
 
 const books = ref([]);
-const bookService = new BookService();
-const cartService = new CartService();
+const apiUser = new ApiUser();
+
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const updateCart = inject("updateCart");
@@ -155,7 +201,8 @@ const totalPages = ref();
 const filters = ref({});
 const updatedItems = ref({});
 const sortBy = ref("");
-
+const searchQuery = ref("");
+const router = useRouter();
 const props = defineProps({
   selectedIds: {
     type: Object,
@@ -174,6 +221,17 @@ const hasFilteredTags = computed(() => {
   // Kiểm tra xem có bất kỳ mảng nào trong filteredTags không rỗng
   return Object.values(props.selectedIds).some((arr) => arr.length > 0);
 });
+
+const updateView = async (bookID) => {
+  try {
+    const response = await apiUser.put(`/books/view/${bookID}`, { view: 1 });
+    if (response.status === 200) {
+      // router.push({ name: "book-detail", params: { bookID: bookID } });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 // Tạo danh sách các thông điệp riêng biệt cho từng mục
 const filterMessages = computed(() => {
@@ -198,9 +256,6 @@ const filterMessages = computed(() => {
             break;
           case "publisher":
             message = `Nhà xuất bản: ${item.name}`;
-            break;
-          case "supplier":
-            message = `Nhà cung cấp: ${item.name}`;
             break;
           default:
             message = "";
@@ -277,7 +332,7 @@ const addToCart = async (book) => {
       ],
     };
 
-    const response = await cartService.post("/", data, token);
+    const response = await apiUser.post("/cart", data);
     if (response.status === 200) {
       toast(response.data.message, {
         theme: "auto",
@@ -295,10 +350,10 @@ const addToCart = async (book) => {
   }
 };
 
-const getBooks = async (filters, page, limit, sortBy) => {
+const getBooks = async (filters, page, limit, sortBy, searchQuery = "") => {
   const filtersString = JSON.stringify(filters);
-  const response = await bookService.get(
-    `/filters?filters=${filtersString}&page=${page}&limit=${limit}&sortBy=${sortBy}`
+  const response = await apiUser.get(
+    `/books/filters?filters=${filtersString}&page=${page}&limit=${limit}&sortBy=${sortBy}&searchQuery=${searchQuery}`
   );
   if (response.status === 200) {
     books.value = response.data.books;
@@ -341,6 +396,24 @@ watch(
   { deep: true }
 );
 
+// Search
+const handleSearch = async () => {
+  try {
+    const filtersString = JSON.stringify(filters.value);
+    await getBooks(
+      filtersString,
+      currentPage.value,
+      itemsPerPage.value,
+      sortBy.value,
+      searchQuery.value
+    );
+  } catch (error) {
+    toast("Error fetching data", {
+      type: "error",
+    });
+  }
+};
+
 const handlePage = async (page) => {
   currentPage.value = page;
   const filtersString = JSON.stringify(filters.value);
@@ -348,7 +421,8 @@ const handlePage = async (page) => {
     filtersString,
     currentPage.value,
     itemsPerPage.value,
-    sortBy.value
+    sortBy.value,
+    searchQuery.value
   );
 };
 
@@ -361,7 +435,8 @@ const goToPreviousPage = async () => {
       filtersString,
       currentPage.value,
       itemsPerPage.value,
-      sortBy.value
+      sortBy.value,
+      searchQuery.value
     );
   }
 };
@@ -375,7 +450,8 @@ const goToNextPage = async () => {
       filtersString,
       currentPage.value,
       itemsPerPage.value,
-      sortBy.value
+      sortBy.value,
+      searchQuery.value
     );
   }
 };
@@ -386,39 +462,10 @@ const goToNextPage = async () => {
   background-color: #fff;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
-/* Thêm hiệu ứng box-shadow khi hover */
-.book {
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
 
 .book-card {
-  overflow: hidden; /* Ngăn chặn việc tràn nội dung ra ngoài card */
-}
-
-.book:hover {
-  transform: translateY(-10px);
-  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-}
-
-/* Đặt các nút ban đầu nằm dưới cùng, ngoài tầm nhìn */
-.hover-buttons {
-  position: absolute;
-  bottom: -50px;
-  left: 0;
-  right: 0;
-  opacity: 0;
-  transition: all 0.3s ease-in-out;
-}
-/* Khi hover vào thẻ sản phẩm, di chuyển các nút lên */
-.book-card:hover .hover-buttons {
-  bottom: 10px; /* Đặt vị trí các nút lên phía trên */
-  opacity: 1; /* Hiển thị nút */
-}
-
-/* Các hiệu ứng chung cho thẻ sách */
-.book-card {
-  position: relative;
   overflow: hidden;
+  position: relative;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
@@ -427,10 +474,130 @@ const goToNextPage = async () => {
   box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
 }
 
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7); /* Màu trắng với độ trong suốt */
+  opacity: 0; /* Ẩn lớp overlay ban đầu */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease; /* Hiệu ứng chuyển đổi khi hover */
+}
+
+.book-card:hover .hover-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hover-buttons {
+  text-align: center;
+}
+
+.hover-buttons .btn {
+  margin: 5px;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover .hover-buttons .btn {
+  transform: translateY(0);
+}
+
 .btn-tag {
   outline: none;
   border: none;
   background-color: red;
   color: #fff;
+}
+
+/* Tags */
+.filter-section {
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.filter-label {
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+.filter-tag {
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.filter-tag:hover {
+  border-color: #6c757d;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-text {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.btn-clear {
+  background: none;
+  border: none;
+  color: #dc3545;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-clear:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-clear-all {
+  background: none;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-all:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filter-section {
+    padding: 0.75rem !important;
+  }
+
+  .filter-label {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .filter-tags-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-tag {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-clear-all {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

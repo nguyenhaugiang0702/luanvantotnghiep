@@ -51,14 +51,12 @@
                   }"
                 />
                 <ul
-                  class="dropdown-menu"
-                  :class="{
-                    'd-none': authorSelectedID,
-                  }"
+                  class="dropdown-menu dropdown-menu-authors"
+                  v-show="!authorSelectedID && authorOptions.length > 0"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
-                    style="max-width: 300px"
+                    style="width: 24rem; max-width: 24rem"
                     class="dropdown-item"
                     v-for="(author, index) in authorOptions"
                     :key="author._id"
@@ -67,6 +65,15 @@
                     {{ author.name }}
                   </li>
                 </ul>
+                <button
+                  class="clear-button"
+                  type="button"
+                  @click="clearDropdownAuthors('dropdown-menu-authors')"
+                  v-if="searchAuthorValue"
+                  aria-label="Clear author"
+                >
+                  <span class="clear-icon">&times;</span>
+                </button>
                 <ErrorMessage name="authorName" class="invalid-feedback" />
                 <span
                   v-if="
@@ -101,14 +108,12 @@
                   }"
                 />
                 <ul
-                  class="dropdown-menu"
-                  :class="{
-                    'd-none': publisherSelectedID,
-                  }"
+                  class="dropdown-menu dropdown-menu-publishers"
+                  v-show="!publisherSelectedID && publisherOptions.length > 0"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
-                    style="max-width: 300px"
+                    style="width: 24rem; max-width: 24rem"
                     class="dropdown-item"
                     v-for="(publisher, index) in publisherOptions"
                     :key="publisher._id"
@@ -117,6 +122,15 @@
                     {{ publisher.name }}
                   </li>
                 </ul>
+                <button
+                  class="clear-button"
+                  type="button"
+                  @click="clearDropdownPublsihers('dropdown-menu-publishers')"
+                  v-if="searchPublisherValue"
+                  aria-label="Clear author"
+                >
+                  <span class="clear-icon">&times;</span>
+                </button>
                 <ErrorMessage name="publisherName" class="invalid-feedback" />
                 <span
                   v-if="
@@ -154,14 +168,12 @@
                     }"
                   />
                   <ul
-                    class="dropdown-menu"
-                    :class="{
-                      'd-none': categorySelectedID,
-                    }"
+                    class="dropdown-menu dropdown-menu-categories"
+                    v-show="!categorySelectedID && categoryOptions.length > 0"
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
-                      style="max-width: 300px"
+                      style="width: 24rem; max-width: 24rem"
                       class="dropdown-item"
                       v-for="(category, index) in categoryOptions"
                       :key="category._id"
@@ -170,6 +182,15 @@
                       {{ category.name }}
                     </li>
                   </ul>
+                  <button
+                    class="clear-button"
+                    type="button"
+                    @click="clearDropdownCategories('dropdown-menu-categories')"
+                    v-if="searchCategoryValue"
+                    aria-label="Clear author"
+                  >
+                    <span class="clear-icon">&times;</span>
+                  </button>
                   <ErrorMessage name="categoryName" class="invalid-feedback" />
                   <span
                     v-if="
@@ -208,14 +229,12 @@
                     }"
                   />
                   <ul
-                    class="dropdown-menu"
-                    :class="{
-                      'd-none': formalitySelectedID,
-                    }"
+                    class="dropdown-menu dropdown-menu-formalities"
+                    v-show="!formalitySelectedID && formalityOptions.length > 0"
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
-                      style="max-width: 300px"
+                      style="width: 24rem; max-width: 24rem"
                       class="dropdown-item"
                       v-for="(formality, index) in formalityOptions"
                       :key="formality._id"
@@ -224,6 +243,17 @@
                       {{ formality.name }}
                     </li>
                   </ul>
+                  <button
+                    class="clear-button"
+                    type="button"
+                    @click="
+                      clearDropdownFormalities('dropdown-menu-formalities')
+                    "
+                    v-if="searchFormalityValue"
+                    aria-label="Clear author"
+                  >
+                    <span class="clear-icon">&times;</span>
+                  </button>
                   <ErrorMessage name="formalityName" class="invalid-feedback" />
                   <span
                     v-if="
@@ -406,14 +436,14 @@
                     }"
                   />
                   <ul
-                    class="dropdown-menu"
-                    :class="{
-                      'd-none': priceRangeSelectedID,
-                    }"
+                    class="dropdown-menu dropdown-menu-priceranges"
+                    v-show="
+                      !priceRangeSelectedID && priceRangeOptions.length > 0
+                    "
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
-                      style="max-width: 300px"
+                      style="width: 24rem; max-width: 24rem"
                       class="dropdown-item"
                       v-for="(priceRange, index) in priceRangeOptions"
                       :key="priceRange._id"
@@ -422,6 +452,17 @@
                       {{ priceRange.startPrice }}đ - {{ priceRange.endPrice }}đ
                     </li>
                   </ul>
+                  <button
+                    class="clear-button"
+                    type="button"
+                    @click="
+                      clearDropdownPriceranges('dropdown-menu-priceranges')
+                    "
+                    v-if="searchPriceRangeValue"
+                    aria-label="Clear author"
+                  >
+                    <span class="clear-icon">&times;</span>
+                  </button>
                   <ErrorMessage
                     name="priceRangeName"
                     class="invalid-feedback"
@@ -461,10 +502,10 @@
                 <ErrorMessage name="images" class="invalid-feedback" />
               </div>
             </div>
-            <div class="col-sm-2">
-              <div class="form-group">
+            <div class="col-6">
+              <div class="d-flex flex-column">
                 <label class="form-label">Xóa hết ảnh</label>
-                <button @click.prevent="clearImages" class="btn btn-danger">
+                <button @click.prevent="clearImages" class="btn btn-danger col-sm-2">
                   Clear Image
                 </button>
               </div>
@@ -503,7 +544,7 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { bookSchema } from "@/utils/schema.util";
 import useDropdown from "@/composables/useDropdown";
 // services
-import BookService from "@/service/book.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 // component
 import { toast } from "vue3-toastify";
 import { useMenu } from "../../../stores/use-menu";
@@ -539,7 +580,7 @@ export default {
     const imagePreviews = ref([]);
     const fileInput = ref(null);
     const images = ref([]);
-    const bookService = new BookService();
+    const apiAdmin = new ApiAdmin();
     const { errors, validate, resetForm, validateField } = useForm({
       validationSchema: bookSchema,
     });
@@ -613,7 +654,11 @@ export default {
       addImagesToFormData(formData, images.value);
 
       try {
-        const response = await bookService.post("/", formData, null);
+        const response = await apiAdmin.post(
+          "/books",
+          formData,
+          "multipart/form-data"
+        );
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",
@@ -775,6 +820,32 @@ export default {
       }
     });
 
+    const clearDropdownAuthors = (className) => {
+      searchAuthorValue.value = "";
+      authorSelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+    const clearDropdownCategories = (className) => {
+      searchCategoryValue.value = "";
+      categorySelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+    const clearDropdownFormalities = (className) => {
+      searchFormalityValue.value = "";
+      formalitySelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+    const clearDropdownPriceranges = (className) => {
+      searchPriceRangeValue.value = "";
+      priceRangeSelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+    const clearDropdownPublsihers = (className) => {
+      searchPublisherValue.value = "";
+      publisherSelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+
     return {
       errors,
       addBook,
@@ -816,6 +887,12 @@ export default {
       clearImages,
       fileInput,
       images,
+      //
+      clearDropdownAuthors,
+      clearDropdownCategories,
+      clearDropdownFormalities,
+      clearDropdownPriceranges,
+      clearDropdownPublsihers,
     };
   },
 };
@@ -831,5 +908,63 @@ export default {
 
 .remove-btn:hover {
   background-color: #c82333;
+}
+.input-group {
+  position: relative;
+}
+
+.clear-button {
+  position: absolute;
+  right: 35px;
+  top: 55%;
+  z-index: 100;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.clear-button:hover {
+  background-color: #dee2e6;
+}
+
+.clear-icon {
+  font-size: 18px;
+  line-height: 1;
+  color: #495057;
+  font-weight: bold;
+  margin-top: -3px; /* Điều chỉnh vị trí dọc của dấu × */
+}
+
+.clear-button:hover .clear-icon {
+  color: #212529;
+  font-weight: 900;
+}
+
+/* Điều chỉnh padding của input để tránh text bị che bởi nút clear */
+.form-control {
+  padding-right: 40px;
+}
+
+@media (max-width: 576px) {
+  .form-group {
+    padding: 0 15px;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+  }
+
+  .dropdown-item {
+    white-space: normal;
+    word-wrap: break-word;
+  }
 }
 </style>

@@ -55,7 +55,8 @@
                   'is-invalid': errors.authorDob,
                   'is-valid': !errors.authorDob && newAuthor.dob !== '',
                 }"
-                id="authorDob"
+                id="authorDobAdd"
+                placeholder="Nhập ngày sinh"
                 v-model="newAuthor.dob"
               />
               <ErrorMessage name="authorDob" class="invalid-feedback" />
@@ -79,11 +80,13 @@
   </div>
 </template>
 <script>
-import AuthorsService from "@/service/author.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { authorSchema } from "@/utils/schema.util";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.css";
 export default {
   components: { Form, Field, ErrorMessage },
   emit: ["refreshAuthors"],
@@ -95,14 +98,14 @@ export default {
     const { errors, validate, resetForm } = useForm({
       validationSchema: authorSchema,
     });
-    const authorService = new AuthorsService();
+    const apiAdmin = new ApiAdmin();
     const addAuthor = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
-        const response = await authorService.post("/", newAuthor.value);
+        const response = await apiAdmin.post("/authors", newAuthor.value);
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",
@@ -121,6 +124,13 @@ export default {
         });
       }
     };
+
+    onMounted(() => {
+      flatpickr("#authorDobAdd", {
+        dateFormat: "d/m/Y",
+      });
+    });
+
     return { newAuthor, addAuthor, errors };
   },
 };

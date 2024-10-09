@@ -132,8 +132,7 @@
 </template>
 
 <script>
-import UserService from "@/service/user.service";
-import AuthUserService from "@/service/auth/authUser.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { changePasswordSchema } from "@/utils/schema.util";
 import Cookies from "js-cookie";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -151,8 +150,7 @@ export default {
       validationSchema: changePasswordSchema,
     });
     const isLoading = ref(false);
-    const userService = new UserService();
-    const authUserService = new AuthUserService();
+    const apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const user = ref({
       currentPassword: "",
@@ -170,8 +168,8 @@ export default {
       }
       try {
         isLoading.value = true;
-        const response = await authUserService.put(
-          "/changePassword",
+        const response = await apiUser.put(
+          "/auth/changePassword",
           user.value
         );
         await new Promise((resolve) => setTimeout(resolve, 1000));

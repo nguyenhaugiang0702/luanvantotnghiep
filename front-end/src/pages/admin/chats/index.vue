@@ -45,25 +45,29 @@
                       <div
                         class="d-flex justify-content-between align-items-center"
                       >
-                        <img
-                          :src="`http://localhost:3000/` + conv.user.avatar"
-                          :alt="conv.user.phoneNumber"
-                          class="rounded-circle me-3"
-                          width="40"
-                          height="40"
-                        />
+                        <div v-if="conv.user.avatar">
+                          <img
+                            :src="`http://localhost:3000/` + conv.user.avatar"
+                            :alt="conv.user.phoneNumber"
+                            class="rounded-circle me-3"
+                            width="40"
+                            height="40"
+                          />
+                        </div>
+                        <div v-else>
+                          <i
+                            class="fa-solid fa-user fs-4 me-3"
+                            style="
+                              border: 2px solid #000;
+                              border-radius: 50%;
+                              padding: 5px;
+                            "
+                          ></i>
+                        </div>
+
                         <div class="flex-grow-1">
-                          <p
-                            v-if="conv.user.name"
-                            class="mb-0 font-weight-medium text-truncate"
-                          >
+                          <p class="mb-0 font-weight-medium text-truncate">
                             {{ conv.user.name }}
-                          </p>
-                          <p
-                            v-else
-                            class="mb-0 font-weight-medium text-truncate"
-                          >
-                            {{ conv.user.phoneNumber }}
                           </p>
                           <p class="mb-0 small text-muted text-truncate">
                             {{ conv.lastMessage }}
@@ -91,33 +95,41 @@
                       class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center"
                     >
                       <div class="d-flex align-items-center">
-                        <img
-                          :src="
-                            `http://localhost:3000/` +
-                            selectedConversation.user.avatar
-                          "
-                          :alt="selectedConversation.user.name"
-                          class="rounded-circle me-3"
-                          width="40"
-                          height="40"
-                        />
-                        <div
-                          v-if="
-                            selectedConversation.user.name &&
-                            selectedConversation.user.email
-                          "
-                        >
+                        <div v-if="selectedConversation.user.avatar">
+                          <img
+                            :src="
+                              `http://localhost:3000/` +
+                              selectedConversation.user.avatar
+                            "
+                            :alt="selectedConversation.user.name"
+                            class="rounded-circle me-3"
+                            width="40"
+                            height="40"
+                          />
+                        </div>
+                        <div v-else>
+                          <i
+                            class="fa-solid fa-user fs-4 me-3"
+                            style="
+                              border: 2px solid #000;
+                              border-radius: 50%;
+                              padding: 5px;
+                            "
+                          ></i>
+                        </div>
+
+                        <div>
                           <h2 class="h5 mb-0">
                             {{ selectedConversation.user.name }}
                           </h2>
-                          <p class="mb-0 small text-muted">
-                            {{ selectedConversation.user.email }}
-                          </p>
-                        </div>
-                        <div v-else>
-                          <h2 class="h5 mb-0">
-                            {{ selectedConversation.user.phoneNumber }}
-                          </h2>
+                          <div class="mb-0 small text-muted">
+                            <p v-if="selectedConversation.user.email">
+                              {{ selectedConversation.user.email }}
+                            </p>
+                            <p v-else>
+                              {{ selectedConversation.user.phoneNumber }}
+                            </p>
+                          </div>
                         </div>
                       </div>
                       <div>
@@ -210,12 +222,12 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { io } from "socket.io-client";
-import ChatsService from "@/service/chat.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import moment from "moment";
 import { formatDate } from "@/utils/utils";
 
 //
-const chatsService = new ChatsService();
+const apiAdmin = new ApiAdmin();
 const conversations = ref([]);
 const socket = ref(null);
 const selectedConversation = ref(null);
@@ -225,7 +237,7 @@ const chatContainer = ref(null);
 //
 const loadConversations = async () => {
   try {
-    const response = await chatsService.get("/chatrooms");
+    const response = await apiAdmin.get("/chats/chatrooms");
     if (response.status === 200) {
       conversations.value = response.data.map((room) => {
         // LastMessage
@@ -241,8 +253,7 @@ const loadConversations = async () => {
               "Unknown User",
             email: room.userID?.email || "",
             phoneNumber: room.userID?.phoneNumber,
-            avatar:
-              room.userID?.avatar || "/placeholder.svg?height=40&width=40",
+            avatar: room.userID?.avatar,
           },
           lastMessage: lastMessage,
           hasNewMessage: lastSender !== "admin",

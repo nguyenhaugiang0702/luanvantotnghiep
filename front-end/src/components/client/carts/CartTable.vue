@@ -1,5 +1,5 @@
 <template>
-  <div class="table-responsive" >
+  <div class="table-responsive">
     <table class="table">
       <thead class="table-light">
         <tr>
@@ -51,7 +51,12 @@
               >{{ book.bookID.name }}</router-link
             >
             <div>
-              <small>Còn lại 0</small>
+              <small
+                >Còn lại
+                {{
+                  book.bookID.quantityImported - book.bookID.quantitySold
+                }}</small
+              >
             </div>
             <span class="price text-danger fw-bold">
               {{ formatPrice(book.price) }}
@@ -119,25 +124,25 @@
 
 <script>
 import { computed, onMounted, ref, inject } from "vue";
-import Swal from "sweetalert2";
 import Cookies from "js-cookie";
-import CartService from "@/service/cart.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice } from "@/utils/utils";
 import { showConfirmation } from "@/utils/swalUtils";
+import { toast } from "vue3-toastify";
+
 export default {
   setup(props, { emit }) {
     const booksInCart = ref([]);
     const selectedBooks = ref({});
     const selectAll = ref(false);
-    const cartService = new CartService();
+    let apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const isLoggedIn = Cookies.get("isLoggedIn");
     const updateCart = inject("updateCart");
 
     const getCarts = async () => {
-      const token = Cookies.get("accessToken");
       if (token) {
-        const response = await cartService.get("/");
+        const response = await apiUser.get("/cart");
         if (response.status === 200) {
           booksInCart.value = response.data;
           if (response.data.books.length === 0) {
@@ -156,19 +161,29 @@ export default {
     });
 
     const increaseQuantity = async (book) => {
-      const bookID = book.bookID._id;
-      const data = {
-        books: [
-          {
-            bookID: bookID,
-            quantity: 1,
-          },
-        ],
-      };
-      const response = await cartService.post("/", data);
-      if (response.status === 200) {
+      try {
+        const bookID = book.bookID._id;
+        const data = {
+          books: [
+            {
+              bookID: bookID,
+              quantity: 1,
+              method: "INCREASE",
+            },
+          ],
+        };
+        const response = await apiUser.post("/cart", data);
+        if (response.status === 200) {
+          await getCarts();
+          updateCart.value += 1;
+        }
+      } catch (error) {
+        toast(error.response?.data?.message, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
         await getCarts();
-        updateCart.value += 1;
       }
     };
 
@@ -181,11 +196,11 @@ export default {
             {
               bookID: bookID,
               quantity: 1,
-              method: "DELETE", // Xóa số lượng đi 1
+              method: "DECREASE", // Xóa số lượng đi 1
             },
           ],
         };
-        const response = await cartService.post("/", data);
+        const response = await apiUser.post("/cart", data);
         if (response.status === 200) {
           await getCarts();
           updateCart.value += 1;
@@ -201,26 +216,35 @@ export default {
     };
 
     const updateQuantity = async (book, event) => {
-      const bookID = book.bookID._id;
-      const newQuantity = parseInt(event.target.value);
-      if (isNaN(newQuantity) || newQuantity < 1) {
-        // Hiển thị lại số lượng hiện tại
-        $(`#inputQuantity_${bookID}`).val(book.quantity);
-        return;
-      }
-      const data = {
-        books: [
-          {
-            bookID: bookID,
-            quantity: newQuantity,
-            method: "UPDATE",
-          },
-        ],
-      };
-      const response = await cartService.post("/", data);
-      if (response.status === 200) {
+      try {
+        const bookID = book.bookID._id;
+        const newQuantity = parseInt(event.target.value);
+        if (isNaN(newQuantity) || newQuantity < 1) {
+          // Hiển thị lại số lượng hiện tại
+          $(`#inputQuantity_${bookID}`).val(book.quantity);
+          return;
+        }
+        const data = {
+          books: [
+            {
+              bookID: bookID,
+              quantity: newQuantity,
+              method: "UPDATE",
+            },
+          ],
+        };
+        const response = await apiUser.post("/cart", data);
+        if (response.status === 200) {
+          await getCarts();
+          updateCart.value += 1;
+        }
+      } catch (error) {
+        toast(error.response?.data?.message, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
         await getCarts();
-        updateCart.value += 1;
       }
     };
 
@@ -230,7 +254,7 @@ export default {
           title: "Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?",
         });
         if (isConfirmed.isConfirmed) {
-          const response = await cartService.delete(`/${bookID}`);
+          const response = await apiUser.delete(`/cart/${bookID}`);
           if (response.status == 200) {
             await getCarts();
             updateCart.value += 1;
@@ -240,10 +264,11 @@ export default {
     };
 
     const toggleSelectAll = async () => {
-      const response = await cartService.put("/checkAll", {});
+      const response = await apiUser.put("/cart/checkAll", {});
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
+        emit("refreshVouchers");
       }
     };
 
@@ -254,7 +279,7 @@ export default {
           title: "Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?",
         });
         if (isConfirmed.isConfirmed) {
-          const response = await cartService.delete("/");
+          const response = await apiUser.delete("/cart");
           if (response.status == 200) {
             getCarts();
             updateCart.value += 1;
@@ -264,10 +289,11 @@ export default {
     };
 
     const handleCheckboxChange = async (bookID) => {
-      const response = await cartService.put(`/${bookID}`, {});
+      const response = await apiUser.put(`/cart/${bookID}`, {});
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
+        emit("refreshVouchers");
       }
     };
 
@@ -291,5 +317,7 @@ export default {
 <style scoped>
 .table-responsive {
   overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 </style>

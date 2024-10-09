@@ -50,10 +50,10 @@
         </li>
         <li class="nav-item">
           <router-link
-            :to="{ name: '' }"
+            :to="{ name: 'profile-vouchers' }"
             class="nav-link"
             :class="{
-              active: currentPage === '',
+              active: currentPage === 'profile-vouchers',
             }"
             >Vi voucher</router-link
           >
@@ -128,5 +128,9 @@ const currentPage = computed(() => route.name);
 
 .nav-link.active::before {
   transform: scaleX(1); /* Gạch dưới sẽ hiện đầy đủ khi mục được chọn */
+}
+
+.sidebar{
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 </style>

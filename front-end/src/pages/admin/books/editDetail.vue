@@ -167,21 +167,21 @@
 
 <script setup>
 import config from "@/config";
-import BookService from "@/service/book.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 const images = ref([]);
-const bookService = new BookService();
+const apiAdmin = new ApiAdmin();
 const route = useRoute();
 const router = useRouter();
 const bookID = route.params.bookID;
 const bookName = ref("");
 // lấy ảnh của sách
 const getImages = async () => {
-  const response = await bookService.get(`/images/${bookID}`);
+  const response = await apiAdmin.get(`/books/images/${bookID}`);
   if (response.status === 200) {
     images.value = response.data.images.map((image) => {
       return {
@@ -271,7 +271,9 @@ const clearImages = () => {
 
 const handleDeleteImage = async (imageID) => {
   try {
-    const response = await bookService.delete(`/images/${bookID}/${imageID}`);
+    const response = await apiAdmin.delete(
+      `/books/images/${bookID}/${imageID}`
+    );
     if (response.status === 200) {
       toast(response.data.message, {
         theme: "auto",
@@ -281,6 +283,7 @@ const handleDeleteImage = async (imageID) => {
       getImages();
     }
   } catch (error) {
+    console.log(error);
     toast(error.response?.data?.message, {
       theme: "auto",
       type: "error",
@@ -314,14 +317,17 @@ const onFileChange = (event) => {
 const handleImage = async (formData, imageID = null, method) => {
   try {
     let response;
-    if (method == "add") {
-      console.log(1);
-      response = await bookService.post(`/images/${bookID}`, formData);
-    } else if (method == "update") {
-      console.log(2);
-      response = await bookService.put(
-        `/images/${bookID}/${imageID}`,
-        formData
+    if (method === "add") {
+      response = await apiAdmin.post(
+        `/books/images/${bookID}`,
+        formData,
+        "multipart/form-data"
+      );
+    } else if (method === "update") {
+      response = await apiAdmin.put(
+        `/books/images/${bookID}/${imageID}`,
+        formData,
+        "multipart/form-data"
       );
     }
     if (response.status === 200) {
@@ -334,6 +340,7 @@ const handleImage = async (formData, imageID = null, method) => {
       getImages();
     }
   } catch (error) {
+    console.log(error);
     toast(error.response?.data?.message, {
       theme: "auto",
       type: "error",
@@ -392,10 +399,10 @@ const saveImage = (e) => {
   overflow-y: scroll;
 }
 
-.hoverPointer{
+.hoverPointer {
   cursor: pointer;
 }
-.hoverPointer:hover{
+.hoverPointer:hover {
   cursor: pointer;
   color: black;
 }

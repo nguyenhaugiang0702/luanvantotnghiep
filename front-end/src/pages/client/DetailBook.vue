@@ -84,6 +84,7 @@
                 <span class="ms-2 badge text-bg-danger"
                   >{{ "-" + book.discountPercent + "%" }}
                 </span>
+                <span class="ms-2 fw-bold">(Giá dự kiến - Đang nhập hàng)</span>
               </p>
               <div class="row">
                 <div class="col">
@@ -123,42 +124,44 @@
 
               <div class="rating">★★★★★ (5 đánh giá)</div>
               <!-- Bootstrap component for quantity -->
-              <div class="d-flex align-items-center mt-3">
-                <label for="quantity" class="me-2">Số lượng:</label>
-                <div class="input-group" style="width: 180px">
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    @click="decreaseQuantity"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="text"
-                    class="form-control text-center border border-3"
-                    v-model="quantity"
-                  />
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    @click="increaseQuantity"
-                  >
-                    +
-                  </button>
+              <div v-if="book.quantityImported !== 0">
+                <div class="d-flex align-items-center mt-3">
+                  <label for="quantity" class="me-2">Số lượng:</label>
+                  <div class="input-group" style="width: 180px">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      @click="decreaseQuantity"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="text"
+                      class="form-control text-center border border-3"
+                      v-model="quantity"
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      @click="increaseQuantity"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
+                <button
+                  @click="addToCart((method = 'BUYNOW'))"
+                  class="btn btn-danger mt-3"
+                >
+                  Mua ngay
+                </button>
+                <button
+                  @click="addToCart((method = 'ADDTOCART'))"
+                  class="btn btn-primary mt-3 ms-3"
+                >
+                  Thêm vào giỏ
+                </button>
               </div>
-              <button
-                @click="addToCart((method = 'BUYNOW'))"
-                class="btn btn-danger mt-3"
-              >
-                Mua ngay
-              </button>
-              <button
-                @click="addToCart((method = 'ADDTOCART'))"
-                class="btn btn-primary mt-3 ms-3"
-              >
-                Thêm vào giỏ
-              </button>
             </div>
           </div>
           <!-- Phần mô tả sản phẩm có thể cuộn -->
@@ -187,13 +190,14 @@
         </div>
       </div>
     </div>
-    <div class="row mt-3 bg-white"><Comment :bookID="bookID" /></div>
+    <div v-if="book.quantityImported !== 0" class="row mt-3 bg-white">
+      <Comment v-if="book.quantityImported !== 0" :bookID="bookID" />
+    </div>
   </div>
 </template>
 
 <script setup>
-import BookService from "@/service/book.service";
-import CartService from "@/service/cart.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, nextTick, inject, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -207,8 +211,7 @@ import Comment from "./Comment.vue";
 const route = useRoute();
 const router = useRouter();
 const bookID = ref(route.params.bookID);
-const bookService = new BookService();
-const cartService = new CartService();
+const apiUser = new ApiUser();
 const book = ref({});
 
 const currentSlide = ref(0);
@@ -220,7 +223,6 @@ const rightContainer = ref(null);
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const updateCart = inject("updateCart");
-const visible = ref(false);
 
 // Chuyển động của ảnh
 const slideTo = (val) => {
@@ -229,7 +231,7 @@ const slideTo = (val) => {
 
 // Lấy thông tin sách
 const getBook = async () => {
-  const response = await bookService.get(`/${bookID.value}`);
+  const response = await apiUser.get(`/books/${bookID.value}`);
   if (response.status === 200) {
     book.value = response.data;
     isLongDescription.value = checkLongDescription(book.value.description);
@@ -311,28 +313,27 @@ const addToCart = async (method) => {
       books: [
         {
           bookID: bookID.value,
-          quantity: quantity.value,
+          quantity: parseInt(quantity.value),
           price:
-            book.value.detail.originalPrice - book.value.detail.discountPrice,
+            parseInt(book.value.detail.originalPrice - book.value.detail.discountPrice),
         },
       ],
     };
 
-    const response = await cartService.post("/", data, token);
+    const response = await apiUser.post("/cart", data);
     if (response.status === 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
       if (method === "BUYNOW") {
         router.push({ name: "cart" });
       } else {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
         updateCart.value += 1;
       }
     }
   } catch (error) {
-    console.log(error);
     toast(error.response?.data?.message, {
       theme: "auto",
       type: "error",
@@ -375,12 +376,15 @@ onMounted(() => {
   top: 35px;
   overflow-y: auto;
   max-height: 656px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .product-info {
+  /* margin-left: 10px; */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .description-container {

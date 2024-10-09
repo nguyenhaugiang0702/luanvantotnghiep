@@ -95,7 +95,7 @@
 </template>
 <script>
 import { ref, onMounted } from "vue";
-import PublisherService from "@/service/publisher.service.js";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { publisherSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
@@ -114,7 +114,7 @@ export default {
     const store = useMenu();
     store.onSelectedKeys(["admin-publishers-add"]);
 
-    const publisherService = new PublisherService();
+    const apiAdmin = new ApiAdmin();
     const { errors, validate, resetForm } = useForm({
       validationSchema: publisherSchema,
     });
@@ -125,7 +125,7 @@ export default {
         if (!valid) {
           return;
         }
-        const response = await publisherService.post("/", publisher.value);
+        const response = await apiAdmin.post("/publishers", publisher.value);
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",

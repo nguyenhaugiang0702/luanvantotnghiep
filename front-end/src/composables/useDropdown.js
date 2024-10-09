@@ -1,13 +1,5 @@
-import { ref, computed, watch } from "vue";
-import AuthorsService from "@/service/author.service";
-import PublisherService from "@/service/publisher.service";
-import CategoryService from "@/service/category.service";
-import FormalityService from "@/service/formality.service";
-import PriceRangeService from "@/service/priceRange.service";
-import SupplierService from "@/service/supplier.service";
-import BookService from "@/service/book.service";
-
-
+import { ref, computed, watch, onMounted } from "vue";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 
 export default function useDropdown(entityType, initialID = "") {
   const searchValue = ref("");
@@ -15,34 +7,48 @@ export default function useDropdown(entityType, initialID = "") {
   const options = ref([]);
   const itemID = ref(initialID);
   const extraData = ref(null); // Thêm để chứa dữ liệu bổ sung (hình thức)
+  const loading = ref(true);
 
   // Mapping giữa loại entity và service tương ứng
-  const serviceMap = {
-    authors: new AuthorsService(),
-    publishers: new PublisherService(),
-    categories: new CategoryService(),
-    formalities: new FormalityService(),
-    priceranges: new PriceRangeService(),
-    suppliers: new SupplierService(),
-    books: new BookService(),
-  };
-
-  const service = serviceMap[entityType]; // Chọn service dựa trên entityType
+  const apiAdmin = new ApiAdmin();
 
   const getItems = async () => {
-    if (service) {
-      const response = await service.get("/");
+    if (entityType === "vouchersCategory") {
+      const response = await apiAdmin.get("/vouchers/voucherCategory");
       if (response.status === 200) {
         options.value = response.data;
         if (initialID) {
-          const selectedItem = options.value.find(
-            (item) => item._id === initialID
-          );
-          if (selectedItem) {
-            searchValue.value = selectedItem.name;
-            selected.value = true;
+          watch(itemID, (newValue) => {
+            const selectedItem = options.value.find(
+              (item) => item._id === newValue
+            );
+            if (selectedItem) {
+              searchValue.value = selectedItem.name;
+              selected.value = true;
+            }
+          });
+        }
+      }
+    } else {
+      try {
+        loading.value = true;
+        const response = await apiAdmin.get(`/${entityType}`);
+        if (response.status === 200) {
+          options.value = response.data;
+          if (initialID) {
+            const selectedItem = options.value.find(
+              (item) => item._id === initialID
+            );
+            if (selectedItem) {
+              searchValue.value = selectedItem.name;
+              selected.value = true;
+            }
           }
         }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        loading.value = false;
       }
     }
   };
@@ -81,7 +87,7 @@ export default function useDropdown(entityType, initialID = "") {
     }
   });
 
-  getItems(); // Tự động gọi hàm để load data khi component được mount
+  getItems();
 
   return {
     itemID,
@@ -90,5 +96,6 @@ export default function useDropdown(entityType, initialID = "") {
     selected,
     selectItem,
     extraData,
+    loading,
   };
 }

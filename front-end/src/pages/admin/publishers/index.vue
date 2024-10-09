@@ -66,8 +66,7 @@ DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
-import Cookies from "js-cookie";
-import PublisherService from "@/service/publisher.service.js";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
@@ -80,7 +79,7 @@ export default defineComponent({
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-publishers-list"]);
-    const publisherService = new PublisherService();
+    const apiAdmin = new ApiAdmin();
     const columns = [
       {
         data: null,
@@ -139,14 +138,14 @@ export default defineComponent({
     const publishers = ref([]);
 
     const getPublishers = async () => {
-      const response = await publisherService.get("/");
+      const response = await apiAdmin.get("/publishers");
       if (response.status === 200) {
         publishers.value = response.data;
       }
     };
 
     const deletePublisher = async (publisherID) => {
-      const response = await publisherService.delete(`/${publisherID}`);
+      const response = await apiAdmin.delete(`/publishers/${publisherID}`);
       if (response.status == 200) {
         toast(response.data.message, {
           theme: "auto",

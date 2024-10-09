@@ -1,48 +1,51 @@
-// import axios from "axios";
+import axios from "../../utils/axios/admin/axiosConfig.util";
 import Cookies from "js-cookie";
-import axios from "../../utils/axiosConfig.util";
 
-class AuthUserService {
+class ApiAdminService {
   constructor() {
-    this.baseUrl = "/auth/user";
+    this.baseUrl = "/admin";
   }
 
-  async get(endpoint) {
+  async get(endpoint, contentType = "application/json") {
     const url = this.baseUrl + endpoint;
     const headers = {
-      "Content-Type": "application/json",
+      "Content-Type": contentType,
     };
+
     return await axios.get(url, { headers });
   }
 
-  async post(endpoint, data) {
+  async post(endpoint, data, contentType = "application/json") {
     const url = this.baseUrl + endpoint;
     const headers = {
-      "Content-Type": "application/json",
+      "Content-Type": contentType,
     };
-    return await axios.post(url, data);
+
+    return await axios.post(url, data, { headers });
   }
 
-  async put(endpoint, data) {
+  async put(endpoint, data, contentType = "application/json") {
     const url = this.baseUrl + endpoint;
     const headers = {
-      "Content-Type": "application/json",
+      "Content-Type": contentType,
     };
+
     return await axios.put(url, data, { headers });
   }
 
-  async delete(endpoint) {
+  async delete(endpoint, contentType = "application/json") {
     const url = this.baseUrl + endpoint;
     const headers = {
-      "Content-Type": "application/json",
+      "Content-Type": contentType,
     };
+
     return await axios.delete(url, { headers });
   }
 
   async refreshAccessToken() {
     try {
       const refreshToken = Cookies.get("refreshToken");
-      const endpoint = `${this.baseUrl}/refreshToken`;
+      const endpoint = `${this.baseUrl}/auth/refreshToken`;
       const response = await axios.post(endpoint, null, {
         headers: {
           Authorization: `Bearer ${refreshToken}`,
@@ -60,4 +63,4 @@ class AuthUserService {
   }
 }
 
-export default AuthUserService;
+export default ApiAdminService;

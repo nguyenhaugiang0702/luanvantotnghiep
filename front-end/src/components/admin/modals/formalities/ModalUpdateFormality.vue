@@ -61,7 +61,7 @@
 import { ref, watch, defineComponent } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { formalitySchema } from "@/utils/schema.util";
-import FormalityService from "@/service/formality.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 
 export default defineComponent({
@@ -82,7 +82,7 @@ export default defineComponent({
       validationSchema: formalitySchema,
     });
 
-    const formalityService = new FormalityService();
+    const apiAdmin = new ApiAdmin();
 
     const updateCategory = async () => {
       const { valid } = await validate();
@@ -90,8 +90,8 @@ export default defineComponent({
         return;
       }
       try {
-        const response = await formalityService.put(
-          `/${props.formalityToEdit._id}`,
+        const response = await apiAdmin.put(
+          `/formalities/${props.formalityToEdit._id}`,
           formalityToEdit.value
         );
         if (response.status === 200) {

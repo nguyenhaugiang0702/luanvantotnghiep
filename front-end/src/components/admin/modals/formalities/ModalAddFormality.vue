@@ -64,7 +64,7 @@
   </div>
 </template>
 <script>
-import FormalityService from "@/service/formality.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 import { ref } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -79,14 +79,17 @@ export default {
     const { errors, validate, resetForm } = useForm({
       validationSchema: formalitySchema,
     });
-    const formalityService = new FormalityService();
+    const apiAdmin = new ApiAdmin();
     const addFormality = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
-        const response = await formalityService.post("/", newFormality.value);
+        const response = await apiAdmin.post(
+          "/formalities",
+          newFormality.value
+        );
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",

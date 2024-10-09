@@ -150,27 +150,27 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { formatPrice, handleNavigate } from "@/utils/utils";
-import OrderService from "@/service/order.service";
+import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
 import { showConfirmation } from "@/utils/swalUtils";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const orderService = new OrderService();
+const apiUser = new ApiUser();
 
 const token = Cookies.get("accessToken");
 const orders = ref([]);
 
 const getOrders = async () => {
-  const response = await orderService.get("/getAll");
+  const response = await apiUser.get("/orders");
   if (response.status === 200) {
     orders.value = response.data.orders;
   }
 };
 
 const handleCancelOrder = async (orderID) => {
-  const response = await orderService.put(`/updateStatus/${orderID}`, {
+  const response = await apiUser.put(`/orders/updateStatus/${orderID}`, {
     status: 4,
   });
   if (response.status === 200) {

@@ -67,7 +67,7 @@ DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
-import SupplierService from "@/service/supplier.service.js";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import "datatables.net-select-bs5";
 import { toast } from "vue3-toastify";
@@ -79,7 +79,7 @@ export default defineComponent({
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-suppliers-list"]);
-    const supplierService = new SupplierService();
+    const apiAdmin = new ApiAdmin();
     const columns = [
       {
         data: null,
@@ -138,14 +138,14 @@ export default defineComponent({
     const suppliers = ref([]);
 
     const getSuppliers = async () => {
-      const response = await supplierService.get("/");
+      const response = await apiAdmin.get("/suppliers");
       if (response.status === 200) {
         suppliers.value = response.data;
       }
     };
 
     const deleteSupplier = async (supplierID) => {
-      const response = await supplierService.delete(`/${supplierID}`);
+      const response = await apiAdmin.delete(`/suppliers/${supplierID}`);
       if (response.status == 200) {
         toast(response.data.message, {
           theme: "auto",

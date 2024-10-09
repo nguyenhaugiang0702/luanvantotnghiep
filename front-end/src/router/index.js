@@ -6,7 +6,6 @@ import {
   checkAdminAccess,
   checkLoginAndRedirect,
 } from "@/utils/checkRoleAndProceed";
-import AuthAdminService from "@/service/auth/authAdmin.service";
 
 const routes = [...admin, ...client];
 

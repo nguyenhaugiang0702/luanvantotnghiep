@@ -30,7 +30,9 @@
                           <span
                             class="badge handleBadge"
                             :class="{
-                              'text-bg-danger': orderDetail.status === 4,
+                              'text-bg-danger':
+                                orderDetail.status === 4 ||
+                                orderDetail.status === 3,
                               'text-bg-warning': orderDetail.status === 1,
                               'text-bg-success': orderDetail.status === 2,
                             }"
@@ -65,8 +67,8 @@
                               <div>
                                 {{ book.bookID.name }}
                               </div>
-                              <div class="my-2">
-                                Số lượng: {{ book.quantity }}
+                              <div class="my-2 fw-bold">
+                                {{ formatPrice(book.realPrice) }} x {{ book.quantity }}
                               </div>
                             </div>
 
@@ -75,7 +77,15 @@
                             }}</span>
                           </li>
                         </ul>
-                        <div class="d-flex justify-content-between mt-3">
+                      </div>
+                      <div class="card-footer d-flex flex-column mt-3">
+                        <div class="d-flex justify-content-between">
+                          <div>Phí vận chuyển</div>
+                          <strong class="text-dark">{{
+                            formatPrice(orderDetail.shippingFee)
+                          }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
                           <strong>Tổng cộng</strong>
                           <strong class="text-danger">{{
                             formatPrice(orderDetail.totalPrice)
@@ -94,29 +104,29 @@
                         <p>
                           <i class="fa-solid fa-user me-2"></i>
                           {{
-                            orderDetail.userID.firstName +
+                            orderDetail.userID?.firstName +
                             " " +
-                            orderDetail.userID.lastName
+                            orderDetail.userID?.lastName
                           }}
                         </p>
                         <p>
                           <i class="fa-solid fa-phone me-2"></i>
-                          {{ orderDetail.userID.phoneNumber }}
+                          {{ orderDetail.userID?.phoneNumber }}
                         </p>
-                        <p v-if="orderDetail.userID.email">
+                        <p v-if="orderDetail.userID?.email">
                           <i class="fa-solid fa-envelope me-2"></i>
-                          {{ orderDetail.userID.email }}
+                          {{ orderDetail.userID?.email }}
                         </p>
                         <p>
                           <i class="fa-solid fa-location-dot me-2"></i>
                           {{
-                            orderDetail.addressID.detailAddress +
+                            orderDetail.addressID?.detailAddress +
                             ", " +
-                            orderDetail.addressID.ward +
+                            orderDetail.addressID?.ward?.name +
                             ", " +
-                            orderDetail.addressID.district +
+                            orderDetail.addressID?.district?.name +
                             ", " +
-                            orderDetail.addressID.province
+                            orderDetail.addressID?.province?.name
                           }}
                         </p>
                       </div>
@@ -132,15 +142,15 @@
                           v-model="orderDetail.status"
                           class="form-select"
                         >
-                          <!-- Các tùy chọn cho mọi trạng thái -->
-                          <option value="1">Chờ xác nhận</option>
-                          <option value="2">Đã xác nhận</option>
-                          <option value="3">Đã hủy</option>
-                          <option value="4">Yêu cầu hủy</option>
+                          <option
+                            v-for="option in statusOptions"
+                            :key="option.value"
+                            :value="option.value"
+                          >
+                            {{ option.label }}
+                          </option>
                         </select>
                       </div>
-
-                      <!-- Nút cập nhật trạng thái -->
                       <div class="card-footer">
                         <button
                           class="btn btn-primary w-100"
@@ -162,14 +172,14 @@
 </template>
 
 <script setup>
-import OrderService from "@/service/order.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { formatPrice, formatDate } from "@/utils/utils";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 
 const orderStatus = ref("processing");
-const orderService = new OrderService();
+const apiAdmin = new ApiAdmin();
 const route = useRoute();
 const orderID = ref(route.params.orderID);
 const orderDetail = ref({
@@ -182,13 +192,29 @@ const orderDetail = ref({
   ],
   status: 0,
 });
+
+const options = {
+  1: [
+    { value: 1, label: "Chờ xác nhận" },
+    { value: 2, label: "Đã xác nhận" },
+  ],
+  2: [{ value: 2, label: "Đã xác nhận" }],
+  3: [{ value: 3, label: "Đã hủy" }],
+  4: [
+    { value: 4, label: "Yêu cầu hủy" },
+    { value: 3, label: "Đã hủy" },
+  ],
+};
+
 const getOrderDetail = async () => {
-  const response = await orderService.get(`/${orderID.value}`);
+  const response = await apiAdmin.get(`/orders/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
     console.log(response.data);
   }
 };
+
+const statusOptions = computed(() => options[orderDetail.value.status] || []);
 
 const getOrderStatus = (status) => {
   switch (status) {
@@ -210,15 +236,22 @@ onMounted(() => {
 });
 
 const updateStatus = async () => {
-  const response = await orderService.put(
-    `/updateStatusByAd/${orderDetail.value._id}`,
-    { status: orderDetail.value.status },
-    null
-  );
-  if (response.status === 200) {
-    toast(response.data.message, {
+  try {
+    const response = await apiAdmin.put(`/orders/${orderDetail.value._id}`, {
+      status: orderDetail.value.status,
+    });
+    if (response.status === 200) {
+      toast(response.data.message, {
+        theme: "auto",
+        type: "success",
+        dangerouslyHTMLString: true,
+      });
+      await getOrderDetail();
+    }
+  } catch (error) {
+    toast(error.response?.data?.message, {
       theme: "auto",
-      type: "success",
+      type: "error",
       dangerouslyHTMLString: true,
     });
     await getOrderDetail();

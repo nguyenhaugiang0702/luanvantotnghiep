@@ -46,7 +46,12 @@
                 >
               </li>
               <li class="nav-item me-2">
-                <a class="nav-link" href="/categories">Categories</a>
+                <a
+                  class="nav-link"
+                  :class="{ active: currentPage === 'discountCode' }"
+                  href="/discountCode"
+                  >Mã giảm giá</a
+                >
               </li>
               <li class="nav-item me-2">
                 <a class="nav-link" href="/about">About</a>
@@ -59,9 +64,6 @@
 
           <!-- Right: Search, Cart, User Account -->
           <div class="d-flex align-items-center">
-            <button @click="toggleSearch" class="btn btn-link text-dark me-2">
-              <i class="fas fa-search fs-5"></i>
-            </button>
             <!-- cart -->
             <div class="dropdown">
               <button
@@ -250,7 +252,7 @@
             </div>
             <!-- Mobile: User Account Icon -->
             <div class="d-md-none d-sm-block">
-              <div v-if="token && isLoggedIn && userInfo">
+              <div v-if="token && isLoggedIn">
                 <img
                   style="width: 40px; border-radius: 50%"
                   :src="`http://localhost:3000/` + userInfo.avatar"
@@ -273,19 +275,6 @@
           </div>
         </div>
       </nav>
-
-      <!-- Search Bar -->
-      <div v-if="isSearchOpen" class="py-3">
-        <form @submit.prevent="submitSearch" class="d-flex">
-          <input
-            v-model="searchQuery"
-            type="search"
-            class="form-control me-2"
-            placeholder="Search for books..."
-          />
-          <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-      </div>
     </div>
 
     <!-- Mobile Menu (Offcanvas) -->
@@ -347,22 +336,18 @@
 <script setup>
 import { ref, computed, onMounted, watch, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CartService from "@/service/cart.service";
-import UserService from "@/service/user.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import config from "@/config/index";
 import EmptyCart from "./carts/EmptyCart.vue";
 import Cookies from "js-cookie";
 import { showConfirmation } from "@/utils/swalUtils";
 
-const isSearchOpen = ref(false);
-const searchQuery = ref("");
 const route = useRoute();
 const router = useRouter();
 const currentPage = computed(() => route.name);
 const updateCart = inject("updateCart");
-const cartService = new CartService();
-const userService = new UserService();
+const apiUser = new ApiUser();
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const userInfo = ref({});
@@ -374,7 +359,7 @@ const booksInCart = ref({
 
 const getUser = async () => {
   if (token) {
-    const response = await userService.get("/getInfoUser");
+    const response = await apiUser.get("/profile/getInfoUser");
     if (response.status === 200) {
       userInfo.value = response.data;
     }
@@ -393,20 +378,9 @@ const logOut = async () => {
   }
 };
 
-const toggleSearch = () => {
-  isSearchOpen.value = !isSearchOpen.value;
-};
-
 const handleNavigateRoute = (routeName) => {
   $(".dropdown-menu").removeClass("show");
   handleNavigate(router, routeName);
-};
-
-const submitSearch = () => {
-  // Implement search functionality
-  console.log("Searching for:", searchQuery.value);
-  searchQuery.value = "";
-  isSearchOpen.value = false;
 };
 
 const signOut = () => {
@@ -416,10 +390,9 @@ const signOut = () => {
 
 const getCarts = async () => {
   if (token) {
-    const response = await cartService.get("/");
+    const response = await apiUser.get("/cart");
     if (response.status === 200) {
       booksInCart.value = response.data;
-      console.log(response.data);
     }
   }
 };

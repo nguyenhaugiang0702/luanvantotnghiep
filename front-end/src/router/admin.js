@@ -214,6 +214,25 @@ const admin = [
         name: "admin-chats",
         component: () => import("../pages/admin/chats/index.vue"),
       },
+      {
+        path: "vouchers",
+        name: "admin-vouchers",
+        redirect: { name: "admin-vouchers-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-vouchers-list",
+            component: () => import("../pages/admin/vouchers/index.vue"),
+            props: true,
+          },
+          {
+            path: "voucherCategory",
+            name: "admin-vouchers-voucherCategory-list",
+            component: () => import("../pages/admin/vouchers/voucherCategory.vue"),
+            props: true,
+          },
+        ],
+      },
     ],
   },
   {

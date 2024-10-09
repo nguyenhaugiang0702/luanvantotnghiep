@@ -3,12 +3,16 @@
     <div class="d-flex flex-column justify-content-between align-items-center">
       <img src="../../../assets/images/cart/carrtnull.svg" alt="" />
       <div class="mt-4">Chưa có sản phẩm trong giỏ hàng của bạn.</div>
-      <router-link to="/books" class="text-decoration-none text-white btn btn-primary text-uppercase mt-4">Mua ngay</router-link>
+      <router-link
+        to="/books"
+        class="text-decoration-none text-white btn btn-primary text-uppercase mt-4"
+        >Mua ngay</router-link
+      >
     </div>
   </div>
 </template>
 
-<script> 
+<script>
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -16,4 +20,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.bg-white {
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+</style>

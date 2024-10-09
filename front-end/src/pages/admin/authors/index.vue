@@ -63,7 +63,6 @@ import print from "datatables.net-buttons/js/buttons.print";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
-import "datatables.net-responsive-bs5";
 import JsZip from "jszip";
 import { useRouter } from "vue-router";
 window.JsZip = JsZip;
@@ -72,11 +71,13 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import ModalAddAuthor from "@/components/admin/modals/authors/ModalAddAuthor.vue";
 import ModalUpdateAuthor from "@/components/admin/modals/authors/ModalUpdateAuthor.vue";
-import AuthorsService from "@/service/author.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.css";
 export default {
   components: {
     DataTable,
@@ -87,8 +88,9 @@ export default {
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-authors-list"]);
-    const authorService = new AuthorsService();
+    const apiAdmin = new ApiAdmin();
     const editedAuthor = ref({});
+    const open = ref(false);
     const columns = [
       {
         data: null,
@@ -117,7 +119,7 @@ export default {
         render: (data, type, row, meta) => {
           return `<div class="row">
             <div class="col-sm-1 me-3">
-                <button data-bs-toggle="modal" data-bs-target="#updateAuthor" ref="${data}" id="editAuthor" class="btn btn-warning" data-id=${data}>
+                <button id="editAuthor" class="btn btn-warning" data-id=${data}>
                    <i class="fa-solid fa-pencil"></i>
                 </button>
             </div>
@@ -134,25 +136,27 @@ export default {
     // const editedNxb = ref({});
     const authors = ref([]);
     const getAuthors = async () => {
-      const response = await authorService.get("/");
+      const response = await apiAdmin.get("/authors");
       if (response.status === 200) {
         authors.value = response.data;
       }
     };
 
     $(document).on("click", "#editAuthor", (event) => {
+      open.value = true;
       let authorId = $(event.currentTarget).data("id");
       const authorToEdit = authors.value.find(
         (author) => author._id === authorId
       );
-      
+
       if (authorToEdit) {
         editedAuthor.value = { ...authorToEdit };
       }
+      $("#updateAuthor").modal("show");
     });
 
     const deleteAuthor = async (authorId) => {
-      const response = await authorService.delete(`/${authorId}`);
+      const response = await apiAdmin.delete(`/authors/${authorId}`);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",
@@ -221,7 +225,7 @@ export default {
       columns,
       editedAuthor,
       buttons,
-      language
+      language,
     };
   },
 };

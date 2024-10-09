@@ -126,16 +126,15 @@ import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changePhoneNumberSchema } from "@/utils/schema.util";
-import UserService from "@/service/user.service";
-import AuthService from "@/service/auth/authUser.service";
+import ApiUser from "@/service/user/apiUser.service";
 export default {
   components: {
     Form,
     Field,
     ErrorMessage,
   },
-  emit:["refreshUser"],
-  setup(props, { emit}) {
+  emit: ["refreshUser"],
+  setup(props, { emit }) {
     const userUpdate = ref({
       newPhoneNumber: "",
       otpSMS: "",
@@ -144,8 +143,7 @@ export default {
       validationSchema: changePhoneNumberSchema,
     });
     const token = Cookies.get("accessToken");
-    const userService = new UserService();
-    const authService = new AuthService();
+    const apiUser = new ApiUser();
     const otpSent = ref(false);
     const isLoading = ref(false);
     const isLoadingUpdate = ref(false);
@@ -159,10 +157,10 @@ export default {
         }
         const data = {
           phoneNumber: userUpdate.value.newPhoneNumber,
-          method: "changePhoneNumber"
+          method: "changePhoneNumber",
         };
 
-        const response = await authService.post("/createOTP", data);
+        const response = await apiUser.post("/auth/createOTP", data);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
@@ -190,7 +188,10 @@ export default {
       }
       try {
         isLoadingUpdate.value = true;
-        const response = await userService.put("/updatePhoneAndEmail", userUpdate.value);
+        const response = await apiUser.put(
+          "/profile/updatePhoneAndEmail",
+          userUpdate.value
+        );
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           toast(response.data.message, {

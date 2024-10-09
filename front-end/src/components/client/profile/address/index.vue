@@ -11,11 +11,7 @@
     <!-- Danh sách địa chỉ -->
     <div class="address-container">
       <div class="row">
-        <div
-          v-for="addr in address"
-          :key="addr.id"
-          class="address-item"
-        >
+        <div v-for="addr in address" :key="addr.id" class="address-item">
           <div class="col-sm-12 ms-3 mb-4">
             <div>
               <span>Họ và tên: </span>
@@ -32,11 +28,11 @@
               <span class="fw-bold">{{
                 addr.detailAddress +
                 ", " +
-                addr.ward +
+                addr.ward.name +
                 ", " +
-                addr.district +
+                addr.district.name +
                 ", " +
-                addr.province
+                addr.province.name
               }}</span>
             </div>
             <div>
@@ -89,19 +85,19 @@
 
 <script>
 import { ref, onMounted, watch, computed } from "vue";
-import AddressService from "@/service/address.service";
+import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { showConfirmation } from "@/utils/swalUtils";
 export default {
   setup() {
-    const addressService = new AddressService();
+    const apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const address = ref([]);
     const showAll = ref(false);
     const visibleCount = ref(5);
     const getAddress = async () => {
-      const response = await addressService.get("/", token);
+      const response = await apiUser.get("/addresses");
       if (response.status === 200) {
         address.value = response.data;
       }
@@ -111,7 +107,7 @@ export default {
       const data = {
         isDefault: true,
       };
-      const response = await addressService.put(`/${addressID}`, data, token);
+      const response = await apiUser.put(`/addresses/${addressID}`, data);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",
@@ -123,7 +119,7 @@ export default {
     };
 
     const deleteAddress = async (addressID) => {
-      const response = await addressService.delete(`/${addressID}`, token);
+      const response = await apiUser.delete(`/addresses/${addressID}`);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",

@@ -93,7 +93,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import SupplierService from "@/service/supplier.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { supllierSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
@@ -107,12 +107,12 @@ export default {
       email: "",
       address: "",
       phoneNumber: "",
-      method: "add"
+      method: "add",
     });
     const store = useMenu();
     store.onSelectedKeys(["admin-suppliers-add"]);
 
-    const supplierService = new SupplierService();
+    const apiAdmin = new ApiAdmin();
     const { errors, validate, resetForm } = useForm({
       validationSchema: supllierSchema,
     });
@@ -123,7 +123,7 @@ export default {
         if (!valid) {
           return;
         }
-        const response = await supplierService.post("/", supplier.value);
+        const response = await apiAdmin.post("/suppliers", supplier.value);
         if (response.status == 200) {
           toast(response.data.message, {
             theme: "auto",

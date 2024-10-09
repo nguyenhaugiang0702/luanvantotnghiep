@@ -83,7 +83,8 @@
                   :class="{
                     'is-invalid':
                       errors.bookName || (searchBookValue !== '' && !bookID),
-                    'is-valid': !errors.bookName && newReceipt.detail[0].bookID !== '',
+                    'is-valid':
+                      !errors.bookName && newReceipt.detail[0].bookID !== '',
                   }"
                 />
                 <ul
@@ -152,7 +153,8 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.price,
-                  'is-valid': !errors.price && newReceipt.detail[0].price !== '',
+                  'is-valid':
+                    !errors.price && newReceipt.detail[0].price !== '',
                 }"
                 type="text"
                 name="price"
@@ -174,21 +176,19 @@
 
 <script>
 import { ref, onMounted, computed, watch } from "vue";
-import ReceiptService from "@/service/receipt.service";
-import SupplierService from "@/service/supplier.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { receiptSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
 import useDropdown from "@/composables/useDropdown";
-import { formatPrice } from "@/utils/utils";
+
 export default {
   components: { Form, Field, ErrorMessage },
   setup() {
     const searchValue = ref("");
     const suppliers = ref([]);
     const showDropdown = ref(false);
-    const supplierService = new SupplierService();
-    const receiptService = new ReceiptService();
+    const apiAdmin = new ApiAdmin();
     const { errors, validate, resetForm } = useForm({
       validationSchema: receiptSchema,
     });
@@ -205,7 +205,7 @@ export default {
 
     // Load nhà cung cấp từ server
     const getSuppliers = async () => {
-      const response = await supplierService.get("/");
+      const response = await apiAdmin.get("/suppliers");
       if (response.status === 200) {
         suppliers.value = response.data;
       }
@@ -216,7 +216,7 @@ export default {
       if (!valid) {
         return;
       }
-      const response = await receiptService.post("/", newReceipt.value);
+      const response = await apiAdmin.post("/receipts", newReceipt.value);
       if (response.status === 200) {
         toast(response.data.message, {
           theme: "auto",

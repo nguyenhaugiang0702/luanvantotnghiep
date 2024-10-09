@@ -101,7 +101,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import PublisherService from "@/service/publisher.service.js";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { publisherSchema } from "@/utils/schema.util";
 import { toast } from "vue3-toastify";
@@ -114,7 +114,7 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const publisherID = route.params.publisherID;
-    const publisherService = new PublisherService();
+    const apiAdmin = new ApiAdmin();
     const store = useMenu();
     store.onSelectedKeys(["admin-publishers"]);
 
@@ -123,7 +123,7 @@ export default {
     });
 
     const getPublisher = async () => {
-      const response = await publisherService.get(`/${publisherID}`);
+      const response = await apiAdmin.get(`/publishers/${publisherID}`);
       if (response.status === 200) {
         publisher.value = response.data;
       }
@@ -139,7 +139,7 @@ export default {
           ...publisher.value,
           method: "edit",
         };
-        const response = await publisherService.put(`/${publisherID}`, data);
+        const response = await apiAdmin.put(`/publishers/${publisherID}`, data);
         if (response.status == 200) {
           toast(response.data.message, {
             theme: "auto",

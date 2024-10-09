@@ -209,14 +209,13 @@
 <script>
 import { ref, onMounted } from "vue";
 import Cookies from "js-cookie";
-import ApiService from "@/service/ApiService";
 import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { updateUserSchema } from "@/utils/schema.util";
 import ChangPhoneNumber from "../modals/ChangPhoneNumber.vue";
 import ChangeEmail from "../modals/ChangeEmail.vue";
-import UserService from "@/service/user.service";
+import ApiUser from "@/service/user/apiUser.service";
 import moment from "moment";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
@@ -230,7 +229,7 @@ export default {
   },
   setup() {
     const token = Cookies.get("accessToken");
-    const userService = new UserService();
+    const apiUser = new ApiUser();
     const image = ref("");
     const user = ref({
       firstName: "",
@@ -250,7 +249,7 @@ export default {
     });
 
     const getUser = async () => {
-      const response = await userService.get("/getInfoUser");
+      const response = await apiUser.get("/profile/getInfoUser");
       if (response?.status === 200) {
         Object.assign(user.value, response.data);
       }
@@ -275,14 +274,15 @@ export default {
         }
         // Dùng vòng lặp để thêm các thuộc tính khác vào formData
         Object.keys(user.value).forEach((key) => {
-          if (
-            key !== "email" &&
-            key !== "phoneNumber"
-          ) {
+          if (key !== "email" && key !== "phoneNumber") {
             formData.append(key, user.value[key]);
           }
         });
-        const response = await userService.put("/updateProfile/", formData);
+        const response = await apiUser.put(
+          "/profile/updateProfile/",
+          formData,
+          "multipart/form-data"
+        );
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           toast(response.data.message, {
@@ -307,7 +307,7 @@ export default {
 
     onMounted(() => {
       getUser();
-      $("#formatDOB").flatpickr({
+      flatpickr("#formatDOB", {
         dateFormat: "d/m/Y",
       });
     });

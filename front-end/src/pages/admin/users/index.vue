@@ -30,17 +30,17 @@
                 :scroll="{ x: 576 }"
               >
                 <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Tên</th>
-                    <th>Giới Tính</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Email</th>
-                    <th>Ngày Sinh</th>
-                    <th>Trạng Thái</th>
-                    <th>Tạo</th>
-                    <th>Cập nhật</th>
-                    <th>Thao Tác</th>
+                  <tr >
+                    <th class="text-start">#</th>
+                    <th class="text-start">Tên</th>
+                    <th class="text-start">Giới Tính</th>
+                    <th class="text-start">Số Điện Thoại</th>
+                    <th class="text-start">Email</th>
+                    <th class="text-start">Ngày Sinh</th>
+                    <th class="text-start">Trạng Thái</th>
+                    <!-- <th>Tạo</th>
+                    <th>Cập nhật</th> -->
+                    <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -73,9 +73,8 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
-import ApiService from "@/service/ApiService.js";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
-import moment from 'moment';
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 
 export default defineComponent({
   components: {
@@ -85,23 +84,26 @@ export default defineComponent({
     const router = useRouter();
     const store = useMenu();
     store.onSelectedKeys(["admin-users"]);
-    const api = new ApiService();
+    const apiAdmin = new ApiAdmin();
     const columns = [
       {
         data: null,
         render: (data, type, row, meta) => {
-          return meta.row + 1;
+          return `<div class="text-start">${meta.row + 1}</div>`;
         },
       },
       {
         data: null,
         render: (data, type, row, meta) => {
-          return `<div>${row.firstName} ${row.lastName}</div>`;
+          return `<div class="text-start">${row.firstName} ${row.lastName}</div>`;
         },
       },
       {
         data: "gender",
         render: (data) => {
+          if (!data) {
+            return `<div class="text-start">Chưa biết</div>`;
+          }
           if (data === "male") {
             data = "Nam";
             return `<div class="text-start">${data}</div>`;
@@ -117,8 +119,24 @@ export default defineComponent({
           return `<div class="text-start">${data}</div>`;
         },
       },
-      { data: "email" },
-      { data: "dob" },
+      {
+        data: "email",
+        render: (data, type, row, meta) => {
+          if (!data) {
+            return `<div class="text-start">Chưa biết</div>`;
+          }
+          return `<div class="text-start">${data}</div>`;
+        },
+      },
+      {
+        data: "dob",
+        render: (data, type, row, meta) => {
+          if (!data) {
+            return `<div class="text-start">Chưa biết</div>`;
+          }
+          return `<div class="text-start">${data}</div>`;
+        },
+      },
       {
         data: "isActive",
         render: (data, type, row, meta) => {
@@ -129,18 +147,6 @@ export default defineComponent({
           } else {
             return `<div style="color: red; font-weight: 650;">Đã Khóa</div>`;
           }
-        },
-      },
-      {
-        data: "createdAt",
-        render: (data, type, row, meta) => {
-          return moment(data).format("DD/MM/YYYY HH:mm:ss");
-        },
-      },
-      {
-        data: "updatedAt",
-        render: (data, type, row, meta) => {
-          return moment(data).format("DD/MM/YYYY HH:mm:ss");
         },
       },
       {
@@ -193,7 +199,7 @@ export default defineComponent({
     const users = ref([]);
 
     const getUsers = async () => {
-      const response = await api.get("/users");
+      const response = await apiAdmin.get("/users");
       if (response.status == 200) {
         users.value = response.data;
       }
@@ -201,7 +207,7 @@ export default defineComponent({
 
     const deletuser = async (userID) => {
       const token = Cookies.get("accessToken");
-      const response = await api.delete(`/users/${userID}`, token);
+      const response = await apiAdmin.delete(`/users/${userID}`, token);
       if (response.status == 200) {
         await showSuccess({
           text: "Dữ liệu đã được xóa thành công.",
@@ -212,7 +218,7 @@ export default defineComponent({
 
     const blockUser = async (userID) => {
       const token = Cookies.get("accessToken");
-      const response = await api.put(`/users/blockAccount/${userID}`, token);
+      const response = await apiAdmin.put(`/users/blockAccount/${userID}`, token);
       if (response.status == 200) {
         await showSuccess({
           text: "Người dùng đã bị khóa",
@@ -223,7 +229,7 @@ export default defineComponent({
 
     const unBlockUser = async (userID) => {
       const token = Cookies.get("accessToken");
-      const response = await api.put(`/users/unBlockAccount/${userID}`, token);
+      const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`, token);
       if (response.status == 200) {
         await showSuccess({
           text: "Người dùng đã được mở khóa",
@@ -313,7 +319,7 @@ export default defineComponent({
       users,
       buttons,
       exportOptions,
-      language  
+      language,
     };
   },
 });

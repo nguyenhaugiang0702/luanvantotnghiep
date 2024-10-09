@@ -54,7 +54,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import OrderService from "@/service/order.service";
+import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { useMenu } from "../../../stores/use-menu";
 import DataTable from "datatables.net-vue3";
 import DataTableLib from "datatables.net-bs5";
@@ -77,17 +77,16 @@ import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import moment from "moment";
 import { formatPrice, handleNavigate } from "@/utils/utils";
-import { event } from "jquery";
 //
 const router = useRouter();
 const store = useMenu();
 store.onSelectedKeys(["admin-orders-list"]);
 //
-const orderService = new OrderService();
+const apiAdmin = new ApiAdmin();
 const orders = ref([]);
 // Dữ liệu giả
 const getOrders = async () => {
-  const response = await orderService.get("/");
+  const response = await apiAdmin.get("/orders");
   if (response.status === 200) {
     orders.value = response.data;
   }
@@ -154,7 +153,7 @@ const columns = [
         return `<div class='text-start badge text-bg-success'>${data}</div>`;
       } else if (data === 3) {
         data = "Đã hủy";
-        return `<div class='text-start badge'>${data}</div>`;
+        return `<div class='text-start badge text-bg-danger'>${data}</div>`;
       } else if (data === 4) {
         data = "Yêu cầu hủy";
         return `<div class='text-start badge text-bg-danger'>${data}</div>`;

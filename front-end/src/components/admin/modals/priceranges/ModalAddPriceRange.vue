@@ -37,7 +37,8 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.startPrice,
-                  'is-valid': !errors.startPrice && newPriceRange.startPrice !== '',
+                  'is-valid':
+                    !errors.startPrice && newPriceRange.startPrice !== '',
                 }"
                 id="startPrice"
                 placeholder="Giá bắt đầu"
@@ -80,7 +81,7 @@
   </div>
 </template>
 <script>
-import PriceRangeService from "@/service/priceRange.service";
+import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { toast } from "vue3-toastify";
 import { ref } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
@@ -96,14 +97,17 @@ export default {
     const { errors, validate, resetForm } = useForm({
       validationSchema: priceRangeSchema,
     });
-    const priceRangeService = new PriceRangeService();
+    const apiAdmin = new ApiAdmin();
     const addPriceRange = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
-        const response = await priceRangeService.post("/", newPriceRange.value);
+        const response = await apiAdmin.post(
+          "/priceranges",
+          newPriceRange.value
+        );
         if (response.status === 200) {
           toast(response.data.message, {
             theme: "auto",
