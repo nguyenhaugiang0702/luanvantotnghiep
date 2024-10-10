@@ -134,9 +134,7 @@ const orderSchema = yup.object().shape({
     .required("Cần nhập tổng số lượng"), // Tổng số lượng >= 1, bắt buộc
   notes: yup.string().optional(), // Chuỗi, không bắt buộc
   voucherID: yup.string().optional(), // Chuỗi, không bắt buộc
-  payment: yup
-    .string()
-    .required("Cần nhập phương thức thanh toán"), 
+  payment: yup.string().required("Cần nhập phương thức thanh toán"),
 });
 
 // Schema Supplier
@@ -256,12 +254,22 @@ const priceRangeSchema = yup.object({
   startPrice: yup
     .number()
     .typeError("Giá bắt đầu phải là số")
+    .min(0, "Giá phải lớn hơn hoặc bằng 0")
     .required("Giá bắt đầu là bắt buộc"),
   endPrice: yup
     .number()
     .typeError("Giá kết thúc phải là số")
-    .required("Giá kết thúc là bắt buộc"),
-});
+    .min(0, "Giá phải lớn hơn hoặc bằng 0")
+    .required("Giá kết thúc là bắt buộc")
+    .test(
+      "is-greater-than-startPrice",
+      "Giá kết thúc phải lớn hơn giá bắt đầu",
+      function (value) {
+        const { startPrice } = this.parent; 
+        return value > startPrice; 
+      }
+    ),
+});;
 
 const voucherCategorySchema = yup.object().shape({
   discountType: yup
