@@ -206,8 +206,7 @@ export default defineComponent({
     };
 
     const deletuser = async (userID) => {
-      const token = Cookies.get("accessToken");
-      const response = await apiAdmin.delete(`/users/${userID}`, token);
+      const response = await apiAdmin.delete(`/users/${userID}`);
       if (response.status == 200) {
         await showSuccess({
           text: "Dữ liệu đã được xóa thành công.",
@@ -217,8 +216,7 @@ export default defineComponent({
     };
 
     const blockUser = async (userID) => {
-      const token = Cookies.get("accessToken");
-      const response = await apiAdmin.put(`/users/blockAccount/${userID}`, token);
+      const response = await apiAdmin.put(`/users/blockAccount/${userID}`);
       if (response.status == 200) {
         await showSuccess({
           text: "Người dùng đã bị khóa",
@@ -228,8 +226,7 @@ export default defineComponent({
     };
 
     const unBlockUser = async (userID) => {
-      const token = Cookies.get("accessToken");
-      const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`, token);
+      const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`);
       if (response.status == 200) {
         await showSuccess({
           text: "Người dùng đã được mở khóa",

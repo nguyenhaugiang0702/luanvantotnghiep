@@ -12,11 +12,8 @@
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <!-- <ModalAddAuthor @refreshAuthors="getAuthors" />
-        <ModalUpdateAuthor
-          :authorToEdit="editedAuthor"
-          @refreshAuthors="getAuthors"
-        /> -->
+        <ModalShowImagesComment :commentObj="commentObj" />
+        <ModalReplyComment :commentObj="commentObj"/>
         <div class="row">
           <div class="col-12">
             <div class="table-responsive">
@@ -70,8 +67,8 @@ window.JsZip = JsZip;
 DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
-import ModalAddAuthor from "@/components/admin/modals/authors/ModalAddAuthor.vue";
-import ModalUpdateAuthor from "@/components/admin/modals/authors/ModalUpdateAuthor.vue";
+import ModalShowImagesComment from "@/components/admin/modals/comments/ModalShowImagesComment.vue";
+import ModalReplyComment from "@/components/admin/modals/comments/ModalReplyComment.vue";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
@@ -80,8 +77,8 @@ import "datatables.net-select-bs5";
 export default {
   components: {
     DataTable,
-    ModalAddAuthor,
-    ModalUpdateAuthor,
+    ModalShowImagesComment,
+    ModalReplyComment
   },
   setup() {
     const router = useRouter();
@@ -135,15 +132,20 @@ export default {
         data: "_id",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-              <div class="col-sm-1 me-3">
-                  <button data-bs-toggle="modal" data-bs-target="#updateAuthor" ref="${data}" id="editAuthor" class="btn btn-warning" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i>
+          return `<div class="d-flex">
+            <div class="me-3">
+                  <button data-bs-toggle="modal" data-bs-target="#showImagesComment" id="showImagesComment" class="badge text-bg-secondary p-2" data-id=${data}>
+                     <i class="fa-solid fa-image"></i> View Image
                   </button>
               </div>
-              <div class="col-sm-1">
-                  <button  class="btn btn-danger" id="deleteAuthor" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i>
+              <div class="me-3">
+                  <button data-bs-toggle="modal" data-bs-target="#replyComment" id="replyComment" class="badge text-bg-warning p-2" data-id=${data}>
+                    <i class="fa-solid fa-comment-dots"></i> Relpy
+                  </button>
+              </div>
+              <div class="">
+                  <button class="badge text-bg-danger p-2" id="deleteComment" data-id=${data}>
+                      <i class="fa-solid fa-trash"></i> Delete
                   </button>
               </div>
             </div>`;
@@ -156,43 +158,48 @@ export default {
     const getComments = async () => {
       const response = await apiAdmin.get("/comments");
       if (response.status === 200) {
-        console.log(response.data);
         comments.value = response.data;
       }
     };
+    const commentObj = ref({});
+    $(document).on("click", "#showImagesComment, #replyComment", (event) => {
+      let commentID = $(event.currentTarget).data("id");
+      const commentValue = comments.value.find((cmt) => cmt._id === commentID);
 
-    // $(document).on("click", "#editAuthor", (event) => {
-    //   let authorId = $(event.currentTarget).data("id");
-    //   const authorToEdit = authors.value.find(
-    //     (author) => author._id === authorId
-    //   );
+      if (commentValue) {
+        commentObj.value = { ...commentValue };
+      }
+    });
 
-    //   if (authorToEdit) {
-    //     editedAuthor.value = { ...authorToEdit };
-    //   }
-    // });
+    $(document).on("click", "#deleteComment", async (event) => {
+      let commentID = $(event.currentTarget).data("id");
+      const isConfirmed = await showConfirmation({
+        title: "Bạn chắc chắn muốn xóa bình luận này!",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteComment(commentID);
+      }
+    });
 
-    // const deleteAuthor = async (authorId) => {
-    //   const response = await authorService.delete(`/${authorId}`);
-    //   if (response.status === 200) {
-    //     toast(response.data.message, {
-    //       theme: "auto",
-    //       type: "success",
-    //       dangerouslyHTMLString: true,
-    //     });
-    //     getComments();
-    //   }
-    // };
-
-    // $(document).on("click", "#deleteAuthor", async (event) => {
-    //   const authorId = $(event.currentTarget).data("id");
-    //   const isConfirmed = await showConfirmation({
-    //     title: "Bạn chắc chắn muốn xóa tác giả này",
-    //   });
-    //   if (isConfirmed.isConfirmed) {
-    //     await deleteAuthor(authorId);
-    //   }
-    // });
+    const deleteComment = async (commentID) => {
+      try {
+        const response = await apiAdmin.delete(`/comments/${commentID}`);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          await getComments();
+        }
+      } catch (error) {
+        toast(error?.response?.data?.message, {
+          theme: "auto",
+          type: "error",
+          dangerouslyHTMLString: true,
+        });
+      }
+    };
 
     onMounted(() => {
       getComments();
@@ -243,6 +250,7 @@ export default {
       editedAuthor,
       buttons,
       language,
+      commentObj,
     };
   },
 };

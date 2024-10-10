@@ -30,7 +30,7 @@
                 class="fa-solid fa-star text-secondary"
               ></i>
             </div>
-            <p class="text-muted">{{ formatDate(comment.createdAt) }}</p>
+            <p class="text-muted">{{ moment(comment.createdAt).fromNow() }}</p>
           </div>
         </div>
         <p class="mt-2">{{ comment.content }}</p>
@@ -48,39 +48,40 @@
           </div>
         </div>
 
-        <!-- Nếu là admin thì hiển thị nút phản hồi -->
-        <div v-if="comment.isAdmin" class="d-flex">
-          <button
-            @click="replyToComment(index)"
-            class="btn btn-outline-secondary btn-sm me-2"
-          >
-            Phản hồi
-          </button>
-          <button
-            @click="deleteComment(index)"
-            class="btn btn-outline-danger btn-sm"
-          >
-            Xóa
-          </button>
-        </div>
-
         <!-- Phần phản hồi của admin -->
-        <div v-if="comment.replies.length" class="mt-3 ms-5">
+        <div v-if="comment.replies.length" class="replies-section">
           <div
             v-for="(reply, rIndex) in comment.replies"
             :key="rIndex"
-            class="d-flex align-items-start mt-2"
+            class="admin-reply"
           >
-            <img
-              src=""
-              alt="Admin Avatar"
-              class="rounded-circle me-3"
-              style="width: 50px; height: 50px"
-            />
-            <div>
-              <h6 class="mb-0">Admin</h6>
-              <p class="text-muted">{{ reply.date }}</p>
-              <p>{{ reply.content }}</p>
+            <div class="reply-container">
+              <div class="admin-info">
+                <div class="admin-avatar-wrapper">
+                  <img
+                    src="../../assets/images/logo.jpg"
+                    alt="Admin Avatar"
+                    class="admin-avatar"
+                  />
+                  <span class="status-dot"></span>
+                </div>
+
+                <div class="admin-details">
+                  <div class="admin-name">
+                    <span class="badge">Official</span>
+                    <h6>NHG BOOKSTORE</h6>
+                  </div>
+                  <span class="timestamp">{{
+                    moment(comment.createdAt).fromNow()
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="reply-message">
+                <div class="message-content">
+                  {{ reply.content }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -145,6 +146,7 @@ import { formatDate } from "@/utils/utils";
 import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
+import moment from "moment";
 
 const value = ref(0);
 const desc = ref(["terrible", "bad", "normal", "good", "wonderful"]);
@@ -165,6 +167,7 @@ watch(value, (newVal) => {
 const getComments = async () => {
   const response = await apiUser.get("/comments");
   if (response.status === 200) {
+    console.log(response.data);
     comments.value = response.data;
   }
 };
@@ -189,12 +192,14 @@ const addComment = async () => {
     });
     return;
   }
+
   if (newComment.value.content && newComment.value.rating > 0) {
     const formData = new FormData();
     formData.append("fileType", "comment");
     formData.append("content", newComment.value.content);
     formData.append("rating", newComment.value.rating);
     if (fileList.value.length > 0) {
+      console.log(fileList.value);
       fileList.value.forEach((file) => {
         formData.append("images", file.originFileObj); // Lấy file gốc để gửi đi
       });
@@ -217,6 +222,7 @@ const addComment = async () => {
         getComments();
       }
     } catch (error) {
+      console.log(error);
       toast(error.response?.data?.message, {
         theme: "auto",
         type: "error",
@@ -232,21 +238,21 @@ const addComment = async () => {
   }
 };
 
-// Admin phản hồi bình luận
-const replyToComment = (index) => {
-  const replyContent = prompt("Nhập phản hồi của bạn:");
-  if (replyContent) {
-    comments.value[index].replies.push({
-      content: replyContent,
-      date: format(new Date(), "dd/MM/yyyy"),
-    });
-  }
-};
+// // Admin phản hồi bình luận
+// const replyToComment = (index) => {
+//   const replyContent = prompt("Nhập phản hồi của bạn:");
+//   if (replyContent) {
+//     comments.value[index].replies.push({
+//       content: replyContent,
+//       date: format(new Date(), "dd/MM/yyyy"),
+//     });
+//   }
+// };
 
-// Admin xóa bình luận
-const deleteComment = (index) => {
-  comments.value.splice(index, 1);
-};
+// // Admin xóa bình luận
+// const deleteComment = (index) => {
+//   comments.value.splice(index, 1);
+// };
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -303,5 +309,117 @@ const handlePreview = async (file) => {
 .ant-upload-select-picture-card .ant-upload-text {
   margin-top: 8px;
   color: #666;
+}
+
+.replies-section {
+  margin: 1.5rem 0 1.5rem 2.5rem;
+}
+
+.admin-reply {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.reply-container {
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border-left: 4px solid #0d6efd;
+  border-radius: 0 12px 12px 0;
+  padding: 1.25rem;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-avatar-wrapper {
+  position: relative;
+  margin-right: 1rem;
+}
+
+.admin-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  background: #0d6efd;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.admin-details {
+  flex: 1;
+}
+
+.admin-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-name h6 {
+  margin: 0;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.badge {
+  background: #0d6efd;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.reply-message {
+  position: relative;
+}
+
+.message-content {
+  color: #374151;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1rem;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+/* Hover effects */
+.reply-container:hover {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+/* Optional: Add a subtle line connecting replies */
+.admin-reply:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 65px;
+  bottom: -15px;
+  width: 2px;
+  background: #e5e7eb;
 }
 </style>

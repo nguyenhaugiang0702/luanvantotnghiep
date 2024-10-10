@@ -144,7 +144,6 @@ export default {
     };
 
     $(document).on("click", "#editAuthor", (event) => {
-      open.value = true;
       let authorId = $(event.currentTarget).data("id");
       const authorToEdit = authors.value.find(
         (author) => author._id === authorId
