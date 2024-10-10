@@ -108,17 +108,17 @@ export default {
         data: "_id",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-            <div class="col-sm-1 me-2">
+          return `<div class="d-flex">
+            <div class="me-3">
                 <button data-bs-toggle="modal"
-                    data-bs-target="#updateCategory"  ref="${data}" id="editCategory" class="btn btn-warning" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i>
+                    data-bs-target="#updateCategory" id="editCategory" class="badge text-bg-warning p-2" data-id=${data}>
+                   <i class="fa-solid fa-pencil"></i> Edit
                 </button>
             </div>
-            <div class="col-sm-1">
+            <div class="">
                 <button type="button" 
-                    class="btn btn-danger" id="deleteCategory" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i>
+                    class="badge text-bg-danger p-2" id="deleteCategory" data-id=${data}>
+                    <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </div>
           </div>`;
@@ -160,7 +160,7 @@ export default {
     $(document).on("click", "#deleteCategory", async (event) => {
       const categoryID = $(event.currentTarget).data("id");
       const isConfirmed = await showConfirmation({
-        title: "Bạn chắc chắn muốn xóa tác giả này",
+        title: "Bạn chắc chắn muốn xóa thể loại này",
       });
       if (isConfirmed.isConfirmed) {
         await deleteCategory(categoryID);

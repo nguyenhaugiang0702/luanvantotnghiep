@@ -1,8 +1,9 @@
 <template>
   <div>
     <a-layout-header
-      class="text-uppercase fw-bold"
+      class="text-uppercase fw-bold sticky-top"
       style="background: #fff; padding: 0 20px"
+
     >
       Quản lý tác giả
     </a-layout-header>
@@ -117,15 +118,15 @@ export default {
         data: "_id",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-            <div class="col-sm-1 me-3">
-                <button id="editAuthor" class="btn btn-warning" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i>
+          return `<div class="d-flex">
+            <div class="me-3">
+                <button id="editAuthor" class="badge text-bg-warning p-2" data-id=${data}>
+                   <i class="fa-solid fa-pencil"></i> Edit
                 </button>
             </div>
-            <div class="col-sm-1">
-                <button  class="btn btn-danger" id="deleteAuthor" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i>
+            <div class="">
+                <button  class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
+                    <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </div>
           </div>`;

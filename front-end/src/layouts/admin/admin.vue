@@ -1,5 +1,5 @@
 <template>
-  <a-layout style="min-height: 100vh">
+  <a-layout has-sider>
     <TheMenu />
     <a-layout>
       <router-view></router-view>

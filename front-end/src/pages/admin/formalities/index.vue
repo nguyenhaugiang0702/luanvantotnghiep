@@ -108,17 +108,17 @@ export default {
         data: "_id",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-              <div class="col-sm-1 me-2">
+          return `<div class="d-flex">
+              <div class="me-3">
                   <button data-bs-toggle="modal"
-                      data-bs-target="#updateFormality" ref="${data}" id="editFormality" class="btn btn-warning" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i>
+                      data-bs-target="#updateFormality" ref="${data}" id="editFormality" class="badge text-bg-warning p-2" data-id=${data}>
+                     <i class="fa-solid fa-pencil"></i> Edit
                   </button>
               </div>
-              <div class="col-sm-1">
+              <div class="">
                   <button type="button" 
-                      class="btn btn-danger" id="deleteFormality" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i>
+                      class="badge text-bg-danger p-2" id="deleteFormality" data-id=${data}>
+                      <i class="fa-solid fa-trash"></i> Delete
                   </button>
               </div>
             </div>`;

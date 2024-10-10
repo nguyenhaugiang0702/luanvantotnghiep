@@ -148,7 +148,7 @@
             <div class="col-sm-6">
               <div class="form-group">
                 <div class="dropdown">
-                  <label class="form-label" for="categoryName">Danh mục</label>
+                  <label class="form-label" for="categoryName">Thể loai</label>
                   <Field
                     class="form-control dropdown-toggle"
                     type="text"
@@ -156,7 +156,7 @@
                     id="categoryName"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    placeholder="Nhập danh mục"
+                    placeholder="Nhập thể loai"
                     @focus="showDropdown = true"
                     v-model="searchCategoryValue"
                     :class="{
@@ -199,7 +199,7 @@
                       !categoryID
                     "
                     style="color: #dc3545; font-size: 0.875em"
-                    >Vui lòng chọn danh mục</span
+                    >Vui lòng chọn thể loai</span
                   >
                 </div>
               </div>
@@ -217,7 +217,7 @@
                     id="formalityName"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    placeholder="Nhập danh mục"
+                    placeholder="Nhập thể loai"
                     @focus="showDropdown = true"
                     v-model="searchFormalityValue"
                     :class="{
@@ -505,7 +505,10 @@
             <div class="col-6">
               <div class="d-flex flex-column">
                 <label class="form-label">Xóa hết ảnh</label>
-                <button @click.prevent="clearImages" class="btn btn-danger col-sm-2">
+                <button
+                  @click.prevent="clearImages"
+                  class="btn btn-danger col-3"
+                >
                   Clear Image
                 </button>
               </div>
@@ -701,7 +704,7 @@ export default {
       itemID: publisherID,
     } = useDropdown("publishers");
 
-    // Dropdown cho nhà danh mục
+    // Dropdown cho nhà thể loai
     const {
       searchValue: searchCategoryValue,
       filteredOptions: categoryOptions,
@@ -749,7 +752,7 @@ export default {
       if (newVal) {
         categorySelectedID.value = newVal;
         console.log(
-          "Danh mục đã chọn + An dropdown: ",
+          "thể loai đã chọn + An dropdown: ",
           categorySelectedID.value
         );
       }
@@ -898,6 +901,7 @@ export default {
 };
 </script>
 <style scoped>
+@import "../../../assets/css/admin/dropdown/dropdown.css";
 .remove-btn {
   background-color: #dc3545;
   color: white;
@@ -908,63 +912,5 @@ export default {
 
 .remove-btn:hover {
   background-color: #c82333;
-}
-.input-group {
-  position: relative;
-}
-
-.clear-button {
-  position: absolute;
-  right: 35px;
-  top: 55%;
-  z-index: 100;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background-color: #e9ecef;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.clear-button:hover {
-  background-color: #dee2e6;
-}
-
-.clear-icon {
-  font-size: 18px;
-  line-height: 1;
-  color: #495057;
-  font-weight: bold;
-  margin-top: -3px; /* Điều chỉnh vị trí dọc của dấu × */
-}
-
-.clear-button:hover .clear-icon {
-  color: #212529;
-  font-weight: 900;
-}
-
-/* Điều chỉnh padding của input để tránh text bị che bởi nút clear */
-.form-control {
-  padding-right: 40px;
-}
-
-@media (max-width: 576px) {
-  .form-group {
-    padding: 0 15px;
-  }
-
-  .dropdown-menu {
-    width: 100%;
-  }
-
-  .dropdown-item {
-    white-space: normal;
-    word-wrap: break-word;
-  }
 }
 </style>

@@ -84,19 +84,35 @@
                 <span class="ms-2 badge text-bg-danger"
                   >{{ "-" + book.discountPercent + "%" }}
                 </span>
-                <span class="ms-2 fw-bold">(Giá dự kiến - Đang nhập hàng)</span>
+                <span v-if="book.quantityImported === 0" class="ms-2 fw-bold"
+                  >(Giá dự kiến - Đang nhập hàng)</span
+                >
               </p>
               <div class="row">
                 <div class="col">
                   <p>Nhà cung cấp: Nhà Xuất Bản Kim Đồng</p>
                 </div>
                 <div class="col">
-                  <p>Tác giả: {{ book.authorID?.name }}</p>
+                  <p>
+                    Tác giả:
+                    {{
+                      book.authorID?.name
+                        ? book.authorID?.name
+                        : "Đang cập nhật..."
+                    }}
+                  </p>
                 </div>
               </div>
               <div class="row">
                 <div class="col">
-                  <p>Nhà xuất bản: {{ book.publisherID?.name }}</p>
+                  <p>
+                    Nhà xuất bản:
+                    {{
+                      book.publisherID?.name
+                        ? book.publisherID?.name
+                        : "Đang cập nhật..."
+                    }}
+                  </p>
                 </div>
                 <div class="col">
                   <p>Năm XB: {{ book.detail?.publisherYear }}</p>
@@ -115,7 +131,14 @@
               </div>
               <div class="row">
                 <div class="col">
-                  <p>Hình thức: {{ book.formalityID?.name }}</p>
+                  <p>
+                    Hình thức:
+                    {{
+                      book.formalityID?.name
+                        ? book.formalityID?.name
+                        : "Đang cập nhật..."
+                    }}
+                  </p>
                 </div>
                 <div class="col">
                   <p>Số trang: {{ book.detail?.pageNumber }}</p>
@@ -314,8 +337,9 @@ const addToCart = async (method) => {
         {
           bookID: bookID.value,
           quantity: parseInt(quantity.value),
-          price:
-            parseInt(book.value.detail.originalPrice - book.value.detail.discountPrice),
+          price: parseInt(
+            book.value.detail.originalPrice - book.value.detail.discountPrice
+          ),
         },
       ],
     };

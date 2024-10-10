@@ -151,13 +151,8 @@ export default defineComponent({
         render: (data) => `
             <div class="row">
               <div class="col-sm-2 me-4 col-md-2">
-                <button ref="${data}" id="detailReceipt" class="btn btn-warning" data-id=${data}>
-                  <i class="fa-solid fa-pencil"></i>
-                </button>
-              </div>
-              <div class="col-sm-2 col-md-2">
-                <button class="btn btn-danger" id="deletePublisher" data-id=${data}>
-                  <i class="fa-solid fa-trash"></i>
+                <button id="detailReceipt" class="badge text-bg-secondary p-2" data-id=${data}>
+                  <i class="fa-solid fa-eye"></i> View
                 </button>
               </div>
             </div>`,

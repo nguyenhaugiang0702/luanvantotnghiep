@@ -43,11 +43,12 @@
                   placeholder="Nhập tên tác giả"
                   @focus="showDropdown = true"
                   v-model="searchAuthorValue"
-                  :value="book.authorID.name"
+                  :value="book.authorID?.name"
                   :class="{
                     'is-invalid':
                       errors.authorName ||
-                      (searchAuthorValue !== '' && !authorID),
+                      (searchAuthorValue !== '' && !authorID) ||
+                      searchAuthorValue === '',
                     'is-valid': !errors.authorName && book.authorID !== '',
                   }"
                 />
@@ -98,7 +99,7 @@
                   id="publisherName"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
-                  placeholder="Nhập tên tác giả"
+                  placeholder="Nhập tên nhà xuất bản"
                   @focus="showDropdown = true"
                   v-model="searchPublisherValue"
                   :class="{
@@ -151,7 +152,7 @@
             <div class="col-sm-6">
               <div class="form-group">
                 <div class="dropdown">
-                  <label class="form-label" for="categoryName">Danh mục</label>
+                  <label class="form-label" for="categoryName">Thể loại</label>
                   <Field
                     class="form-control dropdown-toggle"
                     type="text"
@@ -159,7 +160,7 @@
                     id="categoryName"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    placeholder="Nhập danh mục"
+                    placeholder="Nhập thể loại"
                     @focus="showDropdown = true"
                     v-model="searchCategoryValue"
                     :class="{
@@ -202,7 +203,7 @@
                       !categoryID
                     "
                     style="color: #dc3545; font-size: 0.875em"
-                    >Vui lòng chọn danh mục</span
+                    >Vui lòng chọn thể loại</span
                   >
                 </div>
               </div>
@@ -220,7 +221,7 @@
                     id="formalityName"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    placeholder="Nhập danh mục"
+                    placeholder="Nhập hình thức"
                     @focus="showDropdown = true"
                     v-model="searchFormalityValue"
                     :class="{
@@ -538,11 +539,21 @@ export default {
       if (response.status === 200) {
         book.value = response.data;
         data.value = response.data;
-        searchAuthorValue.value = response.data.authorID.name;
-        searchCategoryValue.value = response.data.categoryID.name;
-        searchFormalityValue.value = response.data.formalityID.name;
-        searchPublisherValue.value = response.data.publisherID.name;
-        searchPriceRangeValue.value = response.data.priceRangeID.name;
+        searchAuthorValue.value = response.data.authorID?.name
+          ? response.data.authorID?.name
+          : "";
+        searchCategoryValue.value = response.data.categoryID?.name
+          ? response.data.categoryID?.name
+          : "";
+        searchFormalityValue.value = response.data.formalityID?.name
+          ? response.data.formalityID?.name
+          : "";
+        searchPublisherValue.value = response.data.publisherID?.name
+          ? response.data.publisherID?.name
+          : "";
+        searchPriceRangeValue.value = response.data.priceRangeID?.name
+          ? response.data.priceRangeID?.name
+          : "";
       }
     };
 
@@ -606,7 +617,7 @@ export default {
       loading: loadingPublishers,
     } = useDropdown("publishers", book.value.publisherID._id);
 
-    // Dropdown cho nhà danh mục
+    // Dropdown cho nhà thể loại
     const {
       searchValue: searchCategoryValue,
       filteredOptions: categoryOptions,
@@ -783,63 +794,6 @@ export default {
   },
 };
 </script>
-<style>
-.input-group {
-  position: relative;
-}
-
-.clear-button {
-  position: absolute;
-  right: 35px;
-  top: 55%;
-  z-index: 100;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background-color: #e9ecef;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.clear-button:hover {
-  background-color: #dee2e6;
-}
-
-.clear-icon {
-  font-size: 18px;
-  line-height: 1;
-  color: #495057;
-  font-weight: bold;
-  margin-top: -3px; /* Điều chỉnh vị trí dọc của dấu × */
-}
-
-.clear-button:hover .clear-icon {
-  color: #212529;
-  font-weight: 900;
-}
-
-/* Điều chỉnh padding của input để tránh text bị che bởi nút clear */
-.form-control {
-  padding-right: 40px;
-}
-
-@media (max-width: 576px) {
-  .form-group {
-    padding: 0 15px;
-  }
-
-  .dropdown-menu {
-    width: 100%;
-  }
-
-  .dropdown-item {
-    white-space: normal;
-    word-wrap: break-word;
-  }
-}
+<style scoped>
+@import '../../../assets/css/admin/dropdown/dropdown.css';
 </style>

@@ -253,7 +253,15 @@ export const priceRangeSchema = yup.object({
     .number()
     .typeError("Giá kết thúc phải là số")
     .min(0, "Giá phải lớn hơn hoặc bằng 0")
-    .required("Giá kết thúc là bắt buộc"),
+    .required("Giá kết thúc là bắt buộc")
+    .test(
+      "is-greater-than-startPrice",
+      "Giá kết thúc phải lớn hơn giá bắt đầu",
+      function (value) {
+        const { startPrice } = this.parent; 
+        return value > startPrice; 
+      }
+    ),
 });
 
 export const addressSchema = yup.object({

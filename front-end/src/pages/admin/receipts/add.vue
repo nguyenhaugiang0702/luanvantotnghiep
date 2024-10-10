@@ -38,13 +38,12 @@
                   }"
                 />
                 <ul
-                  class="dropdown-menu"
-                  :class="{
-                    'd-none': supplierSelectedID,
-                  }"
+                  class="dropdown-menu dropdown-menu-suppliers"
+                  v-show="!supplierSelectedID && supplierOptions.length > 0"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
+                    style="width: 38rem; max-width: 38rem"
                     class="dropdown-item"
                     v-for="(supplier, index) in supplierOptions"
                     :key="supplier._id"
@@ -53,6 +52,15 @@
                     {{ supplier.name }}
                   </li>
                 </ul>
+                <button
+                  class="clear-button"
+                  type="button"
+                  @click="clearDropdownSuppliers('dropdown-menu-suppliers')"
+                  v-if="searchSupplierValue"
+                  aria-label="Clear author"
+                >
+                  <span class="clear-icon">&times;</span>
+                </button>
                 <ErrorMessage name="supplierName" class="invalid-feedback" />
                 <span
                   v-if="
@@ -88,14 +96,12 @@
                   }"
                 />
                 <ul
-                  class="dropdown-menu"
-                  :class="{
-                    'd-none': bookSelectedID,
-                  }"
+                  class="dropdown-menu dropdown-menu-books"
+                  v-show="!bookSelectedID && bookOptions.length > 0"
                   style="max-height: 200px; overflow: auto"
                 >
                   <li
-                    style="max-width: 300px"
+                    style="width: 38rem; max-width: 38rem"
                     class="dropdown-item"
                     v-for="(book, index) in bookOptions"
                     :key="book._id"
@@ -104,6 +110,15 @@
                     {{ book.name }}
                   </li>
                 </ul>
+                <button
+                  class="clear-button"
+                  type="button"
+                  @click="clearDropdownBooks('dropdown-menu-books')"
+                  v-if="searchBookValue"
+                  aria-label="Clear author"
+                >
+                  <span class="clear-icon">&times;</span>
+                </button>
                 <ErrorMessage name="bookName" class="invalid-feedback" />
                 <span
                   v-if="!errors.bookName && searchBookValue !== '' && !bookID"
@@ -265,6 +280,17 @@ export default {
       }
     });
 
+    const clearDropdownSuppliers = (className) => {
+      searchSupplierValue.value = "";
+      supplierSelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+    const clearDropdownBooks = (className) => {
+      searchBookValue.value = "";
+      bookSelectedID.value = "";
+      $(`.${className}`).addClass("show");
+    };
+
     onMounted(() => {
       getSuppliers();
     });
@@ -290,7 +316,13 @@ export default {
       selectBookID,
       bookID,
       bookFormality,
+      //
+      clearDropdownSuppliers,
+      clearDropdownBooks,
     };
   },
 };
 </script>
+<style scoped>
+@import '../../../assets/css/admin/dropdown/dropdown.css';
+</style>

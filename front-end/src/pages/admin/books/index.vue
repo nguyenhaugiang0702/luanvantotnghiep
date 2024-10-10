@@ -33,7 +33,7 @@
                   <tr>
                     <th class="text-start">#</th>
                     <th class="text-start">Tên</th>
-                    <th class="text-start">Danh mục</th>
+                    <th class="text-start">Thể loại</th>
                     <th class="text-start">Hình thức</th>
                     <th class="text-start">Nhà xuất bản</th>
                     <th class="text-start">Tác giả</th>
@@ -83,59 +83,73 @@ const editedAuthor = ref({});
 const columns = [
   {
     data: null,
+    width: "5%",
     render: (data, type, row, meta) => {
       return `<div class='text-start'>${meta.row + 1}</div>`;
     },
   },
   {
     data: "name",
-    width: "25%",
+    width: "20%",
     render: (data, type, row, meta) => {
       return `<div class='text-start'>${data}</div>`;
     },
   },
   {
     data: "categoryID.name",
+    width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${data}</div>`;
+      return `<div class='text-start'>${
+        data ? data : "Đang cập nhật..."
+      }</div>`;
     },
   },
   {
     data: "formalityID.name",
+    width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${data}</div>`;
+      return `<div class='text-start'>${
+        data ? data : "Đang cập nhật..."
+      }</div>`;
     },
   },
   {
     data: "publisherID.name",
+    width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${data}</div>`;
+      return `<div class='text-start'>${
+        data ? data : "Đang cập nhật..."
+      }</div>`;
     },
   },
   {
     data: "authorID.name",
+    width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${data}</div>`;
+      return `<div class='text-start'>${
+        data ? data : "Đang cập nhật..."
+      }</div>`;
     },
   },
   {
     data: "_id",
+    width: "auto",
     render: (data, type, row, meta) => {
-      return `<div class="row">
-            <div class="col-sm-2 me-3">
-                  <button type="button" id="viewDetail" class="btn btn-secondary" data-id=${data} data-bs-toggle="tooltip" 
+      return `<div class="d-flex">
+            <div class="me-3">
+                  <button type="button" id="viewDetail" class="badge text-bg-secondary p-2" data-id=${data} data-bs-toggle="tooltip" 
                         data-bs-placement="top" data-bs-title="Tooltip on top">
-                    <i class="fa-solid fa-circle-info"></i>
+                    <i class="fa-solid fa-image"></i> View Image
                   </button>
               </div>
-              <div class="col-sm-2 me-3">
-                  <button id="editBook" class="btn btn-warning" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i>
+              <div class="me-3">
+                  <button id="editBook" class="badge text-bg-warning p-2" data-id=${data}>
+                     <i class="fa-solid fa-pencil"></i> Edit
                   </button>
               </div>
-              <div class="col-sm-2">
-                  <button  class="btn btn-danger" id="deleteBook" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i>
+              <div class="">
+                  <button  class="badge text-bg-danger p-2" id="deleteBook" data-id=${data}>
+                      <i class="fa-solid fa-eye-slash"></i> Hide
                   </button>
               </div>
             </div>`;

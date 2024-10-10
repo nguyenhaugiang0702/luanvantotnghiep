@@ -120,15 +120,15 @@ export default defineComponent({
         data: "_id",
         width: "15%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-            <div class="col-sm-2 me-4 col-md-2">
-                <button ref="${data}" id="editSupplier" class="btn btn-warning" data-id=${data}>
-                    <i class="fa-solid fa-pen"></i>
+          return `<div class="d-flex">
+            <div class="me-3">
+                <button ref="${data}" id="editSupplier" class="badge text-bg-warning p-2" data-id=${data}>
+                    <i class="fa-solid fa-pen"></i> Edit
                 </button>
             </div>
-            <div class="col-sm-2 col-md-2">
-                <button class="btn btn-danger" id="deleteSupplier" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i>
+            <div class="">
+                <button class="badge text-bg-danger p-2" id="deleteSupplier" data-id=${data}>
+                    <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </div>
           </div>`;

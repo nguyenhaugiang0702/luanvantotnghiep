@@ -63,7 +63,6 @@ import print from "datatables.net-buttons/js/buttons.print";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
-import "datatables.net-responsive-bs5";
 import JsZip from "jszip";
 import { useRouter } from "vue-router";
 window.JsZip = JsZip;
@@ -77,6 +76,8 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { formatPrice, handleNavigate } from "@/utils/utils";
+
 export default {
   components: {
     DataTable,
@@ -101,29 +102,29 @@ export default {
         data: "startPrice",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
+          return `<div class='text-start'>${formatPrice(data)}</div>`;
         },
       },
       {
         data: "endPrice",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class='text-start'>${data}</div>`;
+          return `<div class='text-start'>${formatPrice(data)}</div>`;
         },
       },
       {
         data: "_id",
         width: "30%",
         render: (data, type, row, meta) => {
-          return `<div class="row">
-            <div class="col-sm-1 me-3">
-                <button data-bs-toggle="modal" data-bs-target="#updatePriceRange" ref="${data}" id="editPriceRange" class="btn btn-warning" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i>
+          return `<div class="d-flex">
+            <div class="me-3">
+                <button data-bs-toggle="modal" data-bs-target="#updatePriceRange" id="editPriceRange" class="badge text-bg-warning p-2" data-id=${data}>
+                   <i class="fa-solid fa-pencil"></i> Edit
                 </button>
             </div>
-            <div class="col-sm-1">
-                <button  class="btn btn-danger" id="deletePriceRange" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i>
+            <div class="">
+                <button class="badge text-bg-danger p-2" id="deletePriceRange" data-id=${data}>
+                    <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </div>
           </div>`;

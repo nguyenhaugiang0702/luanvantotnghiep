@@ -1,6 +1,10 @@
 <template>
-  <a-layout-sider v-model:collapsed="collapsed" collapsible>
-    <div class="text-white py-4 px-4">Trang Quản trị</div>
+  <a-layout-sider
+    v-model:collapsed="collapsed"
+    collapsible
+    style="min-height: 100vh; overflow: auto; "
+  >
+    <div class="text-white py-4 px-4 sticky-top">Trang Quản trị</div>
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
       <a-menu-item key="admin-users" @click="navigateTo('admin-users')">
         <pie-chart-outlined />
