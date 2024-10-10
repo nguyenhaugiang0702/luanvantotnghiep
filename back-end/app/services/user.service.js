@@ -26,11 +26,7 @@ const activeUserAccount = async (userData) => {
   return user;
 };
 
-const blockUserAccount = async (userId) => {
-  const userID = {
-    _id: ObjectId.isValid(userId) ? new ObjectId(userId) : null,
-  };
-
+const blockUserAccount = async (userID) => {
   const user = await User.findByIdAndUpdate(
     userID,
     {

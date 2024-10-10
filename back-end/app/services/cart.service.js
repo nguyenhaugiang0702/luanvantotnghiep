@@ -89,10 +89,6 @@ const updateCheckOutAllStatus = async (userID, isCheckOut) => {
 // Hàm kiểm tra và cập nhật số lượng sách và tồn kho
 const checkBookStock = async (book, userID, next) => {
   let cart = await getCartByUserID(userID);
-  if (!cart) {
-    next(new ApiError(404, "Giỏ hàng không tồn tại"));
-    return null;
-  }
   // Kiểm tra số lượng sách không hợp lệ
   if (typeof book.quantity !== "number" || book.quantity <= 0) {
     next(new ApiError(400, "Số lượng sách không hợp lệ"));
@@ -119,7 +115,7 @@ const checkBookStock = async (book, userID, next) => {
     return null;
   }
   if ((book.method && book.method === "INCREASE") || !book.method) {
-    const existingBookInCart = cart.books.find(
+    const existingBookInCart = cart?.books?.find(
       (b) => b.bookID.toString() === book.bookID.toString()
     );
 

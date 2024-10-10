@@ -12,8 +12,12 @@ const fs = require("fs").promises;
 
 exports.blockAccount = async (req, res, next) => {
   try {
-    await userService.blockUserAccount(req.params.userID);
-    res.send({
+    const { userID } = req.params;
+    await userService.updateUser(userID, {
+      isActive: 2,
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+    });
+    return res.send({
       message: "Tài khoản đã bị khóa!",
     });
   } catch (error) {
@@ -23,8 +27,13 @@ exports.blockAccount = async (req, res, next) => {
 
 exports.unBlockAccount = async (req, res, next) => {
   try {
-    await userService.unBlockUserAccount(req.params.userID);
-    res.send({
+    const { userID } = req.params;
+
+    await userService.updateUser(userID, {
+      isActive: 1,
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+    });
+    return res.send({
       message: "Tài khoản đã được mở khóa!",
     });
   } catch (error) {

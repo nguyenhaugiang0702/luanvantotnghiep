@@ -15,5 +15,6 @@ router.use("/suppliers", require("./suppliers/index.route"));
 router.use("/users", require("./users/index.route"));
 router.use("/vouchers", require("./vouchers/index.route"));
 router.use("/formalities", require("./formalities/index.route"));
+router.use("/comments", require("./comments/index.route"));
 
 module.exports = router;
