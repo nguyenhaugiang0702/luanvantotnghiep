@@ -74,7 +74,7 @@ exports.findAllOrdersByUserID = async (req, res, next) => {
 };
 
 exports.updateStatusByCustomer = async (req, res, next) => {
-  // const userID = req.user ? req.user.id : null;
+  const userID = req.user ? req.user.id : null;
   if (!userID) {
     return next(new ApiError(400, "Vui lòng đăng nhập"));
   }
