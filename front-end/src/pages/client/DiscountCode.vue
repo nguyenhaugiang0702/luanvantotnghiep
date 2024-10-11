@@ -135,7 +135,7 @@ const collectVoucher = async (voucherID) => {
     });
     if (response?.status === 200) {
       showSuccessToast(response?.data?.message);
-      await getVouchers();
+      await getAllVouchers();
     }
   } catch (error) {
     console.log(error);
