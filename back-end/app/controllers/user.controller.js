@@ -53,7 +53,10 @@ exports.findALL = async (req, res) => {
 
 exports.findOne = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const user = await userService.getUserById(userID);
     return res.send(user);
   } catch (error) {
@@ -62,7 +65,10 @@ exports.findOne = async (req, res, next) => {
 };
 
 exports.update = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   const { newPhoneNumber, otpSMS, otpEmail, email } = req.body;
   const phoneRegex = /^0\d{9}$/;
   const otpRegex = /^\d{6}$/;
@@ -125,7 +131,10 @@ exports.update = async (req, res, next) => {
 };
 
 exports.updateProfile = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   let updatedUser;
   try {
     const { firstName, lastName, gender, dob, fileType } = req.body;

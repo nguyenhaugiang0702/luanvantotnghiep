@@ -91,8 +91,33 @@ exports.createVoucher = async (req, res, next) => {
 };
 
 exports.findAllVouchers = async (req, res, next) => {
+  const userID = req.user ? req.user.id : null;
+  let vouchersWithLogin = [];
+  let isCollected = false;
   try {
-    const vouchers = await voucherService.getAllVouchers();
+    let vouchers = await voucherService.getAllVouchers();
+    if (userID) {
+      await Promise.all(
+        vouchers.map(async (voucher) => {
+          const voucherUsedExist = await voucherUsedsService.getOneVoucherUsed({
+            userID: userID,
+            voucherID: voucher._id,
+          });
+          const isUsedVoucher = voucherUsedExist
+            ? voucherUsedExist.isUsed
+            : false;
+          isCollected = voucherUsedExist ? true : false;
+          const vouhcerData = {
+            ...voucher._doc,
+            isCollected,
+            isUsed: isUsedVoucher,
+          };
+          vouchersWithLogin.push(vouhcerData);
+        })
+      );
+      return res.send(vouchersWithLogin);
+    }
+
     return res.send(vouchers);
   } catch (error) {
     console.log(error);
@@ -102,29 +127,6 @@ exports.findAllVouchers = async (req, res, next) => {
 
 exports.findAllVouchersWithLogin = async (req, res, next) => {
   try {
-    const userID = req.user.id;
-    let vouchersWithLogin = [];
-    let isCollected = false;
-    const vouchers = await voucherService.getAllVouchers();
-    await Promise.all(
-      vouchers.map(async (voucher) => {
-        const voucherUsedExist = await voucherUsedsService.getOneVoucherUsed({
-          userID: userID,
-          voucherID: voucher._id,
-        });
-        const isUsedVoucher = voucherUsedExist
-          ? voucherUsedExist.isUsed
-          : false;
-        isCollected = voucherUsedExist ? true : false;
-        const vouhcerData = {
-          ...voucher._doc,
-          isCollected,
-          isUsed: isUsedVoucher,
-        };
-        vouchersWithLogin.push(vouhcerData);
-      })
-    );
-    return res.send(vouchersWithLogin);
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy tất cả thể loại mã giảm giá"));
@@ -166,7 +168,10 @@ exports.updateVoucher = async (req, res, next) => {
 exports.createVoucherUseds = async (req, res, next) => {
   try {
     const { voucherID } = req.body;
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     req.body.userID = userID;
     req.body.voucherID = voucherID;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
@@ -191,7 +196,10 @@ exports.createVoucherUseds = async (req, res, next) => {
 
 exports.findAllVoucherUseds = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const vouchers = await voucherUsedsService.getAllVoucherUseds({
       userID: userID,
       isUsed: false,
@@ -210,7 +218,10 @@ exports.updateVoucherUseds = async (req, res, next) => {
     let updateVoucherUsed;
     const { voucherUsedID } = req.params;
     const { method, voucherID, isApplied } = req.body;
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
 
     const currentVoucher = await voucherService.getVoucherByID(voucherID);
     if (currentVoucher && currentVoucher.quantity <= 0) {

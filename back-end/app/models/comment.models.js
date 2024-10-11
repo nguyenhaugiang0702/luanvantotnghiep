@@ -33,10 +33,6 @@ const commentSchema = new Schema({
     ref: "Comment",
     default: null,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   replies: [
     {
       type: Schema.Types.ObjectId,
@@ -44,6 +40,30 @@ const commentSchema = new Schema({
       default: null,
     },
   ],
+  liked: {
+    type: Number,
+    default: 0,
+  },
+  disLiked: {
+    type: Number,
+    default: 0,
+  },
+  likedBy: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  disLikedBy: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 const Comment = mongoose.model("Comment", commentSchema);
 

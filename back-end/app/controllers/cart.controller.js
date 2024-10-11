@@ -8,7 +8,10 @@ const voucherUsedsService = require("../services/vouchers/voucherUseds.service")
 
 exports.create = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const { books } = req.body;
     let cart = await cartService.getCartByUserID(userID);
     if (!cart) {
@@ -50,7 +53,10 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   let totalQuantity = 0;
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   try {
     const cart = await cartService.getFullInfoCartByUserID(userID);
     totalQuantity = cart.books.length;
@@ -65,7 +71,10 @@ exports.findAll = async (req, res, next) => {
 };
 
 exports.findAllBooksCheckBox = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   let totalPrice = 0; // Giá sau khi giảm
   let totalQuantity = 0;
   let checkedOutBooks = [];
@@ -89,7 +98,6 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
       }
       bookInCart.push(book);
     });
-    
 
     // Lưu lại tổng giá trị chưa giảm
     originalTotalPrice = totalPrice;
@@ -160,7 +168,10 @@ function calculateDiscount(totalPrice, voucher) {
 
 exports.update = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const bookID = req.params.bookID;
     const cart = await cartService.getCartByUserID(userID);
     if (!cart) {
@@ -202,7 +213,10 @@ exports.update = async (req, res, next) => {
 
 exports.updateCheckAll = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const cart = await cartService.getCartByUserID(userID);
     if (!cart) {
       return next(new ApiError(400, "Không tìm thấy giỏ hàng"));
@@ -245,7 +259,10 @@ exports.updateCheckAll = async (req, res, next) => {
 exports.deleteBookFromCart = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     let cart = await cartService.getCartByUserID(userID);
     if (!cart) {
       return next(new ApiError(400, "Không tìm thấy giỏ hàng"));
@@ -273,7 +290,10 @@ exports.deleteBookFromCart = async (req, res, next) => {
 
 exports.deleteAllBookFromCart = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     let cart = await cartService.getCartByUserID(userID);
     if (!cart) {
       return next(new ApiError(400, "Không tìm thấy giỏ hàng"));

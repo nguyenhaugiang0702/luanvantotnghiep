@@ -4,7 +4,14 @@ const comment = require("../../../controllers/comment.controller");
 const validation = require("../../../middlewares/validateAddress.middleware");
 const jwt = require("../../../middlewares/jwt.middleware");
 
-router.route("/").get(comment.findAll);
+router.route("/").get(jwt.authenticateTokenFromHeader, comment.findAll);
+
 router.route("/:bookID").put(jwt.authenticateTokenFromHeader, comment.create);
+router
+  .route("/:commentID/like")
+  .put(jwt.authenticateTokenFromHeader, comment.likeComment);
+router
+  .route("/:commentID/dislike")
+  .put(jwt.authenticateTokenFromHeader, comment.disLikeComment);
 
 module.exports = router;

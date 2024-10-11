@@ -3,7 +3,10 @@ const ApiError = require("../api-error");
 const chatRoomService = require("../services/chatRoom.service");
 
 exports.checkRoomChat = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   try {
     const chatRoom = await chatRoomService.getChatRoomByUserID(userID);
     if (!chatRoom) {
@@ -33,4 +36,4 @@ exports.getChatRooms = async (req, res, next) => {
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả tin nhắn"));
   }
-}
+};

@@ -3,10 +3,14 @@ const ApiError = require("../api-error");
 
 // Hàm để xác thực token từ header
 function authenticateTokenFromHeader(req, res, next) {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers["authorization"] || null;
+  if (!authHeader) {
+    return next();
+  }
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
     if (err) {
@@ -24,7 +28,8 @@ function authenticateTokenFromHeader(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParams(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
     if (err) {
@@ -42,7 +47,8 @@ function authenticateTokenFromParams(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParamsWithEmail(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_jwt_secret_key_bookstore", (err, user) => {
     if (err) {
@@ -60,7 +66,8 @@ function authenticateTokenFromParamsWithEmail(req, res, next) {
 // Hàm để xác thực token từ route params
 function authenticateTokenFromParamsWithEmail(req, res, next) {
   const token = req.params.token;
-  if (!token) return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token)
+    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
 
   jwt.verify(token, "my_jwt_secret_key_bookstore", (err, email) => {
     if (err) {

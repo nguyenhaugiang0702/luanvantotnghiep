@@ -6,7 +6,10 @@ exports.create = async (req, res, next) => {
   try {
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     req.body.userID = userID;
     // Nếu chưa có địa chỉ nào, mặc định địa chỉ mới là địa chỉ giao hàng
     const currentAddress = await addressService.getAllAddressByUserID(userID);
@@ -26,7 +29,10 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   let address = [];
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     address = await addressService.getAllAddressByUserID(userID);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
@@ -36,19 +42,25 @@ exports.findAll = async (req, res, next) => {
 
 exports.findAddressDefault = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const address = await addressService.getAllAddressByUserID(userID);
     return res.send(address);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
   }
-  r
+  r;
 };
 
 exports.findOne = async (req, res, next) => {
   let address = [];
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const addressID = req.params.addressID;
     address = await addressService.getAddressByIDAndUserID(userID, addressID);
   } catch (error) {
@@ -60,7 +72,10 @@ exports.findOne = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const addressID = req.params.addressID;
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const { isDefault, ...restBody } = req.body;
     if (isDefault !== undefined && Object.keys(restBody).length === 0) {
       await addressService.updateMany(
@@ -86,7 +101,10 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const addressID = req.params.addressID;
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     const address = await addressService.deleteAddress(addressID, userID);
     return res.send({
       message: "Xóa thành công địa chỉ",

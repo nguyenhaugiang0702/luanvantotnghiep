@@ -5,7 +5,10 @@ const orderService = require("../services/order.service");
 const fs = require("fs").promises;
 
 exports.create = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   const bookID = req.params.bookID;
   let newComment;
   try {
@@ -58,16 +61,56 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.findAll = async (req, res, next) => {
+exports.findAllAdmin = async (req, res, next) => {
   let comments = [];
   try {
     comments = await commentService.getComments({
-      isAdminReply: false
+      isAdminReply: false,
     });
     return res.send(comments);
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi bình luận mới"));
+  }
+};
+
+exports.findAll = async (req, res, next) => {
+  let comments = [];
+  const userID = req.user ? req.user.id : null;
+  try {
+    comments = await commentService.getComments({
+      isAdminReply: false,
+    });
+    if (userID) {
+      const commentsWithUserActions = comments.map((comment) => {
+        const isLiked = comment.likedBy.includes(userID);
+        const isDisliked = comment.disLikedBy.includes(userID);
+
+        return {
+          ...comment._doc,
+          isLiked, // True nếu user đã like comment này
+          isDisliked, // True nếu user đã dislike comment này
+        };
+      });
+      return res.send(commentsWithUserActions);
+    }
+    return res.send(comments);
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi lấy bình luận mới"));
+  }
+};
+
+exports.findAllWithNoToken = async (req, res, next) => {
+  let comments = [];
+  try {
+    comments = await commentService.getComments({
+      isAdminReply: false,
+    });
+    return res.send(comments);
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi lấy bình luận mới"));
   }
 };
 
@@ -129,5 +172,82 @@ exports.replyComment = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi trả lời bình luận"));
+  }
+};
+
+exports.likeComment = async (req, res, next) => {
+  const { commentID } = req.params;
+  const { action } = req.body;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
+  try {
+    const comment = await commentService.getCommentById(commentID);
+    if (action === "like") {
+      if (!comment.likedBy.includes(userID)) {
+        comment.likedBy.push(userID);
+        comment.liked += 1;
+      }
+
+      if (comment.disLikedBy.includes(userID)) {
+        const index = comment.disLikedBy.indexOf(userID);
+        comment.disLikedBy.splice(index, 1);
+        comment.disLiked -= 1;
+      }
+    } else if (action === "unlike") {
+      const index = comment.likedBy.indexOf(userID);
+      if (index > -1) {
+        comment.likedBy.splice(index, 1);
+        comment.liked -= 1;
+      }
+    }
+
+    await comment.save();
+    return res.send({
+      message: "Đã like thành công",
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi thích bình luận"));
+  }
+};
+
+exports.disLikeComment = async (req, res, next) => {
+  const { commentID } = req.params;
+  const { action } = req.body;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
+  try {
+    const comment = await commentService.getCommentById(commentID);
+
+    if (action === "dislike") {
+      if (!comment.disLikedBy.includes(userID)) {
+        comment.disLikedBy.push(userID);
+        comment.disLiked += 1;
+      }
+
+      if (comment.likedBy.includes(userID)) {
+        const index = comment.likedBy.indexOf(userID);
+        comment.likedBy.splice(index, 1);
+        comment.liked -= 1;
+      }
+    } else if (action === "undislike") {
+      const index = comment.disLikedBy.indexOf(userID);
+      if (index > -1) {
+        comment.disLikedBy.splice(index, 1);
+        comment.disLiked -= 1;
+      }
+    }
+
+    await comment.save();
+    return res.send({
+      message: "Đã dislike thành công",
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi không thích bình luận"));
   }
 };

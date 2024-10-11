@@ -6,8 +6,7 @@ const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 const validation = require("../../../middlewares/validateVoucher.middleware");
 
 // Voucher
-router.route("/").get(voucher.findAllVouchers);
-router.route("/vouhersWithLogin").get(jwt.authenticateTokenFromHeader, voucher.findAllVouchersWithLogin);
+router.route("/").get(jwt.authenticateTokenFromHeader, voucher.findAllVouchers);
 
 // Voucher Useds
 router

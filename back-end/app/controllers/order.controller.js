@@ -11,7 +11,10 @@ const axios = require("axios");
 
 exports.create = async (req, res, next) => {
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     req.body.userID = userID;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
@@ -55,7 +58,10 @@ exports.create = async (req, res, next) => {
 exports.findAllOrdersByUserID = async (req, res, next) => {
   let orders = [];
   try {
-    const userID = req.user.id;
+    const userID = req.user ? req.user.id : null;
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
     orders = await orderService.getOrdersByUserID(userID);
     return res.send({
       message: "Đặt hàng thành công",
@@ -68,7 +74,10 @@ exports.findAllOrdersByUserID = async (req, res, next) => {
 };
 
 exports.updateStatusByCustomer = async (req, res, next) => {
-  // const userID = req.user.id;
+  // const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   const orderID = req.params.orderID;
   const { status } = req.body;
   try {
@@ -86,7 +95,10 @@ exports.updateStatusByCustomer = async (req, res, next) => {
 };
 
 exports.findOne = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   const orderID = req.params.orderID;
   try {
     const orderDetail = await orderService.getOrderByIDAndUserID(
@@ -181,7 +193,10 @@ async function updateBookQuantities(orderDetails) {
 }
 
 exports.getShippingFee = async (req, res, next) => {
-  const userID = req.user.id;
+  const userID = req.user ? req.user.id : null;
+  if (!userID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
   const { province, district, ward, address, weight } = req.body;
   const data = {
     pick_province: "Thành phố Cần Thơ",
@@ -204,17 +219,26 @@ exports.getShippingFee = async (req, res, next) => {
       }
     );
     if (response.data.success) {
-      if(!response.data.fee.delivery){
-        return next(new ApiError(500, "Địa chỉ này không được hỗ trợ, vui lòng chon địa chỉ khác!"));
+      if (!response.data.fee.delivery) {
+        return next(
+          new ApiError(
+            500,
+            "Địa chỉ này không được hỗ trợ, vui lòng chon địa chỉ khác!"
+          )
+        );
       }
       return res.json(response.data.fee.ship_fee_only);
     }
-    if(!response.data.fee.delivery){
-      return next(new ApiError(500, "Địa chỉ này không được hỗ trợ, vui lòng chon địa chỉ khác!"));
+    if (!response.data.fee.delivery) {
+      return next(
+        new ApiError(
+          500,
+          "Địa chỉ này không được hỗ trợ, vui lòng chon địa chỉ khác!"
+        )
+      );
     }
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi tính phí vận chuyển!"));
   }
-   
 };
