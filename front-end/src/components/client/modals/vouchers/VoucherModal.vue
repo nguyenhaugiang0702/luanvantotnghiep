@@ -116,6 +116,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const emit = defineEmits(["refreshCart:update"]);
 const voucherUseds = ref([]);
@@ -151,19 +152,12 @@ const toggleVoucher = async (voucherUsed) => {
       );
     }
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
-      getVouchersUseds();
+      showSuccessToast(response?.data?.message);
+      await getVouchersUseds();
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   }
 };
 

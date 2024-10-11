@@ -124,6 +124,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import { loginUserSchema } from "@/utils/schema.util";
 import Cookies from "js-cookie";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const { errors, validate } = useForm({
   validationSchema: loginUserSchema,
@@ -156,11 +157,8 @@ const Login = async () => {
       window.location.href = "/customer/account/edit/";
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoading.value = false;
   }

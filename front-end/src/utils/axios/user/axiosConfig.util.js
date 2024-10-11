@@ -38,7 +38,7 @@ instance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Nếu gặp lỗi 401 và chưa thử làm mới token
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       console.log("Token hết hạn, đang làm mới token...");
       // Cookies.set("isLoggedIn", false);
       originalRequest._retry = true; // Đánh dấu rằng đã thử làm mới token
@@ -57,6 +57,7 @@ instance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+    console.log(error);
     return Promise.reject(error);
   }
 );

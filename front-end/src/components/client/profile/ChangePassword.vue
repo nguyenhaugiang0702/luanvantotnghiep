@@ -138,6 +138,7 @@ import Cookies from "js-cookie";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { ref } from "vue";
 import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -175,20 +176,13 @@ export default {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         if (response?.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
         }
         return;
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       } finally {
         isLoading.value = false;
       }

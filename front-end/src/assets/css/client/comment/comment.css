@@ -1,0 +1,137 @@
+.comment-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.stars i {
+  font-size: 0.95rem;
+}
+
+/* Ant Design */
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+/* End  Ant Design */
+
+/* Admin Reply */
+.replies-section {
+  margin: 1.5rem 0 1.5rem 2.5rem;
+}
+
+.admin-reply {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.reply-container {
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border-left: 4px solid #0d6efd;
+  border-radius: 0 12px 12px 0;
+  padding: 1.25rem;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-avatar-wrapper {
+  position: relative;
+  margin-right: 1rem;
+}
+
+.admin-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  background: #0d6efd;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.admin-details {
+  flex: 1;
+}
+
+.admin-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-name h6 {
+  margin: 0;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.badge {
+  background: #0d6efd;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.reply-message {
+  position: relative;
+}
+
+.message-content {
+  color: #374151;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1rem;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+/* Admin Reply */
+
+.user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  border-radius: 8px;
+  overflow: hidden;
+}

@@ -127,6 +127,8 @@ import { toast } from "vue3-toastify";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changePhoneNumberSchema } from "@/utils/schema.util";
 import ApiUser from "@/service/user/apiUser.service";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     Form,
@@ -164,18 +166,11 @@ export default {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       } finally {
         isLoading.value = false;
       }
@@ -194,20 +189,13 @@ export default {
         );
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           $("#changPhoneNumber").modal("hide");
           emit("refreshUser");
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       } finally {
         isLoadingUpdate.value = false;
       }

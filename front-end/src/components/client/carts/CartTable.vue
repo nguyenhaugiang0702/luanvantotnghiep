@@ -129,6 +129,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice } from "@/utils/utils";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
   setup(props, { emit }) {
@@ -178,40 +179,43 @@ export default {
           updateCart.value += 1;
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
         await getCarts();
       }
     };
 
     const decreaseQuantity = async (book) => {
-      const bookID = book.bookID._id;
-      const quantity = $(`#inputQuantity_${book.bookID._id}`).val();
-      if (quantity > 1) {
-        const data = {
-          books: [
-            {
-              bookID: bookID,
-              quantity: 1,
-              method: "DECREASE", // Xóa số lượng đi 1
-            },
-          ],
-        };
-        const response = await apiUser.post("/cart", data);
-        if (response.status === 200) {
-          await getCarts();
-          updateCart.value += 1;
+      try {
+        const bookID = book.bookID._id;
+        const quantity = $(`#inputQuantity_${book.bookID._id}`).val();
+        if (quantity > 1) {
+          const data = {
+            books: [
+              {
+                bookID: bookID,
+                quantity: 1,
+                method: "DECREASE", // Xóa số lượng đi 1
+              },
+            ],
+          };
+          const response = await apiUser.post("/cart", data);
+          if (response.status === 200) {
+            await getCarts();
+            updateCart.value += 1;
+          }
+        } else {
+          const isConfirmed = await showConfirmation({
+            title: "Bạn có chắc chắn muốn xóa sản phẩm khỏi giỏ hàng?",
+          });
+          if (isConfirmed.isConfirmed) {
+            await deleteBook(bookID);
+          }
         }
-      } else {
-        const isConfirmed = await showConfirmation({
-          title: "Bạn có chắc chắn muốn xóa sản phẩm khỏi giỏ hàng?",
-        });
-        if (isConfirmed.isConfirmed) {
-          await deleteBook(bookID);
-        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
+        await getCarts();
       }
     };
 
@@ -239,11 +243,8 @@ export default {
           updateCart.value += 1;
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
         await getCarts();
       }
     };

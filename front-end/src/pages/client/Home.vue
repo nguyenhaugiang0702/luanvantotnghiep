@@ -177,6 +177,7 @@ import config from "@/config/index";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRoute, useRouter } from "vue-router";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const books = ref([]);
 const router = useRouter();
@@ -204,12 +205,7 @@ const updateView = async (bookID) => {
 
 const addToCart = async (book) => {
   if (!token || !isLoggedIn) {
-    toast("Vui lòng đăng nhập", {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
-    return;
+    return showErrorToast("Vui lòng đăng nhập");
   }
   try {
     const data = {
@@ -224,19 +220,12 @@ const addToCart = async (book) => {
 
     const response = await apiUser.post("/cart", data, token);
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response.data.message);
       updateCart.value += 1; // Cập nhật giỏ hàng
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   }
 };
 

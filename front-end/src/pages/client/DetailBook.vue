@@ -230,6 +230,7 @@ import "vue3-carousel/dist/carousel.css";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import Comment from "./Comment.vue";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const route = useRoute();
 const router = useRouter();
@@ -319,12 +320,7 @@ const toggleDescription = () => {
 
 const addToCart = async (method) => {
   if (!token || !isLoggedIn) {
-    toast("Vui lòng đăng nhập", {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
-    return;
+    return showErrorToast("Vui lòng đăng nhập");
   }
   if (isNaN(quantity.value) || quantity.value < 1) {
     // Hiển thị lại số lượng hiện tại
@@ -346,11 +342,7 @@ const addToCart = async (method) => {
 
     const response = await apiUser.post("/cart", data);
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response.data.message);
       if (method === "BUYNOW") {
         router.push({ name: "cart" });
       } else {
@@ -358,11 +350,8 @@ const addToCart = async (method) => {
       }
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   }
 };
 

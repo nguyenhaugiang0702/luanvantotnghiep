@@ -127,6 +127,8 @@ import validation from "@/utils/validate.util";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { changeEmailSchema } from "@/utils/schema.util";
 import ApiUser from "@/service/user/apiUser.service";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     Form,
@@ -164,18 +166,11 @@ export default {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
           otpSent.value = response.data.otpSent;
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       } finally {
         isLoading.value = false;
       }
@@ -188,24 +183,20 @@ export default {
       }
       try {
         isLoadingUpdate.value = true;
-        const response = await apiUser.put("/profile/updatePhoneAndEmail", userUpdate.value);
+        const response = await apiUser.put(
+          "/profile/updatePhoneAndEmail",
+          userUpdate.value
+        );
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (response?.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           // $("#changeEmail").modal("hide");
           isModalOpen.value = false;
           emit("refreshUser");
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       } finally {
         isLoadingUpdate.value = false;
       }
@@ -219,7 +210,7 @@ export default {
       otpSent,
       isLoading,
       isLoadingUpdate,
-      isModalOpen
+      isModalOpen,
     };
   },
 };

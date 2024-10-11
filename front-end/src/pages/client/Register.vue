@@ -277,19 +277,11 @@ const sendOTP = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response?.status === 200) {
       otpSent.value = response.data.otpSent;
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
     }
   } catch (error) {
-    const errorMessage = error.response?.data?.message;
-    toast(errorMessage, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoadingSendOTP.value = false;
   }
@@ -308,21 +300,14 @@ const signUp = async () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response.status == 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response.data.message);
       resetForm();
       otpSent.value = false;
       otpVerified.value = false;
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoading.value = false;
   }
@@ -345,18 +330,11 @@ const checkOTP = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response?.status === 200) {
       otpVerified.value = response.data.otpVerified;
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoadingCheckOTP.value = false;
   }

@@ -299,6 +299,7 @@ import { toast } from "vue3-toastify";
 import { useRouter } from "vue-router";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const token = Cookies.get("accessToken");
 const apiUser = new ApiUser();
@@ -406,19 +407,10 @@ const confirmPayment = async () => {
           } else if (shortLink) {
             window.open(shortLink, "_blank");
           }
-        } else {
-          toast("Đã xảy ra lỗi khi gọi API MOMO", {
-            theme: "auto",
-            type: "error",
-            dangerouslyHTMLString: true,
-          });
         }
       } catch (error) {
-        toast("Đã xảy ra lỗi khi gọi API MOMO", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error.response?.data?.message);
+        showErrorToast(error.response?.data?.message);
       }
       break;
 
@@ -434,20 +426,10 @@ const confirmPayment = async () => {
           if (order_url) {
             window.open(order_url, "_blank");
           }
-        } else {
-          toast("Đã xảy ra lỗi khi gọi API ZALOPAY", {
-            theme: "auto",
-            type: "error",
-            dangerouslyHTMLString: true,
-          });
         }
       } catch (error) {
         console.log(error.response?.data?.message);
-        toast("Đã xảy ra lỗi khi gọi API ZALOPAY", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        showErrorToast(error.response?.data?.message);
       }
       break;
     case "PAYPAL":
@@ -462,19 +444,10 @@ const confirmPayment = async () => {
           if (paypal_url) {
             window.open(paypal_url, "_blank");
           }
-        } else {
-          toast("Đã xảy ra lỗi khi gọi API PAYPAL", {
-            theme: "auto",
-            type: "error",
-            dangerouslyHTMLString: true,
-          });
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error.response?.data?.message);
+        showErrorToast(error.response?.data?.message);
       }
       break;
 
@@ -490,21 +463,13 @@ const placeOrder = async (orderData) => {
   try {
     const response = await apiUser.post("/orders", orderData);
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response.data.message);
       updateCart.value += 1;
       router.push({ name: "thanks" });
     }
   } catch (error) {
     console.log(error);
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    showErrorToast(error.response?.data?.message);
   }
 };
 
@@ -519,18 +484,13 @@ watch(
         address: selectedAddressData.value.detailAddress,
         weight: dataToCalculateShippingFee.value.weight,
       };
-      console.log(params);
 
       try {
         const fee = await getShippingFee(params);
         shippingFee.value = fee;
       } catch (error) {
         console.error("Error calculating shipping fee:", error);
-        toast("Lỗi khi tính phí vận chuyển", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        showErrorToast("Lỗi khi tính phí vận chuyển");
       }
     }
   }
@@ -544,11 +504,7 @@ const getShippingFee = async (params) => {
     return response.data;
   } catch (error) {
     console.error("Error calculating shipping fee:", error);
-    toast("Lỗi khi tính phí vận chuyển", {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    showErrorToast("Lỗi khi tính phí vận chuyển");
     shippingFee.value = 0;
   } finally {
     isCalculatingFee.value = false;

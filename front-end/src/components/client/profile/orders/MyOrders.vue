@@ -155,6 +155,7 @@ import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
 import { showConfirmation } from "@/utils/swalUtils";
 import { useRouter } from "vue-router";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const router = useRouter();
 const apiUser = new ApiUser();
@@ -170,16 +171,17 @@ const getOrders = async () => {
 };
 
 const handleCancelOrder = async (orderID) => {
-  const response = await apiUser.put(`/orders/updateStatus/${orderID}`, {
-    status: 4,
-  });
-  if (response.status === 200) {
-    toast(response.data.message, {
-      theme: "auto",
-      type: "success",
-      dangerouslyHTMLString: true,
+  try {
+    const response = await apiUser.put(`/orders/updateStatus/${orderID}`, {
+      status: 4,
     });
-    await getOrders();
+    if (response.status === 200) {
+      showSuccessToast(response?.data?.message);
+      await getOrders();
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   }
 };
 

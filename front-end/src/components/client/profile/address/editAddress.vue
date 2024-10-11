@@ -161,6 +161,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRouter, useRoute } from "vue-router";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -222,24 +223,25 @@ export default {
     });
 
     const updateAddress = async () => {
-      const { valid } = await validate();
-      if (!valid) {
-        return;
-      }
+      try {
+        const { valid } = await validate();
+        if (!valid) {
+          return;
+        }
 
-      const { createdAt, updatedAt, ...addressData } = address.value;
-      console.log(addressData);
-      const response = await apiUser.put(
-        `/addresses/${addressID}`,
-        addressData
-      );
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        router.push({ name: "profile-address-list" });
+        const { createdAt, updatedAt, ...addressData } = address.value;
+        console.log(addressData);
+        const response = await apiUser.put(
+          `/addresses/${addressID}`,
+          addressData
+        );
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          router.push({ name: "profile-address-list" });
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

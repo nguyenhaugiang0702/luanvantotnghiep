@@ -189,9 +189,7 @@
                           role="status"
                           aria-hidden="true"
                         ></span>
-                        <span class="text-white" v-else>
-                          Lưu
-                        </span>
+                        <span class="text-white" v-else> Lưu </span>
                       </button>
                     </div>
 
@@ -221,6 +219,7 @@ import { useRouter } from "vue-router";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { forgotPasswordSchema } from "@/utils/schema.util";
 import { handleNavigate } from "@/utils/utils";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const { errors, validateField, validate, resetForm } = useForm({
   validationSchema: forgotPasswordSchema,
@@ -256,19 +255,12 @@ const sendOTP = async () => {
     otpSent.value = true;
     if (response?.status === 200) {
       otpSent.value = response.data.otpSent;
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
     }
   } catch (error) {
     const errorMessage = error.response?.data?.message;
-    toast(errorMessage, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(errorMessage);
+    showErrorToast(errorMessage);
   } finally {
     isLoadingSendOTP.value = false;
   }
@@ -286,21 +278,14 @@ const changePassword = async () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response.status == 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
       otpSent.value = false;
       otpVerified.value = false;
       resetForm();
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoading.value = false;
   }
@@ -324,18 +309,11 @@ const checkOTP = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response?.status === 200) {
       otpVerified.value = response.data.otpVerified;
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoadingCheckOTP.value = false;
   }

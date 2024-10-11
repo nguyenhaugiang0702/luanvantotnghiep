@@ -163,6 +163,8 @@ import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
 import config from "@/config";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     Field,
@@ -234,19 +236,15 @@ export default {
         return;
       }
       try {
-        console.log(newAddress.value);
         const response = await apiUser.post("/addresses", newAddress.value);
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           router.push({ name: "profile-address-list" });
         }
       } catch (error) {
         console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

@@ -2,49 +2,107 @@
   <div class="comment-section">
     <h3 class="my-4">Đánh giá sản phẩm</h3>
     <hr />
-    <div class="bg-white p-3 rounded">
+    <div class="bg-white p-3 rounded comments-wrapper">
       <!-- Hiển thị các bình luận -->
       <div v-for="(comment, index) in comments" :key="index" class="mb-4">
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center gap-3">
           <!-- Avatar người dùng -->
-          <img
-            :src="`http://localhost:3000/` + comment.userID?.avatar"
-            alt="User Avatar"
-            class="rounded-circle me-3"
-            style="width: 50px; height: 50px"
-          />
-          <div>
-            <h5 class="mb-0">
-              {{ comment.userID?.firstName + " " + comment.userID?.lastName }}
-            </h5>
-            <!-- Số sao đánh giá -->
-            <div class="stars text-warning">
-              <i
-                v-for="n in comment.star"
-                :key="n"
-                class="fa-solid fa-star"
-              ></i>
-              <i
-                v-for="n in 5 - comment.star"
-                :key="n"
-                class="fa-solid fa-star text-secondary"
-              ></i>
+          <div class="position-relative">
+            <img
+              :src="`http://localhost:3000/` + comment.userID?.avatar"
+              alt="User Avatar"
+              class="rounded-circle user-avatar"
+              style="width: 50px; height: 50px"
+            />
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="mb-1 fw-semibold">
+                  {{
+                    comment.userID?.firstName + " " + comment.userID?.lastName
+                  }}
+                </h5>
+                <!-- Số sao đánh giá -->
+                <div class="d-flex align-items-center gap-2">
+                  <div class="stars text-warning">
+                    <i
+                      v-for="n in comment.star"
+                      :key="n"
+                      class="fa-solid fa-star"
+                    ></i>
+                    <i
+                      v-for="n in 5 - comment.star"
+                      :key="n"
+                      class="fa-solid fa-star text-secondary"
+                    ></i>
+                  </div>
+                  <small class="text-muted">{{
+                    moment(comment.createdAt).fromNow()
+                  }}</small>
+                </div>
+              </div>
             </div>
-            <p class="text-muted">{{ moment(comment.createdAt).fromNow() }}</p>
+          </div>
+          <!-- Like/Dislike Section -->
+          <div class="reaction-buttons d-flex gap-3">
+            <div class="reaction-button d-flex align-items-center">
+              <a-tooltip title="Hữu ích">
+                <button
+                  class="btn btn-link p-0 d-flex align-items-center text-decoration-none"
+                  @click="like(comment._id)"
+                >
+                  <template v-if="comment.isLiked">
+                    <LikeFilled class="reaction-icon liked" />
+                  </template>
+                  <template v-else>
+                    <LikeOutlined class="reaction-icon" />
+                  </template>
+                  <span class="reaction-count ms-2">{{ comment.liked }}</span>
+                </button>
+              </a-tooltip>
+            </div>
+            <div class="reaction-button d-flex align-items-center">
+              <a-tooltip title="Không hữu ích">
+                <button
+                  class="btn btn-link p-0 d-flex align-items-center text-decoration-none"
+                  @click="dislike(comment._id)"
+                >
+                  <template v-if="comment.isDisliked">
+                    <DislikeFilled class="reaction-icon disliked" />
+                  </template>
+                  <template v-else>
+                    <DislikeOutlined class="reaction-icon" />
+                  </template>
+                  <span class="reaction-count ms-2">{{
+                    comment.disLiked
+                  }}</span>
+                </button>
+              </a-tooltip>
+            </div>
           </div>
         </div>
-        <p class="mt-2">{{ comment.content }}</p>
+
+        <!-- Comment Content -->
+        <div class="mt-3">
+          <p class="mb-3">{{ comment.content }}</p>
+        </div>
 
         <!-- Hiển thị ảnh sản phẩm đã mua -->
-        <div v-if="comment.images.length !== 0" class="product-images mt-3">
-          <h6>Ảnh sản phẩm đã mua:</h6>
-          <div class="row">
-            <a-image
-              v-for="image in comment.images"
-              :src="`http://localhost:3000/` + image.path"
-              :width="120"
-              :height="100"
-            />
+        <div
+          v-if="comment.images.length !== 0"
+          class="product-images bg-light rounded-3 p-3 mt-3"
+        >
+          <h6 class="mb-3 text-secondary fw-semibold">Ảnh sản phẩm đã mua:</h6>
+          <div class="row g-2">
+            <div v-for="image in comment.images" class="col-auto me-2">
+              <a-image
+                :src="`http://localhost:3000/` + image.path"
+                :width="100"
+                :height="120"
+                class="rounded-3"
+              />
+            </div>
           </div>
         </div>
 
@@ -90,25 +148,27 @@
     </div>
 
     <!-- Phần thêm bình luận -->
-    <div class="mt-4">
-      <h4>Thêm bình luận của bạn</h4>
-      <textarea
-        v-model="newComment.content"
-        class="form-control mb-2"
-        rows="3"
-        placeholder="Viết bình luận..."
-      ></textarea>
-
-      <!-- Chọn số sao -->
-      <div class="mb-2">
-        <label class="me-2">Đánh giá:</label>
-        <span>
-          <a-rate v-model:value="newComment.rating" :tooltips="desc" />
-          <span class="ant-rate-text">{{ desc[value - 1] }}</span>
-        </span>
+    <div class="add-comment-section bg-light rounded-3 p-4 mt-4">
+      <h4 class="mb-4 fw-semibold">Thêm bình luận của bạn</h4>
+      <div class="mb-3">
+        <textarea
+          v-model="newComment.content"
+          class="form-control"
+          rows="3"
+          placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
+        ></textarea>
       </div>
 
-      <div class="clearfix">
+      <!-- Chọn số sao -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Đánh giá:</label>
+        <div class="d-flex align-items-center gap-2">
+          <a-rate v-model:value="newComment.rating" :tooltips="desc" />
+          <span class="text-muted small">{{ desc[value - 1] }}</span>
+        </div>
+      </div>
+
+      <div class="upload-section bg-white rounded-3 p-3 mb-3">
         <a-upload
           :multiple="true"
           :maxCount="5"
@@ -119,24 +179,18 @@
         >
           <div v-if="fileList.length < 8">
             <plus-outlined />
-            <div style="margin-top: 8px">
+            <div class="mt-2 text-secondary">
               Upload
-              <div>(Max: 5)</div>
+              <div class="small">(Max: 5)</div>
             </div>
           </div>
         </a-upload>
-        <a-modal
-          :open="previewVisible"
-          :title="previewTitle"
-          :footer="null"
-          @cancel="handleCancel"
-        >
-          <img alt="example" style="width: 100%" :src="previewImage" />
-        </a-modal>
       </div>
 
       <!-- Nút gửi bình luận -->
-      <button @click="addComment" class="btn btn-primary">Gửi bình luận</button>
+      <button @click="addComment" class="btn btn-primary px-4">
+        Gửi bình luận
+      </button>
     </div>
   </div>
 </template>
@@ -147,6 +201,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
 import { toast } from "vue3-toastify";
 import moment from "moment";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const value = ref(0);
 const desc = ref(["terrible", "bad", "normal", "good", "wonderful"]);
@@ -185,12 +240,7 @@ const newComment = ref({
 // Thêm bình luận mới
 const addComment = async () => {
   if (!token || !isLoggedIn) {
-    toast("Vui lòng đăng nhập để đánh giá", {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
-    return;
+    return showErrorToast("Vui lòng đăng nhập");
   }
 
   if (newComment.value.content && newComment.value.rating > 0) {
@@ -211,11 +261,7 @@ const addComment = async () => {
         "multipart/form-data"
       );
       if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
+        showSuccessToast(response?.data?.message);
         newComment.value.content = "";
         newComment.value.rating = "";
         fileList.value = [];
@@ -223,36 +269,12 @@ const addComment = async () => {
       }
     } catch (error) {
       console.log(error);
-      toast(error.response?.data?.message, {
-        theme: "auto",
-        type: "error",
-        dangerouslyHTMLString: true,
-      });
+      showErrorToast(error.response?.data?.message);
     }
   } else {
-    toast("Kiểm tra lại nội dung đánh giá", {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    showErrorToast("Kiểm tra lại nội dung đánh giá");
   }
 };
-
-// // Admin phản hồi bình luận
-// const replyToComment = (index) => {
-//   const replyContent = prompt("Nhập phản hồi của bạn:");
-//   if (replyContent) {
-//     comments.value[index].replies.push({
-//       content: replyContent,
-//       date: format(new Date(), "dd/MM/yyyy"),
-//     });
-//   }
-// };
-
-// // Admin xóa bình luận
-// const deleteComment = (index) => {
-//   comments.value.splice(index, 1);
-// };
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -266,10 +288,6 @@ const previewVisible = ref(false);
 const previewImage = ref("");
 const previewTitle = ref("");
 const fileList = ref([]);
-const handleCancel = () => {
-  previewVisible.value = false;
-  previewTitle.value = "";
-};
 const handlePreview = async (file) => {
   if (!file.url && !file.preview) {
     file.preview = await getBase64(file.originFileObj);
@@ -279,147 +297,111 @@ const handlePreview = async (file) => {
   previewTitle.value =
     file.name || file.url.substring(file.url.lastIndexOf("/") + 1);
 };
+
+const action = ref("");
+const likes = ref(0);
+const dislikes = ref(0);
+
+const like = async (commentId) => {
+  if (!token || !isLoggedIn) {
+    return showErrorToast("Vui lòng đăng nhập");
+  }
+  let response;
+  try {
+    if (action.value === "liked") {
+      action.value = "";
+      likes.value -= 1;
+      response = await apiUser.put(`/comments/${commentId}/like`, {
+        action: "unlike",
+      });
+    } else {
+      action.value = "liked";
+      likes.value += 1;
+      response = await apiUser.put(`/comments/${commentId}/like`, {
+        action: "like",
+      });
+      if (action.value === "disliked") {
+        dislikes.value -= 1;
+      }
+    }
+    await getComments();
+  } catch (error) {
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
+  }
+};
+
+const dislike = async (commentId) => {
+  if (!token || !isLoggedIn) {
+    return showErrorToast("Vui lòng đăng nhập");
+  }
+  try {
+    if (action.value === "disliked") {
+      action.value = "";
+      dislikes.value -= 1;
+      await apiUser.put(`/comments/${commentId}/dislike`, {
+        action: "undislike",
+      });
+    } else {
+      action.value = "disliked";
+      dislikes.value += 1;
+      await apiUser.put(`/comments/${commentId}/dislike`, {
+        action: "dislike",
+      });
+
+      if (action.value === "liked") {
+        likes.value -= 1;
+      }
+    }
+    await getComments();
+  } catch (error) {
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
+  }
+};
 </script>
 
 <style scoped>
-.comment-section {
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+@import "../../assets/css/client/comment/comment.css";
+.reaction-button {
+  transition: all 0.2s ease;
 }
 
-.stars i {
+.reaction-icon {
   font-size: 18px;
+  color: #6c757d;
+  transition: all 0.2s ease;
 }
 
-/* .comment-section {
-  max-height: 400px;
-  overflow-y: auto;
-} */
-
-.img-thumbnail {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+.reaction-icon:hover {
+  transform: scale(1.1);
 }
 
-.ant-upload-select-picture-card i {
-  font-size: 32px;
-  color: #999;
+.reaction-count {
+  font-size: 14px;
+  color: #6c757d;
+  min-width: 20px;
 }
 
-.ant-upload-select-picture-card .ant-upload-text {
-  margin-top: 8px;
-  color: #666;
+.liked {
+  color: #0d6efd;
 }
 
-.replies-section {
-  margin: 1.5rem 0 1.5rem 2.5rem;
+.disliked {
+  color: #dc3545;
 }
 
-.admin-reply {
-  position: relative;
-  margin-bottom: 1.5rem;
+/* Hiệu ứng hover cho nút reaction */
+.reaction-button:hover .reaction-icon:not(.liked):not(.disliked) {
+  color: #495057;
 }
 
-.reply-container {
-  background: linear-gradient(145deg, #ffffff, #f5f7fa);
-  border-left: 4px solid #0d6efd;
-  border-radius: 0 12px 12px 0;
-  padding: 1.25rem;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+.reaction-button:hover .reaction-count {
+  color: #495057;
 }
 
-.admin-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.admin-avatar-wrapper {
-  position: relative;
-  margin-right: 1rem;
-}
-
-.admin-avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.status-dot {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 12px;
-  height: 12px;
-  background: #0d6efd;
-  border: 2px solid white;
-  border-radius: 50%;
-}
-
-.admin-details {
-  flex: 1;
-}
-
-.admin-name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.admin-name h6 {
-  margin: 0;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.badge {
-  background: #0d6efd;
-  color: white;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.timestamp {
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
-.reply-message {
-  position: relative;
-}
-
-.message-content {
-  color: #374151;
-  line-height: 1.6;
-  font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  backdrop-filter: blur(8px);
-}
-
-/* Hover effects */
-.reply-container:hover {
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-  transition: all 0.3s ease;
-}
-
-/* Optional: Add a subtle line connecting replies */
-.admin-reply:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 22px;
-  top: 65px;
-  bottom: -15px;
-  width: 2px;
-  background: #e5e7eb;
+/* Animation khi click */
+.reaction-button:active .reaction-icon {
+  transform: scale(0.95);
 }
 </style>

@@ -89,6 +89,8 @@ import ApiUser from "@/service/user/apiUser.service";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { showConfirmation } from "@/utils/swalUtils";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   setup() {
     const apiUser = new ApiUser();
@@ -109,11 +111,7 @@ export default {
       };
       const response = await apiUser.put(`/addresses/${addressID}`, data);
       if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
+        showSuccessToast(response?.data?.message);
         getAddress();
       }
     };
@@ -121,11 +119,7 @@ export default {
     const deleteAddress = async (addressID) => {
       const response = await apiUser.delete(`/addresses/${addressID}`);
       if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
+        showSuccessToast(response?.data?.message);
         getAddress();
       }
     };

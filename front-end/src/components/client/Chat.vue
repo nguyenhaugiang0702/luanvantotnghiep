@@ -10,7 +10,7 @@
     </button>
 
     <!-- Chat box -->
-    <div v-if="isOpen" class="card" style="width: 27rem; height: 25rem;">
+    <div v-if="isOpen" class="card" style="width: 27rem; height: 25rem">
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
@@ -107,9 +107,11 @@ const sendMessage = () => {
 };
 
 const checkRoomChat = async () => {
-  const response = await apiUser.get("/chats/checkRoomChat");
-  if (response.status === 200) {
-    chatRoomId.value = response.data.chatRoomID;
+  if (token) {
+    const response = await apiUser.get("/chats/checkRoomChat");
+    if (response.status === 200) {
+      chatRoomId.value = response.data.chatRoomID;
+    }
   }
 };
 
@@ -128,25 +130,27 @@ const openChat = async () => {
 };
 
 onMounted(async () => {
-  await checkRoomChat();
-  // Kết nối tới server Socket.IO
-  socket.value = io("http://localhost:3000");
+  if (token) {
+    await checkRoomChat();
+    // Kết nối tới server Socket.IO
+    socket.value = io("http://localhost:3000");
 
-  // Nhận tin nhắn từ server
-  socket.value.on("receiveMessage", (message) => {
-    messages.value.push(message);
-    scrollToBottom();
-  });
+    // Nhận tin nhắn từ server
+    socket.value.on("receiveMessage", (message) => {
+      messages.value.push(message);
+      scrollToBottom();
+    });
 
-  // Tải lịch sử tin nhắn khi tham gia phòng chat
-  socket.value.on("loadMessages", (data) => {
-    chatRoomId.value = data.chatRoomId;
-    messages.value = data.messages;
-    scrollToBottom();
-  });
+    // Tải lịch sử tin nhắn khi tham gia phòng chat
+    socket.value.on("loadMessages", (data) => {
+      chatRoomId.value = data.chatRoomId;
+      messages.value = data.messages;
+      scrollToBottom();
+    });
 
-  // Gửi thông báo tham gia phòng chat
-  socket.value.emit("joinRoom", chatRoomId.value);
+    // Gửi thông báo tham gia phòng chat
+    socket.value.emit("joinRoom", chatRoomId.value);
+  }
 });
 
 onBeforeUnmount(() => {

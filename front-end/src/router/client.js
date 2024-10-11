@@ -1,5 +1,4 @@
 const client = [
-  
   {
     path: "/",
     component: () => import("../layouts/client/client.vue"),
@@ -29,6 +28,7 @@ const client = [
         path: "cart",
         name: "cart",
         component: () => import("../pages/client/Cart.vue"),
+        meta: { requiresAuth: true, requiresAdmin: false },
       },
       {
         path: "checkout",
@@ -139,8 +139,7 @@ const client = [
       },
       {
         path: "notfound",
-        component: () =>
-          import("../pages/Notfound.vue"),
+        component: () => import("../pages/Notfound.vue"),
       },
     ],
   },

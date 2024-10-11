@@ -109,13 +109,16 @@
       </div>
     </div>
     <!-- Chat component fixed at the bottom-right -->
-    <div class="position-fixed bottom-0 end-0 p-2">
-      <Chat />
+    <div v-if="token" class="position-fixed bottom-0 end-0 p-2">
+      <Chat v-if="token"/>
     </div>
 
   </div>
 
 </template>
 <script setup>
+import Cookies from 'js-cookie'
 import Chat from './Chat.vue';
+import {ref} from 'vue';
+const token = Cookies.get("accessToken")
 </script>
