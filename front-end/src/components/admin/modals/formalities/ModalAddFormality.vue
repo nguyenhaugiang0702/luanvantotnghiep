@@ -65,7 +65,7 @@
 </template>
 <script>
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { ref } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { formalitySchema } from "@/utils/schema.util";
@@ -91,21 +91,14 @@ export default {
           newFormality.value
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           $("#addFormality").modal("hide");
           emit("refreshFormalities");
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
     return { newFormality, addFormality, errors };

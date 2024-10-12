@@ -227,7 +227,6 @@ import { useRoute, useRouter } from "vue-router";
 import config from "@/config/index";
 import { Carousel, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
-import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import Comment from "./Comment.vue";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";

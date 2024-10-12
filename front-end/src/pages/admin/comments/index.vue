@@ -13,7 +13,7 @@
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <ModalShowImagesComment :commentObj="commentObj" />
-        <ModalReplyComment :commentObj="commentObj"/>
+        <ModalReplyComment :commentObj="commentObj" />
         <div class="row">
           <div class="col-12">
             <div class="table-responsive">
@@ -74,11 +74,13 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     DataTable,
     ModalShowImagesComment,
-    ModalReplyComment
+    ModalReplyComment,
   },
   setup() {
     const router = useRouter();
@@ -185,19 +187,12 @@ export default {
       try {
         const response = await apiAdmin.delete(`/comments/${commentID}`);
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           await getComments();
         }
       } catch (error) {
-        toast(error?.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

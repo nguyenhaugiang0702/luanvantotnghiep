@@ -76,6 +76,8 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     DataTable,
@@ -146,14 +148,15 @@ export default {
     });
 
     const deleteFormality = async (formalityID) => {
-      const response = await apiAdmin.delete(`/formalities/${formalityID}`);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getFormalities();
+      try {
+        const response = await apiAdmin.delete(`/formalities/${formalityID}`);
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          getFormalities();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
@@ -215,7 +218,7 @@ export default {
       columns,
       editedFormality,
       buttons,
-      language
+      language,
     };
   },
 };

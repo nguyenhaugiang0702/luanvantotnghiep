@@ -61,6 +61,7 @@ import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
 import "datatables.net-responsive-bs5";
+import "datatables.net-select-bs5";
 import JsZip from "jszip";
 window.JsZip = JsZip;
 DataTable.use(DataTableLib);
@@ -69,8 +70,8 @@ DataTable.use(ButtonsHtml5);
 import { useRouter } from "vue-router";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
-import "datatables.net-select-bs5";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default defineComponent({
   components: {
     DataTable,
@@ -145,14 +146,15 @@ export default defineComponent({
     };
 
     const deleteSupplier = async (supplierID) => {
-      const response = await apiAdmin.delete(`/suppliers/${supplierID}`);
-      if (response.status == 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getSuppliers();
+      try {
+        const response = await apiAdmin.delete(`/suppliers/${supplierID}`);
+        if (response.status == 200) {
+          showSuccessToast(response?.data?.message);
+          getSuppliers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

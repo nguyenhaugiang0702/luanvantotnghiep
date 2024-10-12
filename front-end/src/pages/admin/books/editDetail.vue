@@ -172,7 +172,8 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 const images = ref([]);
 const apiAdmin = new ApiAdmin();
 const route = useRoute();
@@ -275,20 +276,12 @@ const handleDeleteImage = async (imageID) => {
       `/books/images/${bookID}/${imageID}`
     );
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
       getImages();
     }
   } catch (error) {
     console.log(error);
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    showErrorToast(error.response?.data?.message);
   }
 };
 
@@ -331,21 +324,13 @@ const handleImage = async (formData, imageID = null, method) => {
       );
     }
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
       resetForm();
       getImages();
     }
   } catch (error) {
     console.log(error);
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    showErrorToast(error.response?.data?.message);
   }
 };
 

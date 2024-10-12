@@ -69,6 +69,8 @@ import { toast } from "vue3-toastify";
 import { ref } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { categorySchema } from "@/utils/schema.util";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: { Form, Field, ErrorMessage },
   emit: ["refreshCategories"],
@@ -88,21 +90,14 @@ export default {
       try {
         const response = await apiAdmin.post("/categories", newCategory.value);
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           $("#addCategory").modal("hide");
           emit("refreshCategories");
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
     return { newCategory, addCategory, errors };

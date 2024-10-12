@@ -170,7 +170,7 @@
 </template>
 <script>
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { ref, watch, onMounted } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { voucherSchema } from "@/utils/schema.util";
@@ -203,22 +203,15 @@ export default {
           newVoucher.value
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           searchVouchersCategoryValue.value = "";
           $("#addVoucher").modal("hide");
           emit("refreshVouchersCategory");
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

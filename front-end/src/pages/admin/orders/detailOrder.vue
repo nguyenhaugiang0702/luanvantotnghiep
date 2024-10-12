@@ -68,7 +68,8 @@
                                 {{ book.bookID.name }}
                               </div>
                               <div class="my-2 fw-bold">
-                                {{ formatPrice(book.realPrice) }} x {{ book.quantity }}
+                                {{ formatPrice(book.realPrice) }} x
+                                {{ book.quantity }}
                               </div>
                             </div>
 
@@ -176,7 +177,7 @@ import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { formatPrice, formatDate } from "@/utils/utils";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const orderStatus = ref("processing");
 const apiAdmin = new ApiAdmin();
@@ -210,7 +211,6 @@ const getOrderDetail = async () => {
   const response = await apiAdmin.get(`/orders/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
-    console.log(response.data);
   }
 };
 
@@ -241,19 +241,12 @@ const updateStatus = async () => {
       status: orderDetail.value.status,
     });
     if (response.status === 200) {
-      toast(response.data.message, {
-        theme: "auto",
-        type: "success",
-        dangerouslyHTMLString: true,
-      });
+      showSuccessToast(response?.data?.message);
       await getOrderDetail();
     }
   } catch (error) {
-    toast(error.response?.data?.message, {
-      theme: "auto",
-      type: "error",
-      dangerouslyHTMLString: true,
-    });
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
     await getOrderDetail();
   }
 };

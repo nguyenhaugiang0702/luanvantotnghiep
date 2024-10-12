@@ -76,9 +76,10 @@ import { ref, watch, defineComponent, onMounted, nextTick } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { authorSchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default defineComponent({
   components: { Field, ErrorMessage },
   props: {
@@ -116,22 +117,14 @@ export default defineComponent({
           data
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           $("#updateAuthor").modal("hide");
           emit("refreshAuthors");
         }
       } catch (error) {
-        console.error("Update failed:", error);
-        toast(error.response?.data?.message || "An error occurred", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

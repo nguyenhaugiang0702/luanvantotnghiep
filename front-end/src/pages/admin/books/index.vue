@@ -162,7 +162,6 @@ const getBooks = async () => {
   const response = await apiAdmin.get("/books");
   if (response.status === 200) {
     books.value = response.data;
-    console.log(response.data);
   }
 };
 

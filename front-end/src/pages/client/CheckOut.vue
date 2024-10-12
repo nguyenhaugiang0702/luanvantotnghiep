@@ -295,7 +295,6 @@ import { ref, onMounted, watch, computed, inject } from "vue";
 import Cookies from "js-cookie";
 import ApiUser from "@/service/user/apiUser.service";
 import config from "@/config";
-import { toast } from "vue3-toastify";
 import { useRouter } from "vue-router";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
@@ -463,7 +462,6 @@ const placeOrder = async (orderData) => {
   try {
     const response = await apiUser.post("/orders", orderData);
     if (response.status === 200) {
-      showSuccessToast(response.data.message);
       updateCart.value += 1;
       router.push({ name: "thanks" });
     }
@@ -488,7 +486,7 @@ watch(
       try {
         const fee = await getShippingFee(params);
         shippingFee.value = fee;
-      } catch (error) {
+      } catch (error) { 
         console.error("Error calculating shipping fee:", error);
         showErrorToast("Lỗi khi tính phí vận chuyển");
       }

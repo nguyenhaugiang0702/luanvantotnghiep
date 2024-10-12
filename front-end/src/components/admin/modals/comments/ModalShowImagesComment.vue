@@ -32,9 +32,9 @@
 
 <script>
 import { ref, watch, defineComponent, onMounted, nextTick } from "vue";
-import { authorSchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import config from "@/config";
+
 export default defineComponent({
   props: {
     commentObj: {

@@ -108,7 +108,6 @@ import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice } from "@/utils/utils";
 import Cookies from "js-cookie";
 import moment from "moment";
-import { toast } from "vue3-toastify";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const apiUser = new ApiUser();

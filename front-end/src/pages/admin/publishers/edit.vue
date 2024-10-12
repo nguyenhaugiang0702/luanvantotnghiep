@@ -104,7 +104,7 @@ import { useRoute, useRouter } from "vue-router";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { publisherSchema } from "@/utils/schema.util";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { useMenu } from "../../../stores/use-menu.js";
 
 export default {
@@ -141,18 +141,11 @@ export default {
         };
         const response = await apiAdmin.put(`/publishers/${publisherID}`, data);
         if (response.status == 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

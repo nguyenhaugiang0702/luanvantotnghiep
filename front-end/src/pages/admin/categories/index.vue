@@ -62,7 +62,6 @@ import print from "datatables.net-buttons/js/buttons.print";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
-import "datatables.net-responsive-bs5";
 import JsZip from "jszip";
 import { useRouter } from "vue-router";
 window.JsZip = JsZip;
@@ -76,6 +75,8 @@ import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     DataTable,
@@ -146,14 +147,19 @@ export default {
     });
 
     const deleteCategory = async (categoryID) => {
-      const response = await apiAdmin.delete(`/categories/${categoryID}`);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getCategories();
+      try {
+        const response = await apiAdmin.delete(`/categories/${categoryID}`);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          getCategories();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

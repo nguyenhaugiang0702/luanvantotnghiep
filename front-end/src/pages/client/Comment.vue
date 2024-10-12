@@ -199,7 +199,6 @@ import { ref, watch, defineProps, toRefs, onMounted } from "vue";
 import { formatDate } from "@/utils/utils";
 import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
-import { toast } from "vue3-toastify";
 import moment from "moment";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 

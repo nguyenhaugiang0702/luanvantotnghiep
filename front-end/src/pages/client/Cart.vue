@@ -93,7 +93,6 @@ import { formatPrice, handleNavigate } from "@/utils/utils";
 import ApiUser from "@/service/user/apiUser.service";
 import EmptyCart from "@/components/client/carts/EmptyCart.vue";
 import Cookies from "js-cookie";
-import { toast } from "vue3-toastify";
 import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
 
 const router = useRouter();

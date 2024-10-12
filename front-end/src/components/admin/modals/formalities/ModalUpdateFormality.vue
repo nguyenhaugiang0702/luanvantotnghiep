@@ -62,7 +62,7 @@ import { ref, watch, defineComponent } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
 import { formalitySchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default defineComponent({
   components: { Field, ErrorMessage },
@@ -95,21 +95,14 @@ export default defineComponent({
           formalityToEdit.value
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           $("#updateFormality").modal("hide");
           emit("refreshFormalities");
         }
       } catch (error) {
-        toast(error.response?.data?.message || "An error occurred", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

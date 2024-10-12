@@ -174,7 +174,6 @@ import Carousel from "../../components/client/Carousel.vue";
 import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import config from "@/config/index";
-import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { useRoute, useRouter } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";

@@ -168,7 +168,7 @@ import { ref, watch, defineComponent, onMounted } from "vue";
 import { useForm, Form, Field, ErrorMessage } from "vee-validate";
 import { voucherSchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import moment from "moment";
 import useDropdown from "@/composables/useDropdown";
 import flatpickr from "flatpickr";
@@ -214,22 +214,14 @@ export default defineComponent({
           data
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           resetForm();
           $("#updateVoucher").modal("hide");
           emit("refreshVouchersCategory");
         }
       } catch (error) {
-        console.error("Update failed:", error);
-        toast(error.response?.data?.message || "An error occurred", {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

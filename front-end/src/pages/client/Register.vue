@@ -236,7 +236,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import ApiUser from "@/service/user/apiUser.service";
-import { toast } from "vue3-toastify";
 import validation from "@/utils/validate.util";
 import { useRouter } from "vue-router";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";

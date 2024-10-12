@@ -148,7 +148,7 @@
 </template>
 <script>
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { ref, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { addReceiptSchema } from "@/utils/schema.util";
@@ -229,11 +229,7 @@ export default {
         newReceipt.value
       );
       if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
+        showSuccessToast(response?.data?.message);
         newReceipt.value.supplierID = "";
         newReceipt.value.detail[0].bookID = "";
         bookFormality.value = null;

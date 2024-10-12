@@ -3,7 +3,6 @@
     <a-layout-header
       class="text-uppercase fw-bold sticky-top"
       style="background: #fff; padding: 0 20px"
-
     >
       Quản lý tác giả
     </a-layout-header>
@@ -79,6 +78,8 @@ import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default {
   components: {
     DataTable,
@@ -156,14 +157,19 @@ export default {
     });
 
     const deleteAuthor = async (authorId) => {
-      const response = await apiAdmin.delete(`/authors/${authorId}`);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getAuthors();
+      try {
+        const response = await apiAdmin.delete(`/authors/${authorId}`);
+        if (response.status === 200) {
+          toast(response.data.message, {
+            theme: "auto",
+            type: "success",
+            dangerouslyHTMLString: true,
+          });
+          getAuthors();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

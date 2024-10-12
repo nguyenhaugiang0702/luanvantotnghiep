@@ -194,7 +194,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { receiptSchema } from "@/utils/schema.util";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import useDropdown from "@/composables/useDropdown";
 
 export default {
@@ -227,21 +227,22 @@ export default {
     };
 
     const addReceipt = async () => {
-      const { valid } = await validate();
-      if (!valid) {
-        return;
-      }
-      const response = await apiAdmin.post("/receipts", newReceipt.value);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        newReceipt.value.supplierID = "";
-        newReceipt.value.detail[0].bookID = "";
-        bookFormality.value = null;
-        resetForm();
+      try {
+        const { valid } = await validate();
+        if (!valid) {
+          return;
+        }
+        const response = await apiAdmin.post("/receipts", newReceipt.value);
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          newReceipt.value.supplierID = "";
+          newReceipt.value.detail[0].bookID = "";
+          bookFormality.value = null;
+          resetForm();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
@@ -324,5 +325,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../../../assets/css/admin/dropdown/dropdown.css';
+@import "../../../assets/css/admin/dropdown/dropdown.css";
 </style>

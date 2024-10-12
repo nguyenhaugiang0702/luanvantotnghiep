@@ -498,7 +498,7 @@ import useDropdown from "@/composables/useDropdown";
 import { useRoute, useRouter } from "vue-router";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import Editor from "@tinymce/tinymce-vue";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -576,20 +576,12 @@ export default {
       try {
         const response = await apiAdmin.put(`/books/${bookID}`, data.value);
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           getBook();
         }
       } catch (error) {
         console.log(error);
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        showErrorToast(error.response?.data?.message);
       }
     };
 

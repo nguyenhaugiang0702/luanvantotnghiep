@@ -60,6 +60,7 @@ import Cookies from "js-cookie";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { useAuthStore } from "../../stores/auth";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const admin = ref({
   email: "",
@@ -94,7 +95,7 @@ const loginAdmin = async () => {
     }
   } catch (error) {
     console.log(error);
-    // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo lỗi
+    showErrorToast(error.response?.data?.message);
   } finally {
     isLoading.value = false;
   }

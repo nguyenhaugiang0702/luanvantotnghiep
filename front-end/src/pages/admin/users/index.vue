@@ -30,7 +30,7 @@
                 :scroll="{ x: 576 }"
               >
                 <thead>
-                  <tr >
+                  <tr>
                     <th class="text-start">#</th>
                     <th class="text-start">Tên</th>
                     <th class="text-start">Giới Tính</th>
@@ -206,32 +206,41 @@ export default defineComponent({
     };
 
     const deletuser = async (userID) => {
-      const response = await apiAdmin.delete(`/users/${userID}`);
-      if (response.status == 200) {
-        await showSuccess({
-          text: "Dữ liệu đã được xóa thành công.",
-        });
-        getUsers();
+      try {
+        const response = await apiAdmin.delete(`/users/${userID}`);
+        if (response.status == 200) {
+          showSuccessToast(response?.data?.message);
+          getUsers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
     const blockUser = async (userID) => {
-      const response = await apiAdmin.put(`/users/blockAccount/${userID}`);
-      if (response.status == 200) {
-        await showSuccess({
-          text: "Người dùng đã bị khóa",
-        });
-        getUsers();
+      try {
+        const response = await apiAdmin.put(`/users/blockAccount/${userID}`);
+        if (response.status == 200) {
+          showSuccessToast(response?.data?.message);
+          getUsers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
     const unBlockUser = async (userID) => {
-      const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`);
-      if (response.status == 200) {
-        await showSuccess({
-          text: "Người dùng đã được mở khóa",
-        });
-        getUsers();
+      try {
+        const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`);
+        if (response.status == 200) {
+          showSuccessToast(response?.data?.message);
+          getUsers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
@@ -239,9 +248,9 @@ export default defineComponent({
       const userId = $(event.currentTarget).data("id");
       await showConfirmation({
         text: "Người dùng này sẽ bị xóa!",
-      }).then((result) => {
+      }).then( async (result) => {
         if (result.isConfirmed) {
-          deletuser(userId);
+          await deletuser(userId);
         }
       });
     });
@@ -250,9 +259,9 @@ export default defineComponent({
       const userId = $(event.currentTarget).data("id");
       await showConfirmation({
         text: "Người dùng này sẽ bị khóa !",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          blockUser(userId);
+          await blockUser(userId);
         }
       });
     });
@@ -261,9 +270,9 @@ export default defineComponent({
       const userId = $(event.currentTarget).data("id");
       await showConfirmation({
         text: "Người dùng này sẽ đuợc mở khóa !",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          unBlockUser(userId);
+          await unBlockUser(userId);
         }
       });
     });

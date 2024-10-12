@@ -153,14 +153,15 @@ export default {
     });
 
     const deletePriceRange = async (priceRangeID) => {
-      const response = await apiAdmin.delete(`/priceranges/${priceRangeID}`);
-      if (response.status === 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getPriceRanges();
+      try {
+        const response = await apiAdmin.delete(`/priceranges/${priceRangeID}`);
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          getPriceRanges();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

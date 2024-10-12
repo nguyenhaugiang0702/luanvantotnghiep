@@ -121,7 +121,6 @@ import { ref, computed, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
 import ApiUser from "@/service/user/apiUser.service";
-import { toast } from "vue3-toastify";
 import { loginUserSchema } from "@/utils/schema.util";
 import Cookies from "js-cookie";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";

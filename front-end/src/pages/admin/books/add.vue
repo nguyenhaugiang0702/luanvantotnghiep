@@ -549,7 +549,7 @@ import useDropdown from "@/composables/useDropdown";
 // services
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 // component
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { useMenu } from "../../../stores/use-menu";
 
 export default {
@@ -663,11 +663,7 @@ export default {
           "multipart/form-data"
         );
         if (response.status === 200) {
-          toast(response.data.message, {
-            theme: "auto",
-            type: "success",
-            dangerouslyHTMLString: true,
-          });
+          showSuccessToast(response?.data?.message);
           newBook.value.description = "";
           newBook.value.authorID = "";
           newBook.value.categoryID = "";
@@ -678,11 +674,8 @@ export default {
           clearImages();
         }
       } catch (error) {
-        toast(error.response?.data?.message, {
-          theme: "auto",
-          type: "error",
-          dangerouslyHTMLString: true,
-        });
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 

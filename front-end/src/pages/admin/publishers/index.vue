@@ -70,7 +70,8 @@ import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
-import { toast } from "vue3-toastify";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 export default defineComponent({
   components: {
     DataTable,
@@ -145,14 +146,15 @@ export default defineComponent({
     };
 
     const deletePublisher = async (publisherID) => {
-      const response = await apiAdmin.delete(`/publishers/${publisherID}`);
-      if (response.status == 200) {
-        toast(response.data.message, {
-          theme: "auto",
-          type: "success",
-          dangerouslyHTMLString: true,
-        });
-        getPublishers();
+      try {
+        const response = await apiAdmin.delete(`/publishers/${publisherID}`);
+        if (response.status == 200) {
+          showSuccessToast(response?.data?.message);
+          getPublishers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
       }
     };
 
