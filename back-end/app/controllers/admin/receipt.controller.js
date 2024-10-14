@@ -1,13 +1,13 @@
-const config = require("../config/index");
+const config = require("../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const receiptService = require("../services/receipt.service");
-const supplierService = require("../services/supplier.service");
+const ApiError = require("../../api-error");
+const receiptService = require("../../services/receipt.service");
+const supplierService = require("../../services/supplier.service");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newReceipt = await receiptService.createReceipt(req.body);
     return res.send({
       message: "Thêm nhập hàng thành công",
@@ -21,8 +21,8 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const receipt = await receiptService.getReceiptByID(req.params.receiptID);
     if (!receipt) {
       return next(new ApiError(400, "Không tồn tại đơn nhập hàng!"));

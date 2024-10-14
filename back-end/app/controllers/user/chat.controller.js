@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const chatRoomService = require("../services/chatRoom.service");
+const ApiError = require("../../api-error");
+const chatRoomService = require("../../services/chatRoom.service");
 
 exports.checkRoomChat = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
@@ -26,14 +26,5 @@ exports.checkRoomChat = async (req, res, next) => {
     }
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
-  }
-};
-
-exports.getChatRooms = async (req, res, next) => {
-  try {
-    const chatRooms = await chatRoomService.getChatRooms();
-    return res.send(chatRooms);
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả tin nhắn"));
   }
 };

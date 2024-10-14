@@ -1,5 +1,5 @@
 const express = require("express");
-const receipts = require("../../../controllers/receipt.controller");
+const receipts = require("../../../controllers/admin/receipt.controller");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 
 const router = express.Router();

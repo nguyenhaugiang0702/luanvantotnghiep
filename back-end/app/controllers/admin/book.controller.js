@@ -1,7 +1,7 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const bookService = require("../services/book.service");
-const upload = require("../utils/multer.util");
+const ApiError = require("../../api-error");
+const bookService = require("../../services/book.service");
+const upload = require("../../utils/multer.util");
 const fs = require("fs").promises;
 const path = require("path");
 const mongoose = require("mongoose");
@@ -9,8 +9,8 @@ const { ObjectId } = require("mongodb");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
 
     if (!req.files || req.files.length === 0) {
       return next(new ApiError(500, "Không có file nào được tải lên."));

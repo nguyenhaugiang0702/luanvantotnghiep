@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const address = require("../../../controllers/address.controller");
+const address = require("../../../controllers/user/address.controller");
 const validation = require("../../../middlewares/validateAddress.middleware");
 const jwt = require("../../../middlewares/jwt.middleware");
 

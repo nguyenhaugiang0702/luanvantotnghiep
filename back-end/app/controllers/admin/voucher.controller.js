@@ -1,16 +1,16 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const voucherService = require("../services/vouchers/voucher.service");
-const voucherCategoryService = require("../services/vouchers/voucherCategory.service");
-const voucherUsedsService = require("../services/vouchers/voucherUseds.service");
+const ApiError = require("../../api-error");
+const voucherService = require("../../services/vouchers/voucher.service");
+const voucherCategoryService = require("../../services/vouchers/voucherCategory.service");
+const voucherUsedsService = require("../../services/vouchers/voucherUseds.service");
 const { v4: uuidv4 } = require("uuid");
 
 // Voucher Category
 exports.createVoucherCategory = async (req, res, next) => {
   try {
     const { discountType, value, minValue, maxValue } = req.body;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     if (discountType === "percent") {
       req.body.name = `Giảm ${value} %`;
     } else {
@@ -63,17 +63,15 @@ exports.createVoucher = async (req, res, next) => {
     const { startDate, endDate, quantity, voucherCategoryID } = req.body;
 
     // Chuyển đổi startDate và endDate từ định dạng DD/MM/YYYY sang YYYY-MM-DD
-    const parsedStartDate = moment(startDate, "DD/MM/YYYY")
-      .tz("Asia/Ho_Chi_Minh")
-      .toDate();
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY")
-      .tz("Asia/Ho_Chi_Minh")
-      .toDate();
+    const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
+      "Asia/Ho_Chi_Minh"
+    );
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh");
     const voucherCode = `NHG-${uuidv4().slice(0, 8)}`;
 
     const voucherData = {
-      createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
-      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+      createdAt: moment.tz("Asia/Ho_Chi_Minh"),
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       quantity: quantity,
@@ -125,28 +123,18 @@ exports.findAllVouchers = async (req, res, next) => {
   }
 };
 
-exports.findAllVouchersWithLogin = async (req, res, next) => {
-  try {
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, "Lỗi khi lấy tất cả thể loại mã giảm giá"));
-  }
-};
-
 exports.updateVoucher = async (req, res, next) => {
   const { voucherID } = req.params;
   const { startDate, endDate, quantity, voucherCategoryID } = req.body;
   try {
-    const parsedStartDate = moment(startDate, "DD/MM/YYYY")
-      .tz("Asia/Ho_Chi_Minh")
-      .toDate();
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY")
-      .tz("Asia/Ho_Chi_Minh")
-      .toDate();
+    const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
+      "Asia/Ho_Chi_Minh"
+    );
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh");
     const voucherUpdateData = {
       startDate: parsedStartDate,
       endDate: parsedEndDate,
-      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
       quantity: quantity,
       voucherCategoryID: voucherCategoryID,
     };
@@ -174,8 +162,8 @@ exports.createVoucherUseds = async (req, res, next) => {
     }
     req.body.userID = userID;
     req.body.voucherID = voucherID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newVoucherUseds = await voucherUsedsService.createVoucherUseds(
       req.body
     );

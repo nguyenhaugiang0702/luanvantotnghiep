@@ -1,5 +1,5 @@
 const express = require("express");
-const users = require("../../../controllers/user.controller");
+const users = require("../../../controllers/admin/user.controller");
 const jwt = require("../../../middlewares/jwt.middleware");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 const validation = require("../../../middlewares/validateUser.middelware");

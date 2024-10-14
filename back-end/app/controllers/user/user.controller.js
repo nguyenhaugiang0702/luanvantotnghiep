@@ -1,55 +1,8 @@
-const userService = require("../services/user.service");
-const otpService = require("../services/otp.service");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const config = require("../config/index");
-const sendEmail = require("../utils/email.util");
+const userService = require("../../services/user.service");
+const otpService = require("../../services/otp.service");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const User = require("../models/user.model");
-const ValidateService = require("../utils/validate.util");
+const ApiError = require("../../api-error");
 const fs = require("fs").promises;
-
-exports.blockAccount = async (req, res, next) => {
-  try {
-    const { userID } = req.params;
-    await userService.updateUser(userID, {
-      isActive: 2,
-      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
-    });
-    return res.send({
-      message: "Tài khoản đã bị khóa!",
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi khóa tài khoản"));
-  }
-};
-
-exports.unBlockAccount = async (req, res, next) => {
-  try {
-    const { userID } = req.params;
-
-    await userService.updateUser(userID, {
-      isActive: 1,
-      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
-    });
-    return res.send({
-      message: "Tài khoản đã được mở khóa!",
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi mở khóa tài khoản"));
-  }
-};
-
-exports.findALL = async (req, res) => {
-  let usersData = [];
-  try {
-    usersData = await userService.getAllUser();
-    return res.send(usersData);
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả người dùng"));
-  }
-};
 
 exports.findOne = async (req, res, next) => {
   try {
@@ -171,20 +124,4 @@ exports.updateProfile = async (req, res, next) => {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi cập nhật profile"));
   }
-};
-
-exports.delete = async (req, res, next) => {
-  const userID = req.params.userID;
-  try {
-    await userService.deleteUserAccount(userID);
-    res.send({ message: "Đã xóa thành công!" });
-  } catch (error) {
-    return next(
-      new ApiError(500, `Lỗi khi xóa tài khoản với ID = ${accountID}`)
-    );
-  }
-};
-
-exports.deleteALL = async (req, res) => {
-  res.send({ message: "handle deleteALL" });
 };

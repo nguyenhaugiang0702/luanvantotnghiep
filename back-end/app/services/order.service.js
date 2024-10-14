@@ -52,8 +52,8 @@ const getOrderByIDAndUserID = async (orderID, userID) => {
     .populate("addressID");
 };
 
-const getOrdersByUserID = async (userID) => {
-  const orders = await Order.find({ userID: userID })
+const getOrdersByUserID = async (query, skip, limit) => {
+  const orders = await Order.find(query)
     .populate({
       path: "detail.bookID",
       populate: [
@@ -64,7 +64,9 @@ const getOrdersByUserID = async (userID) => {
     })
     .populate("userID", "name") // Nếu muốn lấy thêm thông tin user
     .populate("addressID") // Populate address nếu cần
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
   return orders;
 };
 
@@ -98,8 +100,15 @@ const updateStatus = async (orderID, status) => {
 };
 
 const hasUserPurchasedBook = async (userID, bookID) => {
-  const order = await Order.findOne({ userID: userID, "detail.bookID": bookID });
+  const order = await Order.findOne({
+    userID: userID,
+    "detail.bookID": bookID,
+  });
   return order ? true : false;
+};
+
+const countDocumentsOrders = async (query) => {
+  return await Order.countDocuments(query);
 };
 
 module.exports = {
@@ -112,5 +121,6 @@ module.exports = {
   getOrderByIDAndUserID,
   getAllOrdersByAdmin,
   updateOrderById,
-  hasUserPurchasedBook
+  hasUserPurchasedBook,
+  countDocumentsOrders,
 };

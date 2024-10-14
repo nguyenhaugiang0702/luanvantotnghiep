@@ -12,6 +12,10 @@ const voucherSchema = new mongoose.Schema({
   quantity: {
     type: Number,
   },
+  quantityUsed: {
+    type: Number,
+    default: 0,
+  },
   startDate: {
     type: Date,
   },

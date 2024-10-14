@@ -1,5 +1,5 @@
 const express = require("express");
-const publishers = require("../../../controllers/publisher.controller");
+const publishers = require("../../../controllers/admin/publisher.controller");
 const validation = require("../../../middlewares/validatePublisher.middelware");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 

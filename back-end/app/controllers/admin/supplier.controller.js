@@ -1,13 +1,7 @@
-const supplierService = require("../services/supplier.service");
-const otpService = require("../services/otp.service");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const config = require("../config/index");
-const sendEmail = require("../utils/email.util");
+const supplierService = require("../../services/supplier.service");
+const config = require("../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const User = require("../models/user.model");
-const ValidateService = require("../utils/validate.util");
+const ApiError = require("../../api-error");
 
 exports.create = async (req, res, next) => {
   const { name, email, phoneNumber, address } = req.body;
@@ -28,8 +22,8 @@ exports.create = async (req, res, next) => {
     return next(new ApiError(400, "Số điện thoại không hợp lệ"));
   }
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newSupplier = await supplierService.createSupplier(req.body);
     return res.send({
       message: "Thêm thành công nhà cung cấp",

@@ -1,12 +1,13 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const priceRangeService = require("../services/pricerange.service");
-const { formatPrice } = require("../utils/formatPrice.utils");
+const ApiError = require("../../api-error");
+const priceRangeService = require("../../services/pricerange.service");
+const { formatPrice } = require("../../utils/formatPrice.utils");
+
 exports.create = async (req, res, next) => {
   try {
     const { startPrice, endPrice } = req.body;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.name = `${formatPrice(startPrice)} - ${formatPrice(endPrice)}`;
     const newPriceRange = await priceRangeService.createPriceRange(req.body);
     return res.send({

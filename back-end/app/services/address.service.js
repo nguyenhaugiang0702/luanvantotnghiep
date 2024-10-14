@@ -6,9 +6,16 @@ const createAddress = async (addressData) => {
   return await newAddress.save();
 };
 
-const getAllAddressByUserID = async (userID) => {
-  return await Address.find({ userID: userID });
+const getAllAddressByUserID = async (userID, limit = null, skip = 0) => {
+  const query = { userID: userID };
+
+  if (limit) {
+    return await Address.find(query).limit(limit).skip(skip);
+  } else {
+    return await Address.find(query); 
+  }
 };
+
 
 const getAddressByIDAndUserID = async (userID, addressId) => {
   return await Address.findOne({ userID: userID, _id: addressId });
@@ -32,6 +39,10 @@ const deleteAddress = async (addressId, userID) => {
   return await Address.findOneAndDelete({ _id: addressId, userID: userID });
 };
 
+const countAddressesByUserID = async (userID) => {
+  return await Address.countDocuments({ userID: userID });
+};
+
 module.exports = {
   createAddress,
   updateAddress,
@@ -39,4 +50,5 @@ module.exports = {
   getAllAddressByUserID,
   getAddressByIDAndUserID,
   updateMany,
+  countAddressesByUserID,
 };

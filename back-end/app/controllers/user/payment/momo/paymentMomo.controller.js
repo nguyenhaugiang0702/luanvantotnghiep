@@ -1,10 +1,10 @@
-const orderService = require("../../services/order.service");
-const cartService = require("../../services/cart.service");
+const orderService = require("../../../../services/order.service");
+const cartService = require("../../../../services/cart.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../../config/index");
+const config = require("../../../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../../api-error");
+const ApiError = require("../../../../api-error");
 const axios = require("axios");
 
 exports.createLinkOrderByMomo = async (req, res, next) => {
@@ -19,7 +19,7 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
     const partnerCode = "MOMO";
     const redirectUrl = "http://localhost:3001/thanks";
     const ipnUrl =
-      "https://nhgbookstore.serveo.net/api/v1/orders/momo/callback";
+      "https://nhgbookstore.serveo.net/api/v1/user/payment/momo/callback";
     const requestType = "payWithMethod";
     const amount = req.body.totalPrice;
     const orderId = Date.now();

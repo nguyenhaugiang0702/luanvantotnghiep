@@ -1,10 +1,10 @@
-const orderService = require("../../services/order.service");
-const cartService = require("../../services/cart.service");
+const orderService = require("../../../../services/order.service");
+const cartService = require("../../../../services/cart.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../../config/index");
+const config = require("../../../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../../api-error");
+const ApiError = require("../../../../api-error");
 const axios = require("axios");
 const CryptoJS = require("crypto-js");
 const qs = require("qs");
@@ -13,7 +13,8 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
   try {
     console.log(1);
     const userID = req.user.id;
-    const { addressID, totalQuantity, notes, payment, voucherID, shippingFee } = req.body;
+    const { addressID, totalQuantity, notes, payment, voucherID, shippingFee } =
+      req.body;
     const embed_data = {
       redirecturl: "http://localhost:3001/thanks",
       userID: userID,
@@ -22,7 +23,7 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       notes: notes,
       payment: payment,
       voucherID: voucherID,
-      shippingFee: shippingFee
+      shippingFee: shippingFee,
     };
 
     // Chuyển đổi req.body.detail thành định dạng phù hợp
@@ -43,7 +44,7 @@ exports.createLinkOrderByZaloPay = async (req, res, next) => {
       amount: req.body.totalPrice,
       description: `Lazada - Payment for the order`,
       bank_code: "zalopayapp",
-      callback_url: `https://nhgbookstore.serveo.net/api/v1/orders/zalopay/callback?userID=${userID}`,
+      callback_url: "https://nhgbookstore.serveo.net/api/v1/user/payment/zalopay/callback",
     };
 
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item

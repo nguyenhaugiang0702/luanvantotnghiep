@@ -1,5 +1,5 @@
 const express = require("express");
-const users = require("../../../controllers/user.controller");
+const users = require("../../../controllers/user/user.controller");
 const jwt = require("../../../middlewares/jwt.middleware");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 const validation = require("../../../middlewares/validateUser.middelware");
@@ -12,8 +12,7 @@ router
   .get(jwt.authenticateTokenFromHeader, users.findOne);
 router
   .route("/updatePhoneAndEmail")
-  .put(jwt.authenticateTokenFromHeader, users.update)
-  .delete(users.delete);
+  .put(jwt.authenticateTokenFromHeader, users.update);
 router
   .route("/updateProfile")
   .put(

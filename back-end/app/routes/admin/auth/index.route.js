@@ -1,5 +1,5 @@
 const express = require("express");
-const authAdmin = require("../../../controllers/auth/authAdmin.controller");
+const authAdmin = require("../../../controllers/admin/auth.controller");
 const config = require("../../../config/index");
 const router = express.Router();
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");

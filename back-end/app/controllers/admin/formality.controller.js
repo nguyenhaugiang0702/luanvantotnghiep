@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const formalityService = require("../services/formality.service");
+const ApiError = require("../../api-error");
+const formalityService = require("../../services/formality.service");
 
 exports.create = async (req, res, next) => {
   try {
@@ -12,8 +12,8 @@ exports.create = async (req, res, next) => {
     if (checkNameExist) {
       return next(new ApiError(400, "Đã tồn tại tên hình thức"));
     }
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.name = name.trim();
     const newFormality = await formalityService.createFormality(req.body);
     return res.send({
@@ -48,7 +48,7 @@ exports.update = async (req, res, next) => {
       return next(new ApiError(400, "Đã tồn tại tên hình thức"));
     }
     req.body.name = name.trim();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const formality = await formalityService.updateFormality(
       formalityID,
       req.body

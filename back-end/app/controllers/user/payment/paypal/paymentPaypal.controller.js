@@ -1,12 +1,12 @@
-const orderService = require("../../services/order.service");
-const cartService = require("../../services/cart.service");
-const bookService = require("../../services/book.service");
-const convert = require("../../utils/convertVNDToUSD.util");
+const orderService = require("../../../../services/order.service");
+const cartService = require("../../../../services/cart.service");
+const bookService = require("../../../../services/book.service");
+const convert = require("../../../../utils/convertVNDToUSD.util");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../../config/index");
+const config = require("../../../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../../api-error");
+const ApiError = require("../../../../api-error");
 const paypal = require("paypal-rest-sdk");
 
 paypal.configure({
@@ -49,9 +49,9 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
         payment_method: "paypal",
       },
       redirect_urls: {
-        return_url: `https://nhgbookstore.serveo.net/api/v1/orders/paypal/success?totalAmount=${totalAmount}`,
+        return_url: `https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/success?totalAmount=${totalAmount}`,
         cancel_url:
-          "https://nhgbookstore.serveo.net/api/v1/orders/paypal/cancel",
+          "https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/cancel",
       },
       transactions: [
         {
@@ -63,7 +63,13 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
             total: totalAmount.toFixed(2),
           },
           description: "Thanh toán đơn hàng sách",
-          custom: JSON.stringify({ userID, addressID, notes, voucherID, shippingFee }),
+          custom: JSON.stringify({
+            userID,
+            addressID,
+            notes,
+            voucherID,
+            shippingFee,
+          }),
         },
       ],
     };

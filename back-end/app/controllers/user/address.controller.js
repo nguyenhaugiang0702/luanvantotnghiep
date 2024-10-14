@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const addressService = require("../services/address.service");
+const ApiError = require("../../api-error");
+const addressService = require("../../services/address.service");
 
 exports.create = async (req, res, next) => {
   try {
@@ -27,31 +27,39 @@ exports.create = async (req, res, next) => {
 };
 
 exports.findAll = async (req, res, next) => {
-  let address = [];
   try {
     const userID = req.user ? req.user.id : null;
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
-    address = await addressService.getAllAddressByUserID(userID);
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
-  }
-  return res.send(address);
-};
-
-exports.findAddressDefault = async (req, res, next) => {
-  try {
-    const userID = req.user ? req.user.id : null;
-    if (!userID) {
-      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    if (Object.keys(req.query).length > 0) { // có phân trang
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 3;
+      const skip = (page - 1) * limit;
+      const totalAddresses = await addressService.countAddressesByUserID(
+        userID
+      );
+      const totalPages = Math.ceil(totalAddresses / limit);
+      const addresses = await addressService.getAllAddressByUserID(
+        userID,
+        limit,
+        skip
+      );
+      return res.send({
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: totalAddresses,
+        addresses: addresses,
+      });
+    } else {
+      const addresses = await addressService.getAllAddressByUserID(userID);
+      return res.send({
+        addresses
+      });
     }
-    const address = await addressService.getAllAddressByUserID(userID);
-    return res.send(address);
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
   }
-  r;
 };
 
 exports.findOne = async (req, res, next) => {

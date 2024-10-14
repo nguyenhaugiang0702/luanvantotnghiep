@@ -1,12 +1,13 @@
-const orderService = require("../services/order.service");
-const cartService = require("../services/cart.service");
-const bookService = require("../services/book.service");
-const voucherUsedsService = require("../services/vouchers/voucherUseds.service");
+const orderService = require("../../services/order.service");
+const cartService = require("../../services/cart.service");
+const bookService = require("../../services/book.service");
+const voucherUsedsService = require("../../services/vouchers/voucherUseds.service");
+const voucherService = require("../../services/vouchers/voucher.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const config = require("../config/index");
+const config = require("../../config/index");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
+const ApiError = require("../../api-error");
 const axios = require("axios");
 
 exports.create = async (req, res, next) => {
@@ -16,8 +17,8 @@ exports.create = async (req, res, next) => {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
     req.body.userID = userID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newOrder = await orderService.createOrder(req.body);
     if (!newOrder) {
       return next(new ApiError(400, "Lỗi khi đặt hàng!"));
@@ -43,6 +44,12 @@ exports.create = async (req, res, next) => {
       await voucherUsedsService.updateVoucherUseds(voucherUsed._id, {
         isUsed: true,
       });
+      const voucher = await voucherService.getVoucherByID(newOrder.voucherID);
+      let quantityUsedUpdate = voucher.quantityUsed;
+      quantityUsedUpdate += 1;
+      await voucherService.updateVoucher(newOrder.voucherID, {
+        quantityUsed: quantityUsedUpdate,
+      });
     }
 
     return res.send({
@@ -55,17 +62,47 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.findAllOrdersByUserID = async (req, res, next) => {
-  let orders = [];
+exports.findAll = async (req, res, next) => {
   try {
     const userID = req.user ? req.user.id : null;
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
-    orders = await orderService.getOrdersByUserID(userID);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 3;
+    const skip = (page - 1) * limit;
+    const status = req.query.status || "all";
+
+    const query = { userID: userID };
+    const statusMap = {
+      all: {},
+      pending: { status: 1 },
+      accepted: { status: 2 },
+      cancelled: { status: 3 },
+      "request-cancel": { status: 4 },
+    };
+    if (status !== "all") {
+      query.status = statusMap[status].status;
+    }
+    // Đếm tổng đơn hàng cho từng trạng thái
+    const totalOrdersByStatus = await Promise.all(
+      Object.keys(statusMap).map(async (key) => {
+        const count = await orderService.countDocumentsOrders({
+          userID: userID,
+          ...statusMap[key],
+        });
+        return { status: key, count };
+      })
+    );
+    const totalOrders = await orderService.countDocumentsOrders(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+    const orders = await orderService.getOrdersByUserID(query, skip, limit);
     return res.send({
-      message: "Đặt hàng thành công",
       orders,
+      totalOrders,
+      totalPages,
+      currentPage: page,
+      totalOrdersByStatus,
     });
   } catch (error) {
     console.log(error);
@@ -73,7 +110,7 @@ exports.findAllOrdersByUserID = async (req, res, next) => {
   }
 };
 
-exports.updateStatusByCustomer = async (req, res, next) => {
+exports.updateStatus = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
   if (!userID) {
     return next(new ApiError(400, "Vui lòng đăng nhập"));
@@ -114,83 +151,6 @@ exports.findOne = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi đặt hàng!"));
   }
 };
-
-// Admin
-
-exports.findAllByAdmin = async (req, res, next) => {
-  try {
-    const orders = await orderService.getAllOrdersByAdmin();
-    if (!orders) {
-      return next(new ApiError(400, "Lỗi khi lấy tất cả đơn hàng!"));
-    }
-    return res.send(orders);
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
-  }
-};
-
-exports.findOneByAdmin = async (req, res, next) => {
-  const orderID = req.params.orderID;
-  try {
-    const orderDetail = await orderService.getOrderByID(orderID);
-    if (!orderDetail) {
-      return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
-    }
-    return res.send(orderDetail);
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
-  }
-};
-
-exports.updateStatusByAd = async (req, res, next) => {
-  const orderID = req.params.orderID;
-  const { status } = req.body;
-  try {
-    const order = await orderService.getOrderByID(orderID);
-    if (!order) {
-      return next(new ApiError(404, "Đơn hàng không tồn tại!"));
-    }
-    if (status === 2) {
-      // Đơn hàng đã được xác nhận -> Tăng số lượng bán
-      const error = await updateBookQuantities(order.detail);
-      if (error) return next(new ApiError(400, error));
-    }
-    const orderUpdateStatus = await orderService.updateStatus(orderID, status);
-    if (!orderUpdateStatus) {
-      return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
-    }
-    return res.send({
-      message: "Đã cập nhật thành công trạng thái đơn hàng",
-    });
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
-  }
-};
-
-// Hàm phụ để cập nhật số lượng sách
-async function updateBookQuantities(orderDetails) {
-  let error = "";
-  await Promise.all(
-    orderDetails.map(async (bookObj) => {
-      const book = await bookService.getBookByID(bookObj.bookID);
-      let updatedQuantitySold = book.quantitySold;
-
-      updatedQuantitySold += bookObj.quantity;
-      if (bookObj.quantity > book.quantityImported - updatedQuantitySold) {
-        error += "Số lượng vượt quá số lượng tồn kho!";
-        return;
-      }
-
-      await bookService.updateBook(bookObj.bookID, {
-        quantitySold: updatedQuantitySold,
-      });
-    })
-  );
-  return error;
-}
 
 exports.getShippingFee = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;

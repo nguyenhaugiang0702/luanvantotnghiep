@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const comment = require("../../../controllers/comment.controller");
+const comment = require("../../../controllers/admin/comment.controller");
 const validation = require("../../../middlewares/validateAddress.middleware");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 

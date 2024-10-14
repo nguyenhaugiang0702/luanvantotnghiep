@@ -1,11 +1,11 @@
-const publisherService = require("../services/publisher.service");
+const publisherService = require("../../services/publisher.service");
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
+const ApiError = require("../../api-error");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newPublisher = await publisherService.createPublisher(req.body);
     return res.send({
       message: "Thêm thành công nhà xuất bản",

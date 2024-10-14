@@ -12,5 +12,6 @@ router.use("/cart", require("./carts/index.route"));
 router.use("/comments", upload.array("images"), require("./comments/index.route"));
 router.use("/chats", require("./chats/index.route"));
 router.use("/filters", require("./filters/index.route"));
+router.use("/payment", require("./payment/index.route"));
 
 module.exports = router;

@@ -64,8 +64,8 @@ exports.register = async (req, res, next) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     req.body.password = hashedPassword;
-    req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh");
     req.body.isActive = 1;
     req.body.typeLogin = "SMS";
     req.body.role = "customer";
@@ -90,7 +90,7 @@ exports.forgotPassword = async (req, res, next) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     userExistWithPhoneNumber.password = hashedPassword;
-    userExistWithPhoneNumber.updatedAt = moment().tz("Asia/Ho_Chi_Minh").toDate();
+    userExistWithPhoneNumber.updatedAt = moment().tz("Asia/Ho_Chi_Minh");
     await userExistWithPhoneNumber.save();
     return res.send({
       message: "Cập nhật mật khẩu thành công!",
@@ -150,8 +150,7 @@ exports.createOTP = async (req, res, next) => {
         const otpSMS = await sendOTP(phoneNumber);
         const expiresAt = moment()
           .tz("Asia/Ho_Chi_Minh")
-          .add(2, "minutes")
-          .toDate();
+          .add(2, "minutes");
 
         if (!otpUser) {
           await otpService.createOTP({
@@ -179,8 +178,7 @@ exports.createOTP = async (req, res, next) => {
         const otpSMS = await sendOTP(phoneNumber);
         const expiresAt = moment()
           .tz("Asia/Ho_Chi_Minh")
-          .add(2, "minutes")
-          .toDate();
+          .add(2, "minutes");
 
         if (!otpUser) {
           await otpService.createOTP({
@@ -208,8 +206,7 @@ exports.createOTP = async (req, res, next) => {
       });
       const expiresAt = moment()
         .tz("Asia/Ho_Chi_Minh")
-        .add(45, "minutes")
-        .toDate();
+        .add(2, "minutes");
 
       if (!otpUser) {
         await otpService.createOTP({
@@ -258,7 +255,7 @@ exports.verifyOTP = async (req, res, next) => {
 
     const currentTime = moment().tz("Asia/Ho_Chi_Minh");
 
-    if (currentTime.isAfter(moment(otpRecord.expiresAt))) {
+    if (currentTime.isAfter(otpRecord.expiresAt)) {
       return next(new ApiError(400, "Mã OTP đã hết hạn."));
     }
 

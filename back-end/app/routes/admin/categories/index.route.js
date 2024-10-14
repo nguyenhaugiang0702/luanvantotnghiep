@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const categories = require("../../../controllers/category.controller");
-// const validateSupplier = require("../middlewares/validateAuthor.middleware");
+const categories = require("../../../controllers/admin/category.controller");
 
 router.route("/").get(categories.findAll).post(categories.create);
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const books = require("../../../controllers/book.controller");
+const books = require("../../../controllers/admin/book.controller");
 const validateSupplier = require("../../../middlewares/validateBook.middleware");
 const upload = require("../../../utils/multer.util");
 

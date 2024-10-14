@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const voucher = require("../../../controllers/voucher.controller");
+const voucher = require("../../../controllers/admin/voucher.controller");
 const jwt = require("../../../middlewares/jwt.middleware");
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 const validation = require("../../../middlewares/validateVoucher.middleware");

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const cart = require("../../../controllers/cart.controller");
+const cart = require("../../../controllers/user/cart.controller");
 const jwt = require("../../../middlewares/jwt.middleware");
 
 router

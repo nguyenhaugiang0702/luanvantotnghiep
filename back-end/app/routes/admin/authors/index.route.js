@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authors = require("../../../controllers/author.controller");
+const authors = require("../../../controllers/admin/author.controller");
 const validateSupplier = require("../../../middlewares/validateAuthor.middleware");
 
 router

@@ -1,11 +1,11 @@
 const moment = require("moment-timezone");
-const ApiError = require("../api-error");
-const auhorService = require("../services/author.service");
+const ApiError = require("../../api-error");
+const auhorService = require("../../services/author.service");
 
 exports.create = async (req, res, next) => {
   try {
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newAuthor = await auhorService.createAuthor(req.body);
     return res.send({
       message: "Thêm tác giả thành công",
@@ -29,7 +29,7 @@ exports.findAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const authorID = req.params.authorID;
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const author = await auhorService.updateAuthor(authorID, req.body);
     return res.send({
       message: "Cập nhật thành công tác giả",
