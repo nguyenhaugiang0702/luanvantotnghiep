@@ -335,7 +335,7 @@ let voucherUsed;
 const getAddress = async () => {
   const response = await apiUser.get("/addresses");
   if (response.status === 200) {
-    address.value = response.data;
+    address.value = response.data.addresses;
     const defaultAddress = address.value.find((addr) => addr.isDefault);
     if (defaultAddress) {
       selectedAddress.value = defaultAddress._id;
@@ -348,7 +348,6 @@ const getBookCheckOut = async () => {
   if (response.status === 200) {
     selectedBooks.value = response.data;
     dataToCalculateShippingFee.value.weight = response.data.totalWeight;
-    console.log(dataToCalculateShippingFee.value.weight);
   }
 };
 
@@ -395,7 +394,7 @@ const confirmPayment = async () => {
       try {
         // Gọi API MOMO ở đây
         const momoResponse = await apiUser.post(
-          "/orders/momo/createLink",
+          "/payment/momo/createLink",
           orderData
         );
 
@@ -416,7 +415,7 @@ const confirmPayment = async () => {
     case "ZALOPAY":
       try {
         const zalopayResponse = await apiUser.post(
-          "/orders/zalopay/createLink",
+          "/payment/zalopay/createLink",
           orderData
         );
 
@@ -434,7 +433,7 @@ const confirmPayment = async () => {
     case "PAYPAL":
       try {
         const paypalResponse = await apiUser.post(
-          "/orders/paypal/createLink",
+          "/payment/paypal/createLink",
           orderData
         );
 

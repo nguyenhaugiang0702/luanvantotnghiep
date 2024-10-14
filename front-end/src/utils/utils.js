@@ -6,14 +6,22 @@ export const formatPrice = (price) => {
   }).format(price);
 };
 
-export const handleNavigate = (router, nameRoute, paramName = null, paramID = null) => {
+export const handleNavigate = (
+  router,
+  nameRoute,
+  paramName = null,
+  paramID = null
+) => {
   if (paramID && paramName) {
     router.push({ name: nameRoute, params: { [paramName]: paramID } });
-  }else{
+  } else {
     router.push({ name: nameRoute });
   }
 };
 
-export const formatDate = (date) => {
-  return moment(date).format("DD/MM/YYYY HH:mm:ss");
+export const formatDate = (date, time = true) => {
+  if (time) {
+    return moment(date).format("DD/MM/YYYY HH:mm:ss");
+  }
+  return moment(date).format("DD/MM/YYYY");
 };

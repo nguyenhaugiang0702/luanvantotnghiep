@@ -13,8 +13,14 @@ const admin = [
     component: () => import("../layouts/admin/admin.vue"),
     prop: true,
     meta: { requiresAuth: true, requiresAdmin: true },
-    redirect: { name: "admin-users" },
+    redirect: { name: "admin-home" },
     children: [
+      {
+        path: "",
+        name: "admin-home",
+        component: () => import("../pages/admin/Home.vue"),
+        prop: true,
+      },
       {
         path: "users",
         name: "admin-users",
@@ -228,7 +234,8 @@ const admin = [
           {
             path: "voucherCategory",
             name: "admin-vouchers-voucherCategory-list",
-            component: () => import("../pages/admin/vouchers/voucherCategory.vue"),
+            component: () =>
+              import("../pages/admin/vouchers/voucherCategory.vue"),
             props: true,
           },
         ],

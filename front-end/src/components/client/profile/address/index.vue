@@ -70,16 +70,35 @@
         </div>
       </div>
     </div>
-    <!-- Xem thêm -->
-    <div v-if="address.length > visibleCount">
-      <div
-        class="btn-toggle"
-        @click="toggleShowAll"
-        :class="{ 'show-all': !showAll }"
-      >
-        {{ showAll ? "Thu gọn" : "Xem thêm" }}
-      </div>
-    </div>
+
+    <!-- Phân trang -->
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <li
+          class="page-item"
+          :disabled="currentPage === 1"
+          @click="changePage(currentPage - 1)"
+        >
+          <a class="page-link" href="#">Previous</a>
+        </li>
+        <li class="page-item" v-for="page in totalPages">
+          <a
+            class="page-link"
+            :class="{ active: page === currentPage }"
+            href="#"
+            @click="changePage(page)"
+            >{{ page }}</a
+          >
+        </li>
+        <li
+          class="page-item"
+          :disabled="currentPage === totalPages"
+          @click="changePage(currentPage + 1)"
+        >
+          <a class="page-link" href="#">Next</a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -96,12 +115,18 @@ export default {
     const apiUser = new ApiUser();
     const token = Cookies.get("accessToken");
     const address = ref([]);
-    const showAll = ref(false);
-    const visibleCount = ref(5);
-    const getAddress = async () => {
-      const response = await apiUser.get("/addresses");
+    // Phân trang
+    const currentPage = ref(1);
+    const limit = ref(3);
+    const totalPages = ref(1);
+    const getAddress = async (page, limit) => {
+      const response = await apiUser.get(
+        `/addresses?page=${page}&limit=${limit}`
+      );
       if (response.status === 200) {
-        address.value = response.data;
+        address.value = response.data.addresses;
+        totalPages.value = response.data.totalPages;
+        currentPage.value = response.data.currentPage;
       }
     };
 
@@ -133,37 +158,25 @@ export default {
       }
     };
 
-    const visibleAddresses = computed(() => {
-      if (showAll.value) {
-        return address.value;
-      } else {
-        return address.value.slice(0, visibleCount.value);
-      }
-    });
-
-    const toggleShowAll = () => {
-      showAll.value = !showAll.value;
-      // Tùy chọn: có thể thêm một hiệu ứng cho danh sách
-      document
-        .querySelector(".address-container")
-        .classList.toggle("show-all", showAll.value);
-      document
-        .querySelector(".address-container")
-        .classList.toggle("hide-all", !showAll.value);
-    };
-
     onMounted(() => {
-      getAddress();
+      getAddress(currentPage.value, limit.value);
     });
+
+    const changePage = (page) => {
+      if (page > 0 && page <= totalPages.value) {
+        currentPage.value = page;
+        getAddress(currentPage.value, limit.value);
+      }
+    };
 
     return {
       address,
       changeDefaultAddress,
       removeAddress,
-      visibleAddresses,
-      toggleShowAll,
-      showAll,
-      visibleCount,
+      totalPages,
+      currentPage,
+      limit,
+      changePage
     };
   },
 };

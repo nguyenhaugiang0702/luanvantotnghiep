@@ -55,17 +55,17 @@
                       'percent'
                     "
                   >
-                    <p class="mb-1 text-muted">
+                    <div class="mb-1 text-muted">
                       Giảm {{ voucher.voucherID?.voucherCategoryID?.value }}%
-                    </p>
+                    </div>
                   </div>
                   <div v-else>
-                    <p class="mb-1 text-muted">
+                    <div class="mb-1 text-muted">
                       Giảm
                       {{
                         formatPrice(voucher.voucherID?.voucherCategoryID?.value)
                       }}
-                    </p>
+                    </div>
                   </div>
                   <small class="text-muted"
                     >Đơn tối thiểu
@@ -75,6 +75,15 @@
                       )
                     }}</small
                   >
+                  <br />
+                  <small class="mb-1 text-muted">
+                    Thời hạn
+                    {{
+                      formatDate(voucher.voucherID?.startDate, (time = false)) +
+                      " - " +
+                      formatDate(voucher.voucherID?.endDate, (time = false))
+                    }}
+                  </small>
                 </div>
                 <button
                   class="btn btn-sm"
@@ -117,7 +126,7 @@ import { formatPrice, handleNavigate } from "@/utils/utils";
 import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
-
+import { formatDate } from "@/utils/utils";
 const emit = defineEmits(["refreshCart:update"]);
 const voucherUseds = ref([]);
 const apiUser = new ApiUser();

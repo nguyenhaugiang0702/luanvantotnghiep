@@ -4,7 +4,6 @@ import ApiUser from "@/service/user/apiUser.service";
 
 // Hàm kiểm tra quyền admin và cho phép truy cập nếu đúng quyền
 const checkAdminAccess = async (to, from, next) => {
-  // const token = Cookies.get("accessToken");
   const isLoggedIn = Cookies.get("isLoggedIn");
 
   if (isLoggedIn) {

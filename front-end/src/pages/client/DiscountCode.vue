@@ -51,9 +51,13 @@
             <div class="code">Mã: {{ voucher.code }}</div>
             <div class="order-range">
               Thời hạn:
-              <span>{{ moment(voucher.startDate).format("DD/MM/YYYY") }}</span>
+              <span
+                >{{ formatDate(voucher.startDate, time=false) }}</span
+              >
               -
-              <span>{{ moment(voucher.endDate).format("DD/MM/YYYY") }}</span>
+              <span
+                >{{ formatDate(voucher.endDate, time=false) }}</span
+              >
             </div>
             <div class="order-range">
               Đơn từ:
@@ -105,7 +109,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import ApiUser from "@/service/user/apiUser.service";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, formatDate } from "@/utils/utils";
 import Cookies from "js-cookie";
 import moment from "moment";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";

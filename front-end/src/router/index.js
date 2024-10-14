@@ -22,13 +22,12 @@ router.beforeEach(async (to, from, next) => {
   if (isLoggedIn && (to.name === "login" || to.name === "register")) {
     return next({ name: "home" });
   }
+
+  if (isLoggedIn && to.name === "admin-login") {
+    return next({ name: "admin" });
+  }
   // Kiểm tra nếu route yêu cầu quyền admin
   if (to.meta.requiresAuth && to.meta.requiresAdmin) {
-    if (!isLoggedIn || !token) {
-      // Nếu không đăng nhập, chuyển hướng đến trang login admin
-      return next({ name: "admin-login" });
-    }
-
     // Gọi hàm kiểm tra quyền admin
     await checkAdminAccess(to, from, next);
   } else if (to.meta.requiresAuth && !to.meta.requiresAdmin) {

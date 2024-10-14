@@ -6,6 +6,10 @@
   >
     <div class="text-white py-4 px-4 sticky-top">Trang Quản trị</div>
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+      <a-menu-item key="admin-home" @click="navigateTo('admin-home')">
+        <pie-chart-outlined />
+        <span>Trang chủ</span>
+      </a-menu-item>
       <a-menu-item key="admin-users" @click="navigateTo('admin-users')">
         <pie-chart-outlined />
         <span>Người dùng</span>
@@ -185,11 +189,11 @@ export default defineComponent({
       emit("update:selectedKeys", selectedKeys.value);
       router.push({ name: routeName });
     };
-    // onMounted(() => {
-    //   if (!selectedKeys.value.length) {
-    //     navigateTo("admin-users");
-    //   }
-    // });
+    onMounted(() => {
+      if (!selectedKeys.value.length) {
+        navigateTo("admin-home");
+      }
+    });
     return { collapsed, navigateTo, selectedKeys };
   },
 });

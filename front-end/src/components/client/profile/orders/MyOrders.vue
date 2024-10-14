@@ -4,40 +4,24 @@
     <div class="container">
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs mb-3">
-        <li class="nav-item" @click="setActiveTab('all')">
-          <a :class="['nav-link', activeTab === 'all' ? 'active' : '']">
-            Tất cả đơn hàng ({{ countOrdersByStatus("all") }})
-          </a>
-        </li>
-        <li class="nav-item" @click="setActiveTab('pending')">
-          <a :class="['nav-link', activeTab === 'pending' ? 'active' : '']">
-            Chờ xử lý ({{ countOrdersByStatus("pending") }})
-          </a>
-        </li>
-        <li class="nav-item" @click="setActiveTab('accepted')">
-          <a :class="['nav-link', activeTab === 'accepted' ? 'active' : '']">
-            Đã xác nhận ({{ countOrdersByStatus("accepted") }})
-          </a>
-        </li>
-        <li class="nav-item" @click="setActiveTab('cancelled')">
-          <a :class="['nav-link', activeTab === 'cancelled' ? 'active' : '']">
-            Đã hủy ({{ countOrdersByStatus("cancelled") }})
-          </a>
-        </li>
-        <li class="nav-item" @click="setActiveTab('request-cancel')">
+        <li
+          class="nav-item"
+          v-for="totalOrder in totalOrdersByStatus"
+          @click="setActiveTab(totalOrder.status)"
+        >
           <a
             :class="[
               'nav-link',
-              activeTab === 'request-cancel' ? 'active' : '',
+              activeTab === totalOrder.status ? 'active' : '',
             ]"
           >
-            Yêu cầu hủy ({{ countOrdersByStatus("request-cancel") }})
+            {{ countOrdersByStatus(totalOrder.status, totalOrder.count) }}
           </a>
         </li>
       </ul>
 
       <!-- Order List -->
-      <div v-for="order in currentOrders" :key="order.id" class="card mb-4">
+      <div v-for="order in orders" :key="order.id" class="card mb-4">
         <div
           class="card-header d-flex justify-content-between align-items-center"
         >
@@ -116,7 +100,7 @@
       </div>
 
       <!-- Pagination -->
-      <nav v-if="totalPages > 1" aria-label="Page navigation">
+      <nav v-if="totalPages > 0" aria-label="Page navigation">
         <ul class="pagination justify-content-center">
           <li
             class="page-item"
@@ -152,7 +136,6 @@ import { ref, computed, onMounted } from "vue";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
-import { toast } from "vue3-toastify";
 import { showConfirmation } from "@/utils/swalUtils";
 import { useRouter } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
@@ -162,11 +145,22 @@ const apiUser = new ApiUser();
 
 const token = Cookies.get("accessToken");
 const orders = ref([]);
-
-const getOrders = async () => {
-  const response = await apiUser.get("/orders");
+// Phân trang
+const currentPage = ref(1);
+const limit = ref(3);
+const totalPages = ref(1);
+const status = ref("all");
+const activeTab = ref("all");
+const totalOrdersByStatus = ref([]);
+const getOrders = async (page, limit, status) => {
+  const response = await apiUser.get(
+    `/orders?page=${page}&limit=${limit}&status=${status}`
+  );
   if (response.status === 200) {
     orders.value = response.data.orders;
+    totalPages.value = response.data.totalPages;
+    currentPage.value = response.data.currentPage;
+    totalOrdersByStatus.value = response.data.totalOrdersByStatus;
   }
 };
 
@@ -194,57 +188,36 @@ const requestCancelOrder = async (orderID) => {
   }
 };
 
-onMounted(() => {
-  getOrders();
-});
-
-const activeTab = ref("all");
-const currentPage = ref(1);
-const ordersPerPage = 2;
-
-const filteredOrders = computed(() => {
-  if (activeTab.value === "all") return orders.value;
-  const statusMap = {
-    pending: 1,
-    accepted: 2,
-    cancelled: 3,
-    "request-cancel": 4,
-  };
-  return orders.value.filter(
-    (order) => order.status === statusMap[activeTab.value]
-  );
-});
-
-const countOrdersByStatus = (status) => {
-  if (status === "all") return orders.value.length;
-
-  const statusMap = {
-    pending: 1,
-    accepted: 2,
-    cancelled: 3,
-    "request-cancel": 4,
-  };
-
-  return orders.value.filter((order) => order.status === statusMap[status])
-    .length;
+const countOrdersByStatus = (status, count) => {
+  switch (status) {
+    case "all":
+      return `Tất cả đơn hàng (${count})`;
+    case "pending":
+      return `Chờ xử lý (${count})`;
+    case "accepted":
+      return `Đã xác nhận (${count})`;
+    case "cancelled":
+      return `Đã hủy (${count})`;
+    case "request-cancel":
+      return `Yêu cầu hủy (${count})`;
+  }
 };
 
-const totalPages = computed(() =>
-  Math.ceil(filteredOrders.value.length / ordersPerPage)
-);
-
-const currentOrders = computed(() => {
-  const start = (currentPage.value - 1) * ordersPerPage;
-  return filteredOrders.value.slice(start, start + ordersPerPage);
+onMounted(() => {
+  getOrders(currentPage.value, limit.value, status.value);
 });
 
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) currentPage.value = page;
+  if (page > 0 && page <= totalPages.value) {
+    currentPage.value = page;
+    getOrders(page, limit.value, activeTab.value);
+  }
 };
 
 const setActiveTab = (tab) => {
   activeTab.value = tab;
   currentPage.value = 1;
+  getOrders(currentPage.value, limit.value, tab);
 };
 
 const getStatusBadge = (status) => {
