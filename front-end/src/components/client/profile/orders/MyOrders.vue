@@ -100,33 +100,11 @@
       </div>
 
       <!-- Pagination -->
-      <nav v-if="totalPages > 0" aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === 1 }"
-            @click="changePage(currentPage - 1)"
-          >
-            <a class="page-link" href="#">Previous</a>
-          </li>
-          <li
-            v-for="page in totalPages"
-            :key="page"
-            class="page-item"
-            :class="{ active: currentPage === page }"
-            @click="changePage(page)"
-          >
-            <a class="page-link" href="#">{{ page }}</a>
-          </li>
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === totalPages }"
-            @click="changePage(currentPage + 1)"
-          >
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
+      <Pagination
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        @updatePage="handlePageChange"
+      />
     </div>
   </div>
 </template>
@@ -139,6 +117,7 @@ import Cookies from "js-cookie";
 import { showConfirmation } from "@/utils/swalUtils";
 import { useRouter } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import Pagination from "../../../Pagination.vue";
 
 const router = useRouter();
 const apiUser = new ApiUser();
@@ -207,11 +186,9 @@ onMounted(() => {
   getOrders(currentPage.value, limit.value, status.value);
 });
 
-const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
-    currentPage.value = page;
-    getOrders(page, limit.value, activeTab.value);
-  }
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  getOrders(page, limit.value, activeTab.value);
 };
 
 const setActiveTab = (tab) => {

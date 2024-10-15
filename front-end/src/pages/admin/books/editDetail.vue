@@ -31,7 +31,7 @@
             <!-- Hiển thị ảnh theo dạng lưới -->
             <div class="row">
               <div
-                v-for="(image, index) in paginatedImages"
+                v-for="(image, index) in images"
                 :key="index"
                 class="col-md-3"
               >
@@ -55,27 +55,6 @@
               </div>
             </div>
             <!-- End Hiển thị ảnh theo dạng lưới -->
-
-            <!-- Phân trang -->
-            <div class="d-flex justify-content-center">
-              <a-pagination
-                v-model:current="currentPage"
-                :total="totalImages"
-                :pageSizeOptions="pageSizes"
-                :pageSize="itemsPerPage"
-                @change="handlePageChange"
-                show-size-changer
-              >
-                <template #itemRender="{ type, originalElement }">
-                  <a v-if="type === 'prev'">Previous</a>
-                  <a v-else-if="type === 'next'">Next</a>
-                  <component :is="originalElement" v-else></component>
-                </template>
-              </a-pagination>
-            </div>
-
-            <!-- End Phân trang -->
-
             <!-- Modal Thêm hoặc Chỉnh sửa ảnh -->
             <div
               class="modal fade"
@@ -160,6 +139,13 @@
             <!-- End Modal Thêm hoặc Chỉnh sửa ảnh -->
           </div>
         </div>
+        <!-- Phân trang -->
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @updatePage="handlePageChange"
+        />
+        <!-- End Phân trang -->
       </div>
     </a-layout-content>
   </div>
@@ -173,6 +159,7 @@ import { handleNavigate } from "@/utils/utils";
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import Pagination from "../../../components/Pagination.vue";
 
 const images = ref([]);
 const apiAdmin = new ApiAdmin();
@@ -181,38 +168,35 @@ const router = useRouter();
 const bookID = route.params.bookID;
 const bookName = ref("");
 // lấy ảnh của sách
-const getImages = async () => {
-  const response = await apiAdmin.get(`/books/images/${bookID}`);
+const getImages = async (page, limit) => {
+  
+  const response = await apiAdmin.get(
+    `/books/images/${bookID}?page=${page}&limit=${limit}`
+  );
   if (response.status === 200) {
-    images.value = response.data.images.map((image) => {
+    images.value = response.data.images?.map((image) => {
       return {
         _id: image._id,
         path: `${config.imgUrl}/${image.path}`,
       };
     });
     bookName.value = response.data.bookName;
+    currentPage.value = response.data.currentPage;
+    totalPages.value = response.data.totalPages;
   }
 };
 const currentPage = ref(1);
-const itemsPerPage = ref(8);
-const pageSizes = ["8", "12", "16", "20"];
-
-const totalImages = computed(() => images.value.length);
-
-const handlePageChange = (page, pageSize) => {
-  currentPage.value = page;
-  itemsPerPage.value = pageSize;
-};
-
-const paginatedImages = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return images.value.slice(start, end);
-});
+const limit = ref(8);
+const totalPages = ref(1);
 
 onMounted(() => {
-  getImages();
+  getImages(currentPage.value, limit.value);
 });
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  getImages(currentPage.value, limit.value);
+};
 
 const isEditing = ref(false);
 const currentImageID = ref(null);

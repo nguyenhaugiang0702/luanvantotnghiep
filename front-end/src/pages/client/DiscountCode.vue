@@ -15,7 +15,7 @@
       </div>
     </div>
   </div>
-  <div class="voucher-wrapper">
+  <div class="voucher-wrapper my-4">
     <div
       class="voucher-container"
       v-for="voucher in vouchers"
@@ -51,13 +51,9 @@
             <div class="code">Mã: {{ voucher.code }}</div>
             <div class="order-range">
               Thời hạn:
-              <span
-                >{{ formatDate(voucher.startDate, time=false) }}</span
-              >
+              <span>{{ formatDate(voucher.startDate, (time = false)) }}</span>
               -
-              <span
-                >{{ formatDate(voucher.endDate, time=false) }}</span
-              >
+              <span>{{ formatDate(voucher.endDate, (time = false)) }}</span>
             </div>
             <div class="order-range">
               Đơn từ:
@@ -80,7 +76,7 @@
                 from: '#2563eb',
                 to: '#1e40af',
               }"
-              :percent="30"
+              :percent="voucher.usedPercentage"
             />
           </div>
           <button
@@ -92,9 +88,9 @@
           </button>
           <button
             class="save-button save-button-used"
-            v-else-if="voucher.isUsed"
+            v-else-if="voucher.isUsed || voucher.usedPercentage === 100"
           >
-            Đã sử dụng
+            {{ voucher.isUsed ? 'Đã sử dụng' : 'Đã hết' }}
           </button>
           <button class="save-button" v-else @click="useVoucher(voucher.id)">
             Sử dụng ngay
@@ -103,6 +99,12 @@
       </div>
     </div>
   </div>
+  <!-- Phân trang -->
+  <Pagination
+    :currentPage="currentPage"
+    :totalPages="totalPages"
+    @updatePage="handlePageChange"
+  />
 </template>
 
 <script setup>
@@ -113,6 +115,7 @@ import { formatPrice, formatDate } from "@/utils/utils";
 import Cookies from "js-cookie";
 import moment from "moment";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import Pagination from "../../components/Pagination.vue";
 
 const apiUser = new ApiUser();
 const vouchers = ref([]);
@@ -120,12 +123,24 @@ const voucherUseds = ref([]);
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const router = useRouter();
+// Pagination
+const currentPage = ref(1);
+const limit = ref(6);
+const totalPages = ref(1);
 
-const getAllVouchers = async () => {
-  const response = await apiUser.get("/vouchers");
+const getAllVouchers = async (page, limit) => {
+  const response = await apiUser.get(`/vouchers?page=${page}&limit=${limit}`);
   if (response.status === 200) {
-    vouchers.value = response.data;
+    vouchers.value = response.data.vouchers;
+    currentPage.value = response.data.currentPage;
+    totalPages.value = response.data.totalPages;
+    console.log(response.data);
   }
+};
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  getAllVouchers(currentPage.value, limit.value);
 };
 
 const collectVoucher = async (voucherID) => {
@@ -151,7 +166,7 @@ const useVoucher = () => {
 };
 
 onMounted(async () => {
-  await getAllVouchers();
+  await getAllVouchers(currentPage.value, limit.value);
 });
 </script>
 

@@ -66,7 +66,6 @@ import print from "datatables.net-buttons/js/buttons.print";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfmake.vfs = pdfFonts.pdfMake.vfs;
-import "datatables.net-responsive-bs5";
 import JsZip from "jszip";
 import { useRouter } from "vue-router";
 window.JsZip = JsZip;
@@ -77,7 +76,6 @@ import ModalAddVoucher from "@/components/admin/modals/vouchers/voucher/ModalAdd
 import ModalUpdateVoucher from "@/components/admin/modals/vouchers/voucher/ModalUpdateVoucher.vue";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
-import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import moment from "moment";

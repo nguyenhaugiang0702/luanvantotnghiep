@@ -62,7 +62,7 @@
                     style="max-height: 200px; overflow: auto"
                   >
                     <li
-                      style="max-width: 300px"
+                      style="width: 22rem;max-width: 22rem"
                       class="dropdown-item"
                       v-for="(
                         voucherCategory, index

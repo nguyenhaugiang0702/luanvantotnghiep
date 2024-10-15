@@ -40,7 +40,18 @@
                     }}
                   </span>
                 </h3>
-                <div class="code">Dùng ngay</div>
+                <div
+                  class="code"
+                  :class="{
+                    'code-apply': voucher.voucherID?.usedPercentage === 100,
+                  }"
+                >
+                  {{
+                    voucher.voucherID?.usedPercentage === 100
+                      ? "Đã hết"
+                      : "Dùng ngay"
+                  }}
+                </div>
               </div>
 
               <div class="details">
@@ -48,7 +59,7 @@
                   <span class="label">HSD:</span>
                   {{ moment(voucher.voucherID?.endDate).format("DD/MM/YYYY") }}
                 </div>
-                <div class="code">{{ voucher.voucherID?.code }}</div>
+                <div class="code code-apply">{{ voucher.voucherID?.code }}</div>
                 <div class="detail-item">
                   <span class="label">Đơn tối thiểu:</span>
                   {{
@@ -65,15 +76,21 @@
                     to: '#1e40af',
                   }"
                   size="small"
-                  :percent="30"
+                  :percent="voucher.voucherID?.usedPercentage"
                 />
-                <!-- <button class="save-button">Dùng ngay</button> -->
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div class="mt-4">
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @updatePage="handlePageChange"
+    />
   </div>
 </template>
 
@@ -82,20 +99,32 @@ import { ref, onMounted } from "vue";
 import ApiUser from "@/service/user/apiUser.service";
 import { formatPrice } from "@/utils/utils";
 import moment from "moment";
+import Pagination from "../../Pagination.vue";
 
 const apiUser = new ApiUser();
 const vouchers = ref([]);
-
-const getVoucers = async () => {
-  const response = await apiUser.get("/vouchers/voucherUseds");
+const currentPage = ref(1);
+const limit = ref(4);
+const totalPages = ref(1);
+const getVouchers = async (page, limit) => {
+  const response = await apiUser.get(
+    `/vouchers/voucherUseds?page=${page}&limit=${limit}`
+  );
   if (response.status === 200) {
-    vouchers.value = response.data;
+    vouchers.value = response.data.vouchers;
+    totalPages.value = response.data.totalPages;
+    currentPage.value = response.data.currentPage;
   }
 };
 
 onMounted(() => {
-  getVoucers();
+  getVouchers(currentPage.value, limit.value);
 });
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  getVouchers(currentPage.value, limit.value);
+};
 </script>
 
 <style scoped>
@@ -103,7 +132,7 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  justify-content: baseline;
+  justify-content: space-evenly;
 }
 
 .voucher-container {
@@ -186,6 +215,7 @@ onMounted(() => {
   padding: 0.125rem 0.375rem;
   border-radius: 9999px;
   max-width: 100px;
+  cursor: pointer;
 }
 
 .details {
@@ -228,5 +258,9 @@ onMounted(() => {
 .save-button:hover {
   background: linear-gradient(to right, #1d4ed8, #1e3a8a);
   transform: translateY(-1px);
+}
+
+.code-apply {
+  cursor: text;
 }
 </style>

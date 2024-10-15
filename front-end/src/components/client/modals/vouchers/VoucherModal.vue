@@ -134,7 +134,7 @@ const token = Cookies.get("accessToken");
 const getVouchersUseds = async () => {
   const response = await apiUser.get("/vouchers/voucherUseds", token);
   if (response.status === 200) {
-    voucherUseds.value = response.data;
+    voucherUseds.value = response.data.vouchers;
   }
 };
 
@@ -182,3 +182,10 @@ watch(
   { deep: true }
 );
 </script>
+<style scoped>
+.voucher-list {
+  height: 30rem;
+  max-height: 30rem;
+  overflow: auto;
+}
+</style>
