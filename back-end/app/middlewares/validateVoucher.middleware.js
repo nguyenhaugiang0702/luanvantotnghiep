@@ -30,7 +30,7 @@ exports.collectVoucherValidation = async (req, res, next) => {
     const userID = req.user.id;
     const voucher = await voucherService.getVoucherByID(voucherID);
     // Kiểm tra số lượng mã giảm giá khi user lấy
-    if (voucher.quantity <= 0) {
+    if (voucher.quantityUsed === voucher.quantity) {
       return next(new ApiError(400, "Mã giảm giá đã hết số lượng"));
     }
     // Kiểm tra tồn tại mã giảm giá

@@ -9,11 +9,15 @@ const getVoucherUsedsByID = async (voucherUsedsID) => {
   return await VouhcherUseds.findById(voucherUsedsID);
 };
 
-const getAllVoucherUseds = async (filter) => {
-  return await VouhcherUseds.find(filter).populate({
+const getAllVoucherUseds = async (filter, skip = 0, limit = 0) => {
+  let vouchersUsedData = VouhcherUseds.find(filter).populate({
     path: "voucherID",
     populate: [{ path: "voucherCategoryID" }],
   });
+  if(skip || limit){
+    vouchersUsedData = vouchersUsedData.skip(skip).limit(limit)
+  }
+  return await vouchersUsedData;
 };
 
 const getOneVoucherUsed = async (filter) => {
@@ -39,6 +43,10 @@ const deleteVoucherUsedWhenCheckOut = async (filter) => {
   return await VouhcherUseds.findOneAndDelete(filter);
 };
 
+const countAllVouchersUsed = async (query) => {
+  return await VouhcherUseds.countDocuments(query);
+}
+
 module.exports = {
   createVoucherUseds,
   getVoucherUsedsByID,
@@ -47,4 +55,5 @@ module.exports = {
   updateMany,
   deleteVoucherUsedWhenCheckOut,
   getOneVoucherUsed,
+  countAllVouchersUsed
 };

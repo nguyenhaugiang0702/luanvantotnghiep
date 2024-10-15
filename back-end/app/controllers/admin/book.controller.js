@@ -79,7 +79,7 @@ exports.findAllBookToReceipt = async (req, res, next) => {
   }
 };
 
-exports.findTopViewedBooks  = async (req, res, next) => {
+exports.findTopViewedBooks = async (req, res, next) => {
   let books = [];
   try {
     books = await bookService.getFullInfoAllBooks();
@@ -142,9 +142,22 @@ exports.findOne = async (req, res, next) => {
 exports.findImages = async (req, res, next) => {
   try {
     const bookID = req.params.bookID;
-    const book = await bookService.getBookImagesByID(bookID);
-    return res.send({ images: book.images, bookName: book.name });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
+    const bookImages = await bookService.getBookImagesByID(bookID);
+    const totalBookImages = bookImages.images.length;
+    const totalPages = Math.ceil(totalBookImages / limit);
+    const images = await bookService.getBookImagesByID(bookID, skip, limit);
+    return res.send({
+      currentPage: page,
+      totalPages: totalPages,
+      totalBookImages: totalBookImages,
+      images: images,
+      bookName: bookImages.name,
+    });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy ảnh sách"));
   }
 };

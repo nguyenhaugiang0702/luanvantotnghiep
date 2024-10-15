@@ -8,8 +8,15 @@ exports.findAllVouchers = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
   let vouchersWithLogin = [];
   let isCollected = false;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 6;
+  const skip = (page - 1) * limit;
   try {
-    let vouchers = await voucherService.getAllVouchers();
+    // Lấy tổng số mã giảm giá
+    const totalVouchers = await voucherService.countAllVouchers();
+    const totalPages = Math.ceil(totalVouchers / limit);
+    let vouchers = await voucherService.getAllVouchers({}, skip, limit);
+
     if (userID) {
       await Promise.all(
         vouchers.map(async (voucher) => {
@@ -21,18 +28,42 @@ exports.findAllVouchers = async (req, res, next) => {
             ? voucherUsedExist.isUsed
             : false;
           isCollected = voucherUsedExist ? true : false;
+          // Tính phần trăm số lượng đã được sử dụng
+          const usedPercentage =
+            voucherService.calculateUsedPercentage(voucher);
           const vouhcerData = {
             ...voucher._doc,
-            isCollected,
-            isUsed: isUsedVoucher,
+            isCollected, // Đặt là true nếu người dùng đã lấy voucher này rồi
+            isUsed: isUsedVoucher, // Nếu đã sử dụng rồi thì đặt là true
+            usedPercentage: parseFloat(usedPercentage.toFixed(1)),
           };
           vouchersWithLogin.push(vouhcerData);
         })
       );
-      return res.send(vouchersWithLogin);
+      console.log(vouchers);
+      return res.send({
+        currentPage: page,
+        totalPages: totalPages,
+        totalVouchers: totalVouchers,
+        vouchers: vouchersWithLogin,
+      });
     }
+    // Tính phần trăm sử dụng cho mỗi voucher
+    vouchers = vouchers.map((voucher) => {
+      // Tính phần trăm số lượng đã được sử dụng
+      const usedPercentage = voucherService.calculateUsedPercentage(voucher);
+      return {
+        ...voucher._doc,
+        usedPercentage: parseFloat(usedPercentage.toFixed(1)),
+      };
+    });
 
-    return res.send(vouchers);
+    return res.send({
+      currentPage: page,
+      totalPages: totalPages,
+      totalVouchers: totalVouchers,
+      vouchers: vouchers,
+    });
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy tất cả thể loại mã giảm giá"));
@@ -72,14 +103,43 @@ exports.createVoucherUseds = async (req, res, next) => {
 exports.findAllVoucherUseds = async (req, res, next) => {
   try {
     const userID = req.user ? req.user.id : null;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
+
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
-    const vouchers = await voucherUsedsService.getAllVoucherUseds({
+    const totalVouchersUsed = await voucherUsedsService.countAllVouchersUsed({
       userID: userID,
       isUsed: false,
     });
-    return res.send(vouchers);
+    const totalPages = Math.ceil(totalVouchersUsed / limit);
+    let voucherUseds = await voucherUsedsService.getAllVoucherUseds(
+      {
+        userID: userID,
+        isUsed: false,
+      },
+      skip,
+      limit
+    );
+    voucherUseds = voucherUseds.map((voucherUsed) => {
+      let voucher = voucherUsed.voucherID;
+      const usedPercentage = voucherService.calculateUsedPercentage(voucher);
+      return {
+        ...voucherUsed._doc,
+        voucherID: {
+          ...voucher._doc,
+          usedPercentage: parseFloat(usedPercentage.toFixed(1)), // Thêm usedPercentage vào voucherID
+        },
+      };
+    });
+    return res.send({
+      currentPage: page,
+      totalPages: totalPages,
+      totalVouchersUsed: totalVouchersUsed,
+      vouchers: voucherUseds,
+    });
   } catch (error) {
     console.log(error);
     return next(
@@ -99,7 +159,10 @@ exports.updateVoucherUseds = async (req, res, next) => {
     }
 
     const currentVoucher = await voucherService.getVoucherByID(voucherID);
-    if (currentVoucher && currentVoucher.quantity <= 0) {
+    if (
+      currentVoucher &&
+      currentVoucher.quantityUsed === currentVoucher.quantity
+    ) {
       return next(
         new ApiError(400, "Rất tiếc, số lượng mã giảm giá này đã hết")
       );
@@ -107,8 +170,12 @@ exports.updateVoucherUseds = async (req, res, next) => {
 
     if (method === "SELECT") {
       // Check Date
-      const currentDateString = moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY");
-      const currentDate = moment(currentDateString, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh");
+      const currentDateString = moment()
+        .tz("Asia/Ho_Chi_Minh")
+        .format("DD/MM/YYYY");
+      const currentDate = moment(currentDateString, "DD/MM/YYYY").tz(
+        "Asia/Ho_Chi_Minh"
+      );
       const parsedStartDate = moment(currentVoucher.startDate, "DD/MM/YYYY").tz(
         "Asia/Ho_Chi_Minh"
       );

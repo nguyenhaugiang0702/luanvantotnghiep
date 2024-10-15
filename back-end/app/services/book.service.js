@@ -34,8 +34,14 @@ const getBookByID = async (bookId) => {
   return await Book.findById(bookId);
 };
 
-const getBookImagesByID = async (bookId) => {
-  return await Book.findById(bookId);
+const getBookImagesByID = async (bookId, skip = 0, limit = 0) => {
+  const book = await Book.findById(bookId);
+  if (skip || limit) {
+    const images = book.images || []; // Lấy mảng images
+    const paginatedImages = images.slice(skip, skip + limit); // Sử dụng slice để phân trang
+    return paginatedImages;
+  }
+  return book;
 };
 
 const updateBook = async (bookId, bookData) => {
@@ -130,9 +136,7 @@ const getTotalBooks = async (filters, searchQuery) => {
 };
 
 const getTopViewedBooks = async () => {
-  const books = await Book.find()
-    .sort({ view: -1 }) 
-    .limit(4); 
+  const books = await Book.find().sort({ view: -1 }).limit(4);
 
   return books;
 };
