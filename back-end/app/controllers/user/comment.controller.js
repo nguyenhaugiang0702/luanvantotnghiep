@@ -64,10 +64,21 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   let comments = [];
   const userID = req.user ? req.user.id : null;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 3;
+  const skip = (page - 1) * limit;
   try {
-    comments = await commentService.getComments({
+    comments = await commentService.getComments(
+      {
+        isAdminReply: false,
+      },
+      skip,
+      limit
+    );
+    const totalComments = await commentService.countComments({
       isAdminReply: false,
     });
+    const totalPages = Math.ceil(totalComments / limit);
     if (userID) {
       const commentsWithUserActions = comments.map((comment) => {
         const isLiked = comment.likedBy.includes(userID);
@@ -79,9 +90,19 @@ exports.findAll = async (req, res, next) => {
           isDisliked, // True nếu user đã dislike comment này
         };
       });
-      return res.send(commentsWithUserActions);
+      return res.send({
+        currentPage: page,
+        totalPages: totalPages,
+        totalComments: totalComments,
+        comments: commentsWithUserActions,
+      });
     }
-    return res.send(comments);
+    return res.send({
+      currentPage: page,
+      totalPages: totalPages,
+      totalComments: totalComments,
+      comments: comments,
+    });
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy bình luận mới"));
