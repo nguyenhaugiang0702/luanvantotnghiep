@@ -9,7 +9,7 @@
           <!-- Avatar người dùng -->
           <div class="position-relative">
             <img
-              :src="`http://localhost:3000/` + comment.userID?.avatar"
+              :src="`${config.imgUrl}/` + comment.userID?.avatar"
               alt="User Avatar"
               class="rounded-circle user-avatar"
               style="width: 50px; height: 50px"
@@ -97,7 +97,7 @@
           <div class="row g-2">
             <div v-for="image in comment.images" class="col-auto me-2">
               <a-image
-                :src="`http://localhost:3000/` + image.path"
+                :src="`${config.imgUrl}/` + image.path"
                 :width="100"
                 :height="120"
                 class="rounded-3"
@@ -146,6 +146,11 @@
         <hr />
       </div>
     </div>
+    <Pagination
+    :currentPage="currentPage"
+    :totalPages="totalPages"
+    @updatePage="handlePageChange"
+  />
 
     <!-- Phần thêm bình luận -->
     <div class="add-comment-section bg-light rounded-3 p-4 mt-4">
@@ -201,6 +206,8 @@ import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
 import moment from "moment";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import config from "@/config/index";
+import Pagination from '../../components/Pagination.vue';
 
 const value = ref(0);
 const desc = ref(["terrible", "bad", "normal", "good", "wonderful"]);
@@ -211,6 +218,9 @@ const comments = ref([]);
 const props = defineProps({
   bookID: String,
 });
+const currentPage = ref(1);
+const totalPages = ref(1);
+const limit = ref(3);
 
 const { bookID } = toRefs(props);
 
@@ -218,16 +228,22 @@ watch(value, (newVal) => {
   newComment.value.rating = newVal;
 });
 
-const getComments = async () => {
-  const response = await apiUser.get("/comments");
+const getComments = async (page, limit) => {
+  const response = await apiUser.get(`/comments?page=${page}&limit=${limit}`);
   if (response.status === 200) {
-    console.log(response.data);
-    comments.value = response.data;
+    comments.value = response.data.comments;
+    currentPage.value = response.data.currentPage;
+    totalPages.value = response.data.totalPages;
   }
 };
 
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  getComments(currentPage.value, limit.value);
+};
+
 onMounted(() => {
-  getComments();
+  getComments(currentPage.value, limit.value);
 });
 const isAdmin = ref(true);
 
