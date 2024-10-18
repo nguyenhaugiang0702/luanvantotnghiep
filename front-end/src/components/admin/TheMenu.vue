@@ -2,57 +2,97 @@
   <a-layout-sider
     v-model:collapsed="collapsed"
     collapsible
-    style="min-height: 100vh; overflow: auto; "
+    style="min-height: 100vh; overflow: auto"
   >
     <div class="text-white py-4 px-4 sticky-top">Trang Quản trị</div>
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
       <a-menu-item key="admin-home" @click="navigateTo('admin-home')">
-        <pie-chart-outlined />
+        <i class="fa-solid fa-house fs-4 me-3"></i>
         <span>Trang chủ</span>
       </a-menu-item>
       <a-menu-item key="admin-users" @click="navigateTo('admin-users')">
-        <pie-chart-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/users.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Người dùng</span>
       </a-menu-item>
       <a-menu-item
         key="admin-authors-list"
         @click="navigateTo('admin-authors-list')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/authors.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Tác giả</span>
       </a-menu-item>
       <a-menu-item
         key="admin-categories"
         @click="navigateTo('admin-categories')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/categories.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Thể loại</span>
       </a-menu-item>
       <a-menu-item
         key="admin-orders-list"
         @click="navigateTo('admin-orders-list')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/orders.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Đơn hàng</span>
       </a-menu-item>
       <a-menu-item
         key="admin-formalities"
         @click="navigateTo('admin-formalities')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/formalities.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Hình thức</span>
       </a-menu-item>
       <a-menu-item
         key="admin-priceranges-list"
         @click="navigateTo('admin-priceranges-list')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/priceranges.png"
+          alt=""
+          style="
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 15%;
+          "
+        />
         <span>Khoản giá</span>
       </a-menu-item>
       <a-sub-menu key="admin-books-list">
         <template #title>
           <span>
-            <user-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/books.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Sản phẩm</span>
           </span>
         </template>
@@ -70,7 +110,12 @@
       <a-sub-menu key="admin-suppliers-list">
         <template #title>
           <span>
-            <user-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/suppliers.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Nhà cung cấp</span>
           </span>
         </template>
@@ -88,7 +133,12 @@
       <a-sub-menu key="admin-publishers-list">
         <template #title>
           <span>
-            <team-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/publishers.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Nhà xuất bản</span>
           </span>
         </template>
@@ -106,7 +156,12 @@
       <a-sub-menu key="admin-receipts-list">
         <template #title>
           <span>
-            <team-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/importation.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Nhập hàng</span>
           </span>
         </template>
@@ -124,15 +179,15 @@
       <a-sub-menu key="admin-stockProduct-list">
         <template #title>
           <span>
-            <team-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/statistical.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Thống kê</span>
           </span>
         </template>
-        <a-menu-item
-          key="admin-publishers-add"
-          @click="navigateTo('admin-publishers-add')"
-          >Thêm</a-menu-item
-        >
         <a-menu-item
           key="admin-stockProduct-list"
           @click="navigateTo('admin-stockProduct-list')"
@@ -140,20 +195,30 @@
         >
       </a-sub-menu>
       <a-menu-item key="admin-chats" @click="navigateTo('admin-chats')">
-        <pie-chart-outlined />
+        <i class="fa-solid fa-comments fs-4 me-3"></i>
         <span>Tin nhắn</span>
       </a-menu-item>
       <a-menu-item
         key="admin-comments-list"
         @click="navigateTo('admin-comments-list')"
       >
-        <desktop-outlined />
+        <img
+          class="me-3"
+          src="../../assets/images/admin/rating.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
         <span>Đánh giá</span>
       </a-menu-item>
       <a-sub-menu key="admin-vouchers-list">
         <template #title>
           <span>
-            <team-outlined />
+            <img
+              class="me-3"
+              src="../../assets/images/admin/vouchers.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
             <span>Mã giảm giá</span>
           </span>
         </template>
@@ -168,6 +233,15 @@
           >Loại giảm giá</a-menu-item
         >
       </a-sub-menu>
+      <a-menu-item @click="logOut">
+        <img
+          class="me-3"
+          src="../../assets/images/admin/logout.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
+        <span>Đẵng xuất</span>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
@@ -176,7 +250,8 @@ import { ref, onMounted, defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useMenu } from "../../stores/use-menu.js";
-
+import { showConfirmation } from "@/utils/swalUtils.js";
+import Cookies from "js-cookie";
 export default defineComponent({
   setup(_, { emit }) {
     const collapsed = ref(false);
@@ -194,7 +269,19 @@ export default defineComponent({
         navigateTo("admin-home");
       }
     });
-    return { collapsed, navigateTo, selectedKeys };
+
+    const logOut = async () => {
+      const isConfirm = await showConfirmation({
+        title: "Bạn có muốn đăng xuất?",
+      });
+      if (isConfirm.isConfirmed) {
+        Cookies.remove("accessToken");
+        Cookies.remove("isLoggedIn");
+        Cookies.remove("refreshToken");
+        window.location.reload();
+      }
+    };
+    return { collapsed, navigateTo, selectedKeys, logOut };
   },
 });
 </script>

@@ -90,9 +90,6 @@
               </p>
               <div class="row">
                 <div class="col">
-                  <p>Nhà cung cấp: Nhà Xuất Bản Kim Đồng</p>
-                </div>
-                <div class="col">
                   <p>
                     Tác giả:
                     {{

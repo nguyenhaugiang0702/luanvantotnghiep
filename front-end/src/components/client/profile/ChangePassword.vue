@@ -116,7 +116,7 @@
       <div class="d-flex justify-content-center">
         <button
           type="submit"
-          class="btn btn-primary mt-4 col-sm-12 col-md-6 text-center"
+          class="btn btn-primary mt-4 col-sm-12 col-md-2 text-center"
           :disabled="isLoading"
         >
           <span

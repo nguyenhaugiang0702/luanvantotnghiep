@@ -21,7 +21,7 @@
                   src="../../assets/images/logo1.png"
                   alt=""
                 />
-                <span class="ms-2 fw-bold text-primary">NHG Bookstore</span>
+                <span class="ms-2 fw-bold text-primary">NHG BOOKSTORE</span>
               </div>
             </a>
           </div>
@@ -54,10 +54,10 @@
                 >
               </li>
               <li class="nav-item me-2">
-                <a class="nav-link" href="/about">About</a>
+                <a class="nav-link" href="/about">Giới thiệu</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/contact">Contact</a>
+                <a class="nav-link" href="/contact">Liên hệ</a>
               </li>
             </ul>
           </div>
@@ -75,6 +75,7 @@
               >
                 <i class="fa-solid fa-cart-shopping fs-5"></i>
                 <span
+                  v-if="token"
                   class="badge-cart translate-middle badge rounded-pill bg-danger"
                 >
                   {{ booksInCart.totalQuantity }}
@@ -86,6 +87,110 @@
                   <i class="fa-solid fa-cart-shopping"></i>
                   <span class="fw-bold ms-2"
                     >Giỏ hàng ({{ booksInCart.totalQuantity }})</span
+                  >
+                </li>
+                <hr />
+                <div v-if="booksInCart && booksInCart.books?.length !== 0">
+                  <div class="books-list">
+                    <li
+                      v-for="book in booksInCart.books"
+                      :key="book.bookID._id"
+                    >
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="text-center">
+                          <router-link
+                            :to="{
+                              name: 'book-detail',
+                              params: { bookID: book.bookID._id },
+                            }"
+                          >
+                            <img
+                              v-if="
+                                book.bookID.images &&
+                                book.bookID.images.length > 0
+                              "
+                              class="ms-2"
+                              style="width: 80px; height: 80px"
+                              :src="
+                                `${config.imgUrl}/` +
+                                book.bookID?.images[0]?.path
+                              "
+                              alt=""
+                          /></router-link>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                          <div class="text-break fw-bold">
+                            <router-link
+                              class="text-decoration-none text-dark"
+                              :to="{
+                                name: 'book-detail',
+                                params: { bookID: book.bookID._id },
+                              }"
+                            >
+                              <div class="col-12">
+                                {{ book.bookID.name }}
+                              </div></router-link
+                            >
+                          </div>
+                          <div class="col-12">
+                            <span class="text-danger fw-bold">{{
+                              formatPrice(book.price)
+                            }}</span>
+                            x
+                            <span>{{ book.quantity }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <hr />
+                    </li>
+                  </div>
+
+                  <div class="d-flex justify-content-around align-items-center">
+                    <div class="d-flex flex-column">
+                      <span>Tổng cộng:</span>
+                      <span class="text-danger fw-bold">{{
+                        formatPrice(booksInCart.totalPrice)
+                      }}</span>
+                    </div>
+                    <div class="text-center">
+                      <router-link
+                        class="btn btn-primary"
+                        :to="{ name: 'cart' }"
+                        >Xem giỏ hàng</router-link
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <EmptyCart />
+                </div>
+              </ul>
+            </div>
+
+            <!-- Notifycation -->
+            <div class="dropdown">
+              <button
+                @click="handleNavigateRoute('cart')"
+                class="btn dropdown-toggle position-relative me-2"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fa-solid fa-bell fs-5"></i>
+                <span
+                  v-if="token"
+                  class="badge-cart translate-middle badge rounded-pill bg-danger"
+                >
+                  {{ booksInCart.totalQuantity }}
+                  <span class="visually-hidden">unread messages</span>
+                </span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-cart">
+                <li class="my-2 ms-3">
+                  <span class="fw-bold ms-2"
+                    >Thông báo</span
                   >
                 </li>
                 <hr />

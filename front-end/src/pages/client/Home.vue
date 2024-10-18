@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid bg-primary py-4">
+  <!-- <div class="container-fluid bg-primary py-4">
     <div class="container text-white">
       <div
         class="d-flex flex-column flex-md-row justify-content-between align-items-start"
@@ -11,14 +11,14 @@
         <div class="align-self-md-center"><span>Trang chủ </span></div>
       </div>
     </div>
-  </div>
+  </div> -->
   <div class="d-flex flex-column min-vh-100">
     <!-- Main Content -->
     <main class="flex-grow-1">
       <div class="mb-5"><Carousel /></div>
 
       <!-- Hero Section -->
-      <section class="bg-light text-center py-5">
+      <section class="text-center py-5">
         <div class="container">
           <h2 class="h1 mb-3">
             Khám phá cuốn sách tuyệt vời tiếp theo của bạn
@@ -36,23 +36,67 @@
       </section>
 
       <!-- Featured Categories -->
-      <section class="py-5">
+      <section class="py-5 bg-light">
         <div class="container">
-          <h2 class="h3 mb-4 text-center">Featured Categories</h2>
+          <h2 class="h3 mb-4 text-center">Cam Kết Của Chúng Tôi</h2>
           <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-            <div
-              v-for="(category, index) in categories"
-              :key="index"
-              class="col"
-            >
-              <div class="card text-center h-100">
+            <!-- Đổi trả miễn phí -->
+            <div class="col">
+              <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
-                  <h5 class="card-title">{{ category }}</h5>
+                  <div class="feature-icon mb-3">
+                    <i class="fas fa-sync-alt fa-2x text-primary"></i>
+                  </div>
+                  <h5 class="card-title">Đổi Trả 100%</h5>
+                  <p class="card-text">
+                    Đổi trả miễn phí trong vòng 7 ngày nếu sách có lỗi từ nhà
+                    sản xuất
+                  </p>
                 </div>
-                <div class="card-footer">
-                  <button class="btn btn-outline-primary w-100">
-                    Explore {{ category }}
-                  </button>
+              </div>
+            </div>
+
+            <!-- Hỗ trợ 24/7 -->
+            <div class="col">
+              <div class="feature-card card border-0 text-center h-100">
+                <div class="card-body">
+                  <div class="feature-icon mb-3">
+                    <i class="fas fa-headset fa-2x text-primary"></i>
+                  </div>
+                  <h5 class="card-title">Hỗ Trợ 24/7</h5>
+                  <p class="card-text">
+                    Hotline: 1900-xxxx luôn sẵn sàng hỗ trợ mọi thắc mắc của bạn
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Giao hàng nhanh -->
+            <div class="col">
+              <div class="feature-card card border-0 text-center h-100">
+                <div class="card-body">
+                  <div class="feature-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-2x text-primary"></i>
+                  </div>
+                  <h5 class="card-title">Giao Hàng Nhanh</h5>
+                  <p class="card-text">
+                    Giao hàng nhanh chóng trong vòng 2-3 ngày trên toàn quốc
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thanh toán an toàn -->
+            <div class="col">
+              <div class="feature-card card border-0 text-center h-100">
+                <div class="card-body">
+                  <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                  </div>
+                  <h5 class="card-title">Thanh Toán An Toàn</h5>
+                  <p class="card-text">
+                    Đa dạng phương thức thanh toán với bảo mật tuyệt đối
+                  </p>
                 </div>
               </div>
             </div>
@@ -61,8 +105,8 @@
       </section>
 
       <!-- Featured Products -->
-      <div class="container bg-light p-4 mb-4">
-        <h2 class="h3 mb-4 text-center text-uppercase">Các sách nổi bật</h2>
+      <div class="container mt-5 mb-2">
+        <h2 class="h3 mb-4 text-center">Các Sách Nổi Bật</h2>
         <div class="row" v-if="books.length !== 0">
           <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">
             <div class="book-card book card h-100 position-relative">
@@ -122,26 +166,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Upcoming Events -->
-      <!-- <section class="py-5">
-        <div class="container">
-          <h2 class="h3 mb-4 text-center">Upcoming Events</h2>
-          <div class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col" v-for="(event, index) in events" :key="index">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h5 class="card-title">{{ event.title }}</h5>
-                  <p class="card-text">{{ event.description }}</p>
-                  <p class="text-muted">
-                    <i class="fa fa-calendar me-2"></i>{{ event.date }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> -->
     </main>
   </div>
 </template>
@@ -264,5 +288,27 @@ const categories = ref([
 .book-card:hover {
   transform: translateY(-10px);
   box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
+}
+
+.feature-card {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background-color: white;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-text {
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 </style>

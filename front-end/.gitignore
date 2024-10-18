@@ -28,3 +28,5 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+front-end/src/assets/images/admin/DbSchema_9_6_3.exe
+front-end/src/assets/images/admin/Hackolade-win64-setup-signed.exe

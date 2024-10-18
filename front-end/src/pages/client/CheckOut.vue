@@ -280,10 +280,16 @@
         <div class="col-sm-6 col-md-6 text-end">
           <button
             class="btn btn-primary px-4"
-            :disabled="!acceptedTerms || isCalculatingFee"
+            :disabled="!acceptedTerms || isCalculatingFee || isLoadingPaypal"
             @click="confirmPayment"
           >
-            Xác nhận thanh toán
+            <span
+              v-if="isLoadingPaypal"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span v-else>Xác nhận thanh toán</span>
           </button>
         </div>
       </div>
@@ -331,6 +337,7 @@ const dataToCalculateShippingFee = ref({
 });
 const shippingFee = ref(0);
 const isCalculatingFee = ref(false);
+const isLoadingPaypal = ref(false);
 let voucherUsed;
 const getAddress = async () => {
   const response = await apiUser.get("/addresses");
@@ -432,6 +439,7 @@ const confirmPayment = async () => {
       break;
     case "PAYPAL":
       try {
+        isLoadingPaypal.value = true;
         const paypalResponse = await apiUser.post(
           "/payment/paypal/createLink",
           orderData
@@ -440,12 +448,15 @@ const confirmPayment = async () => {
         if (paypalResponse.status === 200) {
           const { paypal_url } = paypalResponse.data;
           if (paypal_url) {
+            console.log(paypal_url);
             window.open(paypal_url, "_blank");
           }
         }
       } catch (error) {
         console.log(error.response?.data?.message);
         showErrorToast(error.response?.data?.message);
+      } finally {
+        isLoadingPaypal.value = false;
       }
       break;
 
@@ -485,7 +496,7 @@ watch(
       try {
         const fee = await getShippingFee(params);
         shippingFee.value = fee;
-      } catch (error) { 
+      } catch (error) {
         console.error("Error calculating shipping fee:", error);
         showErrorToast("Lỗi khi tính phí vận chuyển");
       }

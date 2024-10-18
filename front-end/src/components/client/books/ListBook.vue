@@ -105,7 +105,11 @@
                   class="btn btn-outline-primary me-2"
                   ><i class="fa-solid fa-eye"></i
                 ></router-link>
-                <button v-if="book.quantityImported !== 0" class="btn btn-primary" @click="addToCart(book)">
+                <button
+                  v-if="book.quantityImported !== 0"
+                  class="btn btn-primary"
+                  @click="addToCart(book)"
+                >
                   <i class="fa fa-cart-plus" aria-hidden="true"></i>
                 </button>
               </div>
@@ -138,44 +142,28 @@
               <div v-if="book.quantityImported !== 0">
                 Còn lại: ({{ book.quantityImported - book.quantitySold }}) quyển
               </div>
-              <div v-else>
-                Đang nhập hàng
-              </div>
+              <div v-else>Đang nhập hàng</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div
+      v-else
+      class="d-flex justify-content-center align-items-center"
+      style="height: 20rem; max-height: 20rem"
+    >
+      Không tìm thấy
+    </div>
 
-    <!-- Phân trang -->
-    <div class="d-flex justify-content-center align-items-center">
-      <nav aria-label="Page navigation example">
-        <ul class="pagination">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <button class="page-link" @click="goToPreviousPage">
-              Previous
-            </button>
-          </li>
-
-          <li
-            v-for="page in totalPages"
-            :key="page"
-            class="page-item"
-            :class="{ active: page === currentPage }"
-          >
-            <button class="page-link" @click="handlePage(page)">
-              {{ page }}
-            </button>
-          </li>
-
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === totalPages }"
-          >
-            <button class="page-link" @click="goToNextPage">Next</button>
-          </li>
-        </ul>
-      </nav>
+    <!-- Pagination -->
+    <div class="py-3">
+      <Pagination
+        v-if="books.length !== 0"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        @updatePage="handlePageChange"
+      />
     </div>
   </div>
 </template>
@@ -189,7 +177,7 @@ import { toast } from "vue3-toastify";
 import { formatPrice } from "@/utils/utils";
 import { useRouter } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
-
+import Pagination from "../../Pagination.vue";
 const books = ref([]);
 const apiUser = new ApiUser();
 
@@ -355,6 +343,18 @@ onMounted(() => {
   getBooks({}, currentPage.value, itemsPerPage.value, sortBy.value);
 });
 
+const handlePageChange = async (page) => {
+  currentPage.value = page;
+  const filtersString = JSON.stringify(filters.value);
+  await getBooks(
+    filtersString,
+    currentPage.value,
+    itemsPerPage.value,
+    sortBy.value,
+    searchQuery.value
+  );
+};
+
 watch(
   [() => props.selectedIds, () => itemsPerPage.value, () => sortBy.value],
   async ([newSelectedIds, newItemsPerPage, newSortBy]) => {
@@ -399,48 +399,6 @@ const handleSearch = async () => {
   } catch (error) {
     console.log(error);
     showErrorToast(error.response?.data?.message);
-  }
-};
-
-const handlePage = async (page) => {
-  currentPage.value = page;
-  const filtersString = JSON.stringify(filters.value);
-  await getBooks(
-    filtersString,
-    currentPage.value,
-    itemsPerPage.value,
-    sortBy.value,
-    searchQuery.value
-  );
-};
-
-// Chuyển sang trang trước
-const goToPreviousPage = async () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    const filtersString = JSON.stringify(filters.value);
-    await getBooks(
-      filtersString,
-      currentPage.value,
-      itemsPerPage.value,
-      sortBy.value,
-      searchQuery.value
-    );
-  }
-};
-
-// Chuyển sang trang sau
-const goToNextPage = async () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    const filtersString = JSON.stringify(filters.value);
-    await getBooks(
-      filtersString,
-      currentPage.value,
-      itemsPerPage.value,
-      sortBy.value,
-      searchQuery.value
-    );
   }
 };
 </script>

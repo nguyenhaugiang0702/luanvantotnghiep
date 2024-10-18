@@ -8,115 +8,110 @@
     </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Tác giả</a-breadcrumb-item>
+        <a-breadcrumb-item>Trang chủ</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <div class="row">
           <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
             <div class="dash-widget dash-widget5">
               <span class="float-left"
-                ><i class="fa-solid fa-book fs-1" style="color: #0d6efd"></i
-              ></span>
+                ><img
+                  src="../../assets/images/admin/books-home.png"
+                  alt=""
+                  style="width: 80px; height: 80px"
+              /></span>
               <div class="dash-widget-info text-right">
-                <span>Sách</span>
-                <h3>60,000</h3>
+                <span class="fs-5">Sách</span>
+                <h3>{{ data.books }}</h3>
               </div>
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
             <div class="dash-widget dash-widget5">
               <div class="dash-widget-info text-left d-inline-block">
-                <span>Đơn hàng</span>
-                <h3>12,000</h3>
+                <span class="fs-5">Đơn hàng</span>
+                <h3>{{ data.orders?.totalOrders }}</h3>
               </div>
               <span class="float-right"
-                ><i
-                  class="fa-solid fa-cart-shopping fs-1"
-                  style="color: #0d6efd"
-                ></i
-              ></span>
+                ><img
+                  src="../../assets/images/admin/orders-home.png"
+                  alt=""
+                  style="width: 80px; height: 80px"
+              /></span>
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
             <div class="dash-widget dash-widget5">
               <span class="float-left"
-                ><i class="fa-solid fa-user fs-1" style="color: #0d6efd"></i
-              ></span>
+                ><img
+                  src="../../assets/images/admin/users-home.png"
+                  alt=""
+                  style="width: 80px; height: 80px"
+              /></span>
               <div class="dash-widget-info text-right">
-                <span>Người dùng</span>
-                <h3>20,000</h3>
+                <span class="fs-5">Người dùng</span>
+                <h3>{{ data.users?.totalUsers }}</h3>
               </div>
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
             <div class="dash-widget dash-widget5">
               <div class="dash-widget-info d-inline-block text-left">
-                <span>Thể loại</span>
-                <h3>$20,000</h3>
+                <span class="fs-5">Thể loại</span>
+                <h3>{{ data.categories?.totalCategories }}</h3>
               </div>
               <span class="float-right"
-                ><i class="fa-solid fa-list fs-1" style="color: #0d6efd"></i
-              ></span>
+                ><img
+                  src="../../assets/images/admin/categories-home.png"
+                  alt=""
+                  style="width: 80px; height: 80px"
+              /></span>
             </div>
           </div>
         </div>
         <div class="row">
-          <div class="col-lg-6 d-flex">
+          <div class="col-lg-12 d-flex">
             <div class="card flex-fill">
-              <div class="card-header">
+              <div class="card-header bg-white">
                 <div class="row align-items-center">
                   <div class="col-auto">
-                    <div class="page-title">Students Survay</div>
+                    <div class="page-title fs-5 py-1">Khảo sát đơn hàng</div>
                   </div>
                 </div>
               </div>
-              <div class="card-body">
-                <!-- <canvas id="chart1"></canvas> -->
-                <BarChartOrders />
+              <div class="card-body card-body-orders">
+                <BarChartOrders :orders="data.orders"/>
               </div>
             </div>
           </div>
-          <div class="col-lg-6 d-flex">
-            <div class="card flex-fill">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-auto">
-                    <div class="page-title">Student Performance</div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body">
-                <BarChartUsers />
-              </div>
-            </div>
-          </div>
+          
         </div>
-        <div class="row">
+        <div class="row my-4">
           <div class="col-lg-6 d-flex">
             <div class="card flex-fill">
-              <div class="card-header">
+              <div class="card-header bg-white">
                 <div class="row align-items-center">
                   <div class="col-auto">
-                    <div class="page-title">Students Survay</div>
+                    <div class="page-title fs-5 py-1">Khảo sát thể loại</div>
                   </div>
                 </div>
               </div>
               <div class="card-body">
-                <!-- <canvas id="chart1"></canvas> -->
-                <PieChartCategories />
+                <PieChartCategories :categories="data.categories"/>
               </div>
             </div>
           </div>
           <div class="col-lg-6 d-flex">
             <div class="card flex-fill">
-              <div class="card-header">
+              <div class="card-header bg-white">
                 <div class="row align-items-center">
                   <div class="col-auto">
-                    <div class="page-title">Student Performance</div>
+                    <div class="page-title fs-5 py-1">Khảo sát người dùng</div>
                   </div>
                 </div>
               </div>
               <div class="card-body">
+                <BarChartUsers :users="data.users"/>
               </div>
             </div>
           </div>
@@ -126,11 +121,24 @@
   </div>
 </template>
 <script setup>
-import { onMounted } from "vue";
-import BarChartOrders from '../../components/admin/charts/BarChart/BarChartOrders.vue';
-import BarChartUsers from '../../components/admin/charts/BarChart/BarChartUsers.vue';
-import PieChartCategories from '../../components/admin/charts/pie/PieChartCategories.vue';
+import { ref, onMounted } from "vue";
+import BarChartOrders from "../../components/admin/charts/BarChart/BarChartOrders.vue";
+import BarChartUsers from "../../components/admin/charts/BarChart/BarChartUsers.vue";
+import PieChartCategories from "../../components/admin/charts/pie/PieChartCategories.vue";
+import ApiAdminService from "@/service/admin/apiAdmin.service";
+const apiAdmin = new ApiAdminService();
+const data = ref({});
+const getInfoAdminHomePage = async () => {
+  const response = await apiAdmin.get("/home-page");
+  if(response.status === 200){
+    data.value = response.data;
+    console.log(response.data);
+  }
+};
 
+onMounted(()=>{
+  getInfoAdminHomePage();
+})
 </script>
 <style scoped>
 .dash-widget-icon {

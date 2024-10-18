@@ -1,11 +1,16 @@
 <template>
   <div>
-    <DoughnutChartComponent v-if="chartData && options" :data="chartData" :options="options" />
+    <DoughnutChartComponent
+      v-if="chartData && options"
+      :data="chartData"
+      :options="options"
+      class="categories-chart"
+    />
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, watch } from "vue";
 import { Doughnut } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -18,29 +23,29 @@ import {
 } from "chart.js";
 
 // Đăng ký các component cần thiết từ Chart.js
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  CategoryScale,
-  LinearScale
-);
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale);
 
 export default defineComponent({
   name: "DoughnutChart",
   components: {
     DoughnutChartComponent: Doughnut,
   },
-  setup() {
+  props: {
+    categories: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  setup(props) {
     const chartData = ref(null);
     const options = ref(null);
-    onMounted(() => {
+
+    const updateChart = (categories) => {
       chartData.value = {
-        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        labels: categories.categoryNames || [], // Gán mảng tên thể loại
         datasets: [
           {
-            label: "My First Dataset",
+            label: "Số lượng sách",
             backgroundColor: [
               "rgba(255, 99, 132, 0.2)",
               "rgba(54, 162, 235, 0.2)",
@@ -58,10 +63,16 @@ export default defineComponent({
               "rgba(255, 159, 64, 1)",
             ],
             borderWidth: 1,
-            data: [12, 19, 3, 5, 2, 3],
+            data: categories.bookTotals || [], // Dữ liệu về số lượng sách
           },
         ],
       };
+    };
+
+    onMounted(() => {
+      if (props.categories) {
+        updateChart(props.categories);
+      }
 
       options.value = {
         responsive: true,
@@ -71,11 +82,22 @@ export default defineComponent({
           },
           title: {
             display: true,
-            text: "Pie Chart Example",
+            text: "Sách theo thể loại",
           },
         },
       };
     });
+
+    // Theo dõi sự thay đổi của prop `categories` và cập nhật biểu đồ
+    watch(
+      () => props.categories,
+      (newValue) => {
+        if (newValue) {
+          updateChart(newValue);
+        }
+      },
+      { immediate: true, deep: true }
+    );
 
     return {
       chartData,
@@ -84,7 +106,9 @@ export default defineComponent({
   },
 });
 </script>
-
 <style scoped>
-/* Style cho Bar Chart nếu cần */
+.categories-chart{
+  height: 25rem;
+  max-height: 25rem;
+}
 </style>

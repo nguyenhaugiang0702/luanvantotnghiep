@@ -11,7 +11,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">
-            Chỉnh sửa thể loại mã giảm giá
+            Chỉnh sửa mã giảm giá
           </h5>
           <button
             type="button"

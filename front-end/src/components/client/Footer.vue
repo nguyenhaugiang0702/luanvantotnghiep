@@ -2,14 +2,14 @@
   <div class="container-fluid bg-primary">
     <div class="row mx-auto">
       <div class="col-sm-2 mt-4">
-        <img class="w-100" src="../../assets/images/logo1.png" alt="" />
-        <h4 class="text-white mt-4">Website mượn trả sách số 1 Việt Nam</h4>
+        <img class="w-100 bg-white rounded rounded-4" src="../../assets/images/logo1.png" alt="" />
+        <h4 class="text-white mt-4 text-center">Website bán sách số 1 Việt Nam</h4>
       </div>
 
       <div class="col-sm-3 text-white mt-4">
         <h5 class="mb-4">Thông tin liên hệ</h5>
         <hr class="text-white" />
-        <p><i class="fa-solid fa-phone fs-5"></i> : 038484407</p>
+        <p><i class="fa-solid fa-phone fs-5"></i> : 0384804407</p>
         <p>
           <i class="fa-solid fa-location-dot fs-5"></i> : Khu II, Đ. 3 Tháng 2,
           Xuân Khánh, Ninh Kiều, Cần Thơ
@@ -67,13 +67,13 @@
             <p>Trang chủ</p>
           </li>
           <li>
+            <p>Cửa hàng</p>
+          </li>
+          <li>
+            <p>Mã giảm giá</p>
+          </li>
+          <li>
             <p>Giới thiệu</p>
-          </li>
-          <li>
-            <p>Danh mục</p>
-          </li>
-          <li>
-            <p>Tin tức</p>
           </li>
           <li>
             <p>Liên hệ</p>

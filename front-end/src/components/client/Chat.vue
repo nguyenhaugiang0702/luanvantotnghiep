@@ -7,10 +7,16 @@
       @click="openChat"
     >
       <i class="fa-regular fa-comments fs-4"></i>
+      <span
+        v-if="hasNewMessage"
+        class="notifycation translate-middle p-2 bg-danger border border-light rounded-circle"
+      >
+        <span class="visually-hidden"></span>
+      </span>
     </button>
 
     <!-- Chat box -->
-    <div v-if="isOpen" class="card" style="width: 27rem; height: 25rem">
+    <div v-if="isOpen" class="card" style="width: 27rem; height: 30rem">
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
@@ -87,7 +93,7 @@ const messages = ref([]); // Khởi tạo danh sách tin nhắn rỗng
 const chatRoomId = ref(""); // Khởi tạo chatRoomId rỗng
 const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
-
+const hasNewMessage = ref(false);
 const chatContainer = ref(null);
 //
 const apiUser = new ApiUser();
@@ -111,6 +117,7 @@ const checkRoomChat = async () => {
     const response = await apiUser.get("/chats/checkRoomChat");
     if (response.status === 200) {
       chatRoomId.value = response.data.chatRoomID;
+      hasNewMessage.value = response.data.hasNewMessage;
     }
   }
 };
@@ -125,15 +132,19 @@ const scrollToBottom = () => {
 };
 
 const openChat = async () => {
+  await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, { isReaded: true });
+  await checkRoomChat();
   isOpen.value = true;
-  await scrollToBottom();
+  scrollToBottom();
 };
 
 onMounted(async () => {
   if (token) {
     await checkRoomChat();
     // Kết nối tới server Socket.IO
-    socket.value = io("http://localhost:3000");
+    socket.value = io("http://localhost:3000", {
+      timeout: 20000, // Tăng thời gian chờ lên 20 giây
+    });
 
     // Nhận tin nhắn từ server
     socket.value.on("receiveMessage", (message) => {
@@ -169,5 +180,10 @@ onBeforeUnmount(() => {
 
 button.btn-rounded {
   border-radius: 50%;
+}
+.notifycation {
+  position: absolute;
+  top: 15px;
+  right: 0px;
 }
 </style>

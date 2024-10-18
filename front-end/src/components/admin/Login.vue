@@ -35,7 +35,7 @@
         </button>
         <ErrorMessage name="admin_password" class="text-danger" />
       </div>
-      <button class="btn_login mt-4" :disabled="isLoading">
+      <button class="btn_login my-5" :disabled="isLoading">
         <span
           v-if="isLoading"
           class="spinner-border spinner-border-sm"
@@ -44,11 +44,6 @@
         ></span>
         <span v-else>Đăng nhập</span>
       </button>
-      <div class="text_bottom">
-        Quên mật khẩu?
-        <a class="forgot_route">Click Here</a>
-        <br />
-      </div>
     </Form>
   </div>
 </template>

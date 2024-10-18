@@ -32,7 +32,10 @@
                       />
                     </div>
                   </div>
-                  <div class="overflow-auto" style="max-height: 25rem">
+                  <div
+                    class="overflow-auto"
+                    style="max-height: 35rem; height: 35rem"
+                  >
                     <div
                       v-for="conv in filteredConversations"
                       :key="conv.id"
@@ -52,6 +55,11 @@
                             class="rounded-circle me-3"
                             width="40"
                             height="40"
+                            :style="{
+                              border: conv.hasNewMessage
+                                ? '3px solid red'
+                                : '3px solid transparent',
+                            }"
                           />
                         </div>
                         <div v-else>
@@ -77,11 +85,6 @@
                         <small class="text-muted text-center">{{
                           conv.updatedAt
                         }}</small>
-                        <span
-                          v-if="conv.hasNewMessage"
-                          class="d-flex justify-content-center align-items-center translate-middle p-2 bg-danger border border-light rounded-circle"
-                        >
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -244,7 +247,9 @@ const loadConversations = async () => {
         const lastMessageObj = room.messages[room.messages.length - 1] || {};
         const lastMessage = lastMessageObj.message || "";
         const lastSender = lastMessageObj.sender || "";
-
+        const hasNewMessage = room.messages.some(
+          (msg) => !msg.isReaded && msg.sender === "user"
+        );
         return {
           id: room._id,
           user: {
@@ -256,10 +261,11 @@ const loadConversations = async () => {
             avatar: room.userID?.avatar,
           },
           lastMessage: lastMessage,
-          hasNewMessage: lastSender !== "admin",
+          hasNewMessage: hasNewMessage,
           messages: room.messages.map((msg) => ({
             sender: msg.sender,
             message: msg.message,
+            isReaded: msg.isReaded,
             createdAt: formatDate(msg.createdAt),
             updatedAt: formatDate(msg.updatedAt),
           })),
@@ -293,9 +299,10 @@ const filteredConversations = computed(() => {
 });
 
 // Chọn cuộc trò chuyện
-const selectConversation = (conversation) => {
+const selectConversation = async (conversation) => {
+  await apiAdmin.put(`/chats/chatrooms/${conversation.id}`, { isReaded: true });
+  await loadConversations();
   selectedConversation.value = conversation;
-  conversation.hasNewMessage = false;
   scrollToBottom();
   socket.value.emit("joinRoom", conversation.id);
 };

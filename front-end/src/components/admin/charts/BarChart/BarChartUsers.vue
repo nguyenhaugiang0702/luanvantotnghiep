@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
-  </div>
+  <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import VueApexCharts from "vue3-apexcharts";
 
 export default defineComponent({
@@ -13,17 +11,31 @@ export default defineComponent({
   components: {
     apexchart: VueApexCharts,
   },
-  setup() {
+  props: {
+    users: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  setup(props) {
     const series = ref([
       {
-        name: "Cũ",
-        data: [44, 55, 57, 56, 61, 58, 63, 60, 66, 87, 55, 23],
-      },
-      {
-        name: "Mới",
-        data: [76, 85, 101, 98, 87, 105, 91, 114, 94, 45, 25, 32],
+        name: "Người dùng",
+        data: [],
       },
     ]);
+    watch(
+      () => props.users,
+      (newValue) => {
+        if (newValue && newValue.usersByMonth) {
+          series.value[0].data = newValue.usersByMonth;
+        }
+      },
+      {
+        immediate: true,
+        deep: true,
+      }
+    );
 
     const chartOptions = ref({
       chart: {
@@ -63,7 +75,7 @@ export default defineComponent({
       },
       yaxis: {
         title: {
-          text: "$ (thousands)",
+          text: "Người dùng",
         },
       },
       fill: {
@@ -72,7 +84,7 @@ export default defineComponent({
       tooltip: {
         y: {
           formatter: function (val) {
-            return "$ " + val + " thousands";
+            return `${val}`;
           },
         },
       },
@@ -87,5 +99,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Style cho biểu đồ nếu cần */
+
 </style>
