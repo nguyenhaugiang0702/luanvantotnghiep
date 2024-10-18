@@ -39,6 +39,7 @@ exports.findOne = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const publisherID = req.params.publisherID;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const publisher = await publisherService.updatePublisher(
       publisherID,
       req.body

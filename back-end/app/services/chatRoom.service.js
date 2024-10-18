@@ -45,11 +45,11 @@ const updateMessage = async (chatRoomId, sender, message) => {
         messages: {
           sender: sender,
           message: message,
-          createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
-          updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+          createdAt: moment.tz("Asia/Ho_Chi_Minh"),
+          updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
         },
       },
-      updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
     },
     { new: true } 
   );

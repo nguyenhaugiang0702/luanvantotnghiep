@@ -65,6 +65,7 @@ exports.findOne = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const supplierID = req.params.supplierID;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const supplier = await supplierService.updateSupplier(supplierID, req.body);
     return res.send({
       message: "Cập nhât thành công",

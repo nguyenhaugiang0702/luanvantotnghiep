@@ -6,6 +6,10 @@ const receiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Supplier",
   },
+  adminID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+  },
   detail: [
     {
       bookID: {

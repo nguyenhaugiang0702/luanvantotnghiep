@@ -81,6 +81,35 @@ const saveRefreshToken = async (userId, refreshToken) => {
   await User.findByIdAndUpdate(userId, { refreshToken });
 };
 
+const countUsers = async () => {
+  return await User.countDocuments();
+}
+
+const countUsersByMonth = async (year) => {
+  const monthlyUsers = [];
+
+  // Lặp qua từng tháng (1 đến 12)
+  for (let month = 0; month < 12; month++) {
+    // Tính ngày bắt đầu và ngày kết thúc của tháng
+    const startOfMonth = new Date(year, month, 1); // Ngày 1 của tháng
+    const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59); // Ngày cuối cùng của tháng
+
+    // Đếm số lượng người dùng trong tháng
+    const totalUsers = await User.countDocuments({
+      createdAt: {
+        $gte: startOfMonth,
+        $lte: endOfMonth,
+      },
+    });
+
+    // Thêm kết quả vào mảng monthlyUsers
+    monthlyUsers.push(totalUsers);
+  }
+
+  return monthlyUsers; // Trả về mảng chứa số lượng user của từng tháng
+};
+
+
 module.exports = {
   createUser,
   getUserById,
@@ -93,4 +122,6 @@ module.exports = {
   checkEmailExist,
   checkPhoneNumberExist,
   saveRefreshToken,
+  countUsers,
+  countUsersByMonth
 };

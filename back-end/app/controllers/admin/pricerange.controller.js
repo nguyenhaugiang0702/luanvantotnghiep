@@ -33,6 +33,7 @@ exports.findAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const priceRangeID = req.params.priceRangeID;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const priceRange = await priceRangeService.updatePriceRange(
       priceRangeID,
       req.body

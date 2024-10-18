@@ -25,8 +25,8 @@ exports.create = async (req, res, next) => {
         userID,
         books,
         totalPrice: totalPrice,
-        createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
-        updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
+        createdAt: moment.tz("Asia/Ho_Chi_Minh"),
+        updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
       };
       const newCart = await cartService.createCartByUserID(cartData);
       return res.send({
@@ -53,19 +53,30 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   let totalQuantity = 0;
-  const userID = req.user ? req.user.id : null;
+  let userID = req.user ? req.user.id : null;
   if (!userID) {
     return next(new ApiError(400, "Vui lòng đăng nhập"));
   }
   try {
-    const cart = await cartService.getFullInfoCartByUserID(userID);
-    totalQuantity = cart.books.length;
+    let cart = await cartService.getFullInfoCartByUserID(userID);
+    if(!cart){
+      cartData = {
+        userID,
+        books: [],
+        totalPrice: 0,
+        createdAt: moment.tz("Asia/Ho_Chi_Minh"),
+        updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
+      };
+      cart = await cartService.createCartByUserID(cartData);
+    }
+    totalQuantity = cart?.books?.length;
     const cartWithQuantity = {
-      ...cart._doc,
+      ...cart?._doc,
       totalQuantity: totalQuantity,
     };
     return res.send(cartWithQuantity);
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách trong giỏ"));
   }
 };
@@ -88,7 +99,7 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
     });
 
     const cart = await cartService.getFullInfoCartByUserID(userID);
-    cart.books.forEach((book) => {
+    cart?.books?.forEach((book) => {
       if (book.isCheckOut) {
         const bookObj = book.bookID;
         totalPrice += book.price * book.quantity; // Tính tổng giá

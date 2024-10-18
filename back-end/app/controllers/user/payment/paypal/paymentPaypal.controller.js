@@ -17,7 +17,7 @@ paypal.configure({
 
 exports.createLinkOrderByPayPal = async (req, res, next) => {
   try {
-    const { detail, addressID, notes, voucherID } = req.body;
+    const { detail, addressID, notes, voucherID, shippingFee } = req.body;
     const userID = req.user.id;
     // Tạo danh sách sách sau khi lấy tên sách từ bookID
     const books = await Promise.all(

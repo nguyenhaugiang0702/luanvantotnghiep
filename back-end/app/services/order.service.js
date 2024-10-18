@@ -111,6 +111,30 @@ const countDocumentsOrders = async (query) => {
   return await Order.countDocuments(query);
 };
 
+const countOrdersByMonth = async (year) => {
+  const monthlyOrders = [];
+
+  // Lặp qua từng tháng (1 đến 12)
+  for (let month = 0; month < 12; month++) {
+    // Tính ngày bắt đầu và ngày kết thúc của tháng
+    const startOfMonth = new Date(year, month, 1); // Ngày 1 của tháng
+    const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59); // Ngày cuối cùng của tháng
+
+    // Đếm số lượng đơn hàng trong tháng
+    const totalOrders = await Order.countDocuments({
+      createdAt: {
+        $gte: startOfMonth,
+        $lte: endOfMonth,
+      },
+    });
+
+    // Thêm kết quả vào mảng monthlyOrders
+    monthlyOrders.push(totalOrders);
+  }
+
+  return monthlyOrders; // Trả về mảng chứa số lượng đơn hàng của từng tháng
+};
+
 module.exports = {
   createOrder,
   deleteOrderByID,
@@ -123,4 +147,5 @@ module.exports = {
   updateOrderById,
   hasUserPurchasedBook,
   countDocumentsOrders,
+  countOrdersByMonth,
 };

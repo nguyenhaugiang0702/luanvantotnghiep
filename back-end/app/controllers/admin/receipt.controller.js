@@ -6,6 +6,11 @@ const supplierService = require("../../services/supplier.service");
 
 exports.create = async (req, res, next) => {
   try {
+    const adminID = req.admin ? req.admin.id : null;
+    if (!adminID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập!"));
+    }
+    req.body.adminID = adminID;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newReceipt = await receiptService.createReceipt(req.body);

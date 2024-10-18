@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const messageSchema = new Schema({
   sender: { type: String },
   message: { type: String },
+  isReaded: { type: Boolean, default: false }, 
   createdAt: Date,
   updatedAt: Date,
 });

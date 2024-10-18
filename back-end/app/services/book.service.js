@@ -141,6 +141,10 @@ const getTopViewedBooks = async () => {
   return books;
 };
 
+const countBooks = async (query) => {
+  return await Book.countDocuments(query);
+};
+
 module.exports = {
   createBook,
   updateBook,
@@ -156,4 +160,5 @@ module.exports = {
   getBookByID,
   searchBooks,
   getTopViewedBooks,
+  countBooks,
 };
