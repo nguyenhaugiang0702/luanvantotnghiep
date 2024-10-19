@@ -69,6 +69,7 @@
                         <th class="text-start">Ngày nhập hàng</th>
                         <th class="text-start">Email</th>
                         <th class="text-start">Số điện thoại</th>
+                        <th class="text-start">Nhân viên</th>
                         <th class="text-start">Thao tác</th>
                       </tr>
                     </thead>
@@ -140,6 +141,12 @@ export default defineComponent({
         render: (data) => `<div class="text-start text-break">${data}</div>`,
       },
       {
+        data: null,
+        width: "20%",
+        render: (data, row) => 
+          `<div class="text-start text-break">${data.adminID.firstName + ' ' + data.adminID.lastName}</div>`,
+      },
+      {
         data: "_id",
         width: "15%",
         render: (data) => `
@@ -158,6 +165,7 @@ export default defineComponent({
       const response = await apiAdmin.get("/receipts");
       if (response.status === 200) {
         receipts.value = response.data;
+        console.log(receipts.value);
       }
     };
 
