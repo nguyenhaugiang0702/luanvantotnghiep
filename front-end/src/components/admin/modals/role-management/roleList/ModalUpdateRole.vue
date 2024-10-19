@@ -2,7 +2,7 @@
   <!-- Modal -->
   <div
     class="modal fade"
-    id="updateFormality"
+    id="updateRole"
     tabindex="-1"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
@@ -21,7 +21,7 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="updateFormality">
+          <form @submit.prevent="updateRole">
             <div class="form-group">
               <label for="name" class="form-label">Tên hình thức</label>
               <Field
@@ -30,11 +30,11 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.name,
-                  'is-valid': !errors.name && formalityToEdit.name !== '',
+                  'is-valid': !errors.name && roleToEdit.name !== '',
                 }"
                 id="name"
                 placeholder="Tên tác giả"
-                v-model="formalityToEdit.name"
+                v-model="roleToEdit.name"
               />
               <ErrorMessage name="name" class="invalid-feedback" />
             </div>
@@ -60,45 +60,45 @@
 <script>
 import { ref, watch, defineComponent } from "vue";
 import { useForm, Field, ErrorMessage } from "vee-validate";
-import { formalitySchema } from "@/utils/schema.util";
+import { roleSchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default defineComponent({
   components: { Field, ErrorMessage },
   props: {
-    formalityToEdit: {
+    roleToEdit: {
       type: Object,
       default: () => ({
         name: "",
       }),
     },
   },
-  emits: ["refreshFormalities"],
+  emits: ["refreshRoles"],
   setup(props, { emit }) {
-    const formalityToEdit = ref({ ...props.formalityToEdit });
+    const roleToEdit = ref({ ...props.roleToEdit });
 
     const { errors, validate, resetForm } = useForm({
-      validationSchema: formalitySchema,
+      validationSchema: roleSchema,
     });
 
     const apiAdmin = new ApiAdmin();
 
-    const updateFormality = async () => {
+    const updateRole = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
         const response = await apiAdmin.put(
-          `/formalities/${props.formalityToEdit._id}`,
-          formalityToEdit.value
+          `/roles/${props.roleToEdit._id}`,
+          roleToEdit.value
         );
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           resetForm();
-          $("#updateFormality").modal("hide");
-          emit("refreshFormalities");
+          $("#updateRole").modal("hide");
+          emit("refreshRoles");
         }
       } catch (error) {
         console.log(error);
@@ -108,18 +108,18 @@ export default defineComponent({
 
     // Watch prop để cập nhật trạng thái nếu prop thay đổi
     watch(
-      () => props.formalityToEdit,
+      () => props.roleToEdit,
       (newValue) => {
-        formalityToEdit.value = { ...newValue };
+        roleToEdit.value = { ...newValue };
       },
       { deep: true }
     );
 
     // Trả về các thuộc tính và phương thức cần thiết cho template
     return {
-      formalityToEdit,
+      roleToEdit,
       errors,
-      updateFormality,
+      updateRole,
     };
   },
 });

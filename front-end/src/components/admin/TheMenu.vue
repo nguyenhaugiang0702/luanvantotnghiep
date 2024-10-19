@@ -233,6 +233,29 @@
           >Loại giảm giá</a-menu-item
         >
       </a-sub-menu>
+      <a-sub-menu key="admin-role-management-employee">
+        <template #title>
+          <span>
+            <img
+              class="me-3"
+              src="../../assets/images/admin/privacy.png"
+              alt=""
+              style="width: 30px; height: 30px"
+            />
+            <span>Phân quyền</span>
+          </span>
+        </template>
+        <a-menu-item
+          key="admin-role-management-employee"
+          @click="navigateTo('admin-role-management-employee')"
+          >Nhân viên</a-menu-item
+        >
+        <a-menu-item
+          key="admin-role-management-list"
+          @click="navigateTo('admin-role-management-list')"
+          >Danh sách quyền</a-menu-item
+        >
+      </a-sub-menu>
       <a-menu-item @click="logOut">
         <img
           class="me-3"

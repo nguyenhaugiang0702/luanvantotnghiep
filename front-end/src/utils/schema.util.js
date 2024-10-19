@@ -14,7 +14,7 @@ export const registerUserSchema = yup.object({
   password: yup
     .string()
     .required("Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
 });
 
 export const loginUserSchema = yup.object({
@@ -25,7 +25,7 @@ export const loginUserSchema = yup.object({
   password: yup
     .string()
     .required("Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
 });
 
 export const forgotPasswordSchema = yup.object({
@@ -52,7 +52,10 @@ export const updateUserSchema = yup.object({
   firstName: yup.string().required("Họ là bắt buộc"),
   lastName: yup.string().required("Tên là bắt buộc"),
   phoneNumber: yup.string(),
-  email: yup.string().email("Địa chỉ email không hợp lệ"),
+  eemail: yup
+    .string()
+    .email("Email không hợp lệ")
+    .required("Email là bắt buộc"),
   gender: yup.string().required("Giới tính là bắt buộc"),
   dob: yup.string().required("Ngày sinh là bắt buộc"),
 });
@@ -61,16 +64,16 @@ export const changePasswordSchema = yup.object({
   currentPassword: yup
     .string()
     .required("Mật khẩu hiện tại là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
   newPassword: yup
     .string()
     .required("Mật khẩu mới là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
   cfNewPassword: yup
     .string()
     .oneOf([yup.ref("newPassword"), null], "Mật khẩu xác nhận không khớp")
     .required("Xác nhận mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
 });
 
 export const changePhoneNumberSchema = yup.object({
@@ -152,6 +155,28 @@ export const categorySchema = yup.object({
 
 export const formalitySchema = yup.object({
   name: yup.string().required("Tên hình thức là bắt buộc"),
+});
+
+export const roleSchema = yup.object({
+  name: yup.string().required("Tên quyền là bắt buộc"),
+});
+
+export const addAdminSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+  email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
+  role: yup
+    .string()
+    .notOneOf([""], "Vui lòng chọn quyền")
+    .required("Vui lòng chọn quyền"),
 });
 
 export const bookSchema = yup.object({
@@ -258,8 +283,8 @@ export const priceRangeSchema = yup.object({
       "is-greater-than-startPrice",
       "Giá kết thúc phải lớn hơn giá bắt đầu",
       function (value) {
-        const { startPrice } = this.parent; 
-        return value > startPrice; 
+        const { startPrice } = this.parent;
+        return value > startPrice;
       }
     ),
 });

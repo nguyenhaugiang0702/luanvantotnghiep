@@ -1,8 +1,17 @@
 <template>
+  <button
+    type="button"
+    class="btn btn-primary mb-3"
+    data-bs-toggle="modal"
+    data-bs-target="#addRole"
+  >
+    <i class="fa-solid fa-plus"></i> Thêm
+  </button>
+
   <!-- Modal -->
   <div
     class="modal fade"
-    id="updateFormality"
+    id="addRole"
     tabindex="-1"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
@@ -10,9 +19,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">
-            Chỉnh sửa hình thức
-          </h5>
+          <h5 class="modal-title" id="addModalLabel">Thêm quyền</h5>
           <button
             type="button"
             class="btn-close"
@@ -21,7 +28,7 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="updateFormality">
+          <form @submit.prevent="addRole">
             <div class="form-group">
               <label for="name" class="form-label">Tên hình thức</label>
               <Field
@@ -30,11 +37,11 @@
                 class="form-control"
                 :class="{
                   'is-invalid': errors.name,
-                  'is-valid': !errors.name && formalityToEdit.name !== '',
+                  'is-valid': !errors.name && newRole.name !== '',
                 }"
                 id="name"
-                placeholder="Tên tác giả"
-                v-model="formalityToEdit.name"
+                placeholder="Tên hình thức"
+                v-model="newRole.name"
               />
               <ErrorMessage name="name" class="invalid-feedback" />
             </div>
@@ -56,71 +63,45 @@
     </div>
   </div>
 </template>
-
 <script>
-import { ref, watch, defineComponent } from "vue";
-import { useForm, Field, ErrorMessage } from "vee-validate";
-import { formalitySchema } from "@/utils/schema.util";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
-
-export default defineComponent({
-  components: { Field, ErrorMessage },
-  props: {
-    formalityToEdit: {
-      type: Object,
-      default: () => ({
-        name: "",
-      }),
-    },
-  },
-  emits: ["refreshFormalities"],
+import { ref } from "vue";
+import { Form, Field, ErrorMessage, useForm } from "vee-validate";
+import { roleSchema } from "@/utils/schema.util";
+export default {
+  components: { Form, Field, ErrorMessage },
+  emit: ["refreshRoles"],
   setup(props, { emit }) {
-    const formalityToEdit = ref({ ...props.formalityToEdit });
-
-    const { errors, validate, resetForm } = useForm({
-      validationSchema: formalitySchema,
+    const newRole = ref({
+      name: "",
     });
-
+    const { errors, validate, resetForm } = useForm({
+      validationSchema: roleSchema,
+    });
     const apiAdmin = new ApiAdmin();
-
-    const updateFormality = async () => {
+    const addRole = async () => {
       const { valid } = await validate();
       if (!valid) {
         return;
       }
       try {
-        const response = await apiAdmin.put(
-          `/formalities/${props.formalityToEdit._id}`,
-          formalityToEdit.value
+        const response = await apiAdmin.post(
+          "/roles",
+          newRole.value
         );
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           resetForm();
-          $("#updateFormality").modal("hide");
-          emit("refreshFormalities");
+          $("#addRole").modal("hide");
+          emit("refreshRoles");
         }
       } catch (error) {
         console.log(error);
         showErrorToast(error.response?.data?.message);
       }
     };
-
-    // Watch prop để cập nhật trạng thái nếu prop thay đổi
-    watch(
-      () => props.formalityToEdit,
-      (newValue) => {
-        formalityToEdit.value = { ...newValue };
-      },
-      { deep: true }
-    );
-
-    // Trả về các thuộc tính và phương thức cần thiết cho template
-    return {
-      formalityToEdit,
-      errors,
-      updateFormality,
-    };
+    return { newRole, addRole, errors };
   },
-});
+};
 </script>

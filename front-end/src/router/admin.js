@@ -221,6 +221,25 @@ const admin = [
         component: () => import("../pages/admin/chats/index.vue"),
       },
       {
+        path: "role-management",
+        name: "admin-role-management",
+        redirect: { name: "admin-role-management-list" },
+        children: [
+          {
+            path: "",
+            name: "admin-role-management-list",
+            component: () => import("../pages/admin/role-management/roleList.vue"),
+            props: true,
+          },
+          {
+            path: "employee",
+            name: "admin-role-management-employee",
+            component: () => import("../pages/admin/role-management/roleListEmployee.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
         path: "vouchers",
         name: "admin-vouchers",
         redirect: { name: "admin-vouchers-list" },
