@@ -1,11 +1,5 @@
 <template>
   <div>
-    <a-layout-header
-      class="text-uppercase fw-bold"
-      style="background: #fff; padding: 0 20px"
-    >
-      Quản lý sách
-    </a-layout-header>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item class="fw-bold">Sách</a-breadcrumb-item>
