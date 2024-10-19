@@ -265,11 +265,11 @@ const priceRangeSchema = yup.object({
       "is-greater-than-startPrice",
       "Giá kết thúc phải lớn hơn giá bắt đầu",
       function (value) {
-        const { startPrice } = this.parent; 
-        return value > startPrice; 
+        const { startPrice } = this.parent;
+        return value > startPrice;
       }
     ),
-});;
+});
 
 const voucherCategorySchema = yup.object().shape({
   discountType: yup
@@ -353,6 +353,24 @@ const voucherSchema = yup.object().shape({
     ),
 });
 
+const addAdminSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+  email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
+  role: yup
+    .string()
+    .notOneOf([""], "Vui lòng chọn quyền")
+    .required("Vui lòng chọn quyền"),
+});
+
 module.exports = {
   supplierSchema,
   authorSchema,
@@ -369,4 +387,5 @@ module.exports = {
   orderSchema,
   voucherCategorySchema,
   voucherSchema,
+  addAdminSchema,
 };

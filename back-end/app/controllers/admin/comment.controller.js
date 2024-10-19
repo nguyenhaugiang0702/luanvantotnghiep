@@ -10,7 +10,6 @@ exports.findAll = async (req, res, next) => {
     comments = await commentService.getComments({
       isAdminReply: false,
     });
-    console.log(comments[0]);
     return res.send(comments);
   } catch (error) {
     console.log(error);
