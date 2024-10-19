@@ -11,7 +11,7 @@ const checkAdminAccess = async (to, from, next) => {
     try {
       const response = await apiAdmin.get("/auth/checkRole");
 
-      if (response.data.role === "admin") {
+      if (response.data.role === "admin" || response.data.role === "sale") {
         return next(); // Cho phép truy cập nếu role là admin
       } else {
         return next({ name: "notfound" }); // Nếu không phải admin, chuyển hướng tới trang notfound

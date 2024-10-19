@@ -1,7 +1,7 @@
 <!-- components/admin/header/NotificationDropdown.vue -->
 <template>
   <a-dropdown placement="bottomRight">
-    <a-badge :count="notifications.length" class="mx-3">
+    <a-badge :count="1" class="mx-3">
       <a-button type="text">
         <template #icon><BellOutlined /></template>
       </a-button>

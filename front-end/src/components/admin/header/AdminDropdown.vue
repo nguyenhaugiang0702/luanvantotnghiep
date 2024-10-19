@@ -4,9 +4,11 @@
   <a-dropdown placement="bottomRight" :trigger="['click']">
     <div class="user-dropdown-trigger d-flex align-items-center">
       <div class="user-info me-1 d-none d-sm-block">
-        <div class="user-name" style="line-height: 1.2">John Doe</div>
+        <div class="user-name" style="line-height: 1.2">
+          {{ admin ? admin.firstName + " " + admin.lastName : "Chưa biết" }}
+        </div>
         <div class="user-role small text-muted" style="line-height: 1.2">
-          Administrator
+          {{ admin ? admin.role : "Chưa biết" }}
         </div>
       </div>
       <DownOutlined />
@@ -21,8 +23,14 @@
               <template #icon><UserOutlined /></template>
             </a-avatar>
             <div>
-              <div class="fw-bold">John Doe</div>
-              <div class="text-muted small">john.doe@example.com</div>
+              <div class="fw-bold">
+                {{
+                  admin ? admin.firstName + " " + admin.lastName : "Chưa biết"
+                }}
+              </div>
+              <div class="text-muted small">
+                {{ admin ? admin.email : "Chưa biết" }}
+              </div>
             </div>
           </div>
           <a-button type="primary" block>
@@ -92,7 +100,7 @@
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <span class="text-muted">Phiên bản</span>
-            <span>v2.0.1</span>
+            <span>v1</span>
           </div>
         </div>
 
@@ -107,39 +115,58 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { 
-  BellOutlined, 
-  UserOutlined, 
-  DownOutlined, 
-  SettingOutlined, 
+import { ref, onMounted } from "vue";
+import Cookies from "js-cookie";
+import {
+  BellOutlined,
+  UserOutlined,
+  DownOutlined,
+  SettingOutlined,
   LogoutOutlined,
   SafetyCertificateOutlined,
   BulbOutlined,
   QuestionCircleOutlined,
   FileTextOutlined,
   QuestionOutlined,
-  CustomerServiceOutlined
-} from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+  CustomerServiceOutlined,
+} from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { showConfirmation } from "@/utils/swalUtils";
+import ApiAdminService from "@/service/admin/apiAdmin.service";
 
 // Dark mode state
 const isDarkMode = ref(false);
-
+const apiAdmin = new ApiAdminService();
 // Toggle theme function
 const toggleTheme = (checked) => {
-  message.success(`Đã chuyển sang giao diện ${checked ? 'tối' : 'sáng'}`);
+  message.success(`Đã chuyển sang giao diện ${checked ? "tối" : "sáng"}`);
   // Thêm logic chuyển đổi theme ở đây
 };
 
-// Logout handler
-const handleLogout = () => {
-  message.success('Đăng xuất thành công');
-  // Thêm logic đăng xuất ở đây
-  // router.push('/login');
+const admin = ref({});
+const getAdmin = async () => {
+  const response = await apiAdmin.get("/admins/infoAdmin");
+  if (response.status === 200) {
+    admin.value = response.data;
+  }
 };
 
-// Các functions xử lý khác có thể thêm ở đây
+onMounted(() => {
+  getAdmin();
+});
+
+// Logout handler
+const handleLogout = async () => {
+  const isConfirmed = await showConfirmation({
+    text: "Bạn sẽ đăng xuất khỏi hệ thống",
+  });
+  if (isConfirmed.isConfirmed) {
+    Cookies.remove("accessToken");
+    Cookies.remove("isLoggedIn");
+    Cookies.remove("refreshToken");
+    window.location.reload();
+  }
+};
 </script>
 
 <style scoped>

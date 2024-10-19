@@ -127,7 +127,6 @@ const getInfoAdminHomePage = async () => {
   const response = await apiAdmin.get("/home-page");
   if(response.status === 200){
     data.value = response.data;
-    console.log(response.data);
   }
 };
 
