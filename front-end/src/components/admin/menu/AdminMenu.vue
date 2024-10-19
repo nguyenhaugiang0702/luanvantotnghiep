@@ -29,6 +29,61 @@
     />
     <span>Thể loại</span>
   </a-menu-item>
+  
+
+  <!-- Quản lý Đơn hàng -->
+  <a-menu-item key="admin-orders-list" @click="navigateTo('admin-orders-list')">
+    <img
+      class="me-3"
+      src="../../../assets/images/admin/orders.png"
+      alt=""
+      style="width: 30px; height: 30px"
+    />
+    <span>Đơn hàng</span>
+  </a-menu-item>
+  <a-sub-menu key="admin-books-list">
+    <template #title>
+      <span>
+        <img
+          class="me-3"
+          src="../../../assets/images/admin/books.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
+        <span>Sản phẩm</span>
+      </span>
+    </template>
+    <a-menu-item key="admin-books-add" @click="navigateTo('admin-books-add')"
+      >Thêm</a-menu-item
+    >
+    <a-menu-item key="admin-books-list" @click="navigateTo('admin-books-list')"
+      >Danh sách</a-menu-item
+    >
+  </a-sub-menu>
+  <a-sub-menu key="admin-publishers-list">
+    <template #title>
+      <span>
+        <img
+          class="me-3"
+          src="../../../assets/images/admin/publishers.png"
+          alt=""
+          style="width: 30px; height: 30px"
+        />
+        <span>Nhà xuất bản</span>
+      </span>
+    </template>
+    <a-menu-item
+      key="admin-publishers-add"
+      @click="navigateTo('admin-publishers-add')"
+      >Thêm</a-menu-item
+    >
+    <a-menu-item
+      key="admin-publishers-list"
+      @click="navigateTo('admin-publishers-list')"
+      >Danh sách</a-menu-item
+    >
+  </a-sub-menu>
+
   <a-sub-menu key="admin-suppliers-list">
     <template #title>
       <span>
@@ -52,23 +107,6 @@
       >Danh sách</a-menu-item
     >
   </a-sub-menu>
-
-  <!-- Quản lý Đơn hàng -->
-  <a-menu-item key="admin-orders-list" @click="navigateTo('admin-orders-list')">
-    <img
-      class="me-3"
-      src="../../../assets/images/admin/orders.png"
-      alt=""
-      style="width: 30px; height: 30px"
-    />
-    <span>Đơn hàng</span>
-  </a-menu-item>
-
-  <!-- Quản lý Tin nhắn -->
-  <a-menu-item key="admin-chats" @click="navigateTo('admin-chats')">
-    <i class="fa-solid fa-comments fs-4 me-3"></i>
-    <span>Tin nhắn</span>
-  </a-menu-item>
 
   <!-- Quản lý Nhập hàng -->
   <a-sub-menu key="admin-receipts-list">
@@ -120,48 +158,12 @@
     />
     <span>Khoản giá</span>
   </a-menu-item>
-  <a-sub-menu key="admin-books-list">
-    <template #title>
-      <span>
-        <img
-          class="me-3"
-          src="../../../assets/images/admin/books.png"
-          alt=""
-          style="width: 30px; height: 30px"
-        />
-        <span>Sản phẩm</span>
-      </span>
-    </template>
-    <a-menu-item key="admin-books-add" @click="navigateTo('admin-books-add')"
-      >Thêm</a-menu-item
-    >
-    <a-menu-item key="admin-books-list" @click="navigateTo('admin-books-list')"
-      >Danh sách</a-menu-item
-    >
-  </a-sub-menu>
-  <a-sub-menu key="admin-publishers-list">
-    <template #title>
-      <span>
-        <img
-          class="me-3"
-          src="../../../assets/images/admin/publishers.png"
-          alt=""
-          style="width: 30px; height: 30px"
-        />
-        <span>Nhà xuất bản</span>
-      </span>
-    </template>
-    <a-menu-item
-      key="admin-publishers-add"
-      @click="navigateTo('admin-publishers-add')"
-      >Thêm</a-menu-item
-    >
-    <a-menu-item
-      key="admin-publishers-list"
-      @click="navigateTo('admin-publishers-list')"
-      >Danh sách</a-menu-item
-    >
-  </a-sub-menu>
+  <!-- Quản lý Tin nhắn -->
+  <a-menu-item key="admin-chats" @click="navigateTo('admin-chats')">
+    <i class="fa-solid fa-comments fs-4 me-3"></i>
+    <span>Tin nhắn</span>
+  </a-menu-item>
+  
   <a-sub-menu key="admin-stockProduct-list">
     <template #title>
       <span>
