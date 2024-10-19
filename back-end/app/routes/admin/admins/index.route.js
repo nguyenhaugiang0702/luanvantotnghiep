@@ -5,13 +5,12 @@ const router = express.Router();
 const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 const validation = require("../../../middlewares/validateAdmin.middleware");
 
+router.use(jwtAdmin.authenticateTokenFromHeader);
 router
   .route("/")
-  .get(jwtAdmin.authenticateTokenFromHeader, admin.findALL)
+  .get(admin.findALL)
   .post(validation.createAdminValidation, admin.create);
-
-router
-  .route("/:adminID")
-  .put(validation.createAdminValidation, admin.update);
+router.route("/infoAdmin").get(admin.findAdminInfo);
+router.route("/:adminID").put(validation.createAdminValidation, admin.update);
 
 module.exports = router;

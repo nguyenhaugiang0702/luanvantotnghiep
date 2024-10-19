@@ -13,7 +13,17 @@ exports.findALL = async (req, res) => {
     admins = await adminService.getAllAdmin({});
     return res.send(admins);
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất admins"));
+    return next(new ApiError(500, "Lỗi khi lấy tất nhân viên"));
+  }
+};
+
+exports.findAdminInfo = async (req, res) => {
+  try {
+    const adminID = req.admin.id;
+    const admin = await adminService.getAdminByID(adminID);
+    return res.send(admin);
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy thông tin nhân viên"));
   }
 };
 
@@ -32,7 +42,7 @@ exports.create = async (req, res) => {
       newAdmin,
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất admins"));
+    return next(new ApiError(500, "Lỗi khi thêm nhân viên"));
   }
 };
 
@@ -48,6 +58,6 @@ exports.update = async (req, res) => {
       updateAdmin,
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất admins"));
+    return next(new ApiError(500, "Lỗi khi lấy tất nhân viên"));
   }
 };
