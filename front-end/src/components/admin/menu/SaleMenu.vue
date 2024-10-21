@@ -85,21 +85,6 @@ export default defineComponent({
       router.push({ name: routeName });
     };
 
-    const admin = ref({});
-    const getAdmin = async () => {
-      const response = await apiAdmin.get("/admins/infoAdmin");
-      if (response.status === 200) {
-        admin.value = response.data;
-        if (admin.value.role === "sale") {
-          navigateTo("admin-home");
-        }
-      }
-    };
-
-    onMounted(() => {
-      getAdmin();
-    });
-
     return { navigateTo, selectedKeys };
   },
 });

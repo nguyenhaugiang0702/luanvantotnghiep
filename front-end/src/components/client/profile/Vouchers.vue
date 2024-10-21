@@ -114,6 +114,7 @@ const getVouchers = async (page, limit) => {
     vouchers.value = response.data.vouchers;
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage;
+    console.log(response.data);
   }
 };
 

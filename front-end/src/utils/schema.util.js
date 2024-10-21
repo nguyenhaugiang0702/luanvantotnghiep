@@ -51,11 +51,11 @@ export const forgotPasswordSchema = yup.object({
 export const updateUserSchema = yup.object({
   firstName: yup.string().required("Họ là bắt buộc"),
   lastName: yup.string().required("Tên là bắt buộc"),
-  phoneNumber: yup.string(),
-  eemail: yup
-    .string()
-    .email("Email không hợp lệ")
-    .required("Email là bắt buộc"),
+  // phoneNumber: yup.string(),
+  // email: yup
+  //   .string()
+  //   .email("Email không hợp lệ")
+  //   .required("Email là bắt buộc"),
   gender: yup.string().required("Giới tính là bắt buộc"),
   dob: yup.string().required("Ngày sinh là bắt buộc"),
 });
@@ -336,21 +336,14 @@ export const voucherCatgorySchema = yup.object({
   }),
   minValue: yup
     .number()
-    .required("Giá tri giảm từ là bắt buộc")
-    .min(0, "Giá trị giảm phải lớn hơn hoặc bằng 0")
-    .typeError("Giá trị phải là số"),
+    .min(0, "Giá trị tối thiểu không được âm")
+    .typeError("Giá trị phải là số")
+    .required("Giá trị tối thiểu là bắt buộc"),
   maxValue: yup
     .number()
-    .required("Giá tri giảm đến là bắt buộc")
-    .min(0, "Giá trị giảm phải lớn hơn hoặc bằng 0")
-    .typeError("Giá trị phải là số")
-    .test(
-      "max-greater-than-min",
-      "Giá trị giảm đến phải lớn hơn Giá trị giảm từ",
-      function (maxValue) {
-        return maxValue > this.parent.minValue;
-      }
-    ),
+    .required("Giá giảm tối đa là bắt buộc")
+    .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
+    .typeError("Giá giảm tối đa phải là số"),
 });
 
 export const voucherSchema = yup.object().shape({

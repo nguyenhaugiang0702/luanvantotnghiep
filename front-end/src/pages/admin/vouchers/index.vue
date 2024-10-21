@@ -34,6 +34,7 @@
                     <th class="text-start">Mã</th>
                     <th class="text-start">Loại mã</th>
                     <th class="text-start">Số lượng</th>
+                    <th class="text-start">Đã sử dụng</th>
                     <th class="text-start">Bắt đầu</th>
                     <th class="text-start">Kết thúc</th>
                     <th class="text-start">Thao Tác</th>
@@ -116,12 +117,20 @@ export default {
         },
       },
       {
+        data: "quantityUsed",
+        width: "10%",
+        render: (data, type, row, meta) => {
+          return `<div class='text-start'>${data}</div>`;
+        },
+      },
+      {
         data: "startDate",
         width: "15%",
         render: (data, type, row, meta) => {
           return moment(data).format("DD/MM/YYYY");
         },
       },
+      
       {
         data: "endDate",
         width: "15%",

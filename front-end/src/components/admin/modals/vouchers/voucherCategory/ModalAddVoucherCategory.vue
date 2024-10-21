@@ -60,23 +60,6 @@
                   </Field>
                   <ErrorMessage name="discountType" class="invalid-feedback" />
                 </div>
-                <div class="form-group my-3">
-                  <label for="minValue" class="form-label">Giá giảm từ</label>
-                  <Field
-                    name="minValue"
-                    type="text"
-                    class="form-control"
-                    :class="{
-                      'is-invalid': errors.minValue,
-                      'is-valid':
-                        !errors.minValue &&
-                        newVoucherCategory.minValue !== null,
-                    }"
-                    placeholder="Giá giảm từ"
-                    v-model="newVoucherCategory.minValue"
-                  />
-                  <ErrorMessage name="minValue" class="invalid-feedback" />
-                </div>
               </div>
               <div class="col-6">
                 <div class="form-group">
@@ -95,8 +78,31 @@
                   />
                   <ErrorMessage name="value" class="invalid-feedback" />
                 </div>
-                <div class="form-group my-3">
-                  <label for="maxValue" class="form-label">Giá giảm đến</label>
+              </div>
+            </div>
+            <div class="row my-3">
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="minValue" class="form-label">Giá tối thiểu</label>
+                  <Field
+                    name="minValue"
+                    type="text"
+                    class="form-control"
+                    :class="{
+                      'is-invalid': errors.minValue,
+                      'is-valid':
+                        !errors.minValue &&
+                        newVoucherCategory.minValue !== null,
+                    }"
+                    placeholder="Giá tối thiểu"
+                    v-model="newVoucherCategory.minValue"
+                  />
+                  <ErrorMessage name="minValue" class="invalid-feedback" />
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="maxValue" class="form-label">Giá giảm tối đa</label>
                   <Field
                     name="maxValue"
                     type="text"
@@ -107,7 +113,7 @@
                         !errors.maxValue &&
                         newVoucherCategory.maxValue !== null,
                     }"
-                    placeholder="Giá giảm đến"
+                    placeholder="Giá giảm tối đa"
                     v-model="newVoucherCategory.maxValue"
                   />
                   <ErrorMessage name="maxValue" class="invalid-feedback" />
@@ -161,16 +167,17 @@ export default {
         return;
       }
       try {
-        const response = await apiAdmin.post(
-          "/vouchers/voucherCategory",
-          newVoucherCategory.value
-        );
-        if (response.status === 200) {
-          showSuccessToast(response?.data?.message);
-          resetForm();
-          $("#addVoucherCategory").modal("hide");
-          emit("refreshVouchersCategory");
-        }
+        console.log(newVoucherCategory.value);
+        // const response = await apiAdmin.post(
+        //   "/vouchers/voucherCategory",
+        //   newVoucherCategory.value
+        // );
+        // if (response.status === 200) {
+        //   showSuccessToast(response?.data?.message);
+        //   resetForm();
+        //   $("#addVoucherCategory").modal("hide");
+        //   emit("refreshVouchersCategory");
+        // }
       } catch (error) {
         console.log(error);
         showErrorToast(error.response?.data?.message);

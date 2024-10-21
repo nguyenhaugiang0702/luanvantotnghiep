@@ -259,21 +259,7 @@ export default defineComponent({
       emit("update:selectedKeys", selectedKeys.value);
       router.push({ name: routeName });
     };
-
-    const admin = ref({});
-    const getAdmin = async () => {
-      const response = await apiAdmin.get("/admins/infoAdmin");
-      if (response.status === 200) {
-        admin.value = response.data;
-        if (admin.value.role === "admin") {
-          navigateTo("admin-home");
-        }
-      }
-    };
-
-    onMounted(() => {
-      getAdmin();
-    });
+    
     return { navigateTo, selectedKeys };
   },
 });

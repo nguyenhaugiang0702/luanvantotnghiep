@@ -36,7 +36,7 @@
                     <th class="text-start">Loại giảm giá</th>
                     <th class="text-start">Giá trị giảm</th>
                     <th class="text-start">Giá trị tối thiểu</th>
-                    <th class="text-start">Giá trị tối đa</th>
+                    <th class="text-start">Giá trị giảm tối đa</th>
                     <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
