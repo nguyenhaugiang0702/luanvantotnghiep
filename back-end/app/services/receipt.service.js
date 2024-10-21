@@ -19,7 +19,7 @@ const createReceipt = async (receiptData) => {
 
 const getAllReceipts = async () => {
   return groupReceiptsBySupplier(
-    await Receipt.find({}).populate("supplierID").sort({ createdAt: -1 })
+    await Receipt.find({}).populate("supplierID").populate("adminID").sort({ createdAt: -1 })
   );
 };
 
@@ -63,6 +63,7 @@ const groupReceiptsBySupplier = (receipts) => {
     grouped[supplierID].receipts.push({
       _id: receipt._id,
       createdAt: receipt.createdAt, // Giữ nguyên ngày
+      adminID: receipt.adminID,
       details: receipt.detail,
       supplierInfo: supplierInfo,
     });
