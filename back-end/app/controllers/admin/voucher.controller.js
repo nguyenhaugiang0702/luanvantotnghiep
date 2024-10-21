@@ -65,8 +65,8 @@ exports.createVoucher = async (req, res, next) => {
     // Chuyển đổi startDate và endDate từ định dạng DD/MM/YYYY sang YYYY-MM-DD
     const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
       "Asia/Ho_Chi_Minh"
-    );
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh");
+    ).toDate();
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh").toDate();
     const voucherCode = `NHG-${uuidv4().slice(0, 8)}`;
 
     const voucherData = {
@@ -104,8 +104,8 @@ exports.updateVoucher = async (req, res, next) => {
   try {
     const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
       "Asia/Ho_Chi_Minh"
-    );
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh");
+    ).toDate();
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh").toDate();
     const voucherUpdateData = {
       startDate: parsedStartDate,
       endDate: parsedEndDate,

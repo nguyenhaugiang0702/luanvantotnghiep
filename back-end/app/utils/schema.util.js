@@ -300,16 +300,9 @@ const voucherCategorySchema = yup.object().shape({
 
   maxValue: yup
     .number()
-    .required("Giá trị giảm đến là bắt buộc")
-    .min(0, "Giá trị giảm phải lớn hơn hoặc bằng 0")
-    .typeError("Giá trị phải là số")
-    .test(
-      "max-greater-than-min",
-      "Giá trị giảm đến phải lớn hơn Giá trị giảm từ",
-      function (maxValue) {
-        return maxValue > this.parent.minValue;
-      }
-    ),
+    .required("Giá giảm tối đa là bắt buộc")
+    .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
+    .typeError("Giá giảm tối đa phải là số")
 });
 
 const voucherSchema = yup.object().shape({

@@ -59,7 +59,7 @@ exports.findAll = async (req, res, next) => {
   }
   try {
     let cart = await cartService.getFullInfoCartByUserID(userID);
-    if(!cart){
+    if (!cart) {
       cartData = {
         userID,
         books: [],
@@ -94,8 +94,9 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
   let originalTotalPrice = 0; // Tổng giá ban đầu
   let totalWeight = 0;
   try {
-    const discountCodes = await voucherUsedsService.getAllVoucherUseds({
+    const discountCodeApplied = await voucherUsedsService.getOneVoucherUsed({
       userID: userID,
+      isApplied: true,
     });
 
     const cart = await cartService.getFullInfoCartByUserID(userID);
@@ -114,20 +115,15 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
     originalTotalPrice = totalPrice;
 
     // Tính toán áp dụng mã giảm giá nếu có
-    if (discountCodes && discountCodes.length > 0) {
-      // Duyệt qua tất cả mã giảm giá đã dùng
-      discountCodes.forEach((discountCode) => {
-        if (discountCode.isApplied) {
-          // Áp dụng mã giảm giá
-          const voucher = discountCode.voucherID;
-          const discountValue = calculateDiscount(
-            totalPrice,
-            voucher.voucherCategoryID
-          );
-          // Áp dụng mức giảm giá (giảm phần trăm hoặc giá trị cố định)
-          appliedDiscount += discountValue;
-        }
-      });
+    if (discountCodeApplied) {
+      // Áp dụng mã giảm giá
+      const voucher = discountCodeApplied.voucherID;
+      const discountValue = calculateDiscount(
+        totalPrice,
+        voucher.voucherCategoryID
+      );
+      // Áp dụng mức giảm giá (giảm phần trăm hoặc giá trị cố định)
+      appliedDiscount += discountValue;
 
       // Cập nhật tổng tiền sau khi áp dụng giảm giá
       totalPrice -= appliedDiscount;

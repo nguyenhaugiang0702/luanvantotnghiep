@@ -3,6 +3,7 @@ const ApiError = require("../../api-error");
 const voucherService = require("../../services/vouchers/voucher.service");
 const voucherCategoryService = require("../../services/vouchers/voucherCategory.service");
 const voucherUsedsService = require("../../services/vouchers/voucherUseds.service");
+const validation = require("../../middlewares/validateVoucher.middleware");
 
 exports.findAllVouchers = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
@@ -40,7 +41,6 @@ exports.findAllVouchers = async (req, res, next) => {
           vouchersWithLogin.push(vouhcerData);
         })
       );
-      console.log(vouchers);
       return res.send({
         currentPage: page,
         totalPages: totalPages,
@@ -80,8 +80,8 @@ exports.createVoucherUseds = async (req, res, next) => {
     }
     req.body.userID = userID;
     req.body.voucherID = voucherID;
-    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newVoucherUseds = await voucherUsedsService.createVoucherUseds(
       req.body
     );
@@ -103,26 +103,28 @@ exports.createVoucherUseds = async (req, res, next) => {
 exports.findAllVoucherUseds = async (req, res, next) => {
   try {
     const userID = req.user ? req.user.id : null;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
+    let voucherUseds = [];
+    let page = 1;
+    let limit = 0;
+    let skip = 0;
+    if (Object.keys(req.query).length !== 0) {
+      page = parseInt(req.query.page) || 1;
+      limit = parseInt(req.query.limit) || 4;
+      skip = (page - 1) * limit;
+    }
 
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
-    const totalVouchersUsed = await voucherUsedsService.countAllVouchersUsed({
+
+    // Lấy ngày hiện tại
+    const currentDate = moment().tz("Asia/Ho_Chi_Minh").toDate();
+
+    voucherUseds = await voucherUsedsService.getAllVoucherUseds({
       userID: userID,
       isUsed: false,
     });
-    const totalPages = Math.ceil(totalVouchersUsed / limit);
-    let voucherUseds = await voucherUsedsService.getAllVoucherUseds(
-      {
-        userID: userID,
-        isUsed: false,
-      },
-      skip,
-      limit
-    );
+    // Thêm % sử dụng voucher
     voucherUseds = voucherUseds.map((voucherUsed) => {
       let voucher = voucherUsed.voucherID;
       const usedPercentage = voucherService.calculateUsedPercentage(voucher);
@@ -134,11 +136,29 @@ exports.findAllVoucherUseds = async (req, res, next) => {
         },
       };
     });
+    // Lọc voucher hết hạn
+    const validVouchers = voucherUseds.filter((voucherUsed) => {
+      const endDate = moment(voucherUsed.voucherID.endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .toDate(); // Chuyển đổi endDate sang đối tượng Date
+      return endDate >= currentDate; // Kiểm tra xem endDate có lớn hơn hoặc bằng currentDate không
+    });
+    // Phân trang
+    let paginatedVouchers = [];
+    if (Object.keys(req.query).length !== 0) {
+      // Phân trang trên validVouchers
+      paginatedVouchers = validVouchers.slice(skip, skip + limit);
+    } else {
+      paginatedVouchers = validVouchers;
+    }
+    const totalVouchersUsed = validVouchers.length;
+    const totalPages = Math.ceil(totalVouchersUsed / limit);
+
     return res.send({
       currentPage: page,
       totalPages: totalPages,
       totalVouchersUsed: totalVouchersUsed,
-      vouchers: voucherUseds,
+      vouchers: paginatedVouchers,
     });
   } catch (error) {
     console.log(error);
@@ -170,26 +190,10 @@ exports.updateVoucherUseds = async (req, res, next) => {
 
     if (method === "SELECT") {
       // Check Date
-      const currentDateString = moment()
-        .tz("Asia/Ho_Chi_Minh")
-        .format("DD/MM/YYYY");
-      const currentDate = moment(currentDateString, "DD/MM/YYYY").tz(
-        "Asia/Ho_Chi_Minh"
-      );
-      const parsedStartDate = moment(currentVoucher.startDate, "DD/MM/YYYY").tz(
-        "Asia/Ho_Chi_Minh"
-      );
-      const parsedEndDate = moment(currentVoucher.endDate, "DD/MM/YYYY").tz(
-        "Asia/Ho_Chi_Minh"
-      );
-      // Kiểm tra nếu currentDate trước parsedStartDate
-      if (currentDate.isBefore(parsedStartDate)) {
-        return next(new ApiError(400, "Mã giảm giá này chưa có hiệu lực"));
-      }
-
-      // Kiểm tra nếu currentDate sau parsedEndDate
-      if (currentDate.isAfter(parsedEndDate)) {
-        return next(new ApiError(400, "Mã giảm giá đã hết hạn"));
+      try {
+        validation.voucherDateValidation(currentVoucher);
+      } catch (error) {
+        return next(new ApiError(400, error.message));
       }
       // Chọn mã giảm giá
       await voucherUsedsService.updateMany(
