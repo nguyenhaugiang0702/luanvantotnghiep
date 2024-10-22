@@ -48,44 +48,57 @@
             >
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 class="mb-1">{{ voucher.code }}</h6>
+                  <h6>{{ voucher.voucherID.code }}</h6>
                   <div
                     v-if="
                       voucher.voucherID?.voucherCategoryID?.discountType ===
                       'percent'
                     "
                   >
-                    <div class="mb-1 text-muted">
+                    <div>
                       Giảm {{ voucher.voucherID?.voucherCategoryID?.value }}%
                     </div>
                   </div>
                   <div v-else>
-                    <div class="mb-1 text-muted">
+                    <div>
                       Giảm
                       {{
                         formatPrice(voucher.voucherID?.voucherCategoryID?.value)
                       }}
                     </div>
                   </div>
-                  <small class="text-muted"
-                    >Đơn tối thiểu
+                  <div>
+                    Đơn tối thiểu
                     {{
                       formatPrice(
                         voucher.voucherID?.voucherCategoryID?.minValue
                       )
-                    }}</small
-                  >
-                  <br />
-                  <small class="mb-1 text-muted">
-                    Thời hạn
-                    {{
-                      formatDate(voucher.voucherID?.startDate, (time = false)) +
-                      " - " +
-                      formatDate(voucher.voucherID?.endDate, (time = false))
                     }}
-                  </small>
+                  </div>
+                  <div>
+                    Thời hạn sử dụng đến -
+                    {{ formatDate(voucher.voucherID?.endDate, (time = false)) }}
+                  </div>
+                  <div  >
+                    <div class="mx-auto">Đã sử dụng</div>
+                    <a-progress
+                      class="process"
+                      :stroke-color="{
+                        from: '#2563eb',
+                        to: '#1e40af',
+                      }"
+                      :percent="voucher.voucherID.usedPercentage"
+                    />
+                  </div>
                 </div>
                 <button
+                  class="btn btn-sm btn-secondary"
+                  v-if="voucher.voucherID.usedPercentage === 100"
+                >
+                  Đã hết mã
+                </button>
+                <button
+                  v-else
                   class="btn btn-sm"
                   :class="
                     voucher.isApplied ? 'btn-secondary' : 'btn-outline-primary'
@@ -132,7 +145,7 @@ const voucherUseds = ref([]);
 const apiUser = new ApiUser();
 const token = Cookies.get("accessToken");
 const getVouchersUseds = async () => {
-  const response = await apiUser.get("/vouchers/voucherUseds", token);
+  const response = await apiUser.get("/vouchers/voucherUseds");
   if (response.status === 200) {
     voucherUseds.value = response.data.vouchers;
   }

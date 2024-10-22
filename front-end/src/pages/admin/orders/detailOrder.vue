@@ -76,13 +76,13 @@
                       <div class="card-footer d-flex flex-column mt-3">
                         <div class="d-flex justify-content-between">
                           <div>Phí vận chuyển</div>
-                          <strong class="text-dark">{{
+                          <strong class="text-dark fs-6">{{
                             formatPrice(orderDetail.shippingFee)
                           }}</strong>
                         </div>
                         <div class="d-flex justify-content-between">
                           <strong>Tổng cộng</strong>
-                          <strong class="text-danger">{{
+                          <strong class="text-danger fs-5">{{
                             formatPrice(orderDetail.totalPrice)
                           }}</strong>
                         </div>
@@ -99,18 +99,18 @@
                         <p>
                           <i class="fa-solid fa-user me-2"></i>
                           {{
-                            orderDetail.userID?.firstName +
+                            orderDetail.addressID?.firstName +
                             " " +
-                            orderDetail.userID?.lastName
+                            orderDetail.addressID?.lastName
                           }}
                         </p>
                         <p>
                           <i class="fa-solid fa-phone me-2"></i>
-                          {{ orderDetail.userID?.phoneNumber }}
+                          {{ orderDetail.addressID?.phoneNumber }}
                         </p>
-                        <p v-if="orderDetail.userID?.email">
+                        <p v-if="orderDetail.addressID?.email">
                           <i class="fa-solid fa-envelope me-2"></i>
-                          {{ orderDetail.userID?.email }}
+                          {{ orderDetail.addressID?.email }}
                         </p>
                         <p>
                           <i class="fa-solid fa-location-dot me-2"></i>

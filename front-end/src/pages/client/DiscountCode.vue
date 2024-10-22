@@ -80,20 +80,11 @@
             />
           </div>
           <button
-            class="save-button"
-            v-if="!voucher.isCollected"
-            @click="collectVoucher(voucher._id)"
+            :class="getVoucherButtonState(voucher).class"
+            :disabled="getVoucherButtonState(voucher).disabled"
+            @click="getVoucherButtonState(voucher).action"
           >
-            Lưu voucher
-          </button>
-          <button
-            class="save-button save-button-used"
-            v-else-if="voucher.isUsed || voucher.usedPercentage === 100"
-          >
-            {{ voucher.isUsed ? 'Đã sử dụng' : 'Đã hết' }}
-          </button>
-          <button class="save-button" v-else @click="useVoucher(voucher.id)">
-            Sử dụng ngay
+            {{ getVoucherButtonState(voucher).text }}
           </button>
         </div>
       </div>
@@ -163,6 +154,46 @@ const collectVoucher = async (voucherID) => {
 
 const useVoucher = () => {
   router.push({ name: "cart" });
+};
+
+const getVoucherButtonState = (voucher) => {
+  if (voucher.isExpired) {
+    // Mã hết hạn
+    return {
+      text: "Hết hạn",
+      class: "save-button save-button-used",
+      disabled: true,
+      action: null,
+    };
+  }
+
+  if (!voucher.isCollected) {
+    // Mã chưa được thu thập
+    return {
+      text: "Lưu voucher",
+      class: "save-button",
+      disabled: false,
+      action: () => collectVoucher(voucher._id), // Gọi hàm thu thập voucher
+    };
+  }
+
+  if (voucher.isUsed || voucher.usedPercentage === 100) {
+    // Mã đã được sử dụng hoặc đã hết mã
+    return {
+      text: voucher.isUsed ? "Đã sử dụng" : "Đã hết",
+      class: "save-button save-button-used",
+      disabled: true,
+      action: null,
+    };
+  }
+
+  return {
+    // Sử dụng mã
+    text: "Sử dụng ngay",
+    class: "save-button",
+    disabled: false,
+    action: () => useVoucher(voucher._id), // Gọi hàm sử dụng voucher
+  };
 };
 
 onMounted(async () => {

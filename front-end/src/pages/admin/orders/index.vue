@@ -30,6 +30,7 @@
                     <th class="text-start">Số lượng</th>
                     <th class="text-start">Tổng giá</th>
                     <th class="text-start">Thanh toán</th>
+                    <th class="text-start">Mã giảm giá</th>
                     <th class="text-start">Đã trả</th>
                     <th class="text-start">Trạng thái</th>
                     <th class="text-start">Ngày đặt</th>
@@ -83,6 +84,7 @@ const getOrders = async () => {
   const response = await apiAdmin.get("/orders");
   if (response.status === 200) {
     orders.value = response.data;
+    console.log(response.data);
   }
 };
 
@@ -121,6 +123,13 @@ const columns = [
     width: "10%",
     render: (data, type, row, meta) => {
       return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "voucherID.code",
+    width: "10%",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data ? data : ""}</div>`;
     },
   },
   {
@@ -165,15 +174,15 @@ const columns = [
   {
     data: "_id",
     render: (data, type, row, meta) => {
-      return `<div class="row">
-        <div class="col-sm-1 me-4">
-                <button id="detailOrder" class="badge text-bg-info" data-id=${data}>
-                   View
+      return `<div class="d-flex">
+        <div class="me-3">
+                <button id="detailOrder" class="badge text-bg-secondary p-2" data-id=${data}>
+                   <i class="fa-solid fa-eye"></i> View
                 </button>
             </div>
-            <div class="col-sm-1">
-                <button  class="badge text-bg-danger" id="deleteAuthor" data-id=${data}>
-                    Xóa
+            <div class="">
+                <button class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
+                    <i class="fa-solid fa-trash"></i> Delete
                 </button>
             </div>
           </div>`;
