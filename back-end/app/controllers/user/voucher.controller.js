@@ -12,6 +12,8 @@ exports.findAllVouchers = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 6;
   const skip = (page - 1) * limit;
+  const currentDate = moment().tz("Asia/Ho_Chi_Minh").toDate();
+
   try {
     // Lấy tổng số mã giảm giá
     const totalVouchers = await voucherService.countAllVouchers();
@@ -25,18 +27,27 @@ exports.findAllVouchers = async (req, res, next) => {
             userID: userID,
             voucherID: voucher._id,
           });
+          // Check đã sử dụng voucher chưa
           const isUsedVoucher = voucherUsedExist
             ? voucherUsedExist.isUsed
             : false;
+          // Đã thu thập voucher chưa
           isCollected = voucherUsedExist ? true : false;
           // Tính phần trăm số lượng đã được sử dụng
           const usedPercentage =
             voucherService.calculateUsedPercentage(voucher);
+          // Kiểm tra nếu voucher đã hết hạn
+          const endDate = moment(voucher.endDate)
+            .tz("Asia/Ho_Chi_Minh")
+            .toDate();
+          const isExpired = endDate < currentDate;
+
           const vouhcerData = {
             ...voucher._doc,
             isCollected, // Đặt là true nếu người dùng đã lấy voucher này rồi
             isUsed: isUsedVoucher, // Nếu đã sử dụng rồi thì đặt là true
             usedPercentage: parseFloat(usedPercentage.toFixed(1)),
+            isExpired, // Đặt là true nếu voucher đã hết hạn
           };
           vouchersWithLogin.push(vouhcerData);
         })
@@ -52,9 +63,13 @@ exports.findAllVouchers = async (req, res, next) => {
     vouchers = vouchers.map((voucher) => {
       // Tính phần trăm số lượng đã được sử dụng
       const usedPercentage = voucherService.calculateUsedPercentage(voucher);
+      // Kiểm tra nếu voucher đã hết hạn
+      const endDate = moment(voucher.endDate).tz("Asia/Ho_Chi_Minh").toDate();
+      const isExpired = endDate < currentDate;
       return {
         ...voucher._doc,
         usedPercentage: parseFloat(usedPercentage.toFixed(1)),
+        isExpired, // Đặt là true nếu voucher đã hết hạn
       };
     });
 
@@ -104,6 +119,7 @@ exports.findAllVoucherUseds = async (req, res, next) => {
   try {
     const userID = req.user ? req.user.id : null;
     let voucherUseds = [];
+    let paginatedVouchers = [];
     let page = 1;
     let limit = 0;
     let skip = 0;
@@ -144,9 +160,7 @@ exports.findAllVoucherUseds = async (req, res, next) => {
       return endDate >= currentDate; // Kiểm tra xem endDate có lớn hơn hoặc bằng currentDate không
     });
     // Phân trang
-    let paginatedVouchers = [];
     if (Object.keys(req.query).length !== 0) {
-      // Phân trang trên validVouchers
       paginatedVouchers = validVouchers.slice(skip, skip + limit);
     } else {
       paginatedVouchers = validVouchers;

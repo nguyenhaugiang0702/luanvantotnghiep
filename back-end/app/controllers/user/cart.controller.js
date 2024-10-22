@@ -93,6 +93,8 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
   let appliedDiscount = 0; // Giá giảm được (VND)
   let originalTotalPrice = 0; // Tổng giá ban đầu
   let totalWeight = 0;
+  const currentDate = moment().tz("Asia/Ho_Chi_Minh").toDate();
+
   try {
     const discountCodeApplied = await voucherUsedsService.getOneVoucherUsed({
       userID: userID,
@@ -116,19 +118,29 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
 
     // Tính toán áp dụng mã giảm giá nếu có
     if (discountCodeApplied) {
-      // Áp dụng mã giảm giá
-      const voucher = discountCodeApplied.voucherID;
-      const discountValue = calculateDiscount(
-        totalPrice,
-        voucher.voucherCategoryID
-      );
-      // Áp dụng mức giảm giá (giảm phần trăm hoặc giá trị cố định)
-      appliedDiscount += discountValue;
+      // Kiểm tra mã hết hạn chưa
+      const endDate = moment(discountCodeApplied.voucherID?.endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .toDate();
+      if (endDate < currentDate) {
+        // Cập nhật lại trạng thái applied là false nếu như hết hạn
+        await voucherUsedsService.updateVoucherUseds(discountCodeApplied._id, {
+          isApplied: false,
+        });
+      } else {
+        const voucher = discountCodeApplied.voucherID;
+        const discountValue = calculateDiscount(
+          totalPrice,
+          voucher.voucherCategoryID
+        );
+        // Áp dụng mức giảm giá (giảm phần trăm hoặc giá trị cố định)
+        appliedDiscount += discountValue;
 
-      // Cập nhật tổng tiền sau khi áp dụng giảm giá
-      totalPrice -= appliedDiscount;
-      if (totalPrice < 0) {
-        totalPrice = 0;
+        // Cập nhật tổng tiền sau khi áp dụng giảm giá
+        totalPrice -= appliedDiscount;
+        if (totalPrice < 0) {
+          totalPrice = 0;
+        }
       }
     }
 

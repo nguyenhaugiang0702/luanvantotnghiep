@@ -35,6 +35,7 @@ const getAllOrdersByAdmin = async () => {
       ],
     })
     .populate("userID")
+    .populate("voucherID")
     .populate("addressID");
 };
 
