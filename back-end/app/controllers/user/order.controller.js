@@ -169,7 +169,6 @@ exports.getShippingFee = async (req, res, next) => {
     ...req.body,
     transport: "road",
   };
-  console.log(req.body);
   try {
     const response = await axios.post(
       "https://services.giaohangtietkiem.vn/services/shipment/fee",
