@@ -41,9 +41,11 @@ exports.create = async (req, res, next) => {
       if (!voucherUsed) {
         return next(new ApiError(400, "Lỗi khi áp dụng mã giảm giá"));
       }
+      // Cập nhật isUsed: true nếu đã sử dụng mã giảm giá
       await voucherUsedsService.updateVoucherUseds(voucherUsed._id, {
         isUsed: true,
       });
+      // Tăng số lương sử dụng mã giảm giá của mã phía trên
       const voucher = await voucherService.getVoucherByID(newOrder.voucherID);
       let quantityUsedUpdate = voucher.quantityUsed;
       quantityUsedUpdate += 1;
@@ -71,7 +73,7 @@ exports.findAll = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const skip = (page - 1) * limit;
-    const status = req.query.status || "all";
+    const status = req.query.status || "all"; // all, pending, accepted, cancelled, request-cancel
 
     const query = { userID: userID };
     const statusMap = {
@@ -94,6 +96,7 @@ exports.findAll = async (req, res, next) => {
         return { status: key, count };
       })
     );
+    // Phân trang
     const totalOrders = await orderService.countDocumentsOrders(query);
     const totalPages = Math.ceil(totalOrders / limit);
     const orders = await orderService.getOrdersByUserID(query, skip, limit);
@@ -164,9 +167,9 @@ exports.getShippingFee = async (req, res, next) => {
     pick_ward: "Phường Xuân Khánh",
     pick_address: "Đại học Cần Thơ, Đường 3/2",
     ...req.body,
-    value: 100000,
     transport: "road",
   };
+  console.log(req.body);
   try {
     const response = await axios.post(
       "https://services.giaohangtietkiem.vn/services/shipment/fee",
