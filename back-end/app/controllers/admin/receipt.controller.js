@@ -88,6 +88,7 @@ exports.findAllStockProducts = async (req, res, next) => {
       });
     });
     const totalBooksArray = Object.values(totalBooks);
+    console.log(totalBooksArray);
     return res.send(totalBooksArray);
   } catch (error) {
     console.log(error);
