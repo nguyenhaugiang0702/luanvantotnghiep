@@ -31,6 +31,7 @@
                     <th class="text-start">Danh mục</th>
                     <th class="text-start">Nhà xuất bản</th>
                     <th class="text-start">Hình thức</th>
+                    <th class="text-start">Số lượng nhập</th>
                     <th class="text-start">Số lượng tồn</th>
                   </tr>
                 </thead>
@@ -79,7 +80,7 @@ const columns = [
   },
   {
     data: "name",
-    width: "40%",
+    width: "30%",
     render: (data) => `<div class="text-start text-break">${data}</div>`,
   },
   {
@@ -99,8 +100,14 @@ const columns = [
   },
   {
     data: "quantityImported",
-    width: "25%",
+    width: "15%",
     render: (data) => `<div class="text-start text-break">${data}</div>`,
+  },
+  {
+    data: null,
+    width: "20%",
+    render: (data, row) =>
+      `<div class="text-start text-break">${data.quantityImported - data.quantitySold}</div>`,
   },
 ];
 const stockProducts = ref([]);

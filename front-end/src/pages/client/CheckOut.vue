@@ -491,6 +491,7 @@ watch(
         ward: selectedAddressData.value.ward.name,
         address: selectedAddressData.value.detailAddress,
         weight: dataToCalculateShippingFee.value.weight,
+        value: selectedBooks.value.totalPrice
       };
 
       try {
