@@ -50,9 +50,7 @@
             </h3>
             <div class="code">Mã: {{ voucher.code }}</div>
             <div class="order-range">
-              Thời hạn:
-              <span>{{ formatDate(voucher.startDate, (time = false)) }}</span>
-              -
+              Thời hạn sử dụng đến :
               <span>{{ formatDate(voucher.endDate, (time = false)) }}</span>
             </div>
             <div class="order-range">
@@ -60,10 +58,12 @@
               <span>{{
                 formatPrice(voucher.voucherCategoryID?.minValue)
               }}</span>
-              -
-              <span>{{
-                formatPrice(voucher.voucherCategoryID?.maxValue)
-              }}</span>
+            </div>
+            <div class="order-range">
+              <span v-if="voucher.voucherCategoryID?.discountType === 'percent'"
+                >Giảm tối đa:
+                {{ formatPrice(voucher.voucherCategoryID?.maxValue) }}</span
+              >
             </div>
           </div>
           <div class="usage-section">
@@ -157,6 +157,34 @@ const useVoucher = () => {
 };
 
 const getVoucherButtonState = (voucher) => {
+  if (!voucher.isCollected) {
+    // Mã chưa được thu thập
+    if (voucher.usedPercentage === 100) {
+      // Nếu mã đã được sử dụng hết
+      return {
+        text: "Đã hết",
+        class: "save-button save-button-used",
+        disabled: true,
+        action: null,
+      };
+    }
+    return {
+      text: "Lưu voucher",
+      class: "save-button",
+      disabled: false,
+      action: () => collectVoucher(voucher._id), // Gọi hàm thu thập voucher
+    };
+  }
+  if (voucher.usedPercentage === 100) {
+    // Nếu mã đã được sử dụng hết
+    return {
+      text: "Đã hết",
+      class: "save-button save-button-used",
+      disabled: true,
+      action: null,
+    };
+  }
+
   if (voucher.isExpired) {
     // Mã hết hạn
     return {
@@ -167,20 +195,10 @@ const getVoucherButtonState = (voucher) => {
     };
   }
 
-  if (!voucher.isCollected) {
-    // Mã chưa được thu thập
-    return {
-      text: "Lưu voucher",
-      class: "save-button",
-      disabled: false,
-      action: () => collectVoucher(voucher._id), // Gọi hàm thu thập voucher
-    };
-  }
-
-  if (voucher.isUsed || voucher.usedPercentage === 100) {
+  if (voucher.isUsed) {
     // Mã đã được sử dụng hoặc đã hết mã
     return {
-      text: voucher.isUsed ? "Đã sử dụng" : "Đã hết",
+      text: "Đã sử dụng",
       class: "save-button save-button-used",
       disabled: true,
       action: null,

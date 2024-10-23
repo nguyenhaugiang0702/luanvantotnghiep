@@ -74,12 +74,25 @@
                         voucher.voucherID?.voucherCategoryID?.minValue
                       )
                     }}
+                    <span
+                      v-if="
+                        voucher.voucherID?.voucherCategoryID?.discountType ===
+                        'percent'
+                      "
+                    >
+                      - Giảm tối đa
+                      {{
+                        formatPrice(
+                          voucher.voucherID?.voucherCategoryID?.maxValue
+                        )
+                      }}</span
+                    >
                   </div>
                   <div>
                     Thời hạn sử dụng đến -
                     {{ formatDate(voucher.voucherID?.endDate, (time = false)) }}
                   </div>
-                  <div  >
+                  <div>
                     <div class="mx-auto">Đã sử dụng</div>
                     <a-progress
                       class="process"

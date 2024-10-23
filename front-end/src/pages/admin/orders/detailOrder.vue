@@ -58,16 +58,16 @@
                               class="img-fluid rounded book-image"
                             />
                             <div class="d-flex flex-column flex-grow-1 ms-4">
-                              <div>
+                              <div class="fs-6">
                                 {{ book.bookID.name }}
                               </div>
-                              <div class="my-2 fw-bold">
+                              <div class="my-2 fw-bold fs-6">
                                 {{ formatPrice(book.realPrice) }} x
                                 {{ book.quantity }}
                               </div>
                             </div>
 
-                            <span class="fw-bold">{{
+                            <span class="fw-bold fs-6">{{
                               formatPrice(book.realPrice * book.quantity)
                             }}</span>
                           </li>
@@ -75,13 +75,28 @@
                       </div>
                       <div class="card-footer d-flex flex-column mt-3">
                         <div class="d-flex justify-content-between">
-                          <div>Phí vận chuyển</div>
-                          <strong class="text-dark fs-6">{{
-                            formatPrice(orderDetail.shippingFee)
-                          }}</strong>
+                          <div class="fs-6">Tổng tiền hàng</div>
+                          <div class="text-dark fs-6 fw-bold">
+                            {{ formatPrice(orderDetail.totalPriceOrder) }}
+                          </div>
                         </div>
                         <div class="d-flex justify-content-between">
-                          <strong>Tổng cộng</strong>
+                          <div class="fs-6">Phí vận chuyển</div>
+                          <div class="text-dark fs-6 fw-bold">
+                            {{ formatPrice(orderDetail.shippingFee) }}
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                          <div class="fs-6">Tổng giảm giá</div>
+                          <div
+                            class="fs-6 fw-bold text-success"
+                          >
+                            {{ formatPrice(orderDetail.totalDiscountPrice) }}
+                          </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                          <div class="fs-6 fw-bold">Tổng cộng</div>
                           <strong class="text-danger fs-5">{{
                             formatPrice(orderDetail.totalPrice)
                           }}</strong>
