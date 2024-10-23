@@ -41,7 +41,13 @@ exports.findAllVouchersCategory = async (req, res, next) => {
 
 exports.updateVoucherCategory = async (req, res, next) => {
   const { voucherCategoryID } = req.params;
+  const { discountType, value, minValue, maxValue } = req.body;
   try {
+    if (discountType === "percent") {
+      req.body.name = `Giảm ${value} %`;
+    } else {
+      req.body.name = `Giảm ${value} VND`;
+    }
     const updateVouchersCategory =
       await voucherCategoryService.updateVouchersCategory(
         voucherCategoryID,
@@ -63,10 +69,12 @@ exports.createVoucher = async (req, res, next) => {
     const { startDate, endDate, quantity, voucherCategoryID } = req.body;
 
     // Chuyển đổi startDate và endDate từ định dạng DD/MM/YYYY sang YYYY-MM-DD
-    const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
-      "Asia/Ho_Chi_Minh"
-    ).toDate();
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh").toDate();
+    const parsedStartDate = moment(startDate, "DD/MM/YYYY")
+      .tz("Asia/Ho_Chi_Minh")
+      .toDate();
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY")
+      .tz("Asia/Ho_Chi_Minh")
+      .toDate();
     const voucherCode = `NHG-${uuidv4().slice(0, 8)}`;
 
     const voucherData = {
@@ -102,10 +110,12 @@ exports.updateVoucher = async (req, res, next) => {
   const { voucherID } = req.params;
   const { startDate, endDate, quantity, voucherCategoryID } = req.body;
   try {
-    const parsedStartDate = moment(startDate, "DD/MM/YYYY").tz(
-      "Asia/Ho_Chi_Minh"
-    ).toDate();
-    const parsedEndDate = moment(endDate, "DD/MM/YYYY").tz("Asia/Ho_Chi_Minh").toDate();
+    const parsedStartDate = moment(startDate, "DD/MM/YYYY")
+      .tz("Asia/Ho_Chi_Minh")
+      .toDate();
+    const parsedEndDate = moment(endDate, "DD/MM/YYYY")
+      .tz("Asia/Ho_Chi_Minh")
+      .toDate();
     const voucherUpdateData = {
       startDate: parsedStartDate,
       endDate: parsedEndDate,

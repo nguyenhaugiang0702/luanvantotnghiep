@@ -21,7 +21,13 @@ const getOrderByID = async (orderID) => {
       ],
     })
     .populate("userID")
-    .populate("addressID");
+    .populate("addressID")
+    .populate({
+      path: "voucherID",
+      populate: {
+        path: "voucherCategoryID",
+      },
+    });
 };
 
 const getAllOrdersByAdmin = async () => {
@@ -67,7 +73,13 @@ const getOrdersByUserID = async (query, skip, limit) => {
     .populate("addressID") // Populate address nếu cần
     .sort({ createdAt: -1 })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate({
+      path: "voucherID",
+      populate: {
+        path: "voucherCategoryID",
+      },
+    });
   return orders;
 };
 

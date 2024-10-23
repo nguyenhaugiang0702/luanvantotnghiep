@@ -203,7 +203,7 @@ exports.updateVoucherUseds = async (req, res, next) => {
     }
 
     if (method === "SELECT") {
-      // Check Date
+      // Check Date hết hạn mã giảm giá 
       try {
         validation.voucherDateValidation(currentVoucher);
       } catch (error) {

@@ -118,17 +118,15 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
 
     // Tính toán áp dụng mã giảm giá nếu có
     if (discountCodeApplied) {
+      const voucher = discountCodeApplied.voucherID;
       // Kiểm tra mã hết hạn chưa
-      const endDate = moment(discountCodeApplied.voucherID?.endDate)
-        .tz("Asia/Ho_Chi_Minh")
-        .toDate();
+      const endDate = moment(voucher.endDate).tz("Asia/Ho_Chi_Minh").toDate();
       if (endDate < currentDate) {
         // Cập nhật lại trạng thái applied là false nếu như hết hạn
         await voucherUsedsService.updateVoucherUseds(discountCodeApplied._id, {
           isApplied: false,
         });
       } else {
-        const voucher = discountCodeApplied.voucherID;
         const discountValue = calculateDiscount(
           totalPrice,
           voucher.voucherCategoryID

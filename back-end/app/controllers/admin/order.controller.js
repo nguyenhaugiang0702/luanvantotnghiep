@@ -2,7 +2,6 @@ const orderService = require("../../services/order.service");
 const bookService = require("../../services/book.service");
 const ApiError = require("../../api-error");
 
-
 exports.findAll = async (req, res, next) => {
   try {
     const orders = await orderService.getAllOrdersByAdmin();
@@ -18,12 +17,38 @@ exports.findAll = async (req, res, next) => {
 
 exports.findOne = async (req, res, next) => {
   const orderID = req.params.orderID;
+  let totalPriceOrder = 0; // Tổng giá các sản phẩm trong đơn hàng
+  let totalPrice = 0; // Tổng gía của đơn hàng
+  let totalDiscountPrice = 0; // Tổng giá giảm
   try {
     const orderDetail = await orderService.getOrderByID(orderID);
+    // Tính tổng giá sách trong đơn hàng
+    orderDetail.detail.map((book) => {
+      totalPriceOrder += book.quantity * book.realPrice;
+    });
+    // Tính tổng giá giảm nếu áp dụng mã giảm giá
+    if (orderDetail.voucherID) {
+      totalPrice = totalPriceOrder + orderDetail.shippingFee;
+      const voucherCategory = orderDetail?.voucherID?.voucherCategoryID;
+      if (voucherCategory.discountType === "amount") {
+        totalDiscountPrice = voucherCategory.maxValue;
+      } else if (voucherCategory.discountType === "percent") {
+        totalDiscountPrice = (voucherCategory.value / 100) * totalPrice;
+        if(totalDiscountPrice > voucherCategory.maxValue){
+          totalDiscountPrice = voucherCategory.maxValue;
+        }
+      } else {
+        totalDiscountPrice = 0;
+      }
+    }
     if (!orderDetail) {
       return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
     }
-    return res.send(orderDetail);
+    return res.send({
+      ...orderDetail._doc,
+      totalPriceOrder,
+      totalDiscountPrice,
+    });
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi đặt hàng!"));
