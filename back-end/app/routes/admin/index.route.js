@@ -19,5 +19,6 @@ router.use("/comments", require("./comments/index.route"));
 router.use("/home-page", require("./home/index.route"));
 router.use("/roles", require("./roles/index.route"));
 router.use("/admins", require("./admins/index.route"));
+router.use("/statistics", require("./statistics/index.route"));
 
 module.exports = router;
