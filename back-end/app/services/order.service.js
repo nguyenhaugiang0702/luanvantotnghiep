@@ -56,7 +56,13 @@ const getOrderByIDAndUserID = async (orderID, userID) => {
       ],
     })
     .populate("userID")
-    .populate("addressID");
+    .populate("addressID")
+    .populate({
+      path: "voucherID",
+      populate: {
+        path: "voucherCategoryID",
+      },
+    });
 };
 
 const getOrdersByUserID = async (query, skip, limit) => {
