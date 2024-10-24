@@ -113,7 +113,7 @@ const columns = [
 const stockProducts = ref([]);
 
 const getStockProducts = async () => {
-  const response = await apiAdmin.get("/books");
+  const response = await apiAdmin.get("/statistics/stock-products");
   if (response.status === 200) {
     stockProducts.value = response.data;
   }

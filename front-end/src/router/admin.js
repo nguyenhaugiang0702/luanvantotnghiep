@@ -170,18 +170,30 @@ const admin = [
         ],
       },
       {
-        path: "stock-product",
-        name: "admin-stockProduct",
-        redirect: { name: "admin-stockProduct-list" },
+        path: "statics-of-report",
+        name: "admin-statics-of-report",
+        redirect: { name: "admin-stock-product" },
         children: [
           {
-            path: "",
-            name: "admin-stockProduct-list",
+            path: "revenue",
+            name: "admin-revenue-statistics",
+            component: () =>
+              import("../pages/admin/statistic/revenue.vue"),
+            props: true,
+          },
+          {
+            path: "stock-product",
+            name: "admin-stock-product",
             component: () =>
               import("../pages/admin/statistic/stockProduct.vue"),
             props: true,
           },
         ],
+      },
+      {
+        path: "statics-of-report",
+        name: "admin-chats",
+        component: () => import("../pages/admin/chats/index.vue"),
       },
       {
         path: "orders",
@@ -228,13 +240,15 @@ const admin = [
           {
             path: "",
             name: "admin-role-management-list",
-            component: () => import("../pages/admin/role-management/roleList.vue"),
+            component: () =>
+              import("../pages/admin/role-management/roleList.vue"),
             props: true,
           },
           {
             path: "employee",
             name: "admin-role-management-employee",
-            component: () => import("../pages/admin/role-management/roleListEmployee.vue"),
+            component: () =>
+              import("../pages/admin/role-management/roleListEmployee.vue"),
             props: true,
           },
         ],

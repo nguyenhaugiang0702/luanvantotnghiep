@@ -28,6 +28,7 @@
     "datatables.net-select-bs5": "^2.0.5",
     "datatables.net-vue3": "^3.0.2",
     "dotenv": "^16.4.5",
+    "echarts": "^5.5.1",
     "flatpickr": "^4.6.13",
     "html-to-text": "^9.0.5",
     "jquery": "^3.7.1",

@@ -177,8 +177,13 @@
       </span>
     </template>
     <a-menu-item
-      key="admin-stockProduct-list"
-      @click="navigateTo('admin-stockProduct-list')"
+      key="admin-revenue-statistics"
+      @click="navigateTo('admin-revenue-statistics')"
+      >Doanh thu</a-menu-item
+    >
+    <a-menu-item
+      key="admin-stock-product"
+      @click="navigateTo('admin-stock-product')"
       >Danh sách tồn kho</a-menu-item
     >
   </a-sub-menu>
