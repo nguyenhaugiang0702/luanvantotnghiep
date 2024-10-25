@@ -55,7 +55,7 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
   try {
-    const publisherID = req.params.publisherId;
+    const publisherID = req.params.publisherID;
     const publisher = await publisherService.deletePublisher(publisherID);
     return res.send({
       message: "Xóa thành công nhà xuất bản",
