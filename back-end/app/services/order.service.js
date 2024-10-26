@@ -4,10 +4,42 @@ const axios = require("axios"); // npm install axios
 const CryptoJS = require("crypto-js"); // npm install crypto-js
 const moment = require("moment"); // npm install moment
 const config = require("../config/index");
+const voucherUsedsService = require("../services/vouchers/voucherUseds.service");
+const voucherService = require("../services/vouchers/voucher.service");
 
-const createOrder = async (orderData) => {
+const create = async (orderData) => {
   const newOrder = new Order(orderData);
   return newOrder.save();
+};
+const createOrder = async (orderData) => {
+  const newOrder = await create(orderData);
+  // Kiểm tra và cập nhật mã giảm giá nếu có
+  if (newOrder.voucherID) {
+    const voucherUsed = await voucherUsedsService.getOneVoucherUsed({
+      userID: orderData.userID, // Truyền userID từ orderData
+      voucherID: newOrder.voucherID,
+    });
+
+    if (!voucherUsed) {
+      throw new ApiError(400, "Lỗi khi áp dụng mã giảm giá");
+    }
+
+    // Cập nhật isUsed: true nếu đã sử dụng mã giảm giá
+    await voucherUsedsService.updateVoucherUseds(voucherUsed._id, {
+      isUsed: true,
+    });
+
+    // Tăng số lương sử dụng mã giảm giá của mã phía trên
+    const voucher = await voucherService.getVoucherByID(newOrder.voucherID);
+    let quantityUsedUpdate = voucher.quantityUsed;
+    quantityUsedUpdate += 1;
+
+    await voucherService.updateVoucher(newOrder.voucherID, {
+      quantityUsed: quantityUsedUpdate,
+    });
+  }
+
+  return newOrder;
 };
 
 const getOrderByID = async (orderID) => {
@@ -154,6 +186,62 @@ const countOrdersByMonth = async (year) => {
   return monthlyOrders; // Trả về mảng chứa số lượng đơn hàng của từng tháng
 };
 
+const getStatusOptionsAndFormat = (status) => {
+  let statusOptions = [];
+  let statusFormat = {};
+  // Danh sách đầy đủ các trạng thái
+  const statusFullOptions = [
+    { value: 1, label: "Đang nhờ xác nhận" },
+    { value: 2, label: "Đã xác nhận" },
+    { value: 3, label: "Đã hủy" },
+    { value: 4, label: "Yêu cầu hủy" },
+  ];
+  switch (status) {
+    case 1:
+      statusOptions.push(
+        { value: 1, label: "Đang nhờ xác nhận" },
+        { value: 2, label: "Đã xác nhận" }
+      );
+      statusFormat = {
+        value: 1,
+        label: "Đang nhờ xác nhận",
+      };
+      break;
+    case 2:
+      statusOptions.push({
+        value: 2,
+        label: "Đã xác nhận",
+      });
+      statusFormat = {
+        value: 2,
+        label: "Đã xác nhận",
+      };
+      break;
+    case 3:
+      statusOptions.push({
+        value: 3,
+        label: "Đã hủy",
+      });
+      statusFormat = {
+        value: 3,
+        label: "Đã hủy",
+      };
+      break;
+    case 4:
+      statusOptions.push(
+        { value: 4, label: "Yêu cầu hủy" },
+        { value: 3, label: "Đã hủy" }
+      );
+      statusFormat = {
+        value: 4,
+        label: "Yêu cầu hủy",
+      };
+      break;
+  }
+
+  return { statusOptions, statusFormat, statusFullOptions };
+};
+
 module.exports = {
   createOrder,
   deleteOrderByID,
@@ -167,4 +255,5 @@ module.exports = {
   hasUserPurchasedBook,
   countDocumentsOrders,
   countOrdersByMonth,
+  getStatusOptionsAndFormat,
 };

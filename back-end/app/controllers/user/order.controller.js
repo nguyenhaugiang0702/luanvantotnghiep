@@ -32,27 +32,6 @@ exports.create = async (req, res, next) => {
     }
     // Tính lại tổng giá của giỏ hàng
     await cartService.calculateTotalPriceWhenCheckOut(userID);
-    // Xóa mã giảm giá nếu đã sử dụng để đặt hàng
-    if (newOrder.voucherID) {
-      const voucherUsed = await voucherUsedsService.getOneVoucherUsed({
-        userID: userID,
-        voucherID: newOrder.voucherID,
-      });
-      if (!voucherUsed) {
-        return next(new ApiError(400, "Lỗi khi áp dụng mã giảm giá"));
-      }
-      // Cập nhật isUsed: true nếu đã sử dụng mã giảm giá
-      await voucherUsedsService.updateVoucherUseds(voucherUsed._id, {
-        isUsed: true,
-      });
-      // Tăng số lương sử dụng mã giảm giá của mã phía trên
-      const voucher = await voucherService.getVoucherByID(newOrder.voucherID);
-      let quantityUsedUpdate = voucher.quantityUsed;
-      quantityUsedUpdate += 1;
-      await voucherService.updateVoucher(newOrder.voucherID, {
-        quantityUsed: quantityUsedUpdate,
-      });
-    }
 
     return res.send({
       message: "Đặt hàng thành công",

@@ -5,13 +5,12 @@ const jwtAdmin = require("../../../middlewares/jwtAdmin.middleware");
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(jwtAdmin.authenticateTokenFromHeader, order.findAll); // Lấy tất cả đơn hàng
+router.route("/").get(jwtAdmin.authenticateTokenFromHeader, order.findAll); // Lấy tất cả đơn hàng
 
 router
   .route("/:orderID")
   .get(jwtAdmin.authenticateTokenFromHeader, order.findOne) // Chi tiết đơn hàng
-  .put(jwtAdmin.authenticateTokenFromHeader, order.updateStatus); // Cập nhật trạng thái
+  .put(jwtAdmin.authenticateTokenFromHeader, order.updateStatus) // Cập nhật trạng thái
+  .delete(jwtAdmin.authenticateTokenFromHeader, order.deleteOrder); // Xóa đơn hàng
 
 module.exports = router;

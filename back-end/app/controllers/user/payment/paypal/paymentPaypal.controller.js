@@ -17,7 +17,15 @@ paypal.configure({
 
 exports.createLinkOrderByPayPal = async (req, res, next) => {
   try {
-    const { detail, addressID, notes, voucherID, shippingFee } = req.body;
+    const {
+      detail,
+      addressID,
+      notes,
+      voucherID,
+      shippingFee,
+      totalPrice,
+      totalQuantity,
+    } = req.body;
     const userID = req.user.id;
     // Tạo danh sách sách sau khi lấy tên sách từ bookID
     const books = await Promise.all(
@@ -42,49 +50,56 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
       (total, book) => total + parseFloat(book.price) * book.quantity,
       0
     );
-
-    const create_payment_json = {
-      intent: "sale",
-      payer: {
-        payment_method: "paypal",
-      },
-      redirect_urls: {
-        return_url: `https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/success?totalAmount=${totalAmount}`,
-        cancel_url:
-          "https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/cancel",
-      },
-      transactions: [
-        {
-          item_list: {
-            items: books,
-          },
-          amount: {
-            currency: "USD",
-            total: totalAmount.toFixed(2),
-          },
-          description: "Thanh toán đơn hàng sách",
-          custom: JSON.stringify({
-            userID,
-            addressID,
-            notes,
-            voucherID,
-            shippingFee,
-          }),
+    try {
+      const create_payment_json = {
+        intent: "sale",
+        payer: {
+          payment_method: "paypal",
         },
-      ],
-    };
-
-    paypal.payment.create(create_payment_json, function (error, payment) {
-      if (error) {
-        return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
-      } else {
-        for (let i = 0; i < payment.links.length; i++) {
-          if (payment.links[i].rel === "approval_url") {
-            return res.send({ paypal_url: payment.links[i].href });
+        redirect_urls: {
+          return_url: `https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/success?totalAmount=${totalAmount}&detail=${encodeURIComponent(
+            JSON.stringify(detail)
+          )}`,
+          cancel_url:
+            "https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/cancel",
+        },
+        transactions: [
+          {
+            item_list: {
+              items: books,
+            },
+            amount: {
+              currency: "USD",
+              total: totalAmount.toFixed(2),
+            },
+            description: "Thanh toán đơn hàng sách",
+            custom: JSON.stringify({
+              userID,
+              addressID,
+              notes,
+              voucherID,
+              shippingFee,
+              totalPrice,
+              totalQuantity,
+            }),
+          },
+        ],
+      };
+      paypal.payment.create(create_payment_json, function (error, payment) {
+        if (error) {
+          console.log("Chi tiết lỗi:", error.response.details);
+          return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
+        } else {
+          for (let i = 0; i < payment.links.length; i++) {
+            if (payment.links[i].rel === "approval_url") {
+              return res.send({ paypal_url: payment.links[i].href });
+            }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.log(error);
+    }
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
@@ -92,7 +107,7 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
 };
 
 exports.handlePayPalSuccess = async (req, res, next) => {
-  const { orderId, PayerID, paymentId, totalAmount } = req.query;
+  const { orderId, PayerID, paymentId, totalAmount, detail } = req.query;
   const execute_payment_json = {
     payer_id: PayerID,
     transactions: [
@@ -114,16 +129,20 @@ exports.handlePayPalSuccess = async (req, res, next) => {
         return next(new ApiError(500, "Lỗi khi xác nhận thanh toán"));
       } else {
         const customObj = JSON.parse(payment.transactions[0]?.custom);
+        const detailOrder = JSON.parse(detail);
         const orderData = {
           userID: customObj.userID,
-          detail: payment.transactions[0].item_list.items.map((item) => ({
-            bookID: item.sku,
-            quantity: item.quantity,
-            realPrice: parseFloat(item.price),
-          })),
+          // // áp dụng cho tiền đô
+          // detail: payment.transactions[0].item_list.items.map((item) => ({
+          //   bookID: item.sku,
+          //   quantity: item.quantity,
+          //   realPrice: parseFloat(item.price),
+          // })),
+          detail: detailOrder,
           notes: customObj.notes,
           addressID: customObj.addressID,
-          totalPrice: parseFloat(totalAmount),
+          totalPrice: parseInt(customObj.totalPrice),
+          totalQuantity: parseInt(customObj.totalQuantity),
           payment: "PAYPAL",
           voucherID: customObj.voucherID,
           wasPaided: true,

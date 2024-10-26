@@ -4,7 +4,13 @@ const ApiError = require("../../api-error");
 
 exports.findAll = async (req, res, next) => {
   try {
-    const orders = await orderService.getAllOrdersByAdmin();
+    let orders = await orderService.getAllOrdersByAdmin();
+    orders = orders.map((order) => {
+      const { statusOptions, statusFormat } =
+        orderService.getStatusOptionsAndFormat(order.status);
+      // Gán mảng statusOptions cho từng đơn hàng
+      return { ...order._doc, statusOptions, status: statusFormat };
+    });
     if (!orders) {
       return next(new ApiError(400, "Lỗi khi lấy tất cả đơn hàng!"));
     }
@@ -22,6 +28,8 @@ exports.findOne = async (req, res, next) => {
   let totalDiscountPrice = 0; // Tổng giá giảm
   try {
     const orderDetail = await orderService.getOrderByID(orderID);
+    const { statusOptions, statusFormat, statusFullOptions } =
+      orderService.getStatusOptionsAndFormat(orderDetail.status);
     // Tính tổng giá sách trong đơn hàng
     orderDetail.detail.map((book) => {
       totalPriceOrder += book.quantity * book.realPrice;
@@ -34,7 +42,7 @@ exports.findOne = async (req, res, next) => {
         totalDiscountPrice = voucherCategory.maxValue;
       } else if (voucherCategory.discountType === "percent") {
         totalDiscountPrice = (voucherCategory.value / 100) * totalPrice;
-        if(totalDiscountPrice > voucherCategory.maxValue){
+        if (totalDiscountPrice > voucherCategory.maxValue) {
           totalDiscountPrice = voucherCategory.maxValue;
         }
       } else {
@@ -48,6 +56,9 @@ exports.findOne = async (req, res, next) => {
       ...orderDetail._doc,
       totalPriceOrder,
       totalDiscountPrice,
+      statusOptions,
+      status: statusFormat,
+      statusFullOptions
     });
   } catch (error) {
     console.log(error);
@@ -102,3 +113,25 @@ async function updateBookQuantities(orderDetails) {
   );
   return error;
 }
+
+exports.deleteOrder = async (req, res, next) => {
+  const { orderID } = req.params;
+  try {
+    const currentOrder = await orderService.getOrderByID(orderID);
+    if (!currentOrder) {
+      return next(new ApiError(404, "Không tìm thấy đơn hàng"));
+    }
+    // Xóa đơn hàng ơ trạng thái "Đang chờ xác nhận", "yêu cầu hủy" hoặc "Đã hủy"
+    if (currentOrder.status === 2) {
+      return next(new ApiError(400, "Không thể xóa đơn hàng đã xác nhận"));
+    }
+
+    const deleteOrder = await orderService.deleteOrderByID(orderID);
+    return res.send({
+      message: "Xóa thành công đơn hàng",
+      deleteOrder,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi xóa đơn hàng"));
+  }
+};

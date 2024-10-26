@@ -96,9 +96,11 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
   const currentDate = moment().tz("Asia/Ho_Chi_Minh").toDate();
 
   try {
+    // Tìm mã giảm gía đã được áp dụng và chưa sử dụng
     const discountCodeApplied = await voucherUsedsService.getOneVoucherUsed({
       userID: userID,
       isApplied: true,
+      isApplied: false,
     });
 
     const cart = await cartService.getFullInfoCartByUserID(userID);
