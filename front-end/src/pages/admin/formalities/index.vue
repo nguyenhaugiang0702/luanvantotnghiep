@@ -27,7 +27,29 @@
                 }"
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
-              >
+                ><template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdateFormality(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateFormality"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeleteFormality(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -99,26 +121,11 @@ export default {
           return `<div class='text-start'>${data}</div>`;
         },
       },
-
       {
         data: "_id",
         width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-              <div class="me-3">
-                  <button data-bs-toggle="modal"
-                      data-bs-target="#updateFormality" ref="${data}" id="editFormality" class="badge text-bg-warning p-2" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i> Edit
-                  </button>
-              </div>
-              <div class="">
-                  <button type="button" 
-                      class="badge text-bg-danger p-2" id="deleteFormality" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i> Delete
-                  </button>
-              </div>
-            </div>`;
-        },
+        render: "#action",
+        title: "Thao tác",
       },
     ];
 
@@ -131,16 +138,23 @@ export default {
       }
     };
 
-    $(document).on("click", "#editFormality", (event) => {
-      let formalityID = $(event.currentTarget).data("id");
+    const handleUpdateFormality = (formalityID) => {
       const formalityToEdit = formalities.value.find(
         (formality) => formality._id === formalityID
       );
       if (formalityToEdit) {
         editedFormality.value = { ...formalityToEdit };
       }
-    });
+    };
 
+    const handleDeleteFormality = async (formalityID) => {
+      const isConfirmed = await showConfirmation({
+        title: "Bạn chắc chắn muốn xóa hình thức này",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteFormality(formalityID);
+      }
+    };
     const deleteFormality = async (formalityID) => {
       try {
         const response = await apiAdmin.delete(`/formalities/${formalityID}`);
@@ -153,16 +167,6 @@ export default {
         showErrorToast(error.response?.data?.message);
       }
     };
-
-    $(document).on("click", "#deleteFormality", async (event) => {
-      const formalityID = $(event.currentTarget).data("id");
-      const isConfirmed = await showConfirmation({
-        title: "Bạn chắc chắn muốn xóa hình thức này",
-      });
-      if (isConfirmed.isConfirmed) {
-        await deleteFormality(formalityID);
-      }
-    });
 
     onMounted(() => {
       getFormalities();
@@ -213,6 +217,8 @@ export default {
       editedFormality,
       buttons,
       language,
+      handleDeleteFormality,
+      handleUpdateFormality,
     };
   },
 };

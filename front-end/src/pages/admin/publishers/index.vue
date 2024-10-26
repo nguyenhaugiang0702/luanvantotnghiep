@@ -23,6 +23,27 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdatePublisher(props.rowData._id)"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeletePublisher(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -114,20 +135,7 @@ export default defineComponent({
       {
         data: "_id",
         width: "15%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-            <div class="me-3">
-                <button ref="${data}" id="editPublisher" class="badge text-bg-warning p-2" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i> Edit
-                </button>
-            </div>
-            <div class="">
-                <button class="badge text-bg-danger p-2" id="deletePublisher" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
-          </div>`;
-        },
+        render: "#action",
       },
     ];
     const publishers = ref([]);
@@ -137,6 +145,13 @@ export default defineComponent({
       if (response.status === 200) {
         publishers.value = response.data;
       }
+    };
+
+    const handleUpdatePublisher = (publisherID) => {
+      router.push({
+        name: "admin-publishers-edit",
+        params: { publisherID: publisherID },
+      });
     };
 
     const deletePublisher = async (publisherID) => {
@@ -152,23 +167,14 @@ export default defineComponent({
       }
     };
 
-    $(document).on("click", "#editPublisher", async (event) => {
-      const publisherID = $(event.currentTarget).data("id");
-      router.push({
-        name: "admin-publishers-edit",
-        params: { publisherID: publisherID },
-      });
-    });
-
-    $(document).on("click", "#deletePublisher", async (event) => {
-      const publisherID = $(event.currentTarget).data("id");
+    const handleDeletePublisher = async (publisherID) => {
       const isConfirmed = await showConfirmation({
         title: "Bạn có chắc chắn muốn xóa nhà xuất bản này?",
       });
       if (isConfirmed.isConfirmed) {
         await deletePublisher(publisherID);
       }
-    });
+    };
 
     onMounted(() => {
       getPublishers();
@@ -217,6 +223,8 @@ export default defineComponent({
       publishers,
       buttons,
       language,
+      handleDeletePublisher,
+      handleUpdatePublisher,
     };
   },
 });

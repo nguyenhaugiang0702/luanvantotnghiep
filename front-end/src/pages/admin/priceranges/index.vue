@@ -28,6 +28,29 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdatePriceRange(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updatePriceRange"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeletePriceRange(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -67,10 +90,10 @@ import ModalAddPriceRange from "@/components/admin/modals/priceranges/ModalAddPr
 import ModalUpdatePriceRange from "@/components/admin/modals/priceranges/ModalUpdatePriceRange.vue";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showConfirmation } from "@/utils/swalUtils";
-import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { formatPrice, handleNavigate } from "@/utils/utils";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -109,24 +132,10 @@ export default {
       {
         data: "_id",
         width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-            <div class="me-3">
-                <button data-bs-toggle="modal" data-bs-target="#updatePriceRange" id="editPriceRange" class="badge text-bg-warning p-2" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i> Edit
-                </button>
-            </div>
-            <div class="">
-                <button class="badge text-bg-danger p-2" id="deletePriceRange" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
-          </div>`;
-        },
+        render: "#action",
       },
     ];
 
-    // const editedNxb = ref({});
     const priceranges = ref([]);
     const getPriceRanges = async () => {
       const response = await apiAdmin.get("/priceranges");
@@ -135,8 +144,7 @@ export default {
       }
     };
 
-    $(document).on("click", "#editPriceRange", (event) => {
-      let priceRangeID = $(event.currentTarget).data("id");
+    const handleUpdatePriceRange = (priceRangeID) => {
       const priceRangeToEdit = priceranges.value.find(
         (pricerange) => pricerange._id === priceRangeID
       );
@@ -144,7 +152,7 @@ export default {
       if (priceRangeToEdit) {
         editedPriceRange.value = { ...priceRangeToEdit };
       }
-    });
+    };
 
     const deletePriceRange = async (priceRangeID) => {
       try {
@@ -159,15 +167,14 @@ export default {
       }
     };
 
-    $(document).on("click", "#deletePriceRange", async (event) => {
-      const priceRangeID = $(event.currentTarget).data("id");
+    const handleDeletePriceRange = async (priceRangeID) => {
       const isConfirmed = await showConfirmation({
         title: "Bạn chắc chắn muốn xóa khoản giá này",
       });
       if (isConfirmed.isConfirmed) {
         await deletePriceRange(priceRangeID);
       }
-    });
+    };
 
     onMounted(() => {
       getPriceRanges();
@@ -218,6 +225,8 @@ export default {
       editedPriceRange,
       buttons,
       language,
+      handleUpdatePriceRange,
+      handleDeletePriceRange,
     };
   },
 };

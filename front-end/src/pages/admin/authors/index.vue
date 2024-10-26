@@ -28,6 +28,30 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdateAuthor(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateAuthor"
+                        id="editRole"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeleteAuthor(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -86,7 +110,6 @@ export default {
     store.onSelectedKeys(["admin-authors-list"]);
     const apiAdmin = new ApiAdmin();
     const editedAuthor = ref({});
-    const open = ref(false);
     const columns = [
       {
         data: null,
@@ -111,21 +134,8 @@ export default {
       },
       {
         data: "_id",
-        width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-            <div class="me-3">
-                <button id="editAuthor" class="badge text-bg-warning p-2" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i> Edit
-                </button>
-            </div>
-            <div class="">
-                <button  class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
-          </div>`;
-        },
+        render: "#action",
+        title: "Thao tác",
       },
     ];
 
@@ -138,8 +148,16 @@ export default {
       }
     };
 
-    $(document).on("click", "#editAuthor", (event) => {
-      let authorId = $(event.currentTarget).data("id");
+    const handleDeleteAuthor = async (authorId) => {
+      const isConfirmed = await showConfirmation({
+        title: "Bạn chắc chắn muốn xóa tác giả này",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteAuthor(authorId);
+      }
+    };
+
+    const handleUpdateAuthor = async (authorId) => {
       const authorToEdit = authors.value.find(
         (author) => author._id === authorId
       );
@@ -147,8 +165,7 @@ export default {
       if (authorToEdit) {
         editedAuthor.value = { ...authorToEdit };
       }
-      $("#updateAuthor").modal("show");
-    });
+    };
 
     const deleteAuthor = async (authorId) => {
       try {
@@ -166,16 +183,6 @@ export default {
         showErrorToast(error.response?.data?.message);
       }
     };
-
-    $(document).on("click", "#deleteAuthor", async (event) => {
-      const authorId = $(event.currentTarget).data("id");
-      const isConfirmed = await showConfirmation({
-        title: "Bạn chắc chắn muốn xóa tác giả này",
-      });
-      if (isConfirmed.isConfirmed) {
-        await deleteAuthor(authorId);
-      }
-    });
 
     onMounted(() => {
       getAuthors();
@@ -226,6 +233,8 @@ export default {
       editedAuthor,
       buttons,
       language,
+      handleDeleteAuthor,
+      handleUpdateAuthor,
     };
   },
 };

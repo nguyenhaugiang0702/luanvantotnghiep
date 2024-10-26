@@ -396,6 +396,7 @@ const confirmPayment = async () => {
     voucherID: voucher.value.voucherID || undefined,
     payment: paymentMethod.value,
   };
+  console.log(orderData);
   switch (paymentMethod.value) {
     case "MOMO":
       try {
@@ -453,7 +454,7 @@ const confirmPayment = async () => {
           }
         }
       } catch (error) {
-        console.log(error.response?.data?.message);
+        console.log(error);
         showErrorToast(error.response?.data?.message);
       } finally {
         isLoadingPaypal.value = false;

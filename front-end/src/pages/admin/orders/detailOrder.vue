@@ -25,13 +25,18 @@
                             class="badge handleBadge"
                             :class="{
                               'text-bg-danger':
-                                orderDetail.status === 4 ||
-                                orderDetail.status === 3,
-                              'text-bg-warning': orderDetail.status === 1,
-                              'text-bg-success': orderDetail.status === 2,
+                                orderDetail.status.value === 4 ||
+                                orderDetail.status.value === 3,
+                              'text-bg-warning': orderDetail.status.value === 1,
+                              'text-bg-success': orderDetail.status.value === 2,
                             }"
                           >
-                            {{ getOrderStatus(orderDetail.status) }}
+                            {{
+                              getOrderStatus(
+                                orderDetail.status.value,
+                                orderDetail.statusFullOptions
+                              )
+                            }}
                           </span>
                         </p>
                       </div>
@@ -88,13 +93,11 @@
                         </div>
                         <div class="d-flex justify-content-between">
                           <div class="fs-6">Tổng giảm giá</div>
-                          <div
-                            class="fs-6 fw-bold text-success"
-                          >
+                          <div class="fs-6 fw-bold text-success">
                             {{ formatPrice(orderDetail.totalDiscountPrice) }}
                           </div>
                         </div>
-                        <hr>
+                        <hr />
                         <div class="d-flex justify-content-between">
                           <div class="fs-6 fw-bold">Tổng cộng</div>
                           <strong class="text-danger fs-5">{{
@@ -142,6 +145,16 @@
                       </div>
                     </div>
 
+                    <!-- Customer Notes -->
+                    <div class="card mb-3" v-if="orderDetail.notes">
+                      <div class="card-header">
+                        <h5 class="card-title">Ghi chú từ khách hàng</h5>
+                      </div>
+                      <div class="card-body">
+                        <p class="mb-0">{{ orderDetail.notes }}</p>
+                      </div>
+                    </div>
+
                     <!-- Order Status -->
                     <div class="card mb-3">
                       <div class="card-header">
@@ -149,11 +162,11 @@
                       </div>
                       <div class="card-body">
                         <select
-                          v-model="orderDetail.status"
+                          v-model="orderDetail.status.value"
                           class="form-select"
                         >
                           <option
-                            v-for="option in statusOptions"
+                            v-for="option in orderDetail.statusOptions"
                             :key="option.value"
                             :value="option.value"
                           >
@@ -200,21 +213,11 @@ const orderDetail = ref({
       bookID: {},
     },
   ],
-  status: 0,
+  status: {
+    value: null,
+    label: "",
+  },
 });
-
-const options = {
-  1: [
-    { value: 1, label: "Chờ xác nhận" },
-    { value: 2, label: "Đã xác nhận" },
-  ],
-  2: [{ value: 2, label: "Đã xác nhận" }],
-  3: [{ value: 3, label: "Đã hủy" }],
-  4: [
-    { value: 4, label: "Yêu cầu hủy" },
-    { value: 3, label: "Đã hủy" },
-  ],
-};
 
 const getOrderDetail = async () => {
   const response = await apiAdmin.get(`/orders/${orderID.value}`);
@@ -223,20 +226,12 @@ const getOrderDetail = async () => {
   }
 };
 
-const statusOptions = computed(() => options[orderDetail.value.status] || []);
-
-const getOrderStatus = (status) => {
-  switch (status) {
-    case 1:
-      return "Chờ xác nhận";
-    case 2:
-      return "Đã xác nhận";
-    case 3:
-      return "Đã hủy";
-    case 4:
-      return "Yêu cầu hủy";
-    default:
-      return "Không xác định";
+const getOrderStatus = (status, statusFullOptions = []) => {
+  const statusOptionObj = statusFullOptions.find(
+    (statusOption) => statusOption.value === status
+  );
+  if (statusOptionObj) {
+    return statusOptionObj ? statusOptionObj.label : "Không xác địng được trạng thái";
   }
 };
 
@@ -247,7 +242,7 @@ onMounted(() => {
 const updateStatus = async () => {
   try {
     const response = await apiAdmin.put(`/orders/${orderDetail.value._id}`, {
-      status: orderDetail.value.status,
+      status: orderDetail.value.status.value,
     });
     if (response.status === 200) {
       showSuccessToast(response?.data?.message);

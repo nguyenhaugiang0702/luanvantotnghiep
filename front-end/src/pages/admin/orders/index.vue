@@ -23,6 +23,58 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <select
+                        class="form-select"
+                        :class="{
+                          'border-warning border-2':
+                            props.rowData?.status?.value === 1,
+                          'border-success border-2':
+                            props.rowData?.status?.value === 2,
+                          'border-danger border-2':
+                            props.rowData?.status?.value === 3 ||
+                            props.rowData?.status?.value === 4,
+                        }"
+                        style="width: 12rem"
+                        :value="props.rowData.status.value"
+                        @change="
+                          updateOrderStatus(
+                            props.rowData._id,
+                            $event.target.value
+                          )
+                        "
+                      >
+                        <option
+                          style="width: 12rem"
+                          v-for="option in props.rowData.statusOptions"
+                          :key="option.value"
+                          :value="option.value"
+                        >
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleViewDetailOrder(props.rowData._id)"
+                        class="badge text-bg-secondary p-2"
+                      >
+                        <i class="fa-solid fa-eye"></i> View
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeleteOrder(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -67,11 +119,12 @@ DataTable.use(DataTableLib);
 DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import { showConfirmation } from "@/utils/swalUtils";
-import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import moment from "moment";
 import { formatPrice, handleNavigate } from "@/utils/utils";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+
 //
 const router = useRouter();
 const store = useMenu();
@@ -79,6 +132,7 @@ store.onSelectedKeys(["admin-orders-list"]);
 //
 const apiAdmin = new ApiAdmin();
 const orders = ref([]);
+const orderStatus = ref(null);
 // Dữ liệu giả
 const getOrders = async () => {
   const response = await apiAdmin.get("/orders");
@@ -148,18 +202,14 @@ const columns = [
     data: "status",
     width: "8%",
     render: (data, type, row, meta) => {
-      if (data === 1) {
-        data = "Chờ xác nhận";
-        return `<div class='text-start badge text-bg-warning'>${data}</div>`;
-      } else if (data === 2) {
-        data = "Đã xác nhận";
-        return `<div class='text-start badge text-bg-success'>${data}</div>`;
-      } else if (data === 3) {
-        data = "Đã hủy";
-        return `<div class='text-start badge text-bg-danger'>${data}</div>`;
-      } else if (data === 4) {
-        data = "Yêu cầu hủy";
-        return `<div class='text-start badge text-bg-danger'>${data}</div>`;
+      if (data.value === 1) {
+        return `<div class='text-start badge text-bg-warning'>${data.label}</div>`;
+      } else if (data.value === 2) {
+        return `<div class='text-start badge text-bg-success'>${data.label}</div>`;
+      } else if (data.value === 3) {
+        return `<div class='text-start badge text-bg-danger'>${data.label}</div>`;
+      } else if (data.value === 4) {
+        return `<div class='text-start badge text-bg-danger'>${data.label}</div>`;
       }
     },
   },
@@ -173,27 +223,51 @@ const columns = [
   },
   {
     data: "_id",
-    render: (data, type, row, meta) => {
-      return `<div class="d-flex">
-        <div class="me-3">
-                <button id="detailOrder" class="badge text-bg-secondary p-2" data-id=${data}>
-                   <i class="fa-solid fa-eye"></i> View
-                </button>
-            </div>
-            <div class="">
-                <button class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
-          </div>`;
-    },
+    render: "#action",
   },
 ];
 
-$(document).on("click", "#detailOrder", (event) => {
-  let orderID = $(event.currentTarget).data("id");
+const handleViewDetailOrder = (orderID) => {
   handleNavigate(router, "admin-order-detail", "orderID", orderID);
-});
+};
+
+const deleteOrder = async (orderID) => {
+  try {
+    const response = await apiAdmin.delete(`/orders/${orderID}`);
+    if (response.status === 200) {
+      showSuccessToast(response?.data?.message);
+      getOrders();
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
+  }
+};
+
+const handleDeleteOrder = async (orderID) => {
+  const isConfirmed = await showConfirmation({
+    title: "Bạn chắc chắn muốn xóa đơn hàng này",
+  });
+  if (isConfirmed.isConfirmed) {
+    await deleteOrder(orderID);
+  }
+};
+
+const updateOrderStatus = async (orderID, statusValue) => {
+  try {
+    const response = await apiAdmin.put(`/orders/${orderID}`, {
+      status: statusValue,
+    });
+    if (response.status === 200) {
+      showSuccessToast(response?.data?.message);
+      getOrders();
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorToast(error.response?.data?.message);
+    getOrders();
+  }
+};
 
 onMounted(() => {
   getOrders();

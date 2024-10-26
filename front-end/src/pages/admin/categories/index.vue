@@ -28,6 +28,29 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdateCategory(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateCategory"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeleteCategory(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -101,23 +124,8 @@ export default {
 
       {
         data: "_id",
-        width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-            <div class="me-3">
-                <button data-bs-toggle="modal"
-                    data-bs-target="#updateCategory" id="editCategory" class="badge text-bg-warning p-2" data-id=${data}>
-                   <i class="fa-solid fa-pencil"></i> Edit
-                </button>
-            </div>
-            <div class="">
-                <button type="button" 
-                    class="badge text-bg-danger p-2" id="deleteCategory" data-id=${data}>
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
-          </div>`;
-        },
+        title: "Thao tác",
+        render: "#action",
       },
     ];
 
@@ -130,15 +138,14 @@ export default {
       }
     };
 
-    $(document).on("click", "#editCategory", (event) => {
-      let categoryID = $(event.currentTarget).data("id");
+    const handleUpdateCategory = async (categoryID) => {
       const categoryToEdit = categories.value.find(
         (category) => category._id === categoryID
       );
       if (categoryToEdit) {
         editedCategory.value = { ...categoryToEdit };
       }
-    });
+    };
 
     const deleteCategory = async (categoryID) => {
       try {
@@ -157,15 +164,14 @@ export default {
       }
     };
 
-    $(document).on("click", "#deleteCategory", async (event) => {
-      const categoryID = $(event.currentTarget).data("id");
+    const handleDeleteCategory = async (categoryID) => {
       const isConfirmed = await showConfirmation({
         title: "Bạn chắc chắn muốn xóa thể loại này",
       });
       if (isConfirmed.isConfirmed) {
         await deleteCategory(categoryID);
       }
-    });
+    };
 
     onMounted(() => {
       getCategories();
@@ -216,6 +222,8 @@ export default {
       editedCategory,
       buttons,
       language,
+      handleUpdateCategory,
+      handleDeleteCategory,
     };
   },
 };
