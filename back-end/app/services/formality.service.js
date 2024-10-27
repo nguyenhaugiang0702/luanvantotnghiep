@@ -7,7 +7,7 @@ const createFormality = async (formalityData) => {
 };
 
 const getAllFormality = async () => {
-  return await Formality.find({});
+  return await Formality.find({}).sort({ createdAt: -1 });
 };
 
 const updateFormality = async (formalityId, formalityData) => {

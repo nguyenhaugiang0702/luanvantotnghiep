@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const role = require("../../../controllers/admin/role.controller");
-const validateSupplier = require("../../../middlewares/validateAuthor.middleware");
 
 router
   .route("/")

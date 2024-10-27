@@ -10,7 +10,7 @@ const createAdmin = async (adminData) => {
 };
 
 const getAllAdmin = async (query) => {
-  return await Admin.find(query);
+  return await Admin.find(query).sort({ createdAt: -1 });
 };
 
 const checkEmailExist = async (email) => {

@@ -8,6 +8,7 @@ const sendOTP = require("../../twilio");
 const otpService = require("../../services/otp.service");
 const sendEmail = require("../../utils/email.util");
 const config = require("../../config/index");
+const tokenService = require("../../services/token.service");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -19,27 +20,15 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = bcrypt.compare(password, admin.password);
 
     if (!isMatch) {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = jwt.sign(
-      { id: admin._id },
-      "my_jwt_secret_key_bookstore_admin",
-      {
-        expiresIn: "30s",
-      }
-    );
+    const accessToken = tokenService.createAdminAccessToken(admin._id);
 
-    const refreshToken = jwt.sign(
-      { id: admin._id },
-      "my_jwt_secret_key_bookstore_admin",
-      {
-        expiresIn: "1y",
-      }
-    );
+    const refreshToken = tokenService.createAdminRefreshToken(admin._id);
 
     return res.send({
       isLoggedIn: true,
@@ -76,13 +65,7 @@ exports.refreshToken = async (req, res, next) => {
     if (!admin) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
-    const newAccessToken = jwt.sign(
-      { id: adminID },
-      "my_jwt_secret_key_bookstore_admin",
-      {
-        expiresIn: "30m",
-      }
-    );
+    const newAccessToken = tokenService.createAdminAccessToken(adminID);
     return res.send({
       accessToken: newAccessToken,
       isLoggedIn: true,

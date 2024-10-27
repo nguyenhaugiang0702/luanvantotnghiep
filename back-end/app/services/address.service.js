@@ -10,12 +10,14 @@ const getAllAddressByUserID = async (userID, limit = null, skip = 0) => {
   const query = { userID: userID };
 
   if (limit) {
-    return await Address.find(query).limit(limit).skip(skip);
+    return await Address.find(query)
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: -1 });
   } else {
-    return await Address.find(query); 
+    return await Address.find(query).sort({ createdAt: -1 });
   }
 };
-
 
 const getAddressByIDAndUserID = async (userID, addressId) => {
   return await Address.findOne({ userID: userID, _id: addressId });

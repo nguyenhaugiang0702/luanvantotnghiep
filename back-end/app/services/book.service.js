@@ -12,7 +12,8 @@ const getFullInfoAllBooks = async () => {
     .populate("publisherID")
     .populate("categoryID")
     .populate("formalityID")
-    .populate("priceRangeID");
+    .populate("priceRangeID")
+    .sort({ createdAt: -1 });
 };
 
 const getFullInfoBookByID = async (bookId) => {

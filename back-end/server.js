@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const socketIo = require("socket.io");
 const http = require("http"); // Thêm module http
 const chatRoomService = require("./app/services/chatRoom.service");
-const jwt = require("./app/middlewares/jwt.middleware");
 // Tạo server HTTP từ ứng dụng Express
 const server = http.createServer(app);
 

@@ -11,7 +11,6 @@ const qs = require("qs");
 
 exports.createLinkOrderByZaloPay = async (req, res, next) => {
   try {
-    console.log(1);
     const userID = req.user.id;
     const { addressID, totalQuantity, notes, payment, voucherID, shippingFee } =
       req.body;

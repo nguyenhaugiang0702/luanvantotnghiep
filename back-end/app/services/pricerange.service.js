@@ -8,7 +8,7 @@ const createPriceRange = async (priceRangeData) => {
 };
 
 const getAllPriceRange = async () => {
-  return await PriceRange.find({});
+  return await PriceRange.find({}).sort({ createdAt: -1 });
 };
 
 const updatePriceRange = async (priceRangeId, priceRangeData) => {

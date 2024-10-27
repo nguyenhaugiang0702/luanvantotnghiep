@@ -4,7 +4,8 @@ const cors = require("cors");
 const app = express();
 const ApiError = require("./app/api-error");
 const adminRouter = require("./app/routes/admin/index.route");
-const user1Router = require("./app/routes/user/index.route");
+const userRouter = require("./app/routes/user/index.route");
+const { verifyUserToken, verifyAdminToken } = require("./app/middlewares/auth.middleware");
 
 require("./app/passport");
 app.use(cors());
@@ -24,8 +25,8 @@ staticFiles.forEach((path) => app.use(`/${path}`, express.static(path)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use("/api/v1/admin", adminRouter);
-app.use("/api/v1/user", user1Router);
+app.use("/api/v1/admin", verifyAdminToken, adminRouter);
+app.use("/api/v1/user", verifyUserToken, userRouter);
 
 // handle 404 response
 app.use((req, res, next) => {

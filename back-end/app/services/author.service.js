@@ -7,7 +7,7 @@ const createAuthor = async (authorData) => {
 };
 
 const getAllAuthors = async () => {
-  return await Author.find({});
+  return await Author.find({}).sort({ createdAt: -1 });
 };
 
 const updateAuthor = async (authorId, authorData) => {

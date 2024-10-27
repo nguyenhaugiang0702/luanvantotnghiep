@@ -11,7 +11,7 @@ const getPublisherById = async (publisherId) => {
 };
 
 const getAllPublishers = async () => {
-  return await Publisher.find({});
+  return await Publisher.find({}).sort({ createdAt: -1 });
 };
 
 const updatePublisher = async (publisherId, data) => {

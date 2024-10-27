@@ -32,6 +32,14 @@ const config = {
     client_secret: process.env.PAYPAL_CLIENT_SECRET,
     mode: process.env.PAYPAL_MODE,
   },
+  jwt: {
+    user: {
+      secretKey: "my_jwt_secret_key_bookstore",
+    },
+    admin: {
+      secretKey: "my_jwt_secret_key_bookstore_admin",
+    },
+  },
 };
 
 module.exports = config;

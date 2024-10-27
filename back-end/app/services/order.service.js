@@ -74,7 +74,8 @@ const getAllOrdersByAdmin = async () => {
     })
     .populate("userID")
     .populate("voucherID")
-    .populate("addressID");
+    .populate("addressID")
+    .sort({ createdAt: -1 });
 };
 
 const getOrderByIDAndUserID = async (orderID, userID) => {

@@ -15,7 +15,7 @@ const getSupplierById = async (supplierId) => {
 };
 
 const getAllSuppliers = async () => {
-  return await Supplier.find({});
+  return await Supplier.find({}).sort({ createdAt: -1 });
 };
 
 const getAllSuppliersByName = async (name) => {

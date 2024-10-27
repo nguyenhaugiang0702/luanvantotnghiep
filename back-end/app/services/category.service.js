@@ -8,7 +8,7 @@ const createCategory = async (categoryData) => {
 };
 
 const getAllCategory = async () => {
-  return await Category.find({});
+  return await Category.find({}).sort({ createdAt: -1 });
 };
 
 const updateCategory = async (categoryId, categoryData) => {

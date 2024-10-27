@@ -1,12 +1,7 @@
 const express = require("express");
 const authUser = require("../../../controllers/user/auth.controller");
-const passport = require("passport");
-const config = require("../../../config/index");
 const router = express.Router();
-// require("../../passport");
-const jwt = require("../../../middlewares/jwt.middleware");
 const validation = require("../../../middlewares/validateUser.middelware");
-const authenticateToken = require("../../../middlewares/jwt.middleware");
 
 router.route("/login").post(validation.loginUserValidation, authUser.login); // Đăng nhập (validated)
 router
@@ -19,17 +14,9 @@ router.route("/createOTP").post(authUser.createOTP); // Tạo OTP
 router.route("/verifyOTP").post(authUser.verifyOTP); // Xác thực OTP (validated)
 router
   .route("/changePassword")
-  .put(
-    authenticateToken.authenticateTokenFromHeader,
-    validation.changePasswordValidation,
-    authUser.changePassword
-  );
-router
-  .route("/checkRole")
-  .get(jwt.authenticateTokenFromHeader, authUser.checkRole); // Check Role
-router
-  .route("/refreshToken")
-  .post(jwt.authenticateTokenFromHeader, authUser.refreshToken); // RefreshToken
+  .put(validation.changePasswordValidation, authUser.changePassword);
+router.route("/checkRole").get(authUser.checkRole); // Check Role
+router.route("/refreshToken").post(authUser.refreshToken); // RefreshToken
 
 ///////////////
 // router.route("/facebook").get(
