@@ -10,8 +10,7 @@ const verifyUserToken = (req, res, next) => {
   }
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token)
-    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (!token) return next(new ApiError(403, "Vui lòng đăng nhập"));
 
   jwt.verify(token, config.jwt.user.secretKey, (err, user) => {
     if (err) {
@@ -27,11 +26,12 @@ const verifyUserToken = (req, res, next) => {
 };
 
 const verifyAdminToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"] || null;
+  const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token)
-    return next(new ApiError(403, "Vui lòng kiểm tra lại mã thông báo"));
+  if (req.originalUrl.includes("/auth/login")) {
+    return next();
+  }
+  if (!token) return next(new ApiError(403, "Vui lòng đăng nhập"));
 
   jwt.verify(token, config.jwt.admin.secretKey, (err, admin) => {
     if (err) {
@@ -41,8 +41,27 @@ const verifyAdminToken = (req, res, next) => {
         return next(new ApiError(403, "Vui lòng đăng nhập lại"));
       }
     }
-    req.admin = { ...admin, token };
-    next();
+    const allowedRoutesForSale = [
+      "/chats",
+      "/suppliers",
+      "/orders",
+      "/receipts",
+    ];
+    // Admin
+    if (admin.role === "admin") {
+      req.admin = { ...admin, token };
+      return next();
+    }
+    // Sale
+    const isSaleAllowed = allowedRoutesForSale.some((route) =>
+      req.originalUrl.includes(route)
+    );    
+
+    if (admin.role === "sale" && isSaleAllowed) {
+      req.admin = { ...admin, token };
+      return next();
+    }
+    return next(new ApiError(403, "Bạn không có quyền truy cập"));
   });
 };
 

@@ -37,14 +37,14 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(404, "Tài khoản đã bị khóa"));
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = token.createAccessToken(user._id);
-    const refreshToken = token.createRefreshToken(user._id);
+    const accessToken = token.createAccessToken(user._id, user.role);
+    const refreshToken = token.createRefreshToken(user._id, user.role);
 
     await userService.saveRefreshToken(user._id, refreshToken);
     return res.send({

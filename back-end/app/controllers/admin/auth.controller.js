@@ -26,9 +26,9 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = tokenService.createAdminAccessToken(admin._id);
+    const accessToken = tokenService.createAdminAccessToken(admin._id, admin.role);
 
-    const refreshToken = tokenService.createAdminRefreshToken(admin._id);
+    const refreshToken = tokenService.createAdminRefreshToken(admin._id, admin.role);
 
     return res.send({
       isLoggedIn: true,

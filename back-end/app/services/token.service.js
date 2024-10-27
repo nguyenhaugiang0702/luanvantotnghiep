@@ -1,26 +1,26 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/index");
 
-const createAccessToken = (userId) => {
-  return jwt.sign({ id: userId }, config.jwt.user.secretKey, {
+const createAccessToken = (userId, roles) => {
+  return jwt.sign({ id: userId, role: role }, config.jwt.user.secretKey, {
     expiresIn: "30m",
   });
 };
 
-const createRefreshToken = (userId) => {
-  return jwt.sign({ id: userId }, config.jwt.user.secretKey, {
+const createRefreshToken = (userId, roles) => {
+  return jwt.sign({ id: userId, role: role }, config.jwt.user.secretKey, {
     expiresIn: "1y",
   });
 };
 
-const createAdminAccessToken = (adminId) => {
-  return jwt.sign({ id: adminId }, config.jwt.admin.secretKey, {
+const createAdminAccessToken = (adminId, role) => {
+  return jwt.sign({ id: adminId, role: role }, config.jwt.admin.secretKey, {
     expiresIn: "30m",
   });
 };
 
-const createAdminRefreshToken = (adminId) => {
-  return jwt.sign({ id: adminId }, config.jwt.admin.secretKey, {
+const createAdminRefreshToken = (adminId, role) => {
+  return jwt.sign({ id: adminId, role: role }, config.jwt.admin.secretKey, {
     expiresIn: "1y",
   });
 };
