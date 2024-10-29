@@ -12,8 +12,7 @@ const getAllAddressByUserID = async (userID, limit = null, skip = 0) => {
   if (limit) {
     return await Address.find(query)
       .limit(limit)
-      .skip(skip)
-      .sort({ createdAt: -1 });
+      .skip(skip);
   } else {
     return await Address.find(query).sort({ createdAt: -1 });
   }

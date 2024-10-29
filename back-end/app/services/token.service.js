@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/index");
 
-const createAccessToken = (userId, roles) => {
+const createAccessToken = (userId, role) => {
   return jwt.sign({ id: userId, role: role }, config.jwt.user.secretKey, {
     expiresIn: "30m",
   });
 };
 
-const createRefreshToken = (userId, roles) => {
+const createRefreshToken = (userId, role) => {
   return jwt.sign({ id: userId, role: role }, config.jwt.user.secretKey, {
     expiresIn: "1y",
   });

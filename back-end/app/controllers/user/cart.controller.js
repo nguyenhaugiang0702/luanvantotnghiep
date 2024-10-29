@@ -100,7 +100,7 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
     const discountCodeApplied = await voucherUsedsService.getOneVoucherUsed({
       userID: userID,
       isApplied: true,
-      isApplied: false,
+      isUsed: false,
     });
 
     const cart = await cartService.getFullInfoCartByUserID(userID);
