@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar bg-white" style="max-height: 500px">
+  <div class="sidebar bg-white pb-3" style="max-height: 500px">
     <div class="container">
       <h4 class="p-3">TÀI KHOẢN</h4>
       <ul class="nav flex-column">
@@ -23,7 +23,7 @@
                 currentPage === 'profile-address-add' ||
                 currentPage === 'profile-address-edit',
             }"
-            >Số địa chỉ</router-link
+            >Địa chỉ</router-link
           >
         </li>
         <li class="nav-item">
@@ -56,26 +56,6 @@
               active: currentPage === 'profile-vouchers',
             }"
             >Vi voucher</router-link
-          >
-        </li>
-        <li class="nav-item">
-          <router-link
-            :to="{ name: '' }"
-            class="nav-link"
-            :class="{
-              active: currentPage === '',
-            }"
-            >Sách theo dõi</router-link
-          >
-        </li>
-        <li class="nav-item pb-2">
-          <router-link
-            :to="{ name: '' }"
-            class="nav-link"
-            :class="{
-              active: currentPage === '',
-            }"
-            >Nhận xét của tôi</router-link
           >
         </li>
       </ul>
@@ -130,7 +110,7 @@ const currentPage = computed(() => route.name);
   transform: scaleX(1); /* Gạch dưới sẽ hiện đầy đủ khi mục được chọn */
 }
 
-.sidebar{
+.sidebar {
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 </style>

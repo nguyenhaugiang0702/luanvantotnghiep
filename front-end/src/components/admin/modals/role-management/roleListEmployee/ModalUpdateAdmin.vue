@@ -102,7 +102,25 @@
               </div>
             </div>
             <div class="row mt-3">
-              <div class="col-12">
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="password" class="form-label">Mật khẩu</label>
+                  <Field
+                    name="password"
+                    type="text"
+                    class="form-control"
+                    :class="{
+                      'is-invalid': errors.password,
+                      'is-valid': !errors.password && adminToEdit.password !== '',
+                    }"
+                    id="password"
+                    placeholder="Mật khẩu"
+                    v-model="adminToEdit.password"
+                  />
+                  <ErrorMessage name="password" class="invalid-feedback" />
+                </div>
+              </div>
+              <div class="col-6">
                 <div class="form-group">
                   <label for="role" class="form-label">Vai trò</label>
                   <Field
@@ -181,15 +199,18 @@ export default {
     const apiAdmin = new ApiAdmin();
 
     const updateAdmin = async () => {
-      const { valid } = await validate();
+      const { valid, errors } = await validate();
       if (!valid) {
+        console.log(errors);
         return;
       }
       try {
+        console.log(adminToEdit.value);
         const response = await apiAdmin.put(
           `/admins/${props.adminToEdit._id}`,
           adminToEdit.value
         );
+
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           resetForm();

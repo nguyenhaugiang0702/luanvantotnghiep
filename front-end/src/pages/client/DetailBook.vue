@@ -142,7 +142,6 @@
                 </div>
               </div>
 
-              <div class="rating">★★★★★ (5 đánh giá)</div>
               <!-- Bootstrap component for quantity -->
               <div v-if="book.quantityImported !== 0">
                 <div class="d-flex align-items-center mt-3">
