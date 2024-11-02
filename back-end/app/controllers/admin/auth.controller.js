@@ -26,9 +26,10 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
-    const accessToken = tokenService.createAdminAccessToken(admin._id, admin.role);
 
-    const refreshToken = tokenService.createAdminRefreshToken(admin._id, admin.role);
+    const accessToken = tokenService.createAdminAccessToken(admin._id, admin.roleID.name);
+
+    const refreshToken = tokenService.createAdminRefreshToken(admin._id, admin.roleID.name);
 
     return res.send({
       isLoggedIn: true,
@@ -38,6 +39,7 @@ exports.login = async (req, res, next) => {
       admin: admin,
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
 };
@@ -49,7 +51,7 @@ exports.checkRole = async (req, res, next) => {
     if (!admin) {
       return next(new ApiError(404, "Không tồn tại adminID"));
     }
-    return res.send({ role: admin.role });
+    return res.send({ role: admin.roleID.name });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
@@ -65,7 +67,7 @@ exports.refreshToken = async (req, res, next) => {
     if (!admin) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
-    const newAccessToken = tokenService.createAdminAccessToken(adminID);
+    const newAccessToken = tokenService.createAdminAccessToken(adminID, admin.roleID.name);
     return res.send({
       accessToken: newAccessToken,
       isLoggedIn: true,

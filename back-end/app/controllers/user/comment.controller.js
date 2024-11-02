@@ -81,8 +81,8 @@ exports.findAll = async (req, res, next) => {
     const totalPages = Math.ceil(totalComments / limit);
     if (userID) {
       const commentsWithUserActions = comments.map((comment) => {
-        const isLiked = comment.likedBy.includes(userID);
-        const isDisliked = comment.disLikedBy.includes(userID);
+        const isLiked = comment.likedBy.some((comment) => comment.userID.toString() === userID);
+        const isDisliked = comment.disLikedBy.some((comment) => comment.userID.toString() === userID);
 
         return {
           ...comment._doc,
@@ -119,20 +119,20 @@ exports.likeComment = async (req, res, next) => {
   try {
     const comment = await commentService.getCommentById(commentID);
     if (action === "like") {
-      if (!comment.likedBy.includes(userID)) {
-        comment.likedBy.push(userID);
+      if (!comment.likedBy.some(user => user.userID.toString() === userID)) {
+        comment.likedBy.push({ userID });
         comment.liked += 1;
       }
 
-      if (comment.disLikedBy.includes(userID)) {
-        const index = comment.disLikedBy.indexOf(userID);
-        comment.disLikedBy.splice(index, 1);
+      const disLikeIndex = comment.disLikedBy.findIndex(user => user.userID.toString() === userID);
+      if (disLikeIndex > -1) {
+        comment.disLikedBy.splice(disLikeIndex, 1);
         comment.disLiked -= 1;
       }
     } else if (action === "unlike") {
-      const index = comment.likedBy.indexOf(userID);
-      if (index > -1) {
-        comment.likedBy.splice(index, 1);
+      const likeIndex = comment.likedBy.findIndex(user => user.userID.toString() === userID);
+      if (likeIndex > -1) {
+        comment.likedBy.splice(likeIndex, 1);
         comment.liked -= 1;
       }
     }
@@ -158,20 +158,20 @@ exports.disLikeComment = async (req, res, next) => {
     const comment = await commentService.getCommentById(commentID);
 
     if (action === "dislike") {
-      if (!comment.disLikedBy.includes(userID)) {
-        comment.disLikedBy.push(userID);
+      if (!comment.disLikedBy.some(user => user.userID.toString() === userID)) {
+        comment.disLikedBy.push({ userID });
         comment.disLiked += 1;
       }
 
-      if (comment.likedBy.includes(userID)) {
-        const index = comment.likedBy.indexOf(userID);
-        comment.likedBy.splice(index, 1);
+      const likeIndex = comment.likedBy.findIndex(user => user.userID.toString() === userID);
+      if (likeIndex > -1) {
+        comment.likedBy.splice(likeIndex, 1);
         comment.liked -= 1;
       }
     } else if (action === "undislike") {
-      const index = comment.disLikedBy.indexOf(userID);
-      if (index > -1) {
-        comment.disLikedBy.splice(index, 1);
+      const disLikeIndex = comment.disLikedBy.findIndex(user => user.userID.toString() === userID);
+      if (disLikeIndex > -1) {
+        comment.disLikedBy.splice(disLikeIndex, 1);
         comment.disLiked -= 1;
       }
     }

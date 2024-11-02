@@ -9,7 +9,7 @@ router
   .post(validateSupplier.createBookValidation, books.create);
 router.route("/receipts").get(books.findAllBookToReceipt);
 router.route("/images/:bookID").post(books.createImages).get(books.findImages);
-
+router.route("/hide/:bookID").put(books.hideBook);
 router
   .route("/images/:bookID/:imageID")
   .put(books.updateImage)

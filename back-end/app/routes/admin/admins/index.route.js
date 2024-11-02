@@ -8,6 +8,9 @@ router
   .get(admin.findALL)
   .post(validation.createAdminValidation, admin.create);
 router.route("/infoAdmin").get(admin.findAdminInfo);
-router.route("/:adminID").put(validation.createAdminValidation, admin.update);
+router
+  .route("/:adminID")
+  .put(validation.createAdminValidation, admin.update)
+  .delete(admin.delete);
 
 module.exports = router;

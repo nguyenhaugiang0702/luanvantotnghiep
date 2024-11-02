@@ -5,7 +5,6 @@ const adminService = require("../services/admin.service");
 exports.createAdminValidation = async (req, res, next) => {
   try {
     await schema.addAdminSchema.validate(req.body);
-    console.log(req.body);
     if (req.body.method === "add") {
       await validateAddAdmin(req, next);
     } else {

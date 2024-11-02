@@ -13,12 +13,17 @@ const fs = require("fs").promises;
 exports.blockAccount = async (req, res, next) => {
   try {
     const { userID } = req.params;
-    await userService.updateUser(userID, {
-      isActive: 2,
+    const { isActive } = req.body;
+    const blockAccount = await userService.updateUser(userID, {
+      isActive: isActive,
       updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
     });
+    if (!blockAccount) {
+      return next(new ApiError(400, "Lỗi khi khóa tài khoản"));
+    }
     return res.send({
       message: "Tài khoản đã bị khóa!",
+      blockAccount,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi khóa tài khoản"));
@@ -28,13 +33,17 @@ exports.blockAccount = async (req, res, next) => {
 exports.unBlockAccount = async (req, res, next) => {
   try {
     const { userID } = req.params;
-
-    await userService.updateUser(userID, {
-      isActive: 1,
+    const { isActive } = req.body;
+    const unBlockAccount = await userService.updateUser(userID, {
+      isActive: isActive,
       updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
     });
+    if (!unBlockAccount) {
+      return next(new ApiError(400, "Lỗi khi mở khóa tài khoản"));
+    }
     return res.send({
       message: "Tài khoản đã được mở khóa!",
+      unBlockAccount
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi mở khóa tài khoản"));

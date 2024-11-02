@@ -358,7 +358,7 @@ const addAdminSchema = yup.object({
     .required("Mật khẩu là bắt buộc")
     .min(8, "Mật khẩu phải từ 8 ký tự"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
-  role: yup
+  roleID: yup
     .string()
     .notOneOf([""], "Vui lòng chọn quyền")
     .required("Vui lòng chọn quyền"),

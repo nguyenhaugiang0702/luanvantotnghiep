@@ -15,7 +15,7 @@ exports.findAll = async (req, res, next) => {
       // Tìm kiếm
       books = await bookService.searchBooks(searchKey);
     } else {
-      books = await bookService.getFullInfoAllBooks();
+      books = await bookService.getFullInfoAllBooks({ isShowed: true });
     }
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
@@ -23,10 +23,10 @@ exports.findAll = async (req, res, next) => {
   return res.send(books);
 };
 
-exports.findTopViewedBooks  = async (req, res, next) => {
+exports.findTopViewedBooks = async (req, res, next) => {
   let books = [];
   try {
-    books = await bookService.getFullInfoAllBooks();
+    books = await bookService.getFullInfoAllBooks({ isShowed: true });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }
@@ -40,6 +40,7 @@ exports.filterBooks = async (req, res, next) => {
   try {
     const { filters, page, limit, sortBy, searchQuery } = req.query;
     const filtersString = JSON.parse(filters || {});
+    filtersString.isShowed = true;
 
     totalBooks = await bookService.getTotalBooks(filtersString, searchQuery);
 

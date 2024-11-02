@@ -1,7 +1,7 @@
 const Admin = require("../models/admin.model");
 
 const getAdminByID = async (adminID) => {
-  return await Admin.findById(adminID);
+  return await Admin.findById(adminID).populate("roleID");
 };
 
 const createAdmin = async (adminData) => {
@@ -10,7 +10,7 @@ const createAdmin = async (adminData) => {
 };
 
 const getAllAdmin = async (query) => {
-  return await Admin.find(query).sort({ createdAt: -1 });
+  return await Admin.find(query).populate("roleID").sort({ createdAt: -1 });
 };
 
 const checkEmailExist = async (email) => {
@@ -25,6 +25,10 @@ const updateAdmin = async (adminID, adminData) => {
   return await Admin.findByIdAndUpdate(adminID, adminData, { new: true });
 };
 
+const deleteAdmin = async (adminID) => {
+  return await Admin.findByIdAndDelete(adminID);
+};
+
 module.exports = {
   checkEmailExist,
   checkPhoneNumberExist,
@@ -32,4 +36,5 @@ module.exports = {
   getAllAdmin,
   createAdmin,
   updateAdmin,
+  deleteAdmin,
 };

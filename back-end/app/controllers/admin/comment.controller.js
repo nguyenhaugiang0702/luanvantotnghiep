@@ -10,10 +10,11 @@ exports.findAll = async (req, res, next) => {
     comments = await commentService.getComments({
       isAdminReply: false,
     });
+    console.log(comments);
     return res.send(comments);
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi bình luận mới"));
+    return next(new ApiError(500, "Lỗi khi lấy tất cả bình luận"));
   }
 };
 
@@ -49,23 +50,26 @@ exports.replyComment = async (req, res, next) => {
   try {
     const { commentID } = req.params;
     const { replyContent } = req.body;
+    const adminID = req.admin ? req.admin.id : null;
     const parentComment = await commentService.getCommentById(commentID);
     if (!parentComment) {
       return next(
         new ApiError(404, `Không tồn tại bình luận với ID = ${commentID}`)
       );
     }
+    if (!adminID) {
+      return next(new ApiError(403, "Quyền truy cập bị từ chối"));
+    }
     const adminReply = await commentService.createComment({
       bookID: parentComment.bookID, // Giữ nguyên bookID từ bình luận gốc
-      userID: parentComment.userID, // ID của admin (người đang trả lời)
-      adminID: req.admin.id,
+      userID: parentComment.userID, 
       content: replyContent, // Nội dung của reply
       isAdminReply: true, // Đánh dấu là bình luận của admin
       parentCommentID: commentID, // Gán bình luận cha
     });
 
     // Cập nhật mảng replies của bình luận gốc
-    parentComment.replies.push(adminReply._id);
+    parentComment.replies.push({ commentID: adminReply._id });
     await parentComment.save();
 
     return res.send({

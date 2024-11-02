@@ -38,6 +38,12 @@ const createOrder = async (orderData) => {
       quantityUsed: quantityUsedUpdate,
     });
   }
+  // Lấy io từ app và phát thông báo đến admin
+  const io = require("../../app").get("socketIo");
+  io.emit("newOrder", {
+    message: "Có đơn hàng mới",
+    order: newOrder,
+  });
 
   return newOrder;
 };

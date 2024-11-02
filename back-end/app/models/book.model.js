@@ -54,6 +54,10 @@ const bookSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  isShowed: {
+    type: Boolean,
+    default: true,
+  },
   createdAt: Date,
   updatedAt: Date,
 });

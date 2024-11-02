@@ -254,3 +254,20 @@ exports.deleteImage = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi xóa tất cả sách"));
   }
 };
+
+exports.hideBook = async (req, res, next) => {
+  try {
+    const { bookID } = req.params;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    const updateBook = await bookService.updateBook(bookID, req.body);
+    if(!updateBook){
+      return next(new ApiError(400, "Lỗi khi ẩn sách"));
+    }
+    return res.send({
+      message: "Ẩn thành công",
+      updateBook
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi ẩn sách"));
+  }
+};

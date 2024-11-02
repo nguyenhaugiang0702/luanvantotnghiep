@@ -9,9 +9,11 @@ const getComments = async (query, skip = 0, limit = 0) => {
   let commentsData = Comment.find(query)
     .populate("userID")
     .populate({
-      path: "replies",
+      path: "replies.commentID",
       match: { isAdminReply: true }, // Chỉ lấy các phản hồi của admin
-      populate: { path: "userID" }, // Lấy thông tin người dùng cho mỗi phản hồi
+      populate: [
+        { path: "userID" }, 
+      ],
     });
   if (skip || limit) {
     commentsData = commentsData.skip(skip).limit(limit);
@@ -36,5 +38,5 @@ module.exports = {
   getComments,
   getCommentById,
   deleteCommentById,
-  countComments
+  countComments,
 };

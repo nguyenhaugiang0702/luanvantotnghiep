@@ -6,8 +6,8 @@ const createBook = async (bookData) => {
   return await newBook.save();
 };
 
-const getFullInfoAllBooks = async () => {
-  return await Book.find({})
+const getFullInfoAllBooks = async (query) => {
+  return await Book.find(query)
     .populate("authorID")
     .populate("publisherID")
     .populate("categoryID")
@@ -76,7 +76,7 @@ const findImageByBookIDAndImageID = async (bookID, imageID) => {
 };
 
 const buildFilterQuery = (filters, searchQuery) => {
-  const query = {};
+  const query = { isShowed: true };
 
   // Lọc theo các trường
   if (filters.price && filters.price.length > 0) {
@@ -112,6 +112,7 @@ const buildFilterQuery = (filters, searchQuery) => {
 
 const getFilteredBooks = async (filters, skip, limit, sortBy, searchQuery) => {
   const query = buildFilterQuery(filters, searchQuery);
+  console.log(query);
   let books = await Book.find(query).skip(skip).limit(limit);
   books = books.map((book) => {
     const originalPrice = book.detail.originalPrice || 0;

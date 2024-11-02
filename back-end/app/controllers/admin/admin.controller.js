@@ -61,3 +61,16 @@ exports.update = async (req, res) => {
     return next(new ApiError(500, "Lỗi khi lấy tất nhân viên"));
   }
 };
+
+exports.delete = async (req, res) => {
+  try {
+    const { adminID } = req.params;
+    const deleteAdmin = await adminService.deleteAdmin(adminID);
+    return res.send({
+      message: "Xóa thành công nhân viên",
+      deleteAdmin,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi xóa nhân viên"));
+  }
+};

@@ -1,7 +1,7 @@
 const Admin = require("../../models/admin.model");
 
 const getAdminByEmail = async (email) => {
-  return await Admin.findOne({email: email});
+  return await Admin.findOne({email: email}).populate("roleID");
 };
 
 const checkEmailExist = async (email) => {

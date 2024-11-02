@@ -14,6 +14,9 @@ const io = socketIo(server, {
   },
 });
 
+// Lưu io vào app để các route API khác có thể truy cập
+app.set("socketIo", io);
+
 async function startServer() {
   try {
     // Connect to DB
@@ -50,7 +53,11 @@ async function startServer() {
         await chatRoomService.updateMessage(chatRoomId, sender, message);
 
         // Phát tin nhắn mới tới tất cả các client trong phòng chat
-        io.to(chatRoomId).emit("receiveMessage", { chatRoomId, sender, message });
+        io.to(chatRoomId).emit("receiveMessage", {
+          chatRoomId,
+          sender,
+          message,
+        });
       });
 
       // Lắng nghe khi client ngắt kết nối
@@ -59,6 +66,7 @@ async function startServer() {
       });
     });
 
+    // Khởi động server HTTP
     const PORT = config.app.port;
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

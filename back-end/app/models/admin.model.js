@@ -25,9 +25,10 @@ const adminSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
-  role: {
-    type: String,
-  }
+  roleID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Role",
+  },
 });
 
 const Admin = mongoose.model("Admin", adminSchema);

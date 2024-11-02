@@ -35,9 +35,11 @@ const commentSchema = new Schema({
   },
   replies: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Comment",
-      default: null,
+      commentID: {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+        default: null,
+      },
     },
   ],
   liked: {
@@ -50,14 +52,18 @@ const commentSchema = new Schema({
   },
   likedBy: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      userID: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
   ],
   disLikedBy: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      userID: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
   ],
   createdAt: {
