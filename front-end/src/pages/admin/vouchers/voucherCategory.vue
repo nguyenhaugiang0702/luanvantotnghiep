@@ -6,9 +6,7 @@
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <ModalAddVoucherCategory
-          @refreshVouchersCategory="getVouchersCategory"
-        />
+        <ModalAddVoucherCategory @refreshVouchersCategory="getVouchersCategory" />
         <ModalUpdateVoucherCatgory
           :voucherCategoryToEdit="editedVoucherCategory"
           @refreshVouchersCategory="getVouchersCategory"
@@ -30,6 +28,29 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        type="button"
+                        @click="handleEditVoucherCategory(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateVoucherCategory"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pen"></i> Edit
+                      </button>
+                    </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleDeleteVoucherCategory(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -75,6 +96,7 @@ import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { formatPrice, handleNavigate } from "@/utils/utils";
+import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -133,20 +155,7 @@ export default {
       {
         data: "_id",
         width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-              <div class="me-3">
-                  <button data-bs-toggle="modal" data-bs-target="#updateVoucherCategory" id="editVoucherCategory" class="badge text-bg-warning p-2" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i> Edit
-                  </button>
-              </div>
-              <div class="">
-                  <button class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i> Delete
-                  </button>
-              </div>
-            </div>`;
-        },
+        render: "#action",
       },
     ];
 
@@ -159,8 +168,7 @@ export default {
       }
     };
 
-    $(document).on("click", "#editVoucherCategory", (event) => {
-      let voucherCategoryId = $(event.currentTarget).data("id");
+    const handleEditVoucherCategory = (voucherCategoryId) => {
       const voucherCategoryToEdit = vouchersCategory.value.find(
         (voucherCategory) => voucherCategory._id === voucherCategoryId
       );
@@ -168,7 +176,31 @@ export default {
       if (voucherCategoryToEdit) {
         editedVoucherCategory.value = { ...voucherCategoryToEdit };
       }
-    });
+    };
+
+    const deleteVoucherCategory = async (voucherCategoryID) => {
+      try {
+        const response = await apiAdmin.delete(
+          `/vouchers//voucherCategory/${voucherCategoryID}`
+        );
+        if (response.status === 200) {
+          showSuccessToast(response.data.message);
+          getVouchersCategory();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast("Lỗi khi xóa loại giảm giá");
+      }
+    };
+
+    const handleDeleteVoucherCategory = async (voucherCategoryId) => {
+      const isConfirmed = await showConfirmation({
+        text: "Loại giảm giá này sẽ bị xóa và các mã giảm giá cũng bị xóa theo",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteVoucherCategory(voucherCategoryId);
+      }
+    };
 
     onMounted(() => {
       getVouchersCategory();
@@ -219,6 +251,8 @@ export default {
       editedVoucherCategory,
       buttons,
       language,
+      handleEditVoucherCategory,
+      handleDeleteVoucherCategory,
     };
   },
 };

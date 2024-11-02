@@ -76,6 +76,8 @@
                     <th class="text-start">Hình thức</th>
                     <th class="text-start">Nhà xuất bản</th>
                     <th class="text-start">Tác giả</th>
+                    <th class="text-start">Giá gốc</th>
+                    <th class="text-start">Giá khuyến mãi</th>
                     <th class="text-start">Lượt xem</th>
                     <th class="text-start">Trạng thái</th>
                     <th class="text-start">Thao Tác</th>
@@ -116,6 +118,7 @@ import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { handleNavigate } from "@/utils/utils";
 import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
+import { formatPrice } from "@/utils/utils";
 
 const router = useRouter();
 const store = useMenu();
@@ -163,6 +166,24 @@ const columns = [
     width: "10%",
     render: (data, type, row, meta) => {
       return `<div class='text-start'>${data ? data : "Đang cập nhật..."}</div>`;
+    },
+  },
+  {
+    data: "detail.originalPrice",
+    width: "10%",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${
+        data ? formatPrice(data) : "Đang cập nhật..."
+      }</div>`;
+    },
+  },
+  {
+    data: "detail.discountPrice",
+    width: "10%",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${
+        data ? formatPrice(data) : "Đang cập nhật..."
+      }</div>`;
     },
   },
   {

@@ -25,8 +25,7 @@
               <textarea
                 v-model="comment.content"
                 class="form-control"
-                name=""
-                id=""
+                readonly
                 rows="5"
               ></textarea>
             </div>
@@ -35,22 +34,14 @@
               <textarea
                 v-model="comment.replyContent"
                 class="form-control"
-                name=""
-                id=""
                 rows="5"
               ></textarea>
             </div>
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">
-                Lưu Thay Đổi
-              </button>
+              <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
             </div>
           </form>
         </div>
@@ -75,13 +66,21 @@ export default defineComponent({
       }),
     },
   },
+  emit: ["refreshComment"],
   setup(props, { emit }) {
     const comment = ref({ ...props.commentObj });
     const apiAdmin = new ApiAdmin();
+
     watch(
       () => props.commentObj,
       (newValue) => {
         comment.value = { ...newValue };
+        // Gán replyContent từ phản hồi đầu tiên nếu có
+        if (comment.value.replies && comment.value.replies.length > 0) {
+          comment.value.replyContent = comment.value.replies[0]?.commentID?.content;
+        } else {
+          comment.value.replyContent = "";
+        }
       },
       { deep: true }
     );
@@ -94,6 +93,9 @@ export default defineComponent({
     );
 
     const addReplyComment = async () => {
+      if (!comment.value.replyContent) {
+        return showErrorToast("Vui lòng nhập nội dung trả lời");
+      }
       try {
         const response = await apiAdmin.put(
           `/comments/${comment.value._id}/reply`,
@@ -102,7 +104,7 @@ export default defineComponent({
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           $("#replyComment").modal("hide");
-          emit("refreshAuthors");
+          emit("refreshComment");
         }
       } catch (error) {
         console.log(error);

@@ -19,18 +19,12 @@
             <div class="d-flex justify-content-between align-items-start">
               <div>
                 <h5 class="mb-1 fw-semibold">
-                  {{
-                    comment.userID?.firstName + " " + comment.userID?.lastName
-                  }}
+                  {{ comment.userID?.firstName + " " + comment.userID?.lastName }}
                 </h5>
                 <!-- Số sao đánh giá -->
                 <div class="d-flex align-items-center gap-2">
                   <div class="stars text-warning">
-                    <i
-                      v-for="n in comment.star"
-                      :key="n"
-                      class="fa-solid fa-star"
-                    ></i>
+                    <i v-for="n in comment.star" :key="n" class="fa-solid fa-star"></i>
                     <i
                       v-for="n in 5 - comment.star"
                       :key="n"
@@ -74,9 +68,7 @@
                   <template v-else>
                     <DislikeOutlined class="reaction-icon" />
                   </template>
-                  <span class="reaction-count ms-2">{{
-                    comment.disLiked
-                  }}</span>
+                  <span class="reaction-count ms-2">{{ comment.disLiked }}</span>
                 </button>
               </a-tooltip>
             </div>
@@ -130,14 +122,14 @@
                     <h6>NHG BOOKSTORE</h6>
                   </div>
                   <span class="timestamp">{{
-                    moment(comment.createdAt).fromNow()
+                    moment(reply.commentID?.updatedAt).fromNow()
                   }}</span>
                 </div>
               </div>
 
               <div class="reply-message">
                 <div class="message-content">
-                  {{ reply.commentID.content }}
+                  {{ reply.commentID?.content }}
                 </div>
               </div>
             </div>
@@ -147,10 +139,10 @@
       </div>
     </div>
     <Pagination
-    :currentPage="currentPage"
-    :totalPages="totalPages"
-    @updatePage="handlePageChange"
-  />
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @updatePage="handlePageChange"
+    />
 
     <!-- Phần thêm bình luận -->
     <div class="add-comment-section bg-light rounded-3 p-4 mt-4">
@@ -193,9 +185,7 @@
       </div>
 
       <!-- Nút gửi bình luận -->
-      <button @click="addComment" class="btn btn-primary px-4">
-        Gửi bình luận
-      </button>
+      <button @click="addComment" class="btn btn-primary px-4">Gửi bình luận</button>
     </div>
   </div>
 </template>
@@ -207,7 +197,7 @@ import Cookies from "js-cookie";
 import moment from "moment";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import config from "@/config/index";
-import Pagination from '../../components/Pagination.vue';
+import Pagination from "../../components/Pagination.vue";
 
 const value = ref(0);
 const desc = ref(["terrible", "bad", "normal", "good", "wonderful"]);
@@ -310,8 +300,7 @@ const handlePreview = async (file) => {
   }
   previewImage.value = file.url || file.preview;
   previewVisible.value = true;
-  previewTitle.value =
-    file.name || file.url.substring(file.url.lastIndexOf("/") + 1);
+  previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf("/") + 1);
 };
 
 const action = ref("");

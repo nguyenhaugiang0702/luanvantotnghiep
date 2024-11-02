@@ -19,9 +19,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addModalLabel">
-            Thêm thể loại mã giảm giá
-          </h5>
+          <h5 class="modal-title" id="addModalLabel">Thêm thể loại mã giảm giá</h5>
           <button
             type="button"
             class="btn-close"
@@ -34,9 +32,7 @@
             <div class="row">
               <div class="col-6">
                 <div class="form-group">
-                  <label for="discountType" class="form-label"
-                    >Loại giảm giá</label
-                  >
+                  <label for="discountType" class="form-label">Loại giảm giá</label>
                   <Field
                     as="select"
                     v-model="newVoucherCategory.discountType"
@@ -44,15 +40,11 @@
                     :class="{
                       'is-invalid': errors.discountType,
                       'is-valid':
-                        !errors.discountType &&
-                        newVoucherCategory.discountType !== '',
+                        !errors.discountType && newVoucherCategory.discountType !== '',
                     }"
                     name="discountType"
                   >
-                    <option
-                      :selected="newVoucherCategory.discountType === ''"
-                      value=""
-                    >
+                    <option :selected="newVoucherCategory.discountType === ''" value="">
                       Chọn loại giảm giá
                     </option>
                     <option value="percent">Giảm theo phần trăm</option>
@@ -70,8 +62,7 @@
                     class="form-control"
                     :class="{
                       'is-invalid': errors.value,
-                      'is-valid':
-                        !errors.value && newVoucherCategory.value !== null,
+                      'is-valid': !errors.value && newVoucherCategory.value !== null,
                     }"
                     placeholder="Giá trị"
                     v-model="newVoucherCategory.value"
@@ -91,8 +82,7 @@
                     :class="{
                       'is-invalid': errors.minValue,
                       'is-valid':
-                        !errors.minValue &&
-                        newVoucherCategory.minValue !== null,
+                        !errors.minValue && newVoucherCategory.minValue !== null,
                     }"
                     placeholder="Giá tối thiểu"
                     v-model="newVoucherCategory.minValue"
@@ -110,8 +100,7 @@
                     :class="{
                       'is-invalid': errors.maxValue,
                       'is-valid':
-                        !errors.maxValue &&
-                        newVoucherCategory.maxValue !== null,
+                        !errors.maxValue && newVoucherCategory.maxValue !== null,
                     }"
                     placeholder="Giá giảm tối đa"
                     v-model="newVoucherCategory.maxValue"
@@ -122,16 +111,10 @@
             </div>
 
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">
-                Lưu Thay Đổi
-              </button>
+              <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
             </div>
           </form>
         </div>
@@ -167,17 +150,16 @@ export default {
         return;
       }
       try {
-        console.log(newVoucherCategory.value);
-        // const response = await apiAdmin.post(
-        //   "/vouchers/voucherCategory",
-        //   newVoucherCategory.value
-        // );
-        // if (response.status === 200) {
-        //   showSuccessToast(response?.data?.message);
-        //   resetForm();
-        //   $("#addVoucherCategory").modal("hide");
-        //   emit("refreshVouchersCategory");
-        // }
+        const response = await apiAdmin.post(
+          "/vouchers/voucherCategory",
+          newVoucherCategory.value
+        );
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          resetForm();
+          $("#addVoucherCategory").modal("hide");
+          emit("refreshVouchersCategory");
+        }
       } catch (error) {
         console.log(error);
         showErrorToast(error.response?.data?.message);

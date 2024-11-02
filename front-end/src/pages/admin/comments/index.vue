@@ -7,7 +7,7 @@
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <ModalShowImagesComment :commentObj="commentObj" />
-        <ModalReplyComment :commentObj="commentObj" />
+        <ModalReplyComment :commentObj="commentObj" @refreshComment="getComments" />
         <div class="row">
           <div class="col-12">
             <div class="table-responsive">
@@ -25,10 +25,54 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleDetailComment(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#showImagesComment"
+                        class="badge text-bg-secondary p-2"
+                      >
+                        <i class="fa-solid fa-image"></i> View Image
+                      </button>
+                    </div>
+                    <div v-if="props.rowData.replies.length === 0" class="me-3">
+                      <button
+                        @click="handleDetailComment(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#replyComment"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Reply
+                      </button>
+                    </div>
+                    <div v-else class="me-3">
+                      <button
+                        @click="handleDetailComment(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#replyComment"
+                        class="badge text-bg-success p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Replied
+                      </button>
+                    </div>
+                    <div class="">
+                      <button
+                        type="button"
+                        @click="handleDeleteComment(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
                     <th class="text-start">Khách hàng</th>
+                    <th class="text-start">Sản phẩm</th>
                     <th class="text-start">Nội dung</th>
                     <th class="text-start">Đánh giá</th>
                     <th class="text-start">Thao Tác</th>
@@ -45,7 +89,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useMenu } from "../../../stores/use-menu";
 import DataTable from "datatables.net-vue3";
 import DataTableLib from "datatables.net-bs5";
@@ -81,7 +125,7 @@ export default {
     const store = useMenu();
     store.onSelectedKeys(["admin-comments-list"]);
     const apiAdmin = new ApiAdmin();
-    const editedAuthor = ref({});
+    const commentObj = ref({});
     const columns = [
       {
         data: null,
@@ -94,15 +138,20 @@ export default {
         data: "userID",
         width: "20%",
         render: (data, type, row, meta) => {
-          return `<div class='text-start'>${
-            data.firstName + " " + data.lastName
-          }
+          return `<div class='text-start'>${data.firstName + " " + data.lastName}
             <div>(${data.phoneNumber})</div></div>`;
         },
       },
       {
+        data: "bookID.name",
+        width: "20%",
+        render: (data, type, row, meta) => {
+          return `<div class='text-start'>${data ? data : "Đang cập nhật"}</div>`;
+        },
+      },
+      {
         data: "content",
-        width: "50%",
+        width: "30%",
         render: (data, type, row, meta) => {
           return `<div class='text-start'>${data}</div>`;
         },
@@ -127,56 +176,28 @@ export default {
       {
         data: "_id",
         width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-            <div class="me-3">
-                  <button data-bs-toggle="modal" data-bs-target="#showImagesComment" id="showImagesComment" class="badge text-bg-secondary p-2" data-id=${data}>
-                     <i class="fa-solid fa-image"></i> View Image
-                  </button>
-              </div>
-              <div class="me-3">
-                  <button data-bs-toggle="modal" data-bs-target="#replyComment" id="replyComment" class="badge text-bg-warning p-2" data-id=${data}>
-                    <i class="fa-solid fa-comment-dots"></i> Relpy
-                  </button>
-              </div>
-              <div class="">
-                  <button class="badge text-bg-danger p-2" id="deleteComment" data-id=${data}>
-                      <i class="fa-solid fa-trash"></i> Delete
-                  </button>
-              </div>
-            </div>`;
-        },
+        render: "#action",
       },
     ];
 
-    // const editedNxb = ref({});
     const comments = ref([]);
     const getComments = async () => {
       const response = await apiAdmin.get("/comments");
       if (response.status === 200) {
         comments.value = response.data;
+        console.log(comments.value);
       }
     };
-    const commentObj = ref({});
-    $(document).on("click", "#showImagesComment, #replyComment", (event) => {
-      let commentID = $(event.currentTarget).data("id");
+
+    const handleDetailComment = (commentID) => {
       const commentValue = comments.value.find((cmt) => cmt._id === commentID);
 
       if (commentValue) {
         commentObj.value = { ...commentValue };
       }
-    });
+    };
 
-    $(document).on("click", "#deleteComment", async (event) => {
-      let commentID = $(event.currentTarget).data("id");
-      const isConfirmed = await showConfirmation({
-        title: "Bạn chắc chắn muốn xóa bình luận này!",
-      });
-      if (isConfirmed.isConfirmed) {
-        await deleteComment(commentID);
-      }
-    });
-
+    // Detele Comment
     const deleteComment = async (commentID) => {
       try {
         const response = await apiAdmin.delete(`/comments/${commentID}`);
@@ -189,6 +210,15 @@ export default {
         showErrorToast(error.response?.data?.message);
       }
     };
+    const handleDeleteComment = async (commentID) => {
+      const isConfirmed = await showConfirmation({
+        title: "Bạn chắc chắn muốn xóa bình luận này!",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteComment(commentID);
+      }
+    };
+    // End Detele Comment
 
     onMounted(() => {
       getComments();
@@ -236,10 +266,11 @@ export default {
       getComments,
       comments,
       columns,
-      editedAuthor,
       buttons,
       language,
       commentObj,
+      handleDetailComment,
+      handleDeleteComment,
     };
   },
 };
