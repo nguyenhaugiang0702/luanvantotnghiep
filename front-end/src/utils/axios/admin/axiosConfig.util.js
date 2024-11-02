@@ -35,7 +35,6 @@ instance.interceptors.response.use(
     return response;
   },
   async function (error) {
-    console.log(error);
     const originalRequest = error.config;
 
     // Nếu gặp lỗi 401 và chưa thử làm mới token

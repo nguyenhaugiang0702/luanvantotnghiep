@@ -10,8 +10,8 @@
         <i class="fa-solid fa-house fs-4 me-3"></i>
         <span>Trang chủ</span>
       </a-menu-item>
-      <AdminMenu v-if="admin?.role === 'admin'" />
-      <SaleMenu v-else-if="admin?.role === 'sale'" />
+      <AdminMenu v-if="admin?.roleID?.name === 'admin'" />
+      <SaleMenu v-else-if="admin?.roleID?.name === 'sale'" />
       <a-menu-item @click="logOut">
         <img
           class="me-3"

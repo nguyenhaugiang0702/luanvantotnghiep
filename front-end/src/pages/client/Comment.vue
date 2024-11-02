@@ -137,7 +137,7 @@
 
               <div class="reply-message">
                 <div class="message-content">
-                  {{ reply.content }}
+                  {{ reply.commentID.content }}
                 </div>
               </div>
             </div>
@@ -234,6 +234,7 @@ const getComments = async (page, limit) => {
     comments.value = response.data.comments;
     currentPage.value = response.data.currentPage;
     totalPages.value = response.data.totalPages;
+    console.log(comments.value);
   }
 };
 

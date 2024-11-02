@@ -111,7 +111,8 @@
                     class="form-control"
                     :class="{
                       'is-invalid': errors.password,
-                      'is-valid': !errors.password && adminToEdit.password !== '',
+                      'is-valid':
+                        !errors.password && adminToEdit.password !== '',
                     }"
                     id="password"
                     placeholder="Mật khẩu"
@@ -134,11 +135,11 @@
                     }"
                     id="role"
                     placeholder="Vai trò"
-                    v-model="adminToEdit.role"
+                    v-model="adminToEdit.roleID"
                   >
                     <option
-                      :selected="adminToEdit.role === role.name"
-                      :value="role.name"
+                      :selected="adminToEdit.roleID === role._id"
+                      :value="role._id"
                       v-for="role in roles"
                     >
                       {{ role.name }}
@@ -185,7 +186,7 @@ export default {
         phoneNumber: "",
         email: "",
         password: "",
-        role: "",
+        roleID: "",
         method: "update",
       }),
     },
@@ -201,14 +202,15 @@ export default {
     const updateAdmin = async () => {
       const { valid, errors } = await validate();
       if (!valid) {
-        console.log(errors);
         return;
       }
       try {
-        console.log(adminToEdit.value);
         const response = await apiAdmin.put(
           `/admins/${props.adminToEdit._id}`,
-          adminToEdit.value
+          {
+            ...adminToEdit.value,
+            roleID: adminToEdit.value.roleID,
+          }
         );
 
         if (response.status === 200) {
@@ -228,6 +230,7 @@ export default {
       () => props.adminToEdit,
       (newValue) => {
         adminToEdit.value = { ...newValue };
+        console.log(adminToEdit.value );
       },
       { deep: true }
     );

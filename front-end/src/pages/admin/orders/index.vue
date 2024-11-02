@@ -29,10 +29,8 @@
                       <select
                         class="form-select"
                         :class="{
-                          'border-warning border-2':
-                            props.rowData?.status?.value === 1,
-                          'border-success border-2':
-                            props.rowData?.status?.value === 2,
+                          'border-warning border-2': props.rowData?.status?.value === 1,
+                          'border-success border-2': props.rowData?.status?.value === 2,
                           'border-danger border-2':
                             props.rowData?.status?.value === 3 ||
                             props.rowData?.status?.value === 4,
@@ -40,10 +38,7 @@
                         style="width: 12rem"
                         :value="props.rowData.status.value"
                         @change="
-                          updateOrderStatus(
-                            props.rowData._id,
-                            $event.target.value
-                          )
+                          updateOrderStatus(props.rowData._id, $event.target.value)
                         "
                       >
                         <option
@@ -153,9 +148,7 @@ const columns = [
   {
     data: "userID",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data.firstName + " " + data.lastName
-      }</div>
+      return `<div class='text-start'>${data.firstName + " " + data.lastName}</div>
       <div class='text-start'>(${data.phoneNumber})</div>`;
     },
   },
@@ -191,7 +184,7 @@ const columns = [
     render: (data, type, row, meta) => {
       if (data) {
         data = "Đã thanh toán";
-        return `<div class='text-start badge text-bg-success'>${data}</div>`;
+        return `<div class='text-start badge text-bg-success p-2'>${data}</div>`;
       } else {
         data = "Chưa";
         return `<div class='text-start'>${data}</div>`;
@@ -203,13 +196,13 @@ const columns = [
     width: "8%",
     render: (data, type, row, meta) => {
       if (data.value === 1) {
-        return `<div class='text-start badge text-bg-warning'>${data.label}</div>`;
+        return `<div class='text-start badge text-bg-warning p-2'>${data.label}</div>`;
       } else if (data.value === 2) {
-        return `<div class='text-start badge text-bg-success'>${data.label}</div>`;
+        return `<div class='text-start badge text-bg-success p-2'>${data.label}</div>`;
       } else if (data.value === 3) {
-        return `<div class='text-start badge text-bg-danger'>${data.label}</div>`;
+        return `<div class='text-start badge text-bg-danger p-2'>${data.label}</div>`;
       } else if (data.value === 4) {
-        return `<div class='text-start badge text-bg-danger'>${data.label}</div>`;
+        return `<div class='text-start badge text-bg-danger p-2'>${data.label}</div>`;
       }
     },
   },

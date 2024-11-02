@@ -23,6 +23,43 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div v-if="props.rowData.isActive === 1" class="me-3">
+                      <button
+                        type="button"
+                        @click="
+                          handleBlockAndUnBlockUser(props.rowData._id, (method = 'block'))
+                        "
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-lock"></i> Block
+                      </button>
+                    </div>
+                    <div v-else-if="props.rowData.isActive === 2" class="me-3">
+                      <button
+                        type="button"
+                        @click="
+                          handleBlockAndUnBlockUser(
+                            props.rowData._id,
+                            (method = 'unblock')
+                          )
+                        "
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-lock-open"></i> UnBlock
+                      </button>
+                    </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleDeleteUser(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -32,8 +69,6 @@
                     <th class="text-start">Email</th>
                     <th class="text-start">Ngày Sinh</th>
                     <th class="text-start">Trạng Thái</th>
-                    <!-- <th>Tạo</th>
-                    <th>Cập nhật</th> -->
                     <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
@@ -69,6 +104,7 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
+import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
 
 export default defineComponent({
   components: {
@@ -137,57 +173,16 @@ export default defineComponent({
           if (data <= 0) {
             return `<div>Chưa kích hoạt</div>`;
           } else if (data == 1) {
-            return `<div style="color: green; font-weight: 650;">Đã kích hoạt<div>`;
+            return `<div class='text-start badge text-bg-success p-2'>Đã kích hoạt<div>`;
           } else {
-            return `<div style="color: red; font-weight: 650;">Đã Khóa</div>`;
+            return `<div class='text-start badge text-bg-danger p-2'>Đã Khóa</div>`;
           }
         },
       },
       {
         data: "_id",
-        render: (data, type, row, meta) => {
-          if (row.isActive == 1) {
-            return `
-          <div class="btn-group">
-  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Action
-  </button>
-  <ul class="dropdown-menu">
-    <li id="deletuser" data-id=${data} ><a class="dropdown-item" href="#">
-      <i style="color: red" class="fa-solid fa-trash"></i> Xóa tài khoản
-      </a></li>
-    <li id="blockuser" data-id=${data}><a class="dropdown-item" href="#"><i class="fa-solid fa-lock"></i> Khóa tài khoản</a></li>
-  </ul>
-</div>
-          `;
-          } else if (row.isActive == 2) {
-            return `
-          <div class="btn-group">
-  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Action
-  </button>
-  <ul class="dropdown-menu">
-    <li id="deletuser" data-id=${data} ><a class="dropdown-item" href="#">
-      <i style="color: red" class="fa-solid fa-trash"></i> Xóa tài khoản
-      </a></li>
-    <li id="unblockuser" data-id=${data}><a class="dropdown-item" href="#"><i class="fa-solid fa-unlock"></i> Mở khóa</a></li>
-  </ul>
-</div>
-          `;
-          }
-          return `
-          <div class="btn-group">
-  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Action
-  </button>
-  <ul class="dropdown-menu">
-    <li id="deletuser" data-id=${data} ><a class="dropdown-item" href="#">
-      <i style="color: red" class="fa-solid fa-trash"></i> Xóa tài khoản
-      </a></li>
-  </ul>
-</div>
-          `;
-        },
+        render: "#action",
+        title: "Thao tác",
       },
     ];
     const users = ref([]);
@@ -199,7 +194,42 @@ export default defineComponent({
       }
     };
 
-    const deletuser = async (userID) => {
+    // Block And UnBlock
+    const blockAndUnBlockUser = async (userID, method) => {
+      let response;
+      try {
+        if (method === "block") {
+          response = await apiAdmin.put(`/users/blockAccount/${userID}`, { isActive: 2 });
+        } else {
+          response = await apiAdmin.put(`/users/unBlockAccount/${userID}`, {
+            isActive: 1,
+          });
+        }
+        if (response.status === 200) {
+          showSuccessToast(response?.data?.message);
+          await getUsers();
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorToast(error.response?.data?.message);
+      }
+    };
+
+    const handleBlockAndUnBlockUser = async (userID, method) => {
+      const isConfirmed = await showConfirmation({
+        text:
+          method === "block"
+            ? "Tài khoản này sẽ bị khóa"
+            : "Tài khoản này sẽ được mở khóa",
+      });
+      if (isConfirmed.isConfirmed) {
+        await blockAndUnBlockUser(userID, method);
+      }
+    };
+    // End Block And UnBlock
+
+    // Delete User
+    const deletUser = async (userID) => {
       try {
         const response = await apiAdmin.delete(`/users/${userID}`);
         if (response.status == 200) {
@@ -212,64 +242,15 @@ export default defineComponent({
       }
     };
 
-    const blockUser = async (userID) => {
-      try {
-        const response = await apiAdmin.put(`/users/blockAccount/${userID}`);
-        if (response.status == 200) {
-          showSuccessToast(response?.data?.message);
-          getUsers();
-        }
-      } catch (error) {
-        console.log(error);
-        showErrorToast(error.response?.data?.message);
+    const handleDeleteUser = async (userID) => {
+      const isConfirmed = await showConfirmation({
+        text: "Người dùng này sẽ bi xóa khỏi hệ thống",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deletUser(userID);
       }
     };
-
-    const unBlockUser = async (userID) => {
-      try {
-        const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`);
-        if (response.status == 200) {
-          showSuccessToast(response?.data?.message);
-          getUsers();
-        }
-      } catch (error) {
-        console.log(error);
-        showErrorToast(error.response?.data?.message);
-      }
-    };
-
-    $(document).on("click", "#deletuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ bị xóa!",
-      }).then( async (result) => {
-        if (result.isConfirmed) {
-          await deletuser(userId);
-        }
-      });
-    });
-
-    $(document).on("click", "#blockuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ bị khóa !",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await blockUser(userId);
-        }
-      });
-    });
-
-    $(document).on("click", "#unblockuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ đuợc mở khóa !",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await unBlockUser(userId);
-        }
-      });
-    });
+    // End Delete User
 
     onMounted(() => {
       getUsers();
@@ -320,6 +301,8 @@ export default defineComponent({
       buttons,
       exportOptions,
       language,
+      handleBlockAndUnBlockUser,
+      handleDeleteUser,
     };
   },
 });

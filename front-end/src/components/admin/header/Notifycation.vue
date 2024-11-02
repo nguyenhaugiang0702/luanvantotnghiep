@@ -1,7 +1,7 @@
 <!-- components/admin/header/NotificationDropdown.vue -->
 <template>
   <a-dropdown placement="bottomRight">
-    <a-badge :count="1" class="mx-3">
+    <a-badge :count="unreadCount" class="mx-3">
       <a-button type="text">
         <template #icon><BellOutlined /></template>
       </a-button>
@@ -18,7 +18,7 @@
         </div>
         <div class="notification-container">
           <a-menu-item
-            v-for="notif in notifications"
+            v-for="notif in notifications.notifications"
             :key="notif.id"
             class="notification-item"
           >
@@ -67,7 +67,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref, computed } from "vue";
+import {useRouter} from 'vue-router';
+import { io } from "socket.io-client";
 import {
   BellOutlined,
   UserOutlined,
@@ -79,66 +81,49 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
+import { showSuccessToast } from "@/utils/toast.util";
+import { useNotificationsStore } from "@/stores/notifycation";
+const notifications = useNotificationsStore();
+const router = useRouter();
+// Notifycation
+onMounted(() => {
+  notifications.loadNotifications();
+  const socket = io("http://localhost:3000");
+  socket.on("newOrder", (data) => {
+    const newNotification = {
+      id: Date.now(),
+      type: "success",
+      title: "Đơn hàng mới",
+      message: data.message,
+      time: new Date().toLocaleTimeString(),
+      read: false,
+    };
+    notifications.addNotification(newNotification);
+  });
+});
 
-// Mảng chứa các thông báo mẫu
-const notifications = ref([
-  {
-    id: 1,
-    type: "success",
-    title: "Đơn hàng thành công",
-    message: "Đơn hàng #123 đã được xác nhận và đang được xử lý",
-    time: "5 phút trước",
-    read: false,
-  },
-  {
-    id: 2,
-    type: "warning",
-    title: "Cảnh báo hệ thống",
-    message: "Dung lượng lưu trữ đạt 80%, vui lòng kiểm tra",
-    time: "1 giờ trước",
-    read: false,
-  },
-  {
-    id: 3,
-    type: "info",
-    title: "Người dùng mới",
-    message: "Có 5 người dùng mới đăng ký trong hôm nay",
-    time: "3 giờ trước",
-    read: true,
-  },
-  {
-    id: 4,
-    type: "success",
-    title: "Backup thành công",
-    message: "Hệ thống đã backup dữ liệu thành công",
-    time: "1 ngày trước",
-    read: true,
-  },
-]);
+// Tính số lượng thông báo chưa đọc
+const unreadCount = computed(() => {
+  return notifications.notifications.filter((notif) => !notif.read).length;
+});
 
 // Xử lý khi click vào thông báo
 const handleNotificationClick = (notification) => {
   notification.read = true;
-  // Thêm logic xử lý khi click vào thông báo
+  notifications.markAllAsRead(); // Cập nhật vào store
+  router.push({ name: "admin-orders" });
   message.info(`Đã mở thông báo: ${notification.title}`);
 };
 
 // Đánh dấu tất cả đã đọc
 const markAllAsRead = () => {
-  notifications.value.forEach((notif) => {
-    notif.read = true;
-  });
+  notifications.markAllAsRead();
   message.success("Đã đánh dấu tất cả thông báo là đã đọc");
 };
 
 // Xem tất cả thông báo
 const viewAllNotifications = () => {
-  // Thêm logic chuyển đến trang xem tất cả thông báo
   message.info("Chuyển đến trang xem tất cả thông báo");
-};
-
-const handleLogout = () => {
-  message.success("Đăng xuất thành công");
 };
 </script>
 
@@ -151,9 +136,9 @@ const handleLogout = () => {
   border-bottom: 1px solid #f0f0f0;
 }
 
-.notification-container{
-    max-height: 20rem;
-    overflow: auto;
+.notification-container {
+  max-height: 20rem;
+  overflow: auto;
 }
 
 .notification-item {

@@ -23,6 +23,51 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        @click="handleViewImage(props.rowData._id)"
+                        class="badge text-bg-secondary p-2"
+                      >
+                        <i class="fa-solid fa-image"></i> View Image
+                      </button>
+                    </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleEditBook(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateAuthor"
+                        id="editRole"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pencil"></i> Edit
+                      </button>
+                    </div>
+                    <div v-if="props.rowData.isShowed" class="">
+                      <button
+                        type="button"
+                        @click="
+                          handleHideAndShowBook(props.rowData._id, (method = 'hide'))
+                        "
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-eye-slash"></i> Hide
+                      </button>
+                    </div>
+                    <div v-else class="">
+                      <button
+                        type="button"
+                        @click="
+                          handleHideAndShowBook(props.rowData._id, (method = 'show'))
+                        "
+                        class="badge text-bg-success p-2"
+                      >
+                        <i class="fa-solid fa-eye"></i> Show
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -31,6 +76,8 @@
                     <th class="text-start">Hình thức</th>
                     <th class="text-start">Nhà xuất bản</th>
                     <th class="text-start">Tác giả</th>
+                    <th class="text-start">Lượt xem</th>
+                    <th class="text-start">Trạng thái</th>
                     <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
@@ -68,6 +115,7 @@ import { toast } from "vue3-toastify";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { handleNavigate } from "@/utils/utils";
+import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
 
 const router = useRouter();
 const store = useMenu();
@@ -93,61 +141,52 @@ const columns = [
     data: "categoryID.name",
     width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data ? data : "Đang cập nhật..."
-      }</div>`;
+      return `<div class='text-start'>${data ? data : "Đang cập nhật..."}</div>`;
     },
   },
   {
     data: "formalityID.name",
     width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data ? data : "Đang cập nhật..."
-      }</div>`;
+      return `<div class='text-start'>${data ? data : "Đang cập nhật..."}</div>`;
     },
   },
   {
     data: "publisherID.name",
     width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data ? data : "Đang cập nhật..."
-      }</div>`;
+      return `<div class='text-start'>${data ? data : "Đang cập nhật..."}</div>`;
     },
   },
   {
     data: "authorID.name",
     width: "10%",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data ? data : "Đang cập nhật..."
-      }</div>`;
+      return `<div class='text-start'>${data ? data : "Đang cập nhật..."}</div>`;
+    },
+  },
+  {
+    data: "view",
+    width: "10%",
+    render: (data, type, row, meta) => {
+      return `<div class='text-start'>${data}</div>`;
+    },
+  },
+  {
+    data: "isShowed",
+    width: "10%",
+    render: (data, type, row, meta) => {
+      if (data) {
+        return `<div class='text-start badge text-bg-success p-2'>Đang hiển thị</div>`;
+      }
+      return `<div class='text-start badge text-bg-danger p-2'>Dã ẩn</div>`;
     },
   },
   {
     data: "_id",
     width: "auto",
-    render: (data, type, row, meta) => {
-      return `<div class="d-flex">
-            <div class="me-3">
-                  <button type="button" id="viewDetail" class="badge text-bg-secondary p-2" data-id=${data} data-bs-toggle="tooltip" 
-                        data-bs-placement="top" data-bs-title="Tooltip on top">
-                    <i class="fa-solid fa-image"></i> View Image
-                  </button>
-              </div>
-              <div class="me-3">
-                  <button id="editBook" class="badge text-bg-warning p-2" data-id=${data}>
-                     <i class="fa-solid fa-pencil"></i> Edit
-                  </button>
-              </div>
-              <div class="">
-                  <button  class="badge text-bg-danger p-2" id="deleteBook" data-id=${data}>
-                      <i class="fa-solid fa-eye-slash"></i> Hide
-                  </button>
-              </div>
-            </div>`;
-    },
+    render: "#action",
+    title: "Thao tác",
   },
 ];
 
@@ -159,18 +198,46 @@ const getBooks = async () => {
   }
 };
 
-$(document).on("click", "#editBook", (event) => {
-  let bookId = $(event.currentTarget).data("id");
-  router.push({ name: "admin-books-edit", params: { bookID: bookId } });
-});
-
-$(document).on("click", "#viewDetail", async (event) => {
-  let bookId = $(event.currentTarget).data("id");
+const handleViewImage = (bookID) => {
   router.push({
     name: "admin-books-edit-detail",
-    params: { bookID: bookId },
+    params: { bookID: bookID },
   });
-});
+};
+
+const handleEditBook = (bookID) => {
+  router.push({ name: "admin-books-edit", params: { bookID: bookID } });
+};
+
+const HideAndShowBook = async (bookID, method) => {
+  try {
+    let response;
+    if (method === "hide") {
+      response = await apiAdmin.put(`/books/hide/${bookID}`, {
+        isShowed: false,
+      });
+    } else {
+      response = await apiAdmin.put(`/books/hide/${bookID}`, {
+        isShowed: true,
+      });
+    }
+    if (response.status === 200) {
+      showSuccessToast(response.data.message);
+      getBooks();
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorToast("Lỗi khi ẩn sách");
+  }
+};
+const handleHideAndShowBook = async (bookID, method) => {
+  const isConfirmed = await showConfirmation({
+    text: method === "hide" ? "Sách này sẽ bị ẩn đi" : "Sách này sẽ được hiện ra",
+  });
+  if (isConfirmed.isConfirmed) {
+    await HideAndShowBook(bookID, method);
+  }
+};
 
 onMounted(() => {
   getBooks();

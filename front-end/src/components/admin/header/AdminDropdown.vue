@@ -8,7 +8,7 @@
           {{ admin ? admin.firstName + " " + admin.lastName : "Chưa biết" }}
         </div>
         <div class="user-role small text-muted" style="line-height: 1.2">
-          {{ admin ? admin.role : "Chưa biết" }}
+          {{ admin ? admin.roleID?.name : "Chưa biết" }}
         </div>
       </div>
       <DownOutlined />

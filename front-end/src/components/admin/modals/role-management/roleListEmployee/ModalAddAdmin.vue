@@ -139,13 +139,13 @@
                     class="form-control"
                     :class="{
                       'is-invalid': errors.role,
-                      'is-valid': !errors.role && newAdmin.role !== '',
+                      'is-valid': !errors.role && newAdmin.roleID !== '',
                     }"
                     id="role"
                     placeholder="Vai trò"
-                    v-model="newAdmin.role"
+                    v-model="newAdmin.roleID"
                     ><option selected value="">Vui lòng chọn quyền</option>
-                    <option :value="role.name" v-for="role in roles">
+                    <option :value="role._id" v-for="role in roles">
                       {{ role.name }}
                     </option>
                   </Field>
@@ -188,7 +188,7 @@ export default {
       phoneNumber: "",
       email: "",
       password: "",
-      role: "",
+      roleID: "",
       method: "add"
     });
     const roles = ref([]);

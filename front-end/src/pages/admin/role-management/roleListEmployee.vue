@@ -41,7 +41,7 @@
                     <div class="">
                       <button
                         type="button"
-                        @click="handleDeleteRole(props.rowData._id)"
+                        @click="handleDeleteAdmin(props.rowData._id)"
                         class="badge text-bg-danger p-2"
                       >
                         <i class="fa-solid fa-trash"></i> Delete
@@ -94,6 +94,7 @@ import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import ApiAdmin from "../../../service/admin/apiAdmin.service.js";
 import ModalAddAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalAddAdmin.vue";
 import ModalUpdateAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalUpdateAdmin.vue";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default defineComponent({
   components: {
@@ -136,7 +137,7 @@ export default defineComponent({
         },
       },
       {
-        data: "role",
+        data: "roleID.name",
         render: (data, type, row, meta) => {
           if (!data) {
             return `<div class="text-start">Chưa biết</div>`;
@@ -162,17 +163,17 @@ export default defineComponent({
     const handleUpdateAdmin = (adminID) => {
       const adminToEdit = admins.value.find((admin) => admin._id === adminID);
       if (adminToEdit) {
-        editedAdmin.value = { ...adminToEdit };
+        editedAdmin.value = { ...adminToEdit, roleID: adminToEdit.roleID._id };
       }
     };
 
 
-    const deletuser = async (userID) => {
+    const deletAdmin = async (adminID) => {
       try {
-        const response = await apiAdmin.delete(`/users/${userID}`);
+        const response = await apiAdmin.delete(`/admins/${adminID}`);
         if (response.status == 200) {
           showSuccessToast(response?.data?.message);
-          getUsers();
+          getAdmins();
         }
       } catch (error) {
         console.log(error);
@@ -180,64 +181,14 @@ export default defineComponent({
       }
     };
 
-    const blockUser = async (userID) => {
-      try {
-        const response = await apiAdmin.put(`/users/blockAccount/${userID}`);
-        if (response.status == 200) {
-          showSuccessToast(response?.data?.message);
-          getUsers();
-        }
-      } catch (error) {
-        console.log(error);
-        showErrorToast(error.response?.data?.message);
+    const handleDeleteAdmin = async (adminID) => {
+      const isConfirmed = await showConfirmation({
+        text:"Nhân viên này sẽ bị xóa"
+      });
+      if(isConfirmed.isConfirmed){
+        await deletAdmin(adminID);
       }
-    };
-
-    const unBlockUser = async (userID) => {
-      try {
-        const response = await apiAdmin.put(`/users/unBlockAccount/${userID}`);
-        if (response.status == 200) {
-          showSuccessToast(response?.data?.message);
-          getUsers();
-        }
-      } catch (error) {
-        console.log(error);
-        showErrorToast(error.response?.data?.message);
-      }
-    };
-
-    $(document).on("click", "#deletuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ bị xóa!",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await deletuser(userId);
-        }
-      });
-    });
-
-    $(document).on("click", "#blockuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ bị khóa !",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await blockUser(userId);
-        }
-      });
-    });
-
-    $(document).on("click", "#unblockuser", async (event) => {
-      const userId = $(event.currentTarget).data("id");
-      await showConfirmation({
-        text: "Người dùng này sẽ đuợc mở khóa !",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await unBlockUser(userId);
-        }
-      });
-    });
+    }
 
     onMounted(() => {
       getAdmins();
@@ -290,6 +241,7 @@ export default defineComponent({
       language,
       editedAdmin,
       handleUpdateAdmin,
+      handleDeleteAdmin
     };
   },
 });
