@@ -2,7 +2,6 @@ const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const commentService = require("../../services/comment.service");
 const orderService = require("../../services/order.service");
-const fs = require("fs").promises;
 
 exports.create = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
@@ -29,7 +28,8 @@ exports.create = async (req, res, next) => {
       );
     }
 
-    const createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    const createdAt = moment.tz("Asia/Ho_Chi_Minh");
+    const updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     if (!req.files) {
       newComment = await commentService.createComment({
         bookID: bookID,
@@ -37,6 +37,7 @@ exports.create = async (req, res, next) => {
         content: content,
         star: rating,
         createdAt: createdAt,
+        updatedAt: updatedAt,
       });
     } else {
       const images = req.files.map((file) => ({
@@ -81,8 +82,12 @@ exports.findAll = async (req, res, next) => {
     const totalPages = Math.ceil(totalComments / limit);
     if (userID) {
       const commentsWithUserActions = comments.map((comment) => {
-        const isLiked = comment.likedBy.some((comment) => comment.userID.toString() === userID);
-        const isDisliked = comment.disLikedBy.some((comment) => comment.userID.toString() === userID);
+        const isLiked = comment.likedBy.some(
+          (comment) => comment.userID.toString() === userID
+        );
+        const isDisliked = comment.disLikedBy.some(
+          (comment) => comment.userID.toString() === userID
+        );
 
         return {
           ...comment._doc,
@@ -119,18 +124,22 @@ exports.likeComment = async (req, res, next) => {
   try {
     const comment = await commentService.getCommentById(commentID);
     if (action === "like") {
-      if (!comment.likedBy.some(user => user.userID.toString() === userID)) {
+      if (!comment.likedBy.some((user) => user.userID.toString() === userID)) {
         comment.likedBy.push({ userID });
         comment.liked += 1;
       }
 
-      const disLikeIndex = comment.disLikedBy.findIndex(user => user.userID.toString() === userID);
+      const disLikeIndex = comment.disLikedBy.findIndex(
+        (user) => user.userID.toString() === userID
+      );
       if (disLikeIndex > -1) {
         comment.disLikedBy.splice(disLikeIndex, 1);
         comment.disLiked -= 1;
       }
     } else if (action === "unlike") {
-      const likeIndex = comment.likedBy.findIndex(user => user.userID.toString() === userID);
+      const likeIndex = comment.likedBy.findIndex(
+        (user) => user.userID.toString() === userID
+      );
       if (likeIndex > -1) {
         comment.likedBy.splice(likeIndex, 1);
         comment.liked -= 1;
@@ -158,18 +167,24 @@ exports.disLikeComment = async (req, res, next) => {
     const comment = await commentService.getCommentById(commentID);
 
     if (action === "dislike") {
-      if (!comment.disLikedBy.some(user => user.userID.toString() === userID)) {
+      if (
+        !comment.disLikedBy.some((user) => user.userID.toString() === userID)
+      ) {
         comment.disLikedBy.push({ userID });
         comment.disLiked += 1;
       }
 
-      const likeIndex = comment.likedBy.findIndex(user => user.userID.toString() === userID);
+      const likeIndex = comment.likedBy.findIndex(
+        (user) => user.userID.toString() === userID
+      );
       if (likeIndex > -1) {
         comment.likedBy.splice(likeIndex, 1);
         comment.liked -= 1;
       }
     } else if (action === "undislike") {
-      const disLikeIndex = comment.disLikedBy.findIndex(user => user.userID.toString() === userID);
+      const disLikeIndex = comment.disLikedBy.findIndex(
+        (user) => user.userID.toString() === userID
+      );
       if (disLikeIndex > -1) {
         comment.disLikedBy.splice(disLikeIndex, 1);
         comment.disLiked -= 1;

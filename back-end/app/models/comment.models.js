@@ -40,6 +40,7 @@ const commentSchema = new Schema({
         ref: "Comment",
         default: null,
       },
+      _id: false,
     },
   ],
   liked: {
@@ -68,7 +69,9 @@ const commentSchema = new Schema({
   ],
   createdAt: {
     type: Date,
-    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
   },
 });
 const Comment = mongoose.model("Comment", commentSchema);

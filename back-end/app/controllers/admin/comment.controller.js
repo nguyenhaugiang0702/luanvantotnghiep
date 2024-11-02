@@ -10,7 +10,6 @@ exports.findAll = async (req, res, next) => {
     comments = await commentService.getComments({
       isAdminReply: false,
     });
-    console.log(comments);
     return res.send(comments);
   } catch (error) {
     console.log(error);
@@ -33,6 +32,15 @@ exports.deleteComment = async (req, res, next) => {
         await fs.unlink(image.path);
       });
     }
+
+    // Xóa các bình luận của admin liên quan đến bình luận này
+    const deleteAdminReplies = await commentService.deleteAdminReplies(
+      commentID
+    );
+    if (!deleteAdminReplies) {
+      return next(new ApiError(400, "Lỗi khi xóa bình luận của admin"));
+    }
+
     const deleteComment = await commentService.deleteCommentById(commentID);
     if (!deleteComment) {
       return next(new ApiError(400, "Lỗi khi xóa bình luận"));
@@ -60,17 +68,32 @@ exports.replyComment = async (req, res, next) => {
     if (!adminID) {
       return next(new ApiError(403, "Quyền truy cập bị từ chối"));
     }
-    const adminReply = await commentService.createComment({
-      bookID: parentComment.bookID, // Giữ nguyên bookID từ bình luận gốc
-      userID: parentComment.userID, 
-      content: replyContent, // Nội dung của reply
-      isAdminReply: true, // Đánh dấu là bình luận của admin
-      parentCommentID: commentID, // Gán bình luận cha
-    });
+    if (!replyContent) {
+      return next(new ApiError(404, "Vui lòng nhập nội dung trả lời"));
+    }
+    // Kiểm tra xem đã có phản hồi của admin chưa
+    let adminReply = await commentService.getAdminReply(commentID);
+    if (adminReply) {
+      // Cập nhật nội dung nếu đã có phản hồi của admin
+      adminReply.content = replyContent;
+      adminReply.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+      await adminReply.save();
+    } else {
+      // Tạo phản hồi mới nếu chưa có
+      adminReply = await commentService.createComment({
+        bookID: parentComment.bookID,
+        userID: parentComment.userID,
+        content: replyContent,
+        isAdminReply: true,
+        parentCommentID: commentID,
+        createdAt: moment.tz("Asia/Ho_Chi_Minh"),
+        updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
+      });
 
-    // Cập nhật mảng replies của bình luận gốc
-    parentComment.replies.push({ commentID: adminReply._id });
-    await parentComment.save();
+      // Cập nhật mảng replies của bình luận gốc
+      parentComment.replies.push({ commentID: adminReply._id });
+      await parentComment.save();
+    }
 
     return res.send({
       message: "Đã trả lời thành công",

@@ -13,8 +13,10 @@ exports.createVoucherCategory = async (req, res, next) => {
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     if (discountType === "percent") {
       req.body.name = `Giảm ${value} %`;
-    } else {
+    } else if (discountType === "amount") {
       req.body.name = `Giảm ${value} VND`;
+    } else {
+      return next(new ApiError(400, "Vui lòng chọn đúng loại giảm giá"));
     }
     const newVoucherCategory =
       await voucherCategoryService.createVoucherCategory(req.body);
@@ -45,8 +47,10 @@ exports.updateVoucherCategory = async (req, res, next) => {
   try {
     if (discountType === "percent") {
       req.body.name = `Giảm ${value} %`;
-    } else {
+    } else if (discountType === "amount") {
       req.body.name = `Giảm ${value} VND`;
+    } else {
+      return next(new ApiError(400, "Vui lòng chọn đúng loại giảm giá"));
     }
     const updateVouchersCategory =
       await voucherCategoryService.updateVouchersCategory(
@@ -60,6 +64,24 @@ exports.updateVoucherCategory = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi cập nhật thể loại mã giảm giá"));
+  }
+};
+
+exports.deleteVoucherCategory = async (req, res, next) => {
+  const { voucherCategoryID } = req.params;
+  try {
+    const deleteVoucherCategory =
+      await voucherCategoryService.deleteVoucherCategory(voucherCategoryID);
+    if (!deleteVoucherCategory) {
+      return next(new ApiError(500, "Lỗi khi xóa loại mã giảm giá"));
+    }
+    return res.send({
+      message: "Xóa thành công loại mã giảm giá",
+      deleteVoucherCategory,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi xóa loại mã giảm giá"));
   }
 };
 

@@ -20,8 +20,12 @@ const updateVouchersCategory = async (
   return await VoucherCategory.findByIdAndUpdate(
     voucherCategoryID,
     voucherCategoryData,
-    { new: true}
+    { new: true }
   );
+};
+
+const deleteVoucherCategory = async (voucherCategoryID) => {
+  return await VoucherCategory.findByIdAndDelete(voucherCategoryID);
 };
 
 module.exports = {
@@ -29,4 +33,5 @@ module.exports = {
   getVoucherCategoryByID,
   getAllVouchersCategory,
   updateVouchersCategory,
+  deleteVoucherCategory,
 };
