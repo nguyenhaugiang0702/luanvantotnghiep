@@ -4,7 +4,7 @@ const ApiError = require("../../api-error");
 
 exports.findAll = async (req, res, next) => {
   try {
-    let orders = await orderService.getAllOrdersByAdmin();
+    let orders = await orderService.getAllOrdersByAdmin({});
     orders = orders.map((order) => {
       const { statusOptions, statusFormat } =
         orderService.getStatusOptionsAndFormat(order.status);
@@ -58,7 +58,7 @@ exports.findOne = async (req, res, next) => {
       totalDiscountPrice,
       statusOptions,
       status: statusFormat,
-      statusFullOptions
+      statusFullOptions,
     });
   } catch (error) {
     console.log(error);
@@ -133,5 +133,25 @@ exports.deleteOrder = async (req, res, next) => {
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi xóa đơn hàng"));
+  }
+};
+
+exports.findAllOrderConfirmed = async (req, res, next) => {
+  try {
+    let orders = await orderService.getAllOrdersByAdmin({ status: 2});
+    console.log(1);
+    orders = orders.map((order) => {
+      const { statusOptions, statusFormat } =
+        orderService.getStatusOptionsAndFormat(order.status);
+      // Gán mảng statusOptions cho từng đơn hàng
+      return { ...order._doc, statusOptions, status: statusFormat };
+    });
+    if (!orders) {
+      return next(new ApiError(400, "Lỗi khi lấy tất cả đơn hàng!"));
+    }
+    return res.send(orders);
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
   }
 };

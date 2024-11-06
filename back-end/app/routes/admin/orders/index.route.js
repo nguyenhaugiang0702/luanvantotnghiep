@@ -3,6 +3,7 @@ const order = require("../../../controllers/admin/order.controller");
 const router = express.Router();
 
 router.route("/").get(order.findAll); // Lấy tất cả đơn hàng
+router.route("/confirmed").get(order.findAllOrderConfirmed); // Lấy tất cả đơn hàng
 
 router
   .route("/:orderID")

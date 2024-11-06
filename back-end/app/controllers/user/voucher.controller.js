@@ -4,6 +4,8 @@ const voucherService = require("../../services/vouchers/voucher.service");
 const voucherCategoryService = require("../../services/vouchers/voucherCategory.service");
 const voucherUsedsService = require("../../services/vouchers/voucherUseds.service");
 const validation = require("../../middlewares/validateVoucher.middleware");
+const cartService = require("../../services/cart.service");
+const format = require("../../utils/formatPrice.utils");
 
 exports.findAllVouchers = async (req, res, next) => {
   const userID = req.user ? req.user.id : null;
@@ -140,6 +142,7 @@ exports.findAllVoucherUseds = async (req, res, next) => {
       userID: userID,
       isUsed: false,
     });
+    console.log(voucherUseds.length);
     // Thêm % sử dụng voucher
     voucherUseds = voucherUseds.map((voucherUsed) => {
       let voucher = voucherUsed.voucherID;
@@ -156,9 +159,11 @@ exports.findAllVoucherUseds = async (req, res, next) => {
     const validVouchers = voucherUseds.filter((voucherUsed) => {
       const endDate = moment(voucherUsed.voucherID.endDate)
         .tz("Asia/Ho_Chi_Minh")
+        .endOf("day")
         .toDate(); // Chuyển đổi endDate sang đối tượng Date
       return endDate >= currentDate; // Kiểm tra xem endDate có lớn hơn hoặc bằng currentDate không
     });
+    console.log(validVouchers.length);
     // Phân trang
     if (Object.keys(req.query).length !== 0) {
       paginatedVouchers = validVouchers.slice(skip, skip + limit);
@@ -188,6 +193,7 @@ exports.updateVoucherUseds = async (req, res, next) => {
     const { voucherUsedID } = req.params;
     const { method, voucherID, isApplied } = req.body;
     const userID = req.user ? req.user.id : null;
+    let totalPriceOrder = 0;
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
@@ -203,11 +209,30 @@ exports.updateVoucherUseds = async (req, res, next) => {
     }
 
     if (method === "SELECT") {
-      // Check Date hết hạn mã giảm giá 
+      // Check Date hết hạn mã giảm giá
       try {
         validation.voucherDateValidation(currentVoucher);
       } catch (error) {
         return next(new ApiError(400, error.message));
+      }
+      // Check Min Price
+      const cart = await cartService.getCartByUserID(userID);
+      const cartBooksIscheckOut = cart.books.filter((book) => book.isCheckOut);
+      totalPriceOrder = cartBooksIscheckOut.reduce(
+        (total, book) => total + book.quantity * book.price,
+        0
+      );
+      const addNeedPrice =
+        totalPriceOrder - currentVoucher.voucherCategoryID.minValue;
+      if (addNeedPrice < 0) {
+        return next(
+          new ApiError(
+            400,
+            `Vui lòng mua thêm ${format.formatPrice(
+              -addNeedPrice
+            )} để sử dụng mã giảm giá`
+          )
+        );
       }
       // Chọn mã giảm giá
       await voucherUsedsService.updateMany(
@@ -237,5 +262,61 @@ exports.updateVoucherUseds = async (req, res, next) => {
     return next(
       new ApiError(500, "Lỗi khi lấy tất cả mã giảm giá của người dùng")
     );
+  }
+};
+
+exports.checkExpiredVouchers = async (req, res, next) => {
+  try {
+    const userID = req.user ? req.user.id : null;
+    let voucherUseds = [];
+    let sameDayExpiredVouchers = []; // Voucher hết hạn trong ngày
+    let upcomingExpiredVouchers = []; // Vouchẻ hết hạn 2 ngày sắp tới
+    if (!userID) {
+      return next(new ApiError(400, "Vui lòng đăng nhập"));
+    }
+
+    // Lấy ngày hiện tại
+    const currentDate = moment().tz("Asia/Ho_Chi_Minh").startOf("day");
+    const twoDaysLater = moment()
+      .tz("Asia/Ho_Chi_Minh")
+      .add(2, "days")
+      .endOf("day");
+
+    voucherUseds = await voucherUsedsService.getAllVoucherUseds({
+      userID: userID,
+      isUsed: false,
+    });
+    // Lọc voucher hết hạn trong cùng ngày
+    voucherUseds.forEach((voucherUsed) => {
+      const endDate = moment(voucherUsed.voucherID.endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .endOf("day");
+
+      // Kiểm tra nếu voucher hết hạn trong ngày hiện tại
+      if (endDate.isSame(currentDate, "day")) {
+        sameDayExpiredVouchers.push(voucherUsed);
+      }
+      // Kiểm tra nếu voucher hết hạn trong khoảng từ ngày mai đến hai ngày sau
+      else if (endDate.isBetween(currentDate, twoDaysLater, "day", "[]")) {
+        // [] giới hạn phạm vi bao gồm ngày hiện tại currentDate
+        upcomingExpiredVouchers.push(voucherUsed);
+      }
+    });
+    if (
+      sameDayExpiredVouchers.length > 0 ||
+      upcomingExpiredVouchers.length > 0
+    ) {
+      return res.send({
+        message: "Danh sách các voucher đã hết hạn hoặc sắp hết hạn.",
+        sameDayExpiredVouchers: sameDayExpiredVouchers,
+        upcomingExpiredVouchers: upcomingExpiredVouchers,
+      });
+    }
+    return res.send({
+      message: "Tất cả các voucher còn hiệu lực.",
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi check thời gian hết hạn"));
   }
 };

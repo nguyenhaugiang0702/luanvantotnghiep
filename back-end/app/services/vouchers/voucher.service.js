@@ -6,7 +6,7 @@ const createVoucher = async (voucherData) => {
 };
 
 const getVoucherByID = async (voucherID) => {
-  return await Voucher.findById(voucherID);
+  return await Voucher.findById(voucherID).populate("voucherCategoryID");;
 };
 
 const getAllVouchers = async (query, skip = 0, limit = 0) => {

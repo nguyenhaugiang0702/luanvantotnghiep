@@ -123,13 +123,14 @@ exports.findOne = async (req, res, next) => {
   }
   const orderID = req.params.orderID;
   try {
-    const orderDetail = await orderService.getOrderByIDAndUserID(
-      orderID,
-      userID
-    );
+    let orderDetail = await orderService.getOrderByIDAndUserID(orderID, userID);
+
     if (!orderDetail) {
       return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
     }
+    const { statusOptions, statusFormat } =
+      orderService.getStatusOptionsAndFormat(orderDetail.status);
+
     // Tính tổng giá sách trong đơn hàng
     orderDetail.detail.map((book) => {
       totalPriceOrder += book.quantity * book.realPrice;
@@ -156,6 +157,8 @@ exports.findOne = async (req, res, next) => {
       ...orderDetail._doc,
       totalPriceOrder,
       totalDiscountPrice,
+      statusOptions,
+      status: statusFormat,
     });
   } catch (error) {
     console.log(error);

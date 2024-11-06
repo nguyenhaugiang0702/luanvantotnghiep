@@ -28,12 +28,10 @@ const verifyUserToken = (req, res, next) => {
 const verifyAdminToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (
-    req.originalUrl.includes("/auth/login")
-  ) {
+  if (req.originalUrl.includes("/auth/login")) {
     return next();
   }
-  // if (!token) return next(new ApiError(403, "Vui lòng đăng nhập"));
+  if (!token) return next(new ApiError(403, "Vui lòng đăng nhập"));
 
   jwt.verify(token, config.jwt.admin.secretKey, (err, admin) => {
     if (err) {
@@ -49,6 +47,7 @@ const verifyAdminToken = (req, res, next) => {
       "/orders",
       "/receipts",
     ];
+
     // Admin
     if (admin.role === "admin") {
       req.admin = { ...admin, token };
@@ -63,7 +62,16 @@ const verifyAdminToken = (req, res, next) => {
       req.admin = { ...admin, token };
       return next();
     }
-    return next(new ApiError(405, "Bạn không có quyền truy cập"));
+
+    if (
+      (admin.role === "shipper" && req.originalUrl.includes("/admins/infoAdmin")) ||
+      req.originalUrl.includes("/orders")
+    ) {
+      req.admin = { ...admin, token };
+      return next();
+    }
+
+    return next(new ApiError(403, "Bạn không có quyền truy cập"));
   });
 };
 

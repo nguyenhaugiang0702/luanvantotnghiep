@@ -67,7 +67,6 @@ exports.register = async (req, res, next) => {
     req.body.createdAt = moment().tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment().tz("Asia/Ho_Chi_Minh");
     req.body.isActive = 1;
-    req.body.typeLogin = "SMS";
     req.body.role = "customer";
     const newUser = await userService.createUser(req.body);
 

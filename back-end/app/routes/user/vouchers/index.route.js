@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const voucher = require("../../../controllers/user/voucher.controller");
 const validation = require("../../../middlewares/validateVoucher.middleware");
-
 // Voucher
 router.route("/").get(voucher.findAllVouchers);
+router.route("/checkExpire").get(voucher.checkExpiredVouchers);
 
 // Voucher Useds
 router

@@ -51,6 +51,14 @@ async function startServer() {
 
         // Cập nhật tin nhắn vào cơ sở dữ liệu
         await chatRoomService.updateMessage(chatRoomId, sender, message);
+        if (sender === "user") {
+          io.emit("hasNewMessage", {
+            chat: {
+              message: "Có tin nhắn mới từ người dùng",
+              newMessage: message,
+            },
+          });
+        }
 
         // Phát tin nhắn mới tới tất cả các client trong phòng chat
         io.to(chatRoomId).emit("receiveMessage", {

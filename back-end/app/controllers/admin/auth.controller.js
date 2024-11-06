@@ -14,7 +14,9 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
+    console.log(req.body);
     const admin = await authAdminService.getAdminByEmail(email);
+    console.log(admin);
 
     if (!admin) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
@@ -36,6 +38,7 @@ exports.login = async (req, res, next) => {
       message: "Đăng nhập thành công!",
       accessToken,
       refreshToken,
+      success: true,
       admin: admin,
     });
   } catch (error) {

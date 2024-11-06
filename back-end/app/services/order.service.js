@@ -6,6 +6,7 @@ const moment = require("moment"); // npm install moment
 const config = require("../config/index");
 const voucherUsedsService = require("../services/vouchers/voucherUseds.service");
 const voucherService = require("../services/vouchers/voucher.service");
+const { ordersValidation } = require("../middlewares/validateOrder.middelware");
 
 const create = async (orderData) => {
   const newOrder = new Order(orderData);
@@ -40,9 +41,11 @@ const createOrder = async (orderData) => {
   }
   // Lấy io từ app và phát thông báo đến admin
   const io = require("../../app").get("socketIo");
-  io.emit("newOrder", {
-    message: "Có đơn hàng mới",
-    order: newOrder,
+  io.emit("hasNewMessage", {
+    order: {
+      message: "Có đơn hàng mới",
+      newOrder: newOrder,
+    },
   });
 
   return newOrder;
@@ -68,8 +71,8 @@ const getOrderByID = async (orderID) => {
     });
 };
 
-const getAllOrdersByAdmin = async () => {
-  return await Order.find({})
+const getAllOrdersByAdmin = async (query) => {
+  return await Order.find(query)
     .populate({
       path: "detail.bookID",
       populate: [

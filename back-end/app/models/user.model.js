@@ -30,9 +30,6 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
-  typeLogin: {
-    type: String,
-  },
   image: {
     type: String,
   },

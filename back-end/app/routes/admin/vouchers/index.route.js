@@ -17,7 +17,8 @@ router
   .put(
     validation.createVoucherCategoryValidation,
     voucher.updateVoucherCategory
-  ); // Validated
+  ) // Validated
+  .delete(voucher.deleteVoucherCategory);
 
 // Voucher
 router
