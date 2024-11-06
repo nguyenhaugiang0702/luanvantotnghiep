@@ -29,8 +29,10 @@
                       <select
                         class="form-select"
                         :class="{
-                          'border-warning border-2': props.rowData?.status?.value === 1,
-                          'border-success border-2': props.rowData?.status?.value === 2,
+                          'border-warning border-2':
+                            props.rowData?.status?.value === 1,
+                          'border-success border-2':
+                            props.rowData?.status?.value === 2,
                           'border-danger border-2':
                             props.rowData?.status?.value === 3 ||
                             props.rowData?.status?.value === 4,
@@ -38,7 +40,10 @@
                         style="width: 12rem"
                         :value="props.rowData.status.value"
                         @change="
-                          updateOrderStatus(props.rowData._id, $event.target.value)
+                          updateOrderStatus(
+                            props.rowData._id,
+                            $event.target.value
+                          )
                         "
                       >
                         <option
@@ -119,6 +124,7 @@ import "datatables.net-select-bs5";
 import moment from "moment";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import { buttons, language } from "@/utils/datatable";
 
 //
 const router = useRouter();
@@ -148,7 +154,9 @@ const columns = [
   {
     data: "userID",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${data.firstName + " " + data.lastName}</div>
+      return `<div class='text-start'>${
+        data.firstName + " " + data.lastName
+      }</div>
       <div class='text-start'>(${data.phoneNumber})</div>`;
     },
   },
@@ -265,44 +273,6 @@ const updateOrderStatus = async (orderID, statusValue) => {
 onMounted(() => {
   getOrders();
 });
-
-// Bỏ cột thao tác trong bảng
-const exportOptions = {
-  columns: ":not(:last-child)",
-};
-
-const buttons = [
-  {
-    extend: "copy",
-    exportOptions: exportOptions,
-  },
-  {
-    extend: "csv",
-    exportOptions: exportOptions,
-  },
-  {
-    extend: "pdf",
-    exportOptions: exportOptions,
-  },
-  {
-    extend: "print",
-    exportOptions: exportOptions,
-  },
-];
-// Bỏ cột thao tác trong bảng
-
-const language = {
-  search: "_INPUT_",
-  searchPlaceholder: "Tìm kiếm...",
-  lengthMenu: "Hiển thị _MENU_ hàng",
-  paginate: {
-    first: "Đầu tiên",
-    last: "Cuối cùng",
-    next: "Tiếp theo",
-    previous: "Trước đó",
-  },
-  info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-};
 </script>
 <style>
 @import "datatables.net-bs5";

@@ -103,6 +103,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { buttons, language } from "@/utils/datatable";
 //
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 
@@ -133,18 +134,30 @@ export default defineComponent({
       {
         data: "supplierInfo.email",
         width: "15%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
+        render: (data) =>
+          `<div class="text-start text-break">${
+            data ? data : "Đang cập nhật"
+          }</div>`,
       },
       {
         data: "supplierInfo.phoneNumber",
         width: "20%",
-        render: (data) => `<div class="text-start text-break">${data}</div>`,
+        render: (data) =>
+          `<div class="text-start text-break">${
+            data ? data : "Đang cập nhật"
+          }</div>`,
       },
       {
         data: null,
         width: "20%",
-        render: (data, row) => 
-          `<div class="text-start text-break">${data.adminID.firstName + ' ' + data.adminID.lastName}</div>`,
+        render: (data, row) => {
+          if (data.adminID != null) {
+            return `<div class="text-start text-break">${
+              data.adminID.firstName + " " + data.adminID.lastName
+            }</div>`;
+          }
+          return `<div class="text-start text-break">Đang cập nhật</div>`;
+        },
       },
       {
         data: "_id",
@@ -186,30 +199,6 @@ export default defineComponent({
     });
 
     onMounted(getReceipts);
-
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      { extend: "copy", exportOptions },
-      { extend: "csv", exportOptions },
-      { extend: "pdf", exportOptions },
-      { extend: "print", exportOptions },
-    ];
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
 
     return {
       getReceipts,

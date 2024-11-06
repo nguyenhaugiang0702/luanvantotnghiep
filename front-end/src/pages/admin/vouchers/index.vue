@@ -6,10 +6,10 @@
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-        <ModalAddVoucher @refreshVouchersCategory="getVouchers" />
+        <ModalAddVoucher @refreshVouchers="handleRefreshVouchers" />
         <ModalUpdateVoucher
           :voucherToEdit="editedVoucher"
-          @refreshVouchersCategory="getVouchers"
+          @refreshVouchers="handleRefreshVouchers"
         />
         <div class="row">
           <div class="col-12">
@@ -74,6 +74,7 @@ import { showConfirmation } from "@/utils/swalUtils";
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import moment from "moment";
+import { buttons, language } from "@/utils/datatable";
 
 export default {
   components: {
@@ -130,7 +131,7 @@ export default {
           return moment(data).format("DD/MM/YYYY");
         },
       },
-      
+
       {
         data: "endDate",
         width: "15%",
@@ -190,42 +191,8 @@ export default {
       getVouchers();
     });
 
-    // Bỏ cột thao tác trong bảng
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      {
-        extend: "copy",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "csv",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "pdf",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "print",
-        exportOptions: exportOptions,
-      },
-    ];
-    // Bỏ cột thao tác trong bảng
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+    const handleRefreshVouchers = async () => {
+      await getVouchers();
     };
 
     return {
@@ -235,6 +202,7 @@ export default {
       editedVoucher,
       buttons,
       language,
+      handleRefreshVouchers,
     };
   },
 };

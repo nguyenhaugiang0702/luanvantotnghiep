@@ -73,7 +73,7 @@
                   v-if="
                     !errors.authorName && searchAuthorValue !== '' && !authorID
                   "
-                  style="color: #dc3545; font-size: 0.875em"
+                  style="color: #dc3545; font-size: 0.875em; position: absolute; top: 70px;"
                   >Vui lòng chọn tác giả</span
                 >
               </div>

@@ -103,11 +103,32 @@
             <p class="d-flex justify-content-between mb-3">
               <span>Trạng thái thanh toán:</span>
               <span
-                class="badge"
+                class="badge p-2"
                 :class="orderDetail.wasPaided ? 'bg-success' : 'bg-danger'"
               >
                 {{
                   orderDetail.wasPaided ? "Đã thanh toán" : "Chưa thanh toán"
+                }}
+              </span>
+            </p>
+            <p class="d-flex justify-content-between mb-3">
+              <span>Trạng thái đơn hàng:</span>
+              <span
+                class="badge p-2"
+                :class="{
+                  'text-bg-warning':
+                    orderDetail.status && orderDetail.status.value === 1,
+                  'text-bg-success':
+                    orderDetail.status && orderDetail.status.value === 2,
+                  'text-bg-danger':
+                    (orderDetail.status && orderDetail.status.value === 3) ||
+                    (orderDetail.status && orderDetail.status.value === 3),
+                }"
+              >
+                {{
+                  orderDetail.status
+                    ? orderDetail.status.label
+                    : "Chưa xác định"
                 }}
               </span>
             </p>
@@ -141,9 +162,9 @@
                 </div>
                 <div class="price-detail-row">
                   <span>Giảm giá:</span>
-                  <span class="text-success"
-                    >{{ formatPrice(orderDetail.totalDiscountPrice) }}</span
-                  >
+                  <span class="text-success">{{
+                    formatPrice(orderDetail.totalDiscountPrice)
+                  }}</span>
                 </div>
                 <div class="price-detail-row total">
                   <span>Tổng giá:</span>
@@ -274,15 +295,6 @@ onMounted(() => {
 .price-detail-row.total {
   background-color: #f8f9fa;
   font-weight: 500;
-}
-
-/* Smooth transitions */
-.badge {
-  transition: opacity 0.2s ease;
-}
-
-.badge:hover {
-  opacity: 0.9;
 }
 
 /* Card styling */

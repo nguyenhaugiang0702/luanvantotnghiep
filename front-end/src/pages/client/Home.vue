@@ -1,17 +1,4 @@
 <template>
-  <!-- <div class="container-fluid bg-primary py-4">
-    <div class="container text-white">
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start"
-      >
-        <div class="d-flex flex-column mb-3 mb-md-0">
-          <div class="fw-bold text-uppercase fs-5">Trang chủ</div>
-          <div>Hãy lựa chọn sách cho phù hợp với chính mình</div>
-        </div>
-        <div class="align-self-md-center"><span>Trang chủ </span></div>
-      </div>
-    </div>
-  </div> -->
   <div class="d-flex flex-column min-vh-100">
     <!-- Main Content -->
     <main class="flex-grow-1">
@@ -19,7 +6,7 @@
 
       <!-- Hero Section -->
       <section class="text-center py-5">
-        <div class="container">
+        <div class="container" v-motion-pop-visible-once >
           <h2 class="h1 mb-3">
             Khám phá cuốn sách tuyệt vời tiếp theo của bạn
           </h2>
@@ -36,12 +23,12 @@
       </section>
 
       <!-- Featured Categories -->
-      <section class="py-5 bg-light">
-        <div class="container">
+      <section class="py-5 bg-light" >
+        <div class="container" >
           <h2 class="h3 mb-4 text-center">Cam Kết Của Chúng Tôi</h2>
           <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <!-- Đổi trả miễn phí -->
-            <div class="col">
+            <div class="col"  v-motion-slide-visible-once-bottom>
               <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
                   <div class="feature-icon mb-3">
@@ -57,7 +44,7 @@
             </div>
 
             <!-- Hỗ trợ 24/7 -->
-            <div class="col">
+            <div class="col"  v-motion-slide-visible-once-bottom>
               <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
                   <div class="feature-icon mb-3">
@@ -72,7 +59,7 @@
             </div>
 
             <!-- Giao hàng nhanh -->
-            <div class="col">
+            <div class="col"  v-motion-slide-visible-once-bottom>
               <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
                   <div class="feature-icon mb-3">
@@ -87,7 +74,7 @@
             </div>
 
             <!-- Thanh toán an toàn -->
-            <div class="col">
+            <div class="col"  v-motion-slide-visible-bottom>
               <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
                   <div class="feature-icon mb-3">
@@ -105,7 +92,7 @@
       </section>
 
       <!-- Featured Products -->
-      <div class="container mt-5 mb-2">
+      <div class="container mt-5 mb-2" v-motion-slide-visible-left>
         <h2 class="h3 mb-4 text-center">Các Sách Nổi Bật</h2>
         <div class="row" v-if="books.length !== 0">
           <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">

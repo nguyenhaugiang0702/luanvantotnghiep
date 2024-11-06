@@ -29,7 +29,10 @@
                       <button
                         type="button"
                         @click="
-                          handleBlockAndUnBlockUser(props.rowData._id, (method = 'block'))
+                          handleBlockAndUnBlockUser(
+                            props.rowData._id,
+                            (method = 'block')
+                          )
                         "
                         class="badge text-bg-warning p-2"
                       >
@@ -105,6 +108,7 @@ import Cookies from "js-cookie";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
+import { buttons, language } from "@/utils/datatable";
 
 export default defineComponent({
   components: {
@@ -131,16 +135,7 @@ export default defineComponent({
       {
         data: "gender",
         render: (data) => {
-          if (!data) {
-            return `<div class="text-start">Chưa biết</div>`;
-          }
-          if (data === "male") {
-            data = "Nam";
-            return `<div class="text-start">${data}</div>`;
-          } else {
-            data = "Nữ";
-            return `<div class="text-start">${data}</div>`;
-          }
+          return `<div class="text-start">${data ? data : "Đang cập nhật"}</div>`;
         },
       },
       {
@@ -152,19 +147,13 @@ export default defineComponent({
       {
         data: "email",
         render: (data, type, row, meta) => {
-          if (!data) {
-            return `<div class="text-start">Chưa biết</div>`;
-          }
-          return `<div class="text-start">${data}</div>`;
+          return `<div class="text-start">${data ? data : "Đang cập nhật"}</div>`;
         },
       },
       {
         data: "dob",
         render: (data, type, row, meta) => {
-          if (!data) {
-            return `<div class="text-start">Chưa biết</div>`;
-          }
-          return `<div class="text-start">${data}</div>`;
+          return `<div class="text-start">${data ? data : "Đang cập nhật"}</div>`;
         },
       },
       {
@@ -199,7 +188,9 @@ export default defineComponent({
       let response;
       try {
         if (method === "block") {
-          response = await apiAdmin.put(`/users/blockAccount/${userID}`, { isActive: 2 });
+          response = await apiAdmin.put(`/users/blockAccount/${userID}`, {
+            isActive: 2,
+          });
         } else {
           response = await apiAdmin.put(`/users/unBlockAccount/${userID}`, {
             isActive: 1,
@@ -255,44 +246,6 @@ export default defineComponent({
     onMounted(() => {
       getUsers();
     });
-
-    // Bỏ cột thao tác trong bảng
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      {
-        extend: "copy",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "csv",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "pdf",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "print",
-        exportOptions: exportOptions,
-      },
-    ];
-    // Bỏ cột thao tác trong bảng
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
 
     return {
       getUsers,

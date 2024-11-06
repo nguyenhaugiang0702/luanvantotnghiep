@@ -69,6 +69,8 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
+import { buttons, language } from "@/utils/datatable";
+
 //
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 
@@ -125,30 +127,6 @@ export default defineComponent({
     };
 
     onMounted(getReceiptDetail);
-
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      { extend: "copy", exportOptions },
-      { extend: "csv", exportOptions },
-      { extend: "pdf", exportOptions },
-      { extend: "print", exportOptions },
-    ];
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
 
     return {
       getReceiptDetail,

@@ -20,6 +20,11 @@ const client = [
         component: () => import("../pages/client/ForgotPassword.vue"),
       },
       {
+        path: "about",
+        name: "about",
+        component: () => import("../pages/client/About.vue"),
+      },
+      {
         path: "",
         name: "home",
         component: () => import("../pages/client/Home.vue"),

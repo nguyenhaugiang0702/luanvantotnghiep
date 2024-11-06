@@ -180,7 +180,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
 export default {
   components: { Form, Field, ErrorMessage },
-  emit: ["refreshVouchersCategory"],
+  emit: ["refreshVouchers"],
   setup(props, { emit }) {
     const newVoucher = ref({
       startDate: "",
@@ -207,7 +207,7 @@ export default {
           resetForm();
           searchVouchersCategoryValue.value = "";
           $("#addVoucher").modal("hide");
-          emit("refreshVouchersCategory");
+          emit("refreshVouchers");
         }
       } catch (error) {
         console.log(error);

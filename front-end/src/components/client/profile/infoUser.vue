@@ -114,7 +114,7 @@
             </div>
           </div>
           <div class="form-group row mt-4 mx-2">
-            <label class="col-3">Giới tính*</label><br />
+            <label class="col-3">Giới tính</label><br />
             <div class="col-8">
               <div class="row">
                 <div class="col-2">
@@ -128,7 +128,7 @@
                       }"
                       id="validationFormCheck1"
                       name="gender"
-                      value="male"
+                      value="Nam"
                       v-model="user.gender"
                     />
                     <label class="form-check-label" for="validationFormCheck2"
@@ -147,7 +147,7 @@
                       }"
                       id="validationFormCheck2"
                       name="gender"
-                      value="female"
+                      value="Nữ"
                       v-model="user.gender"
                     />
                     <label class="form-check-label" for="validationFormCheck2"
@@ -165,7 +165,7 @@
             </div>
           </div>
           <div class="form-group row mt-4 mx-2">
-            <label for="birthday" class="col-3">Birthday*</label>
+            <label for="birthday" class="col-3">Ngày sinh</label>
             <div class="col-8">
               <div class="col">
                 <Field

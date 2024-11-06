@@ -17,6 +17,8 @@ import "ant-design-vue/dist/reset.css";
 import "vue3-toastify/dist/index.css";
 // ApexChart
 import VueApexCharts from 'vue3-apexcharts';
+// Vueuse/Motion
+import { MotionPlugin } from '@vueuse/motion';
 
 const app = createApp(App);
 app.use(VueApexCharts);
@@ -24,6 +26,8 @@ app.component('apexchart', VueApexCharts);
 app.use(router);
 app.use(createPinia());
 app.use(Antd);
+app.use(MotionPlugin);
+
 // Đăng ký các biểu tượng
 Object.keys(Icons).forEach((key) => {
   app.component(key, Icons[key]);

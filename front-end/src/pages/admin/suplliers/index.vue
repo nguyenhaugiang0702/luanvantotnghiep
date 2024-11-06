@@ -65,6 +65,7 @@ import { useRouter } from "vue-router";
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import { buttons, language } from "@/utils/datatable";
 
 export default defineComponent({
   components: {
@@ -173,44 +174,7 @@ export default defineComponent({
     onMounted(() => {
       getSuppliers();
     });
-
-    // Bỏ cột thao tác trong bảng
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      {
-        extend: "copy",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "csv",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "pdf",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "print",
-        exportOptions: exportOptions,
-      },
-    ];
-    // Bỏ cột thao tác trong bảng
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
+    
     return {
       getSuppliers,
       columns,

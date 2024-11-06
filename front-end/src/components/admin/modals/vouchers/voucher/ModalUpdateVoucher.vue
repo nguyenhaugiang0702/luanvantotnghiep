@@ -186,7 +186,7 @@ export default defineComponent({
       }),
     },
   },
-  emits: ["refreshVouchersCategory"],
+  emits: ["refreshVouchers"],
   setup(props, { emit }) {
     const voucherToEdit = ref({ ...props.voucherToEdit });
 
@@ -217,7 +217,7 @@ export default defineComponent({
           showSuccessToast(response?.data?.message);
           resetForm();
           $("#updateVoucher").modal("hide");
-          emit("refreshVouchersCategory");
+          emit("refreshVouchers");
         }
       } catch (error) {
         console.log(error);

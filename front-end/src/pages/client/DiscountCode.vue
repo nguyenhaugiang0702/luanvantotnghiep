@@ -60,7 +60,7 @@
               }}</span>
             </div>
             <div class="order-range">
-              <span v-if="voucher.voucherCategoryID?.discountType === 'percent'"
+              <span
                 >Giảm tối đa:
                 {{ formatPrice(voucher.voucherCategoryID?.maxValue) }}</span
               >

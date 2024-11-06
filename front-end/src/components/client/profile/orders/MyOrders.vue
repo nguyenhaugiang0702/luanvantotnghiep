@@ -26,7 +26,7 @@
           class="card-header d-flex justify-content-between align-items-center"
         >
           <h5 class="mb-0">Đơn hàng #{{ order._id }}</h5>
-          <span class="badge" :class="getStatusBadge(order.status)">
+          <span class="badge p-2" :class="getStatusBadge(order.status)">
             <span class="me-1">{{ getStatusIcon(order.status) }}</span
             >{{ getStatusLabel(order.status) }}
           </span>
@@ -85,14 +85,14 @@
                 order._id
               )
             "
-            class="btn btn-outline-secondary"
+            class="btn btn-sm btn-outline-secondary"
           >
             Chi tiết
           </button>
           <button
             @click="requestCancelOrder(order._id)"
             v-if="order.status === 1"
-            class="btn btn-danger"
+            class="btn btn-sm btn-danger"
           >
             Hủy đơn
           </button>
@@ -226,7 +226,7 @@ const getStatusIcon = (status) => {
 const getStatusLabel = (status) => {
   switch (status) {
     case 1:
-      return "Đang chờ xử lý";
+      return "Đang chờ xác nhận";
     case 2:
       return "Đã xác nhận";
     case 3:

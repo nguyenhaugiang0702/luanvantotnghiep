@@ -110,6 +110,8 @@ import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { message } from "ant-design-vue";
 import ApiAdminService from "@/service/admin/apiAdmin.service";
+import { buttons, language } from "@/utils/datatable";
+
 // Data
 const filterType = ref("day");
 const chartContainer = ref(null);

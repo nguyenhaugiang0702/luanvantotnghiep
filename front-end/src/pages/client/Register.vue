@@ -241,6 +241,7 @@ import { useRouter } from "vue-router";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { registerUserSchema } from "@/utils/schema.util";
 import { handleNavigate } from "@/utils/utils";
+import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 const { errors, validateField, validate, resetForm } = useForm({
   validationSchema: registerUserSchema,

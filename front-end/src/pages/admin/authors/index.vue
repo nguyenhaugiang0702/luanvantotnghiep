@@ -97,6 +97,7 @@ import "datatables.net-select-bs5";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import { buttons, language } from "@/utils/datatable";
 
 export default {
   components: {
@@ -187,44 +188,6 @@ export default {
     onMounted(() => {
       getAuthors();
     });
-
-    // Bỏ cột thao tác trong bảng
-    const exportOptions = {
-      columns: ":not(:last-child)",
-    };
-
-    const buttons = [
-      {
-        extend: "copy",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "csv",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "pdf",
-        exportOptions: exportOptions,
-      },
-      {
-        extend: "print",
-        exportOptions: exportOptions,
-      },
-    ];
-    // Bỏ cột thao tác trong bảng
-
-    const language = {
-      search: "_INPUT_",
-      searchPlaceholder: "Tìm kiếm...",
-      lengthMenu: "Hiển thị _MENU_ hàng",
-      paginate: {
-        first: "Đầu tiên",
-        last: "Cuối cùng",
-        next: "Tiếp theo",
-        previous: "Trước đó",
-      },
-      info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-    };
 
     return {
       getAuthors,
