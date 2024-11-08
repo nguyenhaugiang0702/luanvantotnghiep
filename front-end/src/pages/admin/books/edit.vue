@@ -181,7 +181,7 @@
                     </li>
                   </ul>
                   <button
-                    class="clear-button"
+                    class="clear-button-2ndrow"
                     type="button"
                     @click="clearDropdownCategories('dropdown-menu-categories')"
                     v-if="searchCategoryValue"
@@ -242,7 +242,7 @@
                     </li>
                   </ul>
                   <button
-                    class="clear-button"
+                    class="clear-button-2ndrow"
                     type="button"
                     @click="
                       clearDropdownFormalities('dropdown-menu-formalities')
@@ -503,11 +503,11 @@ export default {
   setup() {
     const book = ref({
       name: "",
-      categoryID: "",
-      publisherID: "",
-      formalityID: "",
-      authorID: "",
-      priceRangeID: "",
+      categoryID: {},
+      publisherID: {},
+      formalityID: {},
+      authorID: {},
+      priceRangeID: {},
       description: "",
       detail: {
         publisherYear: "",
@@ -532,7 +532,16 @@ export default {
       const response = await apiAdmin.get(`/books/${bookID}`);
       if (response.status === 200) {
         book.value = response.data;
-        data.value = response.data;
+        // Data update
+        data.value.authorID = response.data.authorID?._id;
+        data.value.categoryID = response.data.categoryID?._id;
+        data.value.formalityID = response.data.formalityID?._id;
+        data.value.publisherID = response.data.publisherID?._id;
+        data.value.priceRangeID = response.data.priceRangeID?._id;
+        data.value.name = response.data.name;
+        data.value.detail = response.data.detail;
+        data.value.description = response.data.description;
+        // End Data update
         searchAuthorValue.value = response.data.authorID?.name
           ? response.data.authorID?.name
           : "";
@@ -557,8 +566,17 @@ export default {
       publisherID: "",
       formalityID: "",
       authorID: "",
-      description: "",
       priceRangeID: "",
+      description: "",
+      detail: {
+        publisherYear: "",
+        weight: "",
+        pageNumber: "",
+        length: "",
+        width: "",
+        originalPrice: "",
+        discountPrice: "",
+      },
     });
 
     const updateBook = async () => {
@@ -568,10 +586,11 @@ export default {
       }
 
       try {
+        console.log(data.value);
         const response = await apiAdmin.put(`/books/${bookID}`, data.value);
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
-          getBook();
+          await getBook();
         }
       } catch (error) {
         console.log(error);
@@ -672,6 +691,7 @@ export default {
     watch(authorID, (newVal) => {
       if (newVal) {
         data.value.authorID = newVal;
+        console.log('Đã chọn tác giả - '+newVal);
       }
     });
 
@@ -679,6 +699,7 @@ export default {
     watch(publisherID, (newVal) => {
       if (newVal) {
         data.value.publisherID = newVal;
+        console.log('Đã chọn NXB - '+newVal);
       }
     });
 
@@ -686,6 +707,7 @@ export default {
     watch(categoryID, (newVal) => {
       if (newVal) {
         data.value.categoryID = newVal;
+        console.log('Đã chọn thể loại - '+newVal);
       }
     });
 
@@ -693,6 +715,7 @@ export default {
     watch(formalityID, (newVal) => {
       if (newVal) {
         data.value.formalityID = newVal;
+        console.log('Đã chọn hình thức - '+newVal);
       }
     });
 
@@ -700,6 +723,7 @@ export default {
     watch(priceRangeID, (newVal) => {
       if (newVal) {
         data.value.priceRangeID = newVal;
+        console.log('Đã chọn khoản giá - '+newVal);
       }
     });
 
@@ -781,5 +805,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../../../assets/css/admin/dropdown/dropdown.css';
+@import "../../../assets/css/admin/dropdown/dropdown.css";
 </style>

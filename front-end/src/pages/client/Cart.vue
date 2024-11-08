@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, watch } from "vue";
+import { ref, computed, onMounted, inject, watch, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CartTable from "../../components/client/carts/CartTable.vue";
 import { formatPrice, handleNavigate } from "@/utils/utils";
@@ -110,6 +110,7 @@ const voucherUseds = ref([]);
 const apiUser = new ApiUser();
 const updateCart = inject("updateCart");
 const vouchersEmit = ref([]);
+
 
 const getCartsWithCheckbox = async () => {
   const response = await apiUser.get("/cart/booksCheckBox");

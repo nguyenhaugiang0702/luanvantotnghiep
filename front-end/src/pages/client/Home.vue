@@ -74,7 +74,7 @@
             </div>
 
             <!-- Thanh toán an toàn -->
-            <div class="col"  v-motion-slide-visible-bottom>
+            <div class="col"  v-motion-slide-visible-once-bottom>
               <div class="feature-card card border-0 text-center h-100">
                 <div class="card-body">
                   <div class="feature-icon mb-3">
@@ -92,7 +92,7 @@
       </section>
 
       <!-- Featured Products -->
-      <div class="container mt-5 mb-2" v-motion-slide-visible-left>
+      <div class="container mt-5 mb-2" v-motion-slide-visible-once-left>
         <h2 class="h3 mb-4 text-center">Các Sách Nổi Bật</h2>
         <div class="row" v-if="books.length !== 0">
           <div class="col-md-3 mb-4" v-for="book in books" :key="book._id">

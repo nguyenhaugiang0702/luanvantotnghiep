@@ -5,9 +5,8 @@
         <a-breadcrumb-item>Nhập hàng</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">{{
-          supplier.name
+          supplier.name +' - '+ formatDate(receiptDetail.createdAt, (time = ttrue))
         }}</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">Chi tiết</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <ModalAddReceipt
@@ -76,7 +75,7 @@ import ApiAdmin from "../../../service/admin/apiAdmin.service";
 
 import { useRouter, useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
-import { formatPrice } from "@/utils/utils";
+import { formatDate, formatPrice } from "@/utils/utils";
 import ModalAddReceipt from "@/components/admin/modals/receipts/ModalAddReceipt.vue";
 
 export default defineComponent({
@@ -137,6 +136,7 @@ export default defineComponent({
       formatPrice,
       supplier,
       receiptID,
+      formatDate,
     };
   },
 });

@@ -117,9 +117,11 @@
                         <p>
                           <i class="fa-solid fa-user me-2"></i>
                           {{
-                            orderDetail.addressID?.firstName +
-                            " " +
-                            orderDetail.addressID?.lastName
+                            orderDetail.userID
+                              ? orderDetail.userID?.firstName +
+                                " " +
+                                orderDetail.userID?.lastName
+                              : "Đang cập nhạt"
                           }}
                         </p>
                         <p>
@@ -231,7 +233,9 @@ const getOrderStatus = (status, statusFullOptions = []) => {
     (statusOption) => statusOption.value === status
   );
   if (statusOptionObj) {
-    return statusOptionObj ? statusOptionObj.label : "Không xác địng được trạng thái";
+    return statusOptionObj
+      ? statusOptionObj.label
+      : "Không xác địng được trạng thái";
   }
 };
 

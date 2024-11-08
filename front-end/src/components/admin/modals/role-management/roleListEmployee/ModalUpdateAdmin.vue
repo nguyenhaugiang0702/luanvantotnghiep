@@ -102,26 +102,7 @@
               </div>
             </div>
             <div class="row mt-3">
-              <div class="col-6">
-                <div class="form-group">
-                  <label for="password" class="form-label">Mật khẩu</label>
-                  <Field
-                    name="password"
-                    type="text"
-                    class="form-control"
-                    :class="{
-                      'is-invalid': errors.password,
-                      'is-valid':
-                        !errors.password && adminToEdit.password !== '',
-                    }"
-                    id="password"
-                    placeholder="Mật khẩu"
-                    v-model="adminToEdit.password"
-                  />
-                  <ErrorMessage name="password" class="invalid-feedback" />
-                </div>
-              </div>
-              <div class="col-6">
+              <div class="col-12">
                 <div class="form-group">
                   <label for="role" class="form-label">Vai trò</label>
                   <Field
@@ -157,8 +138,14 @@
               >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">
-                Lưu Thay Đổi
+              <button type="submit" class="btn btn-primary col-md-3">
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm text-white"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span class="text-white" v-else> Lưu Thay Đổi </span>
               </button>
             </div>
           </form>
@@ -171,7 +158,7 @@
 import ApiAdmin from "@/service/admin/apiAdmin.service";
 import { ref, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
-import { addAdminSchema } from "@/utils/schema.util";
+import { updateAdminSchema } from "@/utils/schema.util";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
@@ -193,9 +180,9 @@ export default {
   },
   setup(props, { emit }) {
     const adminToEdit = ref({ ...props.adminToEdit });
-
+    const isLoading = ref(false);
     const { errors, validate, resetForm } = useForm({
-      validationSchema: addAdminSchema,
+      validationSchema: updateAdminSchema,
     });
     const apiAdmin = new ApiAdmin();
 
@@ -204,6 +191,7 @@ export default {
       if (!valid) {
         return;
       }
+      isLoading.value = true;
       try {
         const response = await apiAdmin.put(
           `/admins/${props.adminToEdit._id}`,
@@ -222,6 +210,8 @@ export default {
       } catch (error) {
         console.log(error);
         showErrorToast(error.response?.data?.message);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -230,7 +220,6 @@ export default {
       () => props.adminToEdit,
       (newValue) => {
         adminToEdit.value = { ...newValue };
-        console.log(adminToEdit.value );
       },
       { deep: true }
     );
@@ -246,7 +235,7 @@ export default {
       getRoles();
     });
 
-    return { adminToEdit, updateAdmin, errors, roles };
+    return { adminToEdit, updateAdmin, errors, roles, isLoading };
   },
 };
 </script>

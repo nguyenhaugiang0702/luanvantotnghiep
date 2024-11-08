@@ -9,7 +9,14 @@
         <div class="row">
           <div class="col-12">
             <ModalAddAdmin @refreshEmployee="getAdmins" />
-            <ModalUpdateAdmin :adminToEdit="editedAdmin" @refreshEmployee="getAdmins" />
+            <ModalUpdateAdmin
+              :adminToEdit="editedAdmin"
+              @refreshEmployee="getAdmins"
+            />
+            <ModalResetPasswordAdmin
+              :adminToEdit="editedAdmin"
+              @refreshEmployee="getAdmins"
+            />
             <div class="table-responsive">
               <DataTable
                 id="mytable"
@@ -38,6 +45,17 @@
                         <i class="fa-solid fa-pencil"></i> Edit
                       </button>
                     </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleUpdateAdmin(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#resetPassword"
+                        id="editRole"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-lock"></i> Reset Password
+                      </button>
+                    </div>
                     <div class="">
                       <button
                         type="button"
@@ -56,7 +74,6 @@
                     <th class="text-start">Số Điện Thoại</th>
                     <th class="text-start">Email</th>
                     <th class="text-start">Quyền</th>
-                    <!-- <th class="text-start">Trạng Thái</th> -->
                     <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
@@ -94,6 +111,7 @@ import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import ApiAdmin from "../../../service/admin/apiAdmin.service.js";
 import ModalAddAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalAddAdmin.vue";
 import ModalUpdateAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalUpdateAdmin.vue";
+import ModalResetPasswordAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalResetPassword.vue";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { buttons, language } from "@/utils/datatable";
 
@@ -102,6 +120,7 @@ export default defineComponent({
     DataTable,
     ModalAddAdmin,
     ModalUpdateAdmin,
+    ModalResetPasswordAdmin,
   },
   setup() {
     const router = useRouter();
@@ -168,7 +187,6 @@ export default defineComponent({
       }
     };
 
-
     const deletAdmin = async (adminID) => {
       try {
         const response = await apiAdmin.delete(`/admins/${adminID}`);
@@ -184,12 +202,12 @@ export default defineComponent({
 
     const handleDeleteAdmin = async (adminID) => {
       const isConfirmed = await showConfirmation({
-        text:"Nhân viên này sẽ bị xóa"
+        text: "Nhân viên này sẽ bị xóa",
       });
-      if(isConfirmed.isConfirmed){
+      if (isConfirmed.isConfirmed) {
         await deletAdmin(adminID);
       }
-    }
+    };
 
     onMounted(() => {
       getAdmins();
@@ -200,11 +218,10 @@ export default defineComponent({
       columns,
       admins,
       buttons,
-      exportOptions,
       language,
       editedAdmin,
       handleUpdateAdmin,
-      handleDeleteAdmin
+      handleDeleteAdmin,
     };
   },
 });

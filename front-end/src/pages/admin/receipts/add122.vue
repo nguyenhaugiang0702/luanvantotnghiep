@@ -5,17 +5,6 @@
     </div>
     <div class="card-body space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Receipt Number -->
-        <div class="mb-3">
-          <label for="receipt-number" class="form-label">Receipt Number</label>
-          <input
-            type="text"
-            id="receipt-number"
-            v-model="receiptNumber"
-            class="form-control"
-            placeholder="GR-001"
-          />
-        </div>
         <!-- Receipt Date -->
         <div class="mb-3">
           <label for="receipt-date" class="form-label">Receipt Date</label>
@@ -42,24 +31,6 @@
               :value="supplier"
             >
               {{ supplier }}
-            </option>
-          </select>
-        </div>
-        <!-- Warehouse -->
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Warehouse</label>
-          <select
-            v-model="selectedWarehouse"
-            id="warehouse"
-            class="form-select"
-          >
-            <option value="" disabled>Select warehouse</option>
-            <option
-              v-for="warehouse in warehouses"
-              :key="warehouse"
-              :value="warehouse"
-            >
-              {{ warehouse }}
             </option>
           </select>
         </div>
@@ -111,7 +82,7 @@
                   @click="removeItem(item.id)"
                   class="btn btn-danger btn-sm"
                 >
-                  <i class="bi bi-trash"></i>
+                  Xóa
                 </button>
               </td>
             </tr>
@@ -120,17 +91,6 @@
         <button @click="addItem" class="btn btn-outline-primary btn-sm mt-2">
           <i class="bi bi-plus-lg me-2"></i>Add Item
         </button>
-      </div>
-
-      <!-- Notes -->
-      <div class="mb-3">
-        <label for="notes" class="form-label">Notes</label>
-        <textarea
-          id="notes"
-          v-model="notes"
-          class="form-control"
-          placeholder="Enter any additional notes"
-        ></textarea>
       </div>
 
       <!-- Total Amount -->
@@ -174,7 +134,6 @@ const receiptNumber = ref("");
 const receiptDate = ref("");
 const selectedSupplier = ref("");
 const selectedWarehouse = ref("");
-const notes = ref("");
 const receivedBy = ref("");
 
 const suppliers = ["Supplier A", "Supplier B", "Supplier C"];

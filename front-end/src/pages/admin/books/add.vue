@@ -73,7 +73,12 @@
                   v-if="
                     !errors.authorName && searchAuthorValue !== '' && !authorID
                   "
-                  style="color: #dc3545; font-size: 0.875em; position: absolute; top: 70px;"
+                  style="
+                    color: #dc3545;
+                    font-size: 0.875em;
+                    position: absolute;
+                    top: 70px;
+                  "
                   >Vui lòng chọn tác giả</span
                 >
               </div>
@@ -142,7 +147,7 @@
             <div class="col-sm-6">
               <div class="form-group">
                 <div class="dropdown">
-                  <label class="form-label" for="categoryName">Thể loai</label>
+                  <label class="form-label" for="categoryName">Thể loại</label>
                   <Field
                     class="form-control dropdown-toggle"
                     type="text"
@@ -177,7 +182,7 @@
                     </li>
                   </ul>
                   <button
-                    class="clear-button"
+                    class="clear-button-2ndrow"
                     type="button"
                     @click="clearDropdownCategories('dropdown-menu-categories')"
                     v-if="searchCategoryValue"
@@ -238,7 +243,7 @@
                     </li>
                   </ul>
                   <button
-                    class="clear-button"
+                    class="clear-button-2ndrow"
                     type="button"
                     @click="
                       clearDropdownFormalities('dropdown-menu-formalities')
@@ -664,6 +669,7 @@ export default {
           newBook.value.formalityID = "";
           newBook.value.publisherID = "";
           newBook.value.priceRangeID = "";
+          $(".dropdown-menu").removeClass("show");
           resetForm();
           clearImages();
         }

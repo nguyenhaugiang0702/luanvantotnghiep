@@ -161,8 +161,14 @@
               >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">
-                Lưu Thay Đổi
+              <button type="submit" class="btn btn-primary col-md-3">
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm text-white"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span class="text-white" v-else> Lưu Thay Đổi </span>
               </button>
             </div>
           </form>
@@ -189,9 +195,10 @@ export default {
       email: "",
       password: "",
       roleID: "",
-      method: "add"
+      method: "add",
     });
     const roles = ref([]);
+    const isLoading = ref(false);
     const getRoles = async () => {
       const response = await apiAdmin.get("/roles");
       if (response.status == 200) {
@@ -207,6 +214,7 @@ export default {
       if (!valid) {
         return;
       }
+      isLoading.value = true;
       try {
         const response = await apiAdmin.post("/admins", newAdmin.value);
         if (response.status === 200) {
@@ -218,6 +226,8 @@ export default {
       } catch (error) {
         console.log(error);
         showErrorToast(error.response?.data?.message);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -225,7 +235,7 @@ export default {
       getRoles();
     });
 
-    return { newAdmin, addAdmin, errors, roles };
+    return { newAdmin, addAdmin, errors, roles, isLoading };
   },
 };
 </script>

@@ -139,7 +139,6 @@ const getOrders = async () => {
   const response = await apiAdmin.get("/orders");
   if (response.status === 200) {
     orders.value = response.data;
-    console.log(response.data);
   }
 };
 
@@ -154,10 +153,13 @@ const columns = [
   {
     data: "userID",
     render: (data, type, row, meta) => {
-      return `<div class='text-start'>${
-        data.firstName + " " + data.lastName
-      }</div>
+      if (data) {
+        return `<div class='text-start'>${
+          data.firstName + " " + data.lastName
+        }</div>
       <div class='text-start'>(${data.phoneNumber})</div>`;
+      }
+      return `<div class='text-start'>Đang cập nhật<div>`;
     },
   },
   {

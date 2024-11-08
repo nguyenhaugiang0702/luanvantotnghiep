@@ -132,6 +132,7 @@ import { toast } from "vue3-toastify";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 
 export default {
+  emit: ["refreshVouchers"],
   setup(props, { emit }) {
     const booksInCart = ref([]);
     const selectedBooks = ref({});
@@ -140,7 +141,7 @@ export default {
     const token = Cookies.get("accessToken");
     const isLoggedIn = Cookies.get("isLoggedIn");
     const updateCart = inject("updateCart");
-
+    const updateVouchers = inject("updateVouchers");
     const getCarts = async () => {
       if (token) {
         const response = await apiUser.get("/cart");
@@ -177,6 +178,7 @@ export default {
         if (response.status === 200) {
           await getCarts();
           updateCart.value += 1;
+          updateVouchers.value += 1;
         }
       } catch (error) {
         console.log(error);
@@ -203,6 +205,7 @@ export default {
           if (response.status === 200) {
             await getCarts();
             updateCart.value += 1;
+            updateVouchers.value += 1;
           }
         } else {
           const isConfirmed = await showConfirmation({
@@ -241,6 +244,7 @@ export default {
         if (response.status === 200) {
           await getCarts();
           updateCart.value += 1;
+          updateVouchers.value += 1;
         }
       } catch (error) {
         console.log(error);
@@ -257,8 +261,9 @@ export default {
         if (isConfirmed.isConfirmed) {
           const response = await apiUser.delete(`/cart/${bookID}`);
           if (response.status == 200) {
-            await getCarts();
             updateCart.value += 1;
+            updateVouchers.value += 1;
+            await getCarts();
           }
         }
       }
@@ -269,6 +274,7 @@ export default {
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
+        updateVouchers.value += 1;
         emit("refreshVouchers");
       }
     };
@@ -282,8 +288,9 @@ export default {
         if (isConfirmed.isConfirmed) {
           const response = await apiUser.delete("/cart");
           if (response.status == 200) {
-            getCarts();
             updateCart.value += 1;
+            updateVouchers.value += 1;
+            await getCarts();
           }
         }
       }
@@ -294,6 +301,7 @@ export default {
       if (response.status === 200) {
         await getCarts();
         updateCart.value += 1;
+        updateVouchers.value += 1;
         emit("refreshVouchers");
       }
     };

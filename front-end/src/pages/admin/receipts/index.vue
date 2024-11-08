@@ -9,74 +9,35 @@
         <div class="row" v-if="totalReceipts === 0">Bạn chưa nhập hàng</div>
         <div v-else class="row">
           <div class="col-12">
-            <ul
-              class="nav nav-tabs border-bottom border-dark"
-              id="myTab"
-              role="tablist"
-            >
-              <li
-                v-for="(receipt, index) in receipts"
-                :key="receipt.supplierInfo._id"
-                class="nav-item"
-                role="presentation"
+            <!-- Table -->
+            <div class="table-responsive mt-4">
+              <DataTable
+                id="datatable"
+                :columns="columns"
+                :data="receipts"
+                :options="{
+                  responsive: false,
+                  autoWidth: true,
+                  dom: 'lBfrtip',
+                  buttons: buttons,
+                  language: language,
+                }"
+                class="display table table-striped table-bordered"
+                :scroll="{ x: 576 }"
               >
-                <button
-                  class="nav-link border border-dark border-bottom-0"
-                  :class="{
-                    active: index === 0,
-                  }"
-                  :id="'tab-' + receipt.supplierInfo._id"
-                  data-bs-toggle="tab"
-                  :data-bs-target="'#pane-' + receipt.supplierInfo._id"
-                  type="button"
-                  role="tab"
-                  :aria-controls="'pane-' + receipt.supplierInfo._id"
-                  :aria-selected="index === 0 ? 'true' : 'false'"
-                >
-                  {{ receipt.supplierInfo.name }}
-                </button>
-              </li>
-            </ul>
-            <div class="tab-content" id="myTabContent">
-              <div
-                v-for="(receipt, index) in receipts"
-                :key="receipt._id"
-                :id="'pane-' + receipt.supplierInfo._id"
-                class="tab-pane fade"
-                :class="{ 'show active': index === 0 }"
-                role="tabpanel"
-                :aria-labelledby="'tab-' + receipt.supplierInfo._id"
-              >
-                <!-- Table -->
-                <div class="table-responsive mt-4">
-                  <DataTable
-                    :id="'datatable-' + receipt.supplierInfo._id"
-                    :columns="columns"
-                    :data="receipt.receipts"
-                    :options="{
-                      responsive: false,
-                      autoWidth: true,
-                      dom: 'lBfrtip',
-                      buttons: buttons,
-                      language: language,
-                    }"
-                    class="display table table-striped table-bordered"
-                    :scroll="{ x: 576 }"
-                  >
-                    <thead>
-                      <tr>
-                        <th class="text-start">#</th>
-                        <th class="text-start">Ngày nhập hàng</th>
-                        <th class="text-start">Email</th>
-                        <th class="text-start">Số điện thoại</th>
-                        <th class="text-start">Nhân viên</th>
-                        <th class="text-start">Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </DataTable>
-                </div>
-              </div>
+                <thead>
+                  <tr>
+                    <th class="text-start">#</th>
+                    <th class="text-start">Ngày nhập hàng</th>
+                    <th class="text-start">Email</th>
+                    <th class="text-start">Số điện thoại</th>
+                    <th class="text-start">Tổng giá nhập</th>
+                    <th class="text-start">Nhân viên</th>
+                    <th class="text-start">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </DataTable>
             </div>
           </div>
         </div>
@@ -104,6 +65,7 @@ DataTable.use(ButtonsHtml5);
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import { buttons, language } from "@/utils/datatable";
+import { formatPrice } from "@/utils/utils";
 //
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
 
@@ -132,7 +94,7 @@ export default defineComponent({
         },
       },
       {
-        data: "supplierInfo.email",
+        data: "supplierID.email",
         width: "15%",
         render: (data) =>
           `<div class="text-start text-break">${
@@ -140,11 +102,19 @@ export default defineComponent({
           }</div>`,
       },
       {
-        data: "supplierInfo.phoneNumber",
+        data: "supplierID.phoneNumber",
         width: "20%",
         render: (data) =>
           `<div class="text-start text-break">${
             data ? data : "Đang cập nhật"
+          }</div>`,
+      },
+      {
+        data: "totalPrice",
+        width: "20%",
+        render: (data) =>
+          `<div class="text-start text-break">${
+            data ? formatPrice(data) : "Đang cập nhật"
           }</div>`,
       },
       {

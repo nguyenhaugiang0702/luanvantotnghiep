@@ -23,7 +23,7 @@ export default defineComponent({
   setup() {
     const updateCart = ref(0); // Biến chia sẻ cho việc theo dõi trạng thái giỏ hàng
     const route = useRoute();
-
+    const updatedVoucherToRefresh = ref(0);
     // Kiểm tra nếu route name là "checkOut"
     const isCheckOutRoute = ref(route.name === "checkout");
     // Cung cấp biến này cho các component con
@@ -31,6 +31,7 @@ export default defineComponent({
       isCheckOutRoute.value = newRoute.name === "checkout";
     });
     provide("updateCart", updateCart);
+    provide("updateVouchers", updatedVoucherToRefresh);
 
     return {
       updateCart,

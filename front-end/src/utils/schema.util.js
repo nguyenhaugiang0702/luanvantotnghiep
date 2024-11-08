@@ -130,6 +130,20 @@ export const receiptSchema = yup.object({
     .min(1, "Giá không nhỏ hơn 1"),
 });
 
+export const receiptAddproductSchema = yup.object({
+  bookName: yup.string().required("Tên sách là bắt buộc"),
+  quantity: yup
+    .number("Số lượng phải là số")
+    .typeError("Số lượng phải là số")
+    .required("Số lượng là bắt buộc")
+    .min(1, "Số lượng không nhỏ hơn 1"),
+  price: yup
+    .number("Giá phải là số")
+    .typeError("Giá phải là số")
+    .required("Giá là bắt buộc")
+    .min(1, "Giá không nhỏ hơn 1"),
+});
+
 export const addReceiptSchema = yup.object({
   bookName: yup.string().required("Tên sách là bắt buộc"),
   quantity: yup
@@ -172,6 +186,20 @@ export const addAdminSchema = yup.object({
     .string()
     .required("Mật khẩu là bắt buộc")
     .min(8, "Mật khẩu phải từ 8 ký tự"),
+  email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
+  role: yup
+    .string()
+    .notOneOf([""], "Vui lòng chọn quyền")
+    .required("Vui lòng chọn quyền"),
+});
+
+export const updateAdminSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
   role: yup
     .string()

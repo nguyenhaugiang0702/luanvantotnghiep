@@ -137,10 +137,12 @@ onMounted(() => {
 
 // Tính số lượng thông báo chưa đọc
 const unreadCount = computed(() => {
-  return [...notifications.notifications.newOrders, ...notifications.notifications.newMessages].filter(
-    (notif) => !notif.read
-  ).length;
+  return [
+    ...(notifications?.notifications?.newOrders || []),
+    ...(notifications?.notifications?.newMessages || [])
+  ].filter((notif) => !notif.read).length;
 });
+
 
 // Xử lý khi click vào thông báo
 const handleNotificationClick = (notification) => {

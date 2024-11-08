@@ -252,7 +252,6 @@ export default defineComponent({
       columns,
       users,
       buttons,
-      exportOptions,
       language,
       handleBlockAndUnBlockUser,
       handleDeleteUser,

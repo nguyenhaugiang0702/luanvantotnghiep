@@ -157,12 +157,19 @@ const emit = defineEmits(["refreshCart:update"]);
 const voucherUseds = ref([]);
 const apiUser = new ApiUser();
 const token = Cookies.get("accessToken");
+const updateVouchers = inject("updateVouchers");
 const getVouchersUseds = async () => {
   const response = await apiUser.get("/vouchers/voucherUseds");
   if (response.status === 200) {
     voucherUseds.value = response.data.vouchers;
   }
 };
+
+watch(updateVouchers, (newValue) => {
+  if (newValue) {
+    getVouchersUseds();
+  }
+});
 
 const toggleVoucher = async (voucherUsed) => {
   let response;
