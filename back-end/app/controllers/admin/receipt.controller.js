@@ -7,12 +7,18 @@ const supplierService = require("../../services/supplier.service");
 exports.create = async (req, res, next) => {
   try {
     const adminID = req.admin ? req.admin.id : null;
+    let totalPrice = 0;
+    const { detail } = req.body;
     if (!adminID) {
       return next(new ApiError(400, "Vui lòng đăng nhập!"));
     }
     req.body.adminID = adminID;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    detail.forEach((book) => {
+      totalPrice += parseInt(book.totalPrice);
+    });
+    req.body.totalPrice = totalPrice;
     const newReceipt = await receiptService.createReceipt(req.body);
     return res.send({
       message: "Thêm nhập hàng thành công",
@@ -26,9 +32,10 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
+    const { receiptID } = req.params;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
-    const receipt = await receiptService.getReceiptByID(req.params.receiptID);
+    const receipt = await receiptService.getReceiptByID(receiptID);
     if (!receipt) {
       return next(new ApiError(400, "Không tồn tại đơn nhập hàng!"));
     }
@@ -39,6 +46,8 @@ exports.update = async (req, res, next) => {
       newReceiptDetail,
       next
     );
+    // Cập nhật lại totalPrice cho đơn nhập hàng
+    await receiptService.updateTotalPriceForReceipt(receiptID);
 
     return res.send({
       message: "Thêm nhập hàng thành công",
@@ -53,7 +62,7 @@ exports.update = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   let receipts = [];
   try {
-    receipts = await receiptService.getAllReceipts();
+    receipts = await receiptService.getAllReceipts({});
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lỗi khi lấy nhập!"));

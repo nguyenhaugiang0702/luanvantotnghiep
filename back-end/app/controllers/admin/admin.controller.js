@@ -36,7 +36,23 @@ exports.create = async (req, res) => {
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const newAdmin = await adminService.createAdmin(req.body);
+    try {
+      await sendEmail({
+        email: email,
+        subject: "Thông tin tài khoản mới của bạn",
+        text: `Xin chào ${firstName} ${lastName},
+        
+        Tài khoản của bạn đã được tạo thành công. Vui lòng không chia sẻ thông tin này với bất kỳ ai.
 
+    - Họ tên: ${firstName} ${lastName}
+    - Số điện thoại: ${phoneNumber}
+    - Email: ${email}
+    - Mật khẩu: ${password}
+        `,
+      });
+    } catch (error) {
+      return next(new ApiError(500, "Lỗi khi gửi mail, vui lòng thử lại sau"));
+    }
     return res.send({
       message: "Thêm thành công nhân viên",
       newAdmin,
@@ -53,8 +69,63 @@ exports.update = async (req, res) => {
     const { adminID } = req.params;
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     const updateAdmin = await adminService.updateAdmin(adminID, req.body);
+    try {
+      await sendEmail({
+        email: email,
+        subject: "Thông tin tài khoản của bạn đã được cập nhật",
+        text: `Xin chào ${firstName} ${lastName},
+        
+        Tài khoản của bạn đã được cập nhật. Vui lòng không chia sẻ thông tin này với bất kỳ ai.
+
+    - Họ tên: ${firstName} ${lastName}
+    - Số điện thoại: ${phoneNumber}
+    - Email: ${email}
+    - Mật khẩu: ${password}
+        `,
+      });
+    } catch (error) {
+      return next(new ApiError(500, "Lỗi khi gửi mail, vui lòng thử lại sau"));
+    }
     return res.send({
       message: "Cập nhật thành công nhân viên",
+      updateAdmin,
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi lấy tất nhân viên"));
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { password } =
+      req.body;
+    const { adminID } = req.params;
+    if(password.length < 8 || !password){
+      return next(new ApiError(400, "Vui longf kiểm tra lại mật khẩu"));
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    req.body.password = hashedPassword;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    const updateAdmin = await adminService.updateAdmin(adminID, req.body);
+    try {
+      await sendEmail({
+        email: updateAdmin.email,
+        subject: "Thông tin tài khoản của bạn đã được cập nhật",
+        text: `Xin chào ${updateAdmin.firstName} ${updateAdmin.lastName},
+        
+        Tài khoản của bạn đã được cập nhật. Vui lòng không chia sẻ thông tin này với bất kỳ ai.
+
+    - Họ tên: ${updateAdmin.firstName} ${updateAdmin.lastName}
+    - Số điện thoại: ${updateAdmin.phoneNumber}
+    - Email: ${updateAdmin.email}
+    - Mật khẩu: ${password}
+        `,
+      });
+    } catch (error) {
+      return next(new ApiError(500, "Lỗi khi gửi mail, vui lòng thử lại sau"));
+    }
+    return res.send({
+      message: "Cấp mật khẩu thành công",
       updateAdmin,
     });
   } catch (error) {

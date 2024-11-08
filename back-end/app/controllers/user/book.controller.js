@@ -26,7 +26,7 @@ exports.findAll = async (req, res, next) => {
 exports.findTopViewedBooks = async (req, res, next) => {
   let books = [];
   try {
-    books = await bookService.getFullInfoAllBooks({ isShowed: true });
+    books = await bookService.getTopViewedBooks({ isShowed: true });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả sách"));
   }

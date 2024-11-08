@@ -142,7 +142,6 @@ exports.findAllVoucherUseds = async (req, res, next) => {
       userID: userID,
       isUsed: false,
     });
-    console.log(voucherUseds.length);
     // Thêm % sử dụng voucher
     voucherUseds = voucherUseds.map((voucherUsed) => {
       let voucher = voucherUsed.voucherID;
@@ -163,7 +162,6 @@ exports.findAllVoucherUseds = async (req, res, next) => {
         .toDate(); // Chuyển đổi endDate sang đối tượng Date
       return endDate >= currentDate; // Kiểm tra xem endDate có lớn hơn hoặc bằng currentDate không
     });
-    console.log(validVouchers.length);
     // Phân trang
     if (Object.keys(req.query).length !== 0) {
       paginatedVouchers = validVouchers.slice(skip, skip + limit);
@@ -197,7 +195,14 @@ exports.updateVoucherUseds = async (req, res, next) => {
     if (!userID) {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
+    // Check giỏ hàng có sản phẩm đã check chưa
+    const cart = await cartService.getCartByUserID(userID);
+    if (!cart) {
+      return next(new ApiError(404, "Không tìm thấy giỏ hàng"));
+    }
+    const isExistBookIsCheckOut = cart.books.some((book) => book.isCheckOut);
 
+    // Check số lượng voucher
     const currentVoucher = await voucherService.getVoucherByID(voucherID);
     if (
       currentVoucher &&
@@ -209,6 +214,13 @@ exports.updateVoucherUseds = async (req, res, next) => {
     }
 
     if (method === "SELECT") {
+      // Check đã chọn sản phẩm nào chưa
+      if (!isExistBookIsCheckOut) {
+        return next(
+          new ApiError(400, "Vui lòng chọn sản phẩm để sử dụng mã giảm giá")
+        );
+      }
+
       // Check Date hết hạn mã giảm giá
       try {
         validation.voucherDateValidation(currentVoucher);

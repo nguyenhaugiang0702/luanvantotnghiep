@@ -24,6 +24,9 @@ const receiptSchema = new mongoose.Schema({
       },
     },
   ],
+  totalPrice: {
+    type: Number,
+  },
   createdAt: {
     type: Date,
   },

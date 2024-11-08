@@ -137,8 +137,8 @@ const getTotalBooks = async (filters, searchQuery) => {
   return totalBooks;
 };
 
-const getTopViewedBooks = async () => {
-  const books = await Book.find().sort({ view: -1 }).limit(4);
+const getTopViewedBooks = async (query) => {
+  const books = await Book.find(query).sort({ view: -1 }).limit(4);
 
   return books;
 };

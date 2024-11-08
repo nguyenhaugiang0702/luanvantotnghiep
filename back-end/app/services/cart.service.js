@@ -201,6 +201,12 @@ const updateCartItems = async (books, userID, next) => {
   return cart;
 };
 
+const updateCart = async (userID, cartData) => {
+  return await Cart.findOneAndUpdate({ userID: userID }, cartData, {
+    new: true,
+  });
+};
+
 module.exports = {
   createCartByUserID,
   deleteBookFromCart,
@@ -214,4 +220,5 @@ module.exports = {
   calculateTotalPrice,
   calculateTotalPriceAndCheckStock,
   updateCartItems,
+  updateCart,
 };

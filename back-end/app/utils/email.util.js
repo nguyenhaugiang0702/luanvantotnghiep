@@ -10,17 +10,15 @@ const sendEmail = async (option) => {
       pass: config.email.password,
     },
   });
-  const otpCode = Math.floor(100000 + Math.random() * 900000);
 
   const emailOptions = {
     from: "NHG BOOKSTORE <nhgbookstore@gmail.com>",
     to: option.email,
     subject: option.subject,
-    text: `Your OTP code is ${otpCode}`,
+    text: option.text,
   };
 
   await transporter.sendMail(emailOptions);
-  return otpCode;
 };
 
 module.exports = sendEmail;

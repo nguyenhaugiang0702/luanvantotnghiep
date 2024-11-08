@@ -61,9 +61,9 @@ exports.voucherDateValidation = (voucher) => {
   const parsedStartDate = moment(voucher.startDate, "DD/MM/YYYY").tz(
     "Asia/Ho_Chi_Minh"
   );
-  const parsedEndDate = moment(voucher.endDate, "DD/MM/YYYY").tz(
-    "Asia/Ho_Chi_Minh"
-  );
+  const parsedEndDate = moment(voucher.endDate, "DD/MM/YYYY")
+    .tz("Asia/Ho_Chi_Minh")
+    .endOf("day");
 
   // Kiểm tra nếu currentDate trước parsedStartDate
   if (currentDate.isBefore(parsedStartDate)) {

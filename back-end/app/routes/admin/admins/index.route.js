@@ -8,6 +8,7 @@ router
   .get(admin.findALL)
   .post(validation.createAdminValidation, admin.create);
 router.route("/infoAdmin").get(admin.findAdminInfo);
+router.route("/resetPassword/:adminID").put(admin.resetPassword);
 router
   .route("/:adminID")
   .put(validation.createAdminValidation, admin.update)

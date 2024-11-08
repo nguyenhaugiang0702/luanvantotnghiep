@@ -5,6 +5,7 @@ const bookService = require("../../services/book.service");
 const voucherService = require("../../services/vouchers/voucher.service");
 const voucherCategoryService = require("../../services/vouchers/voucherCategory.service");
 const voucherUsedsService = require("../../services/vouchers/voucherUseds.service");
+const format = require("../../utils/formatPrice.utils");
 
 exports.create = async (req, res, next) => {
   try {
@@ -40,6 +41,31 @@ exports.create = async (req, res, next) => {
         next
       );
       if (!updatedCart) return;
+      // Check giá nhỏ nhất để áp dụng mã voucher
+      const currentVoucherUseds = await voucherUsedsService.getOneVoucherUsed({
+        userID: userID,
+        isApplied: true,
+      });
+      if (currentVoucherUseds) {
+        const cartBooksIscheckOut = updatedCart.books.filter(
+          (book) => book.isCheckOut
+        );
+        const totalPriceOrder = cartBooksIscheckOut.reduce(
+          (total, book) => total + book.quantity * book.price,
+          0
+        );
+        const addNeedPrice =
+          totalPriceOrder -
+          currentVoucherUseds.voucherID?.voucherCategoryID?.minValue;
+        if (addNeedPrice < 0) {
+          await voucherUsedsService.updateVoucherUseds(
+            currentVoucherUseds._id,
+            {
+              isApplied: !currentVoucherUseds.isApplied,
+            }
+          );
+        }
+      }
 
       return res.send({
         message: "Cập nhật giỏ hàng thành công",
@@ -122,7 +148,10 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
     if (discountCodeApplied) {
       const voucher = discountCodeApplied.voucherID;
       // Kiểm tra mã hết hạn chưa
-      const endDate = moment(voucher.endDate).tz("Asia/Ho_Chi_Minh").toDate();
+      const endDate = moment(voucher.endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .endOf("day")
+        .toDate();
       if (endDate < currentDate) {
         // Cập nhật lại trạng thái applied là false nếu như hết hạn
         await voucherUsedsService.updateVoucherUseds(discountCodeApplied._id, {
@@ -208,22 +237,39 @@ exports.update = async (req, res, next) => {
     }
 
     // Kiểm tra mã giảm giá có được sử dụng không
-    const noBooksCheckedOut = updateCart.books.every((b) => !b.isCheckOut);
+    const noBooksCheckedOut = updateCart.books.every((b) => !b.isCheckOut); // isApllied: false - Khong có sách nào được checkout
     const voucher = await voucherUsedsService.getOneVoucherUsed({
       userID: userID,
       isApplied: true,
     });
 
-    // Nếu có chọn sách và có chọn mã giảm gía thì đặt về false
+    // Nếu không có chọn sách và có chọn mã giảm gía thì đặt về false
     if (noBooksCheckedOut && voucher) {
       await voucherUsedsService.updateVoucherUseds(voucher._id, {
         isApplied: !voucher.isApplied,
       });
+    } else if (!noBooksCheckedOut && voucher) {
+      // Check giá nhỏ nhất để áp dụng mã voucher
+      const cartBooksIscheckOut = updateCart.books.filter(
+        (book) => book.isCheckOut
+      );
+      const totalPriceOrder = cartBooksIscheckOut.reduce(
+        (total, book) => total + book.quantity * book.price,
+        0
+      );
+      const addNeedPrice =
+        totalPriceOrder - voucher.voucherID?.voucherCategoryID?.minValue;
+      if (addNeedPrice < 0) {
+        await voucherUsedsService.updateVoucherUseds(voucher._id, {
+          isApplied: !voucher.isApplied,
+        });
+      }
     }
 
     return res.send({
       message: "Cập nhật thành công trạng thái checkbox",
       updateCart,
+      isRefreshedVoucher: true,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi cập nhật sách"));
@@ -286,23 +332,50 @@ exports.deleteBookFromCart = async (req, res, next) => {
     if (!cart) {
       return next(new ApiError(400, "Không tìm thấy giỏ hàng"));
     }
-    const updatedCart = await cartService.deleteBookFromCart(userID, bookID);
+    const deleteBookCart = await cartService.deleteBookFromCart(userID, bookID);
+    if (!deleteBookCart) {
+      return next(new ApiError(400, "Xóa sách thất bại"));
+    }
     // Cập nhật tổng giá trị giỏ hàng
-    cart.totalPrice = updatedCart.books.reduce(
+    const totalPrice = deleteBookCart.books.reduce(
       (acc, book) => acc + book.price * book.quantity,
       0
     );
-    cart.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    // Lưu giỏ hàng đã được cập nhật hoặc tạo mới
-    cart.save();
-    if (!updatedCart) {
-      return next(new ApiError(400, "Xóa sách thất bại"));
+    const updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    const updateCart = await cartService.updateCart(userID, {
+      totalPrice: totalPrice,
+      updatedAt: updatedAt,
+    });
+    if (!updateCart) {
+      return next(new ApiError(400, "Lôi khi xóa cập nhật giỏ hàng"));
+    }
+    const currentVoucherUseds = await voucherUsedsService.getOneVoucherUsed({
+      userID: userID,
+      isApplied: true,
+    });
+    if (currentVoucherUseds) {
+      const cartBooksIscheckOut = updateCart.books.filter(
+        (book) => book.isCheckOut
+      );
+      const totalPriceOrder = cartBooksIscheckOut.reduce(
+        (total, book) => total + book.quantity * book.price,
+        0
+      );
+      const addNeedPrice =
+        totalPriceOrder -
+        currentVoucherUseds.voucherID?.voucherCategoryID?.minValue;
+      if (addNeedPrice < 0) {
+        await voucherUsedsService.updateVoucherUseds(currentVoucherUseds._id, {
+          isApplied: !currentVoucherUseds.isApplied,
+        });
+      }
     }
 
     return res.send({
       message: "Xóa thành công sách",
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi xóa sách"));
   }
 };
@@ -321,6 +394,16 @@ exports.deleteAllBookFromCart = async (req, res, next) => {
 
     if (!updatedCart) {
       return next(new ApiError(400, "Xóa sách thất bại"));
+    }
+
+    const currentVoucherUseds = await voucherUsedsService.getOneVoucherUsed({
+      userID: userID,
+      isApplied: true,
+    });
+    if (currentVoucherUseds) {
+      await voucherUsedsService.updateVoucherUseds(currentVoucherUseds._id, {
+        isApplied: !currentVoucherUseds.isApplied,
+      });
     }
 
     return res.send({

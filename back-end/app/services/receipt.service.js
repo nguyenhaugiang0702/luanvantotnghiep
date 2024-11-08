@@ -17,10 +17,11 @@ const createReceipt = async (receiptData) => {
   return await receipt.save();
 };
 
-const getAllReceipts = async () => {
-  return groupReceiptsBySupplier(
-    await Receipt.find({}).populate("supplierID").populate("adminID").sort({ createdAt: -1 })
-  );
+const getAllReceipts = async (query) => {
+  return await Receipt.find(query)
+    .populate("supplierID")
+    .populate("adminID")
+    .sort({ createdAt: -1 });
 };
 
 const getAllStockProducts = async () => {
@@ -100,6 +101,35 @@ const addReceiptDetailAndUpdateBook = async (receipt, newDetail, next) => {
   }
 };
 
+const updateTotalPriceForReceipt = async (receiptID) => {
+  try {
+    const updatedReceipt = await Receipt.findById(receiptID);
+    if (!updatedReceipt) {
+      throw new ApiError(
+        400,
+        "Không thể lấy lại đơn nhập hàng để tính toán tổng giá trị!"
+      );
+    }
+    // Tính tổng giá trị cho đơn nhập hàng
+    const totalPrice = updatedReceipt.detail.reduce((total, detail) => {
+      return total + detail.quantity * detail.price;
+    }, 0);
+
+    // Cập nhật lại totalPrice cho đơn nhập hàng
+    updatedReceipt.totalPrice = totalPrice;
+
+    // Lưu lại đơn nhập hàng đã cập nhật
+    await updatedReceipt.save();
+
+    return updatedReceipt;
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Lỗi khi tính toán và cập nhật tổng giá trị cho đơn nhập hàng."
+    );
+  }
+};
+
 module.exports = {
   createReceipt,
   getAllReceipts,
@@ -107,4 +137,5 @@ module.exports = {
   getReceiptBySupplierID,
   getAllStockProducts,
   addReceiptDetailAndUpdateBook,
+  updateTotalPriceForReceipt,
 };

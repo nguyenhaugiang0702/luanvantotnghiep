@@ -302,7 +302,7 @@ const voucherCategorySchema = yup.object().shape({
     .number()
     .required("Giá giảm tối đa là bắt buộc")
     .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
-    .typeError("Giá giảm tối đa phải là số")
+    .typeError("Giá giảm tối đa phải là số"),
 });
 
 const voucherSchema = yup.object().shape({
@@ -364,6 +364,20 @@ const addAdminSchema = yup.object({
     .required("Vui lòng chọn quyền"),
 });
 
+const updateAdminSchema = yup.object({
+  firstName: yup.string().required("Họ là bắt buộc"),
+  lastName: yup.string().required("Tên là bắt buộc"),
+  phoneNumber: yup
+    .string()
+    .required("Số điện thoại là bắt buộc")
+    .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
+  roleID: yup
+    .string()
+    .notOneOf([""], "Vui lòng chọn quyền")
+    .required("Vui lòng chọn quyền"),
+});
+
 module.exports = {
   supplierSchema,
   authorSchema,
@@ -381,4 +395,5 @@ module.exports = {
   voucherCategorySchema,
   voucherSchema,
   addAdminSchema,
+  updateAdminSchema,
 };
