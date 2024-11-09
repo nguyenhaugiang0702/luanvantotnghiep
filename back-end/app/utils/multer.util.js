@@ -1,6 +1,25 @@
 const multer = require("multer");
 const path = require("path");
 
+const imageFileTypes = /jpeg|jpg|png|webp/;
+// Kiểm tra file có phải là ảnh không
+function checkFileType(file, cb) {
+  const extname = imageFileTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const mimetype = imageFileTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb(
+      new Error(
+        "File không hợp lệ. Chỉ chấp nhận các định dạng ảnh (jpeg, jpg, png, webp)"
+      )
+    );
+  }
+}
+
 // Thiết lập nơi lưu trữ và tên file
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -23,7 +42,11 @@ const storage = multer.diskStorage({
   },
 });
 
-// Thiết lập middleware multer
-const upload = multer({ storage: storage });
-
+// Thiết lập middleware multer với kiểm tra tệp
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    checkFileType(file, cb);
+  },
+});
 module.exports = upload;

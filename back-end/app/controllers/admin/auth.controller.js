@@ -13,10 +13,14 @@ const tokenService = require("../../services/token.service");
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
+  if (!email) {
+    return next(new ApiError(404, "Vui lòng kiểm tra email"));
+  }
+  if (!password) {
+    return next(new ApiError(404, "Vui lòng kiểm tra lại mật khẩu"));
+  }
   try {
-    console.log(req.body);
     const admin = await authAdminService.getAdminByEmail(email);
-    console.log(admin);
 
     if (!admin) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
@@ -28,10 +32,15 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
     }
 
+    const accessToken = tokenService.createAdminAccessToken(
+      admin._id,
+      admin.roleID.name
+    );
 
-    const accessToken = tokenService.createAdminAccessToken(admin._id, admin.roleID.name);
-
-    const refreshToken = tokenService.createAdminRefreshToken(admin._id, admin.roleID.name);
+    const refreshToken = tokenService.createAdminRefreshToken(
+      admin._id,
+      admin.roleID.name
+    );
 
     return res.send({
       isLoggedIn: true,
@@ -70,7 +79,10 @@ exports.refreshToken = async (req, res, next) => {
     if (!admin) {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
-    const newAccessToken = tokenService.createAdminAccessToken(adminID, admin.roleID.name);
+    const newAccessToken = tokenService.createAdminAccessToken(
+      adminID,
+      admin.roleID.name
+    );
     return res.send({
       accessToken: newAccessToken,
       isLoggedIn: true,

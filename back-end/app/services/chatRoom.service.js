@@ -8,13 +8,13 @@ const createChatRoom = async (chatRoomData) => {
 };
 
 const getMessageByChatRoomID = async (chatRoomId) => {
-  return await ChatRoom.findById(chatRoomId);
-};
-
-const getChatRooms = async () => {
-  return await ChatRoom.find()
+  return await ChatRoom.findById(chatRoomId)
     .populate("adminID")
     .populate("userID");
+};
+
+const getChatRooms = async (query) => {
+  return await ChatRoom.find(query).populate("adminID").populate("userID");
 };
 
 const getChatRoomByUserID = async (userID) => {
@@ -51,7 +51,7 @@ const updateMessage = async (chatRoomId, sender, message) => {
       },
       updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
     },
-    { new: true } 
+    { new: true }
   );
 };
 

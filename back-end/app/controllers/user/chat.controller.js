@@ -44,15 +44,18 @@ exports.updateChatRoom = async (req, res, next) => {
     const { chatRoomID } = req.params;
     const { isReaded } = req.body;
     const chatRoom = await chatRoomService.getMessageByChatRoomID(chatRoomID);
-    const message = chatRoom.messages.find(
-      (msg) => !msg.isReaded && msg.sender === "admin"
-    );
-    if (message) {
-      message.isReaded = isReaded;
-      await chatRoom.save();
-    }
+    // Duyệt qua tất cả các tin nhắn chưa đọc của người dùng và cập nhật
+    chatRoom.messages.forEach((msg) => {
+      if (msg.sender === "admin" && !msg.isReaded) {
+        msg.isReaded = isReaded;
+      }
+    });
+    // Báo Mongoose rằng mảng messages đã thay đổi
+    chatRoom.markModified('messages');
+    // Lưu lại phòng chat với tin nhắn đã được cập nhật
+    await chatRoom.save();
     return res.send({
-      message: "Cập nhật thành công"
+      message: "Cập nhật thành công",
     });
   } catch (error) {
     console.log(error);
