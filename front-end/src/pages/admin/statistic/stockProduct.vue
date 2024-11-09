@@ -28,7 +28,7 @@
                   <tr>
                     <th class="text-start">#</th>
                     <th class="text-start">Sản phẩm</th>
-                    <th class="text-start">Danh mục</th>
+                    <th class="text-start">Thể loại</th>
                     <th class="text-start">Nhà xuất bản</th>
                     <th class="text-start">Hình thức</th>
                     <th class="text-start">Số lượng nhập</th>

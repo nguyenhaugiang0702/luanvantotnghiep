@@ -177,8 +177,7 @@ const admin = [
           {
             path: "revenue",
             name: "admin-revenue-statistics",
-            component: () =>
-              import("../pages/admin/statistic/revenue.vue"),
+            component: () => import("../pages/admin/statistic/revenue.vue"),
             props: true,
           },
           {
@@ -190,11 +189,11 @@ const admin = [
           },
         ],
       },
-      {
-        path: "statics-of-report",
-        name: "admin-chats",
-        component: () => import("../pages/admin/chats/index.vue"),
-      },
+      // {
+      //   path: "statics-of-report",
+      //   name: "admin-chats",
+      //   component: () => import("../pages/admin/chats/index.vue"),
+      // },
       {
         path: "orders",
         name: "admin-orders",
@@ -231,6 +230,12 @@ const admin = [
         path: "chats",
         name: "admin-chats",
         component: () => import("../pages/admin/chats/index.vue"),
+      },
+      {
+        path: "chats/chat/:chatRoomID",
+        name: "admin-chats-room",
+        component: () => import("../pages/admin/chats/chatPage.vue"),
+        props: true,
       },
       {
         path: "role-management",

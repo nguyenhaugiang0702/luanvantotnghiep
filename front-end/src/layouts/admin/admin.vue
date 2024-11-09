@@ -14,6 +14,11 @@
 </template>
 
 <script setup>
+import { ref, provide, watch } from "vue";
+
 import TheMenu from '../../components/admin/TheMenu.vue';
 import Header from '../../components/admin/Header.vue';
+
+const updateNotification = ref(0);
+provide("updateNotification", updateNotification);
 </script>

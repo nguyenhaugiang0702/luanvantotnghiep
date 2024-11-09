@@ -62,15 +62,6 @@
                     {{ author.name }}
                   </li>
                 </ul>
-                <button
-                  class="clear-button"
-                  type="button"
-                  @click="clearDropdownAuthors('dropdown-menu-authors')"
-                  v-if="searchAuthorValue"
-                  aria-label="Clear author"
-                >
-                  <span class="clear-icon">&times;</span>
-                </button>
                 <ErrorMessage name="authorName" class="invalid-feedback" />
                 <span
                   v-if="
@@ -120,15 +111,6 @@
                     {{ publisher.name }}
                   </li>
                 </ul>
-                <button
-                  class="clear-button"
-                  type="button"
-                  @click="clearDropdownPublsihers('dropdown-menu-publishers')"
-                  v-if="searchPublisherValue"
-                  aria-label="Clear author"
-                >
-                  <span class="clear-icon">&times;</span>
-                </button>
                 <ErrorMessage name="publisherName" class="invalid-feedback" />
                 <span
                   v-if="
@@ -180,15 +162,6 @@
                       {{ category.name }}
                     </li>
                   </ul>
-                  <button
-                    class="clear-button-2ndrow"
-                    type="button"
-                    @click="clearDropdownCategories('dropdown-menu-categories')"
-                    v-if="searchCategoryValue"
-                    aria-label="Clear author"
-                  >
-                    <span class="clear-icon">&times;</span>
-                  </button>
                   <ErrorMessage name="categoryName" class="invalid-feedback" />
                   <span
                     v-if="
@@ -241,17 +214,6 @@
                       {{ formality.name }}
                     </li>
                   </ul>
-                  <button
-                    class="clear-button-2ndrow"
-                    type="button"
-                    @click="
-                      clearDropdownFormalities('dropdown-menu-formalities')
-                    "
-                    v-if="searchFormalityValue"
-                    aria-label="Clear author"
-                  >
-                    <span class="clear-icon">&times;</span>
-                  </button>
                   <ErrorMessage name="formalityName" class="invalid-feedback" />
                   <span
                     v-if="
@@ -448,17 +410,6 @@
                       {{ priceRange.startPrice }}đ - {{ priceRange.endPrice }}đ
                     </li>
                   </ul>
-                  <button
-                    class="clear-button"
-                    type="button"
-                    @click="
-                      clearDropdownPriceranges('dropdown-menu-priceranges')
-                    "
-                    v-if="searchPriceRangeValue"
-                    aria-label="Clear author"
-                  >
-                    <span class="clear-icon">&times;</span>
-                  </button>
                   <ErrorMessage
                     name="priceRangeName"
                     class="invalid-feedback"
@@ -727,32 +678,6 @@ export default {
       }
     });
 
-    const clearDropdownAuthors = (className) => {
-      searchAuthorValue.value = "";
-      authorSelectedID.value = "";
-      $(`.${className}`).addClass("show");
-    };
-    const clearDropdownCategories = (className) => {
-      searchCategoryValue.value = "";
-      categorySelectedID.value = "";
-      $(`.${className}`).addClass("show");
-    };
-    const clearDropdownFormalities = (className) => {
-      searchFormalityValue.value = "";
-      formalitySelectedID.value = "";
-      $(`.${className}`).addClass("show");
-    };
-    const clearDropdownPriceranges = (className) => {
-      searchPriceRangeValue.value = "";
-      priceRangeSelectedID.value = "";
-      $(`.${className}`).addClass("show");
-    };
-    const clearDropdownPublsihers = (className) => {
-      searchPublisherValue.value = "";
-      publisherSelectedID.value = "";
-      $(`.${className}`).addClass("show");
-    };
-
     return {
       book,
       errors,
@@ -794,12 +719,6 @@ export default {
       selectPriceRangeID,
       priceRangeID,
       loadingPriceranges,
-      //
-      clearDropdownAuthors,
-      clearDropdownCategories,
-      clearDropdownFormalities,
-      clearDropdownPriceranges,
-      clearDropdownPublsihers,
     };
   },
 };

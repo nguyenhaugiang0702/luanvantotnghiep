@@ -149,6 +149,10 @@ onMounted(async () => {
     // Nhận tin nhắn từ server
     socket.value.on("receiveMessage", (message) => {
       messages.value.push(message);
+      // Nếu tin nhắn là từ admin, hiển thị thông báo chấm đỏ
+      if (message.sender === "admin") {
+        hasNewMessage.value = true;
+      }
       scrollToBottom();
     });
 
