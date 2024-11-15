@@ -153,11 +153,13 @@ import { toast } from "vue3-toastify";
 import Cookies from "js-cookie";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { formatDate } from "@/utils/utils";
+
 const emit = defineEmits(["refreshCart:update"]);
 const voucherUseds = ref([]);
 const apiUser = new ApiUser();
 const token = Cookies.get("accessToken");
-const updateVouchers = inject("updateVouchers");
+const updateVoucher = inject("updateVouchers");
+
 const getVouchersUseds = async () => {
   const response = await apiUser.get("/vouchers/voucherUseds");
   if (response.status === 200) {
@@ -165,9 +167,9 @@ const getVouchersUseds = async () => {
   }
 };
 
-watch(updateVouchers, (newValue) => {
+watch(updateVoucher, async (newValue) => {
   if (newValue) {
-    getVouchersUseds();
+    await getVouchersUseds();
   }
 });
 

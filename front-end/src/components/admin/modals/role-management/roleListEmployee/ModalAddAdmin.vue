@@ -145,7 +145,7 @@
                     placeholder="Vai trò"
                     v-model="newAdmin.roleID"
                     ><option selected value="">Vui lòng chọn quyền</option>
-                    <option :value="role._id" v-for="role in roles">
+                    <option :value="role.name" v-for="role in roles">
                       {{ role.name }}
                     </option>
                   </Field>
@@ -197,14 +197,16 @@ export default {
       roleID: "",
       method: "add",
     });
-    const roles = ref([]);
     const isLoading = ref(false);
-    const getRoles = async () => {
-      const response = await apiAdmin.get("/roles");
-      if (response.status == 200) {
-        roles.value = response.data;
-      }
-    };
+    const roles = ref([
+      {
+        name: "admin",
+      },
+      {
+        name: "sale",
+      },
+      { name: "shipper" },
+    ]);
     const { errors, validate, resetForm } = useForm({
       validationSchema: addAdminSchema,
     });
@@ -230,10 +232,6 @@ export default {
         isLoading.value = false;
       }
     };
-
-    onMounted(() => {
-      getRoles();
-    });
 
     return { newAdmin, addAdmin, errors, roles, isLoading };
   },

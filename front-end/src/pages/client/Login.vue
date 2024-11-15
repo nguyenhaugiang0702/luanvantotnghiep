@@ -20,7 +20,7 @@
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col col-xl-10">
           <div class="card" style="border-radius: 1rem">
-            <div class="row g-0" style="padding-bottom: 19rem">
+            <div class="row g-0" style="padding-bottom: 22rem">
               <div class="col-md-6 col-lg-4 d-none d-md-block">
                 <img
                   src="../../assets/images/logo1.png"
@@ -41,8 +41,32 @@
                     <h5 class="h3 fw-bold my-3" style="letter-spacing: 1px">
                       Đăng nhập
                     </h5>
-
                     <div class="form-group mb-3">
+                      <label class="form-label">Đăng nhập bằng</label>
+                      <div>
+                        <input
+                          type="radio"
+                          id="loginPhone"
+                          value="phone"
+                          v-model="loginMethod"
+                          class="me-2"
+                        />
+                        <label for="loginPhone" class="me-3"
+                          >Số điện thoại</label
+                        >
+                        <input
+                          type="radio"
+                          id="loginEmail"
+                          value="email"
+                          v-model="loginMethod"
+                          class="me-2"
+                        />
+                        <label for="loginEmail">Email</label>
+                      </div>
+                    </div>
+
+                    <!-- Conditionally render phone number input -->
+                    <div v-if="loginMethod === 'phone'" class="form-group mb-3">
                       <label class="form-label" for="phoneNumber"
                         >Số điện thoại</label
                       >
@@ -62,6 +86,23 @@
                         name="phoneNumber"
                         class="invalid-feedback"
                       />
+                    </div>
+
+                    <!-- Conditionally render email input -->
+                    <div v-if="loginMethod === 'email'" class="form-group mb-3">
+                      <label class="form-label" for="email">Email</label>
+                      <Field
+                        type="text"
+                        class="form-control"
+                        placeholder="Nhập email"
+                        name="email"
+                        :class="{
+                          'is-invalid': errors.email,
+                          'is-valid': !errors.email && user.email !== '',
+                        }"
+                        v-model="user.email"
+                      />
+                      <ErrorMessage name="email" class="invalid-feedback" />
                     </div>
 
                     <div class="form-group mb-3">
@@ -121,12 +162,20 @@ import { ref, computed, onMounted, watch } from "vue";
 import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
 import ApiUser from "@/service/user/apiUser.service";
-import { loginUserSchema } from "@/utils/schema.util";
+import {
+  phoneLoginUserSchema,
+  emailLoginUserSchema,
+} from "@/utils/schema.util";
 import Cookies from "js-cookie";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+const loginMethod = ref("phone");
 
-const { errors, validate } = useForm({
-  validationSchema: loginUserSchema,
+const { errors, validate, resetForm } = useForm({
+  validationSchema: computed(() => {
+    return loginMethod.value === "phone"
+      ? phoneLoginUserSchema
+      : emailLoginUserSchema;
+  }),
 });
 const apiUser = new ApiUser();
 const isLoading = ref(false);
@@ -134,6 +183,11 @@ const router = useRouter();
 const user = ref({
   phoneNumber: "",
   password: "",
+  email: "",
+});
+
+watch(loginMethod, () => {
+  resetForm();
 });
 
 const Login = async () => {
@@ -143,7 +197,19 @@ const Login = async () => {
   }
   try {
     isLoading.value = true;
-    const response = await apiUser.post("/auth/login", user.value);
+    const loginData =
+      loginMethod.value === "phone"
+        ? {
+            phoneNumber: user.value.phoneNumber,
+            password: user.value.password,
+            loginMethod: "phone",
+          }
+        : {
+            email: user.value.email,
+            password: user.value.password,
+            loginMethod: "email",
+          };
+    const response = await apiUser.post("/auth/login", loginData);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (response.status == 200) {
       const accessToken = response.data.accessToken;

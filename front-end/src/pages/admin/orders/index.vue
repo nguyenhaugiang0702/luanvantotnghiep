@@ -28,15 +28,6 @@
                     <div class="me-3">
                       <select
                         class="form-select"
-                        :class="{
-                          'border-warning border-2':
-                            props.rowData?.status?.value === 1,
-                          'border-success border-2':
-                            props.rowData?.status?.value === 2,
-                          'border-danger border-2':
-                            props.rowData?.status?.value === 3 ||
-                            props.rowData?.status?.value === 4,
-                        }"
                         style="width: 12rem"
                         :value="props.rowData.status.value"
                         @change="
@@ -213,6 +204,16 @@ const columns = [
         return `<div class='text-start badge text-bg-danger p-2'>${data.label}</div>`;
       } else if (data.value === 4) {
         return `<div class='text-start badge text-bg-danger p-2'>${data.label}</div>`;
+      } else if (data.value === 5) {
+        return `<div class='text-start badge text-bg-success p-2'>${data.label}</div>`;
+      } else if (data.value === 6) {
+        return `<div class='text-start badge text-bg-warning p-2'>${data.label}</div>`;
+      } else if (data.value === 7) {
+        return `<div class='text-start badge text-bg-danger p-2'>${data.label}</div>`;
+      } else if (data.value === 8) {
+        return `<div class='text-start badge text-bg-success p-2'>${data.label}</div>`;
+      } else if (data.value === 9) {
+        return `<div class='text-start badge text-bg-success p-2'>${data.label}</div>`;
       }
     },
   },

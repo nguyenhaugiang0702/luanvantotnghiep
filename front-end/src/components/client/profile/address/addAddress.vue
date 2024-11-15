@@ -92,7 +92,7 @@
                   :key="province.id"
                   :value="province.id"
                 >
-                  {{ province.full_name }}
+                  {{ province.name }}
                 </option>
               </Field>
               <ErrorMessage name="province" class="invalid-feedback" />
@@ -117,7 +117,7 @@
                   :key="district.id"
                   :value="district.id"
                 >
-                  {{ district.full_name }}
+                  {{ district.name }}
                 </option>
               </Field>
               <ErrorMessage name="district" class="invalid-feedback" />
@@ -137,7 +137,7 @@
               >
                 <option value="0">Phường Xã</option>
                 <option v-for="ward in wards" :key="ward.id" :value="ward.id">
-                  {{ ward.full_name }}
+                  {{ ward.name }}
                 </option>
               </Field>
               <ErrorMessage name="ward" class="invalid-feedback" />
@@ -209,7 +209,7 @@ export default {
         (province) => province.id === newValue
       );
       newAddress.value.province = {
-        name: selectedProvinceObj ? selectedProvinceObj.full_name : "",
+        name: selectedProvinceObj ? selectedProvinceObj.name : "",
         code: selectedProvinceObj ? parseInt(selectedProvinceObj.id) : "",
       };
     });
@@ -218,14 +218,14 @@ export default {
         (district) => district.id === newValue
       );
       newAddress.value.district = {
-        name: selectedDistrictObj ? selectedDistrictObj.full_name : "",
+        name: selectedDistrictObj ? selectedDistrictObj.name : "",
         code: selectedDistrictObj ? parseInt(selectedDistrictObj.id) : "",
       };
     });
     watch(selectedWard, (newValue) => {
       const selectedWardObj = wards.value.find((ward) => ward.id === newValue);
       newAddress.value.ward = {
-        name: selectedWardObj ? selectedWardObj.full_name : "",
+        name: selectedWardObj ? selectedWardObj.name : "",
         code: selectedWardObj ? parseInt(selectedWardObj.id) : "",
       };
     });

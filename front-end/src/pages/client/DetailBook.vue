@@ -87,6 +87,11 @@
                 <span v-if="book.quantityImported === 0" class="ms-2 fw-bold"
                   >(Giá dự kiến - Đang nhập hàng)</span
                 >
+                <span
+                  v-else-if="book.quantityImported <= book.quantitySold"
+                  class="ms-2 fw-bold"
+                  >(Đang tạm hết hàng)</span
+                >
               </p>
               <div class="row">
                 <div class="col">
@@ -143,7 +148,12 @@
               </div>
 
               <!-- Bootstrap component for quantity -->
-              <div v-if="book.quantityImported !== 0">
+              <div
+                v-if="
+                  book.quantityImported !== 0 &&
+                  book.quantityImported > book.quantitySold
+                "
+              >
                 <div class="d-flex align-items-center mt-3">
                   <label for="quantity" class="me-2">Số lượng:</label>
                   <div class="input-group" style="width: 180px">

@@ -29,7 +29,6 @@
     />
     <span>Thể loại</span>
   </a-menu-item>
-  
 
   <!-- Quản lý Đơn hàng -->
   <a-menu-item key="admin-orders-list" @click="navigateTo('admin-orders-list')">
@@ -163,7 +162,7 @@
     <i class="fa-solid fa-comments fs-4 me-3"></i>
     <span>Tin nhắn</span>
   </a-menu-item>
-  
+
   <a-sub-menu key="admin-stockProduct-list">
     <template #title>
       <span>
@@ -180,6 +179,11 @@
       key="admin-revenue-statistics"
       @click="navigateTo('admin-revenue-statistics')"
       >Doanh thu</a-menu-item
+    >
+    <a-menu-item
+      key="admin-profit-statistics"
+      @click="navigateTo('admin-profit-statistics')"
+      >Lợi nhuận</a-menu-item
     >
     <a-menu-item
       key="admin-stock-product"
@@ -222,29 +226,19 @@
       >Loại giảm giá</a-menu-item
     >
   </a-sub-menu>
-  <a-sub-menu key="admin-role-management-employee">
-    <template #title>
-      <span>
-        <img
-          class="me-3"
-          src="../../../assets/images/admin/privacy.png"
-          alt=""
-          style="width: 30px; height: 30px"
-        />
-        <span>Phân quyền</span>
-      </span>
-    </template>
-    <a-menu-item
-      key="admin-role-management-employee"
-      @click="navigateTo('admin-role-management-employee')"
-      >Nhân viên</a-menu-item
-    >
-    <a-menu-item
-      key="admin-role-management-list"
-      @click="navigateTo('admin-role-management-list')"
-      >Danh sách quyền</a-menu-item
-    >
-  </a-sub-menu>
+
+  <a-menu-item
+    key="admin-role-management-employee"
+    @click="navigateTo('admin-role-management-employee')"
+    ><img
+      class="me-3"
+      src="../../../assets/images/admin/privacy.png"
+      alt=""
+      style="width: 30px; height: 30px"
+    />
+    <span>Nhân viên</span>
+    </a-menu-item
+  >
 </template>
 <script>
 import { ref, onMounted, defineComponent } from "vue";
@@ -264,7 +258,7 @@ export default defineComponent({
       emit("update:selectedKeys", selectedKeys.value);
       router.push({ name: routeName });
     };
-    
+
     return { navigateTo, selectedKeys };
   },
 });

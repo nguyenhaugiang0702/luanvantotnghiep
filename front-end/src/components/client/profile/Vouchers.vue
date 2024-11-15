@@ -1,96 +1,107 @@
 <template>
   <div class="container bg-white pb-3">
     <h4 class="p-3">MÃ GIẢM GIÁ</h4>
-    <div class="voucher-wrapper">
-      <div
-        class="voucher-container"
-        v-for="voucher in vouchers"
-        :key="voucher._id"
-      >
-        <div class="d-flex">
-          <!-- Left side -->
-          <div class="voucher-left">
-            <div class="logo-container">
-              <img
-                src="../../../assets/images/logo.jpg"
-                alt="logo"
-                class="store-logo"
-              />
-            </div>
-            <h2 class="store-name">NHG BOOKSTORE</h2>
-          </div>
-
-          <!-- Right side -->
-          <div class="voucher-right">
-            <div class="voucher-content">
-              <div class="discount-section">
-                <h3 class="discount">
-                  Giảm
-                  <span
-                    v-if="
-                      voucher.voucherID?.voucherCategoryID?.discountType ===
-                      'percent'
-                    "
-                  >
-                    {{ voucher.voucherID?.voucherCategoryID?.value }}%
-                  </span>
-                  <span v-else>
-                    {{
-                      formatPrice(voucher.voucherID?.voucherCategoryID?.value)
-                    }}
-                  </span>
-                </h3>
-                <div
-                  class="code"
-                  :class="{
-                    'code-apply': voucher.voucherID?.usedPercentage === 100,
-                  }"
-                >
-                  {{
-                    voucher.voucherID?.usedPercentage === 100
-                      ? "Đã hết"
-                      : "Dùng ngay"
-                  }}
-                </div>
-              </div>
-
-              <div class="details">
-                <div class="detail-item">
-                  <span class="label">HSD:</span>
-                  {{ moment(voucher.voucherID?.endDate).format("DD/MM/YYYY") }}
-                </div>
-                <div class="code code-apply">{{ voucher.voucherID?.code }}</div>
-                <div class="detail-item">
-                  <span class="label">Đơn tối thiểu:</span>
-                  {{
-                    formatPrice(voucher.voucherID?.voucherCategoryID?.minValue)
-                  }}
-                </div>
-              </div>
-
-              <div class="usage-section">
-                <a-progress
-                  class="process"
-                  :stroke-color="{
-                    from: '#2563eb',
-                    to: '#1e40af',
-                  }"
-                  size="small"
-                  :percent="voucher.voucherID?.usedPercentage"
+    <div v-if="vouchers.length !== 0">
+      <div class="voucher-wrapper">
+        <div
+          class="voucher-container"
+          v-for="voucher in vouchers"
+          :key="voucher._id"
+        >
+          <div class="d-flex">
+            <!-- Left side -->
+            <div class="voucher-left">
+              <div class="logo-container">
+                <img
+                  src="../../../assets/images/logo.jpg"
+                  alt="logo"
+                  class="store-logo"
                 />
+              </div>
+              <h2 class="store-name">NHG BOOKSTORE</h2>
+            </div>
+
+            <!-- Right side -->
+            <div class="voucher-right">
+              <div class="voucher-content">
+                <div class="discount-section">
+                  <h3 class="discount">
+                    Giảm
+                    <span
+                      v-if="
+                        voucher.voucherID?.voucherCategoryID?.discountType ===
+                        'percent'
+                      "
+                    >
+                      {{ voucher.voucherID?.voucherCategoryID?.value }}%
+                    </span>
+                    <span v-else>
+                      {{
+                        formatPrice(voucher.voucherID?.voucherCategoryID?.value)
+                      }}
+                    </span>
+                  </h3>
+                  <div
+                    class="code"
+                    :class="{
+                      'code-apply': voucher.voucherID?.usedPercentage === 100,
+                    }"
+                  >
+                    {{
+                      voucher.voucherID?.usedPercentage === 100
+                        ? "Đã hết"
+                        : "Dùng ngay"
+                    }}
+                  </div>
+                </div>
+
+                <div class="details">
+                  <div class="detail-item">
+                    <span class="label">HSD:</span>
+                    {{
+                      moment(voucher.voucherID?.endDate).format("DD/MM/YYYY")
+                    }}
+                  </div>
+                  <div class="code code-apply">
+                    {{ voucher.voucherID?.code }}
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Đơn tối thiểu:</span>
+                    {{
+                      formatPrice(
+                        voucher.voucherID?.voucherCategoryID?.minValue
+                      )
+                    }}
+                  </div>
+                </div>
+
+                <div class="usage-section">
+                  <a-progress
+                    class="process"
+                    :stroke-color="{
+                      from: '#2563eb',
+                      to: '#1e40af',
+                    }"
+                    size="small"
+                    :percent="voucher.voucherID?.usedPercentage"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="mt-4">
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @updatePage="handlePageChange"
+        />
+      </div>
     </div>
-  </div>
-  <div class="mt-4">
-    <Pagination
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-      @updatePage="handlePageChange"
-    />
+    <div v-else class="d-flex justify-content-center">
+      Không có mã giảm giá
+    </div>
   </div>
 </template>
 

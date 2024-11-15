@@ -94,6 +94,7 @@ import ApiUser from "@/service/user/apiUser.service";
 import EmptyCart from "@/components/client/carts/EmptyCart.vue";
 import Cookies from "js-cookie";
 import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
+import { io } from "socket.io-client";
 
 const router = useRouter();
 const route = useRoute();
@@ -105,13 +106,12 @@ const selectedBooks = ref({
   books: [],
   bookInCart: [],
 });
-const token = Cookies.get("accessToken");
+const socket = ref(null);
 const voucherUseds = ref([]);
 const apiUser = new ApiUser();
 const updateCart = inject("updateCart");
 const vouchersEmit = ref([]);
-
-
+const updateVoucher = inject("updateVouchers");
 const getCartsWithCheckbox = async () => {
   const response = await apiUser.get("/cart/booksCheckBox");
   if (response.status === 200) {
@@ -131,13 +131,22 @@ const refreshCartMethod = async (data) => {
   vouchersEmit.value = data;
 };
 
-watch(updateCart, (newValue) => {
-  getCartsWithCheckbox();
+watch(updateCart, async (newValue) => {
+  if (newValue) {
+    await getCartsWithCheckbox();
+  }
 });
 
-onMounted(() => {
-  getCartsWithCheckbox();
-  getVouchersUseds();
+onMounted(async () => {
+  await getCartsWithCheckbox();
+  await getVouchersUseds();
+  socket.value = io("http://localhost:3000");
+  socket.value.on("hasNewVoucherUpdate", async (data) => {
+    if (data.vouchers) {
+      updateVoucher.value += 1;
+      await getBookCheckOut();
+    }
+  });
 });
 </script>
 <style scoped>

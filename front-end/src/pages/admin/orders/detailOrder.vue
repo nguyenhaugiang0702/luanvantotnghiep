@@ -26,9 +26,16 @@
                             :class="{
                               'text-bg-danger':
                                 orderDetail.status.value === 4 ||
-                                orderDetail.status.value === 3,
-                              'text-bg-warning': orderDetail.status.value === 1,
-                              'text-bg-success': orderDetail.status.value === 2,
+                                orderDetail.status.value === 3 ||
+                                orderDetail.status.value === 7,
+                              'text-bg-warning':
+                                orderDetail.status.value === 1 ||
+                                orderDetail.status.value === 6,
+                              'text-bg-success':
+                                orderDetail.status.value === 2 ||
+                                orderDetail.status.value === 5 ||
+                                orderDetail.status.value === 8 ||
+                                orderDetail.status.value === 9,
                             }"
                           >
                             {{
@@ -157,6 +164,19 @@
                       </div>
                     </div>
 
+                    <!-- Image Delivery -->
+                    <div class="card mb-3" v-if="orderDetail.image">
+                      <div class="card-header">
+                        <h5 class="card-title">Ảnh giao hàng</h5>
+                      </div>
+                      <div class="card-body">
+                        <img class="img-fluid w-100" style="height: 20rem;"
+                          :src="config.imgUrl + '/' + orderDetail.image"
+                          alt=""
+                        />
+                      </div>
+                    </div>
+
                     <!-- Order Status -->
                     <div class="card mb-3">
                       <div class="card-header">
@@ -202,6 +222,7 @@ import { formatPrice, formatDate } from "@/utils/utils";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import config from "@/config/index";
 
 const orderStatus = ref("processing");
 const apiAdmin = new ApiAdmin();
@@ -225,6 +246,7 @@ const getOrderDetail = async () => {
   const response = await apiAdmin.get(`/orders/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
+    console.log(orderDetail.value);
   }
 };
 
@@ -235,8 +257,9 @@ const getOrderStatus = (status, statusFullOptions = []) => {
   if (statusOptionObj) {
     return statusOptionObj
       ? statusOptionObj.label
-      : "Không xác địng được trạng thái";
+      : "Không xác định được trạng thái";
   }
+  return "Chưa biết";
 };
 
 onMounted(() => {

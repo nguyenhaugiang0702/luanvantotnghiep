@@ -10,8 +10,8 @@
         <i class="fa-solid fa-house fs-4 me-3"></i>
         <span>Trang chủ</span>
       </a-menu-item>
-      <AdminMenu v-if="admin?.roleID?.name === 'admin'" />
-      <SaleMenu v-else-if="admin?.roleID?.name === 'sale'" />
+      <AdminMenu v-if="admin?.role === 'admin'" />
+      <SaleMenu v-else-if="admin?.role === 'sale'" />
       <a-menu-item @click="logOut">
         <img
           class="me-3"
@@ -58,7 +58,6 @@ export default defineComponent({
       const response = await apiAdmin.get("/admins/infoAdmin");
       if (response.status === 200) {
         admin.value = response.data;
-        console.log(admin.value);
       }
     };
 

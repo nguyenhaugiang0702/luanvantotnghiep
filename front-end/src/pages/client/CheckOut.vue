@@ -243,14 +243,22 @@
               <i class="fas fa-spinner fa-spin"></i>
             </span>
           </div>
+          <div class="text-end my-1">Tổng giảm giá:</div>
           <div class="text-end fw-bold my-1">Tổng Số Tiền (gồm VAT):</div>
         </div>
         <div class="col-md-2 col-sm-2">
           <div class="text-end">
-            {{ formatPrice(selectedBooks.totalPrice) }}
+            {{ formatPrice(selectedBooks.originalTotalPrice) }}
           </div>
           <div class="text-end">
             {{ isCalculatingFee ? "Đang tính..." : formatPrice(shippingFee) }}
+          </div>
+          <div class="text-end text-success">
+            -{{
+              isCalculatingFee
+                ? "Đang tính..."
+                : formatPrice(selectedBooks.discountValue)
+            }}
           </div>
           <div class="text-end fs-5 fw-bold text-danger">
             {{
@@ -297,7 +305,7 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, watch, computed, inject } from "vue";
+import { ref, onMounted, watch, computed, inject, provide } from "vue";
 import Cookies from "js-cookie";
 import ApiUser from "@/service/user/apiUser.service";
 import config from "@/config";
@@ -305,8 +313,9 @@ import { useRouter } from "vue-router";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import VoucherModal from "@/components/client/modals/vouchers/VoucherModal.vue";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import { io } from "socket.io-client";
 
-const token = Cookies.get("accessToken");
+const socket = ref(null);
 const apiUser = new ApiUser();
 const address = ref([]);
 const voucher = ref({
@@ -321,6 +330,7 @@ const selectedBooks = ref({
   books: [],
   bookInCart: [],
 });
+const updateVoucher = inject("updateVouchers");
 const selectedAddress = ref(""); // Địa chỉ giao hàng đã chọn
 const paymentMethod = ref("COD"); // Phương thức thanh toán mặc định là COD
 const notes = ref(""); // Ghi chú cho người bán
@@ -339,6 +349,7 @@ const shippingFee = ref(0);
 const isCalculatingFee = ref(false);
 const isLoadingPaypal = ref(false);
 let voucherUsed;
+
 const getAddress = async () => {
   const response = await apiUser.get("/addresses");
   if (response.status === 200) {
@@ -363,6 +374,7 @@ const refreshCartMethod = async (data) => {
   if (data.length > 0) {
     vouchersEmit.value = data;
     voucherUsed = vouchersEmit.value.find((v) => v.isApplied);
+
     if (voucherUsed) {
       voucher.value.code = voucherUsed.voucherID?.code || "";
       voucher.value.voucherID = voucherUsed.voucherID?._id || "";
@@ -393,10 +405,11 @@ const confirmPayment = async () => {
     shippingFee: shippingFee.value,
     totalQuantity: selectedBooks.value.totalQuantity,
     notes: notes.value,
+    discountValue: selectedBooks.value.discountValue,
+    discountCode: voucher.value.code,
     voucherID: voucher.value.voucherID || undefined,
     payment: paymentMethod.value,
   };
-  console.log(orderData);
   switch (paymentMethod.value) {
     case "MOMO":
       try {
@@ -492,7 +505,7 @@ watch(
         ward: selectedAddressData.value.ward.name,
         address: selectedAddressData.value.detailAddress,
         weight: dataToCalculateShippingFee.value.weight,
-        value: selectedBooks.value.totalPrice
+        value: selectedBooks.value.totalPrice,
       };
 
       try {
@@ -521,9 +534,16 @@ const getShippingFee = async (params) => {
   }
 };
 
-onMounted(() => {
-  getAddress();
-  getBookCheckOut();
+onMounted(async () => {
+  await getAddress();
+  await getBookCheckOut();
+  socket.value = io("http://localhost:3000");
+  socket.value.on("hasNewVoucherUpdate", async (data) => {
+    if (data.vouchers) {
+      updateVoucher.value += 1;
+      await getBookCheckOut();
+    }
+  });
 });
 </script>
 <style scoped>

@@ -17,11 +17,19 @@ export const registerUserSchema = yup.object({
     .min(8, "Mật khẩu phải từ 8 ký tự"),
 });
 
-export const loginUserSchema = yup.object({
+export const phoneLoginUserSchema = yup.object({
   phoneNumber: yup
     .string()
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+});
+
+export const emailLoginUserSchema = yup.object({
+  email: yup.string().required("Email là bắt buộc").email("Email không hợp lệ"),
   password: yup
     .string()
     .required("Mật khẩu là bắt buộc")

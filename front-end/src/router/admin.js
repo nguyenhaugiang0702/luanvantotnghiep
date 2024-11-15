@@ -181,6 +181,12 @@ const admin = [
             props: true,
           },
           {
+            path: "profit",
+            name: "admin-profit-statistics",
+            component: () => import("../pages/admin/statistic/profit.vue"),
+            props: true,
+          },
+          {
             path: "stock-product",
             name: "admin-stock-product",
             component: () =>
@@ -242,13 +248,6 @@ const admin = [
         name: "admin-role-management",
         redirect: { name: "admin-role-management-list" },
         children: [
-          {
-            path: "",
-            name: "admin-role-management-list",
-            component: () =>
-              import("../pages/admin/role-management/roleList.vue"),
-            props: true,
-          },
           {
             path: "employee",
             name: "admin-role-management-employee",

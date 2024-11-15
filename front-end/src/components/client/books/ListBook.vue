@@ -139,10 +139,23 @@
               <div class="text-decoration-line-through opacity-75">
                 {{ formatPrice(book.detail.originalPrice) }}
               </div>
-              <div v-if="book.quantityImported !== 0">
+              <div
+                v-if="
+                  book.quantityImported !== 0 &&
+                  book.quantityImported > book.quantitySold
+                "
+              >
                 Còn lại: ({{ book.quantityImported - book.quantitySold }}) quyển
               </div>
-              <div v-else>Đang nhập hàng</div>
+              <div v-else-if="book.quantityImported === 0">Đang nhập hàng</div>
+              <div
+                v-else-if="
+                  book.quantityImported !== 0 &&
+                  book.quantityImported <= book.quantitySold
+                "
+              >
+                Số lượng hết
+              </div>
             </div>
           </div>
         </div>

@@ -85,6 +85,21 @@
         </div>
       </div>
 
+      <a-timeline mode="alternate">
+        <a-timeline-item
+          v-for="(option, index) in filteredStatusOptions"
+          :key="index"
+          :class="{
+            completed: option.value < orderDetail.status.value,
+            current: option.value === orderDetail.status.value,
+            'special-status':
+              option.value === 3 || option.value === 4 || option.value === 7,
+          }"
+        >
+          {{ option.label }}
+        </a-timeline-item>
+      </a-timeline>
+
       <div class="card">
         <div class="card-header">
           <h5 class="card-title mb-0">Tóm tắt đơn hàng</h5>
@@ -117,12 +132,17 @@
                 class="badge p-2"
                 :class="{
                   'text-bg-warning':
-                    orderDetail.status && orderDetail.status.value === 1,
+                    (orderDetail.status && orderDetail.status.value === 1) ||
+                    (orderDetail.status && orderDetail.status.value === 6),
                   'text-bg-success':
-                    orderDetail.status && orderDetail.status.value === 2,
+                    (orderDetail.status && orderDetail.status.value === 2) ||
+                    (orderDetail.status && orderDetail.status.value === 5) ||
+                    (orderDetail.status && orderDetail.status.value === 8) ||
+                    (orderDetail.status && orderDetail.status.value === 9),
                   'text-bg-danger':
                     (orderDetail.status && orderDetail.status.value === 3) ||
-                    (orderDetail.status && orderDetail.status.value === 3),
+                    (orderDetail.status && orderDetail.status.value === 4) ||
+                    (orderDetail.status && orderDetail.status.value === 7),
                 }"
               >
                 {{
@@ -183,14 +203,14 @@
 
 <script setup>
 import { useRoute } from "vue-router";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, formatDate } from "@/utils/utils";
 import moment from "moment";
+import { io } from "socket.io-client";
 
 const route = useRoute();
-const token = Cookies.get("accessToken");
 const orderID = ref(route.params.orderID);
 const apiUser = new ApiUser();
 const isPriceDetailOpen = ref(false);
@@ -203,11 +223,11 @@ const orderDetail = ref({
     },
   ],
 });
+const socket = ref(null);
 const getOrderDetail = async () => {
   const response = await apiUser.get(`/orders/detail/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
-    console.log(orderDetail.value);
   }
 };
 
@@ -215,8 +235,50 @@ const togglePriceDetail = () => {
   isPriceDetailOpen.value = !isPriceDetailOpen.value;
 };
 
-onMounted(() => {
-  getOrderDetail();
+const filteredStatusOptions = computed(() => {
+  const currentStatusValue = orderDetail.value.status?.value;
+
+  // Bước 1: Lấy ra các trạng thái từ đầu đến trạng thái hiện tại
+  const statusesUpToCurrent = orderDetail.value.statusFullOptions?.filter(option => {
+    return option.value <= currentStatusValue;
+  }) || [];
+  console.log(statusesUpToCurrent);
+
+  // Bước 2: Áp dụng các điều kiện lọc bổ sung
+  return statusesUpToCurrent.filter(option => {
+    // Nếu trạng thái hiện tại là "Đã xác nhận", loại bỏ "Đã hủy" và "Yêu cầu hủy"
+    if (currentStatusValue === 2) {
+      return option.value !== 3 && option.value !== 4;
+    }
+
+    // Nếu trạng thái hiện tại là "Đã lấy hàng" trở lên, loại bỏ "Đã hủy" và "Yêu cầu hủy"
+    if (currentStatusValue === 5) {
+      return option.value !== 3 && option.value !== 4;
+    }
+
+    // Nếu trạng thái hiện tại là "Đã lấy hàng" trở lên, loại bỏ "Đã hủy" và "Yêu cầu hủy"
+    if (currentStatusValue === 6) {
+      return option.value !== 3 && option.value !== 4;
+    }
+
+    // Nếu trạng thái hiện tại là "Đã giao", loại bỏ "Giao hàng không thành công"
+    if (currentStatusValue === 8) {
+      return option.value !== 3 && option.value !== 4 && option.value !== 7;
+    }
+
+    // Giữ tất cả các trạng thái khác nếu không rơi vào các điều kiện trên
+    return true;
+  });
+});
+
+onMounted(async () => {
+  await getOrderDetail();
+  socket.value = io("http://localhost:3000");
+  socket.value.on("hasNewOrderStatus", async (data) => {
+    if (data.orderStatus) {
+      await getOrderDetail(); 
+    }
+  });
 });
 </script>
 
@@ -317,5 +379,23 @@ onMounted(() => {
 .label {
   font-weight: 500;
   color: #495057;
+}
+
+.completed {
+  color: green;
+}
+
+.current {
+  color: blue;
+  font-weight: bold;
+}
+
+.special-status {
+  color: red;
+  font-weight: bold;
+}
+
+.a-timeline-item:empty::before {
+  display: none;
 }
 </style>

@@ -10,15 +10,15 @@
       <i class="fa-solid fa-bell fs-5 text-gray-700"></i>
       <span
         v-if="
-          vouchers.sameDayExpiredVouchers.length !== 0 ||
-          vouchers.upcomingExpiredVouchers.length !== 0
+          vouchers.sameDayExpiredVouchers?.length !== 0 ||
+          vouchers.upcomingExpiredVouchers?.length !== 0
         "
         class="badge-cart translate-middle badge rounded-pill bg-danger"
         style="position: absolute; top: 5px; right: 5px"
       >
         {{
-          vouchers.sameDayExpiredVouchers.length +
-          vouchers.upcomingExpiredVouchers.length
+          vouchers.sameDayExpiredVouchers?.length +
+          vouchers.upcomingExpiredVouchers?.length || 0
         }}
         <span class="visually-hidden">unread messages</span>
       </span>
@@ -38,7 +38,7 @@
       </li>
 
       <!-- Same-Day Expired Vouchers -->
-      <div v-if="vouchers.sameDayExpiredVouchers.length !== 0">
+      <div v-if="vouchers.sameDayExpiredVouchers?.length !== 0">
         <div
           class="px-3 py-2 bg-light d-flex justify-content-between"
           data-bs-toggle="collapse"
@@ -103,7 +103,7 @@
       </div>
 
       <!-- Upcoming Expired Vouchers -->
-      <div v-if="vouchers.upcomingExpiredVouchers.length !== 0">
+      <div v-if="vouchers.upcomingExpiredVouchers?.length !== 0">
         <div
           class="px-3 py-2 bg-light d-flex justify-content-between"
           data-bs-toggle="collapse"

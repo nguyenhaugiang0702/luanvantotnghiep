@@ -196,7 +196,7 @@ export default {
 
     const handleDeleteVoucherCategory = async (voucherCategoryId) => {
       const isConfirmed = await showConfirmation({
-        text: "Loại giảm giá này sẽ bị xóa và các mã giảm giá cũng bị xóa theo",
+        text: "Loại giảm giá này sẽ bị xóa",
       });
       if (isConfirmed.isConfirmed) {
         await deleteVoucherCategory(voucherCategoryId);

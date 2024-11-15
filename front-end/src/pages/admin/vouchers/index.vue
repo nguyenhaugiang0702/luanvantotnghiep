@@ -28,6 +28,29 @@
                 class="display table table-striped table-bordered"
                 :scroll="{ x: 576 }"
               >
+                <template #action="props">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <button
+                        type="button"
+                        @click="handleEditVoucher(props.rowData._id)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateVoucher"
+                        class="badge text-bg-warning p-2"
+                      >
+                        <i class="fa-solid fa-pen"></i> Edit
+                      </button>
+                    </div>
+                    <div class="me-3">
+                      <button
+                        @click="handleDeleteVoucher(props.rowData._id)"
+                        class="badge text-bg-danger p-2"
+                      >
+                        <i class="fa-solid fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </template>
                 <thead>
                   <tr>
                     <th class="text-start">#</th>
@@ -75,6 +98,7 @@ import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
 import moment from "moment";
 import { buttons, language } from "@/utils/datatable";
+import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
 
 export default {
   components: {
@@ -142,20 +166,7 @@ export default {
       {
         data: "_id",
         width: "30%",
-        render: (data, type, row, meta) => {
-          return `<div class="d-flex">
-                <div class="me-3">
-                    <button data-bs-toggle="modal" data-bs-target="#updateVoucher" id="editVoucher" class="badge text-bg-warning p-2" data-id=${data}>
-                       <i class="fa-solid fa-pencil"></i> Edit
-                    </button>
-                </div>
-                <div class="">
-                    <button class="badge text-bg-danger p-2" id="deleteAuthor" data-id=${data}>
-                        <i class="fa-solid fa-trash"></i> Delete
-                    </button>
-                </div>
-              </div>`;
-        },
+        render: "#action",
       },
     ];
 
@@ -168,8 +179,7 @@ export default {
       }
     };
 
-    $(document).on("click", "#editVoucher", (event) => {
-      let voucherId = $(event.currentTarget).data("id");
+    const handleEditVoucher = (voucherId) => {
       const voucherToEdit = vouchers.value.find(
         (voucher) => voucher._id === voucherId
       );
@@ -177,7 +187,30 @@ export default {
       if (voucherToEdit) {
         editedVoucher.value = { ...voucherToEdit };
       }
-    });
+    };
+
+    const deleteVoucher = async (voucherId) => {
+      try {
+        const response = await apiAdmin.delete(
+          `/vouchers/voucher/${voucherId}`
+        );
+        if (response.status === 200) {
+          showSuccessToast(response.data.message);
+          getVouchers();
+        }
+      } catch (error) {
+        showErrorToast("Lỗi khi xóa mã giảm giá");
+      }
+    };
+
+    const handleDeleteVoucher = async (voucherId) => {
+      const isConfirmed = await showConfirmation({
+        title: "Mã giảm giá sẽ bị xóa đi",
+      });
+      if (isConfirmed.isConfirmed) {
+        await deleteVoucher(voucherId);
+      }
+    };
 
     $(document).on("click", "#detailVoucher", (event) => {
       let voucherCategoryId = $(event.currentTarget).data("id");
@@ -203,6 +236,8 @@ export default {
       buttons,
       language,
       handleRefreshVouchers,
+      handleDeleteVoucher,
+      handleEditVoucher,
     };
   },
 };

@@ -51,7 +51,7 @@
                         data-bs-toggle="modal"
                         data-bs-target="#resetPassword"
                         id="editRole"
-                        class="badge text-bg-warning p-2"
+                        class="badge text-bg-info p-2"
                       >
                         <i class="fa-solid fa-lock"></i> Reset Password
                       </button>
@@ -157,12 +157,9 @@ export default defineComponent({
         },
       },
       {
-        data: "roleID.name",
+        data: "role",
         render: (data, type, row, meta) => {
-          if (!data) {
-            return `<div class="text-start">Chưa biết</div>`;
-          }
-          return `<div class="text-start">${data}</div>`;
+          return `<div class="text-start">${data ? data : "Chưa biết"}</div>`;
         },
       },
       {
@@ -183,7 +180,7 @@ export default defineComponent({
     const handleUpdateAdmin = (adminID) => {
       const adminToEdit = admins.value.find((admin) => admin._id === adminID);
       if (adminToEdit) {
-        editedAdmin.value = { ...adminToEdit, roleID: adminToEdit.roleID._id };
+        editedAdmin.value = { ...adminToEdit };
       }
     };
 

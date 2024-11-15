@@ -116,11 +116,11 @@
                     }"
                     id="role"
                     placeholder="Vai trò"
-                    v-model="adminToEdit.roleID"
+                    v-model="adminToEdit.role"
                   >
                     <option
-                      :selected="adminToEdit.roleID === role._id"
-                      :value="role._id"
+                      :selected="adminToEdit.role === role.name"
+                      :value="role.name"
                       v-for="role in roles"
                     >
                       {{ role.name }}
@@ -197,7 +197,6 @@ export default {
           `/admins/${props.adminToEdit._id}`,
           {
             ...adminToEdit.value,
-            roleID: adminToEdit.value.roleID,
           }
         );
 
@@ -220,20 +219,19 @@ export default {
       () => props.adminToEdit,
       (newValue) => {
         adminToEdit.value = { ...newValue };
+        console.log(newValue);
       },
       { deep: true }
     );
-    const roles = ref([]);
-    const getRoles = async () => {
-      const response = await apiAdmin.get("/roles");
-      if (response.status == 200) {
-        roles.value = response.data;
-      }
-    };
-
-    onMounted(() => {
-      getRoles();
-    });
+    const roles = ref([
+      {
+        name: "admin",
+      },
+      {
+        name: "sale",
+      },
+      { name: "shipper" },
+    ]);
 
     return { adminToEdit, updateAdmin, errors, roles, isLoading };
   },

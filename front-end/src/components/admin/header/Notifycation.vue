@@ -79,12 +79,6 @@ const checkMessagesNotification = async () => {
   }
 };
 
-// watch(updateNotification, async (newValue) => {
-//   if (newValue) {
-//     await checkMessagesNotification();
-//   }
-// });
-
 watch(messages, async (newValue) => {
   if (newValue) {
     await checkMessagesNotification();
