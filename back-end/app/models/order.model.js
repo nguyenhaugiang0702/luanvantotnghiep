@@ -24,22 +24,26 @@ const orderSchema = new mongoose.Schema({
   notes: String,
   status: {
     type: Number,
-    enum: [1, 2, 3, 4], // 1 là đang chờ xác nhận, 2 là đã xác nhận, 3 là đã hủy, 4 là yêu cầu hủy (client)
+    enum: [1, 2, 3, 4, 5, 6, 7, 8, 9], // 1 là đang chờ xác nhận, 2 là đã xác nhận, 3 là đã hủy, 4 là yêu cầu hủy (client)
     default: 1, // Đặt giá trị mặc định là 1 (Đang chờ xác nhận)
   },
   wasPaided: {
     type: Boolean,
     default: false,
   },
-  shippingFee:{
+  shippingFee: {
     type: Number,
     default: 0,
+  },
+  image: {
+    type: String,
+    default: "",
   },
   voucherID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Voucher",
     default: null,
-  },
+  }, 
   createdAt: Date,
   updatedAt: Date,
 });

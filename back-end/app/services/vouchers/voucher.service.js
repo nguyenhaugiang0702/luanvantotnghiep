@@ -6,7 +6,7 @@ const createVoucher = async (voucherData) => {
 };
 
 const getVoucherByID = async (voucherID) => {
-  return await Voucher.findById(voucherID).populate("voucherCategoryID");;
+  return await Voucher.findById(voucherID).populate("voucherCategoryID");
 };
 
 const getAllVouchers = async (query, skip = 0, limit = 0) => {
@@ -17,14 +17,18 @@ const getAllVouchers = async (query, skip = 0, limit = 0) => {
     vouchersQuery = vouchersQuery.skip(skip).limit(limit);
   }
   return await vouchersQuery;
-}; 
+};
 
 const updateVoucher = async (voucherID, voucherData) => {
   return await Voucher.findByIdAndUpdate(voucherID, voucherData, { new: true });
 };
 
-const countAllVouchers = async () => {
-  return await Voucher.countDocuments();
+const updateManyVoucher = async (filter, voucherData) => {
+  return await Voucher.updateMany(filter, voucherData);
+};
+
+const countAllVouchers = async (query) => {
+  return await Voucher.countDocuments(query);
 };
 
 const calculateUsedPercentage = (voucher) => {
@@ -39,5 +43,6 @@ module.exports = {
   getAllVouchers,
   updateVoucher,
   countAllVouchers,
-  calculateUsedPercentage
+  calculateUsedPercentage,
+  updateManyVoucher,
 };

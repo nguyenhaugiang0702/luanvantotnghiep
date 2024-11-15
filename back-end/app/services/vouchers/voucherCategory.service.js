@@ -9,8 +9,8 @@ const getVoucherCategoryByID = async (voucherCategoryID) => {
   return await VoucherCategory.findById(voucherCategoryID);
 };
 
-const getAllVouchersCategory = async () => {
-  return await VoucherCategory.find();
+const getAllVouchersCategory = async (query) => {
+  return await VoucherCategory.find(query);
 };
 
 const updateVouchersCategory = async (

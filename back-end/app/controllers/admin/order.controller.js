@@ -1,6 +1,7 @@
 const orderService = require("../../services/order.service");
 const bookService = require("../../services/book.service");
 const ApiError = require("../../api-error");
+const moment = require("moment-timezone");
 
 exports.findAll = async (req, res, next) => {
   try {
@@ -68,7 +69,7 @@ exports.findOne = async (req, res, next) => {
 
 exports.updateStatus = async (req, res, next) => {
   const orderID = req.params.orderID;
-  const { status } = req.body;
+  const status = parseInt(req.body.status);
   try {
     const order = await orderService.getOrderByID(orderID);
     if (!order) {
@@ -79,10 +80,59 @@ exports.updateStatus = async (req, res, next) => {
       const error = await updateBookQuantities(order.detail);
       if (error) return next(new ApiError(400, error));
     }
-    const orderUpdateStatus = await orderService.updateStatus(orderID, status);
+    if (status === 7) {
+      // Giao hàng không thành công
+      const updateFailShipOrder = await orderService.updateStatus(orderID, {
+        status: status,
+      });
+      if (!updateFailShipOrder) {
+        return next(
+          new ApiError(
+            400,
+            "Lỗi khi cập nhật trạng thái giao hàng không thành công"
+          )
+        );
+      }
+      // Cập nhật lại số lượng bán
+      await Promise.all(
+        updateFailShipOrder.detail.map(async (book) => {
+          await bookService.updateBook(book.bookID, {
+            $inc: { quantitySold: -book.quantity },
+          });
+        })
+      );
+    }
+    if (status === 8 && req.file) {
+      req.body.image = req.file.path;
+    }
+    req.body.status = status;
+    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    const orderUpdateStatus = await orderService.updateStatus(
+      orderID,
+      req.body
+    );
     if (!orderUpdateStatus) {
       return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
     }
+    // Cập nhật cho shipper nếu là "8 : Đã giao" thì cập nhật đã trả tiền thành true
+    if (
+      orderUpdateStatus.status === 8 &&
+      !orderUpdateStatus.wasPaided &&
+      orderUpdateStatus.payment === "COD"
+    ) {
+      // Đã giao
+      await orderService.updateStatus(orderUpdateStatus._id, {
+        wasPaided: true,
+      });
+    }
+    // Lấy io từ app và phát thông báo đến admin
+    const io = require("../../../app").get("socketIo");
+    io.emit("hasNewOrderStatus", {
+      orderStatus: {
+        message: "Có trạng thái mới",
+        newOrderStatus: orderUpdateStatus.status,
+      },
+    });
     return res.send({
       message: "Đã cập nhật thành công trạng thái đơn hàng",
     });
@@ -138,7 +188,7 @@ exports.deleteOrder = async (req, res, next) => {
 
 exports.findAllOrderConfirmed = async (req, res, next) => {
   try {
-    let orders = await orderService.getAllOrdersByAdmin({ status: 2});
+    let orders = await orderService.getAllOrdersByAdmin({ status: 2 });
     console.log(1);
     orders = orders.map((order) => {
       const { statusOptions, statusFormat } =

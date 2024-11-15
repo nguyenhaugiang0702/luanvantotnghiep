@@ -18,9 +18,15 @@ exports.findAllVouchers = async (req, res, next) => {
 
   try {
     // Lấy tổng số mã giảm giá
-    const totalVouchers = await voucherService.countAllVouchers();
+    const totalVouchers = await voucherService.countAllVouchers({
+      isDeleted: false,
+    });
     const totalPages = Math.ceil(totalVouchers / limit);
-    let vouchers = await voucherService.getAllVouchers({}, skip, limit);
+    let vouchers = await voucherService.getAllVouchers(
+      { isDeleted: false },
+      skip,
+      limit
+    );
 
     if (userID) {
       await Promise.all(
@@ -28,6 +34,7 @@ exports.findAllVouchers = async (req, res, next) => {
           const voucherUsedExist = await voucherUsedsService.getOneVoucherUsed({
             userID: userID,
             voucherID: voucher._id,
+            isDeleted: false
           });
           // Check đã sử dụng voucher chưa
           const isUsedVoucher = voucherUsedExist
@@ -141,6 +148,7 @@ exports.findAllVoucherUseds = async (req, res, next) => {
     voucherUseds = await voucherUsedsService.getAllVoucherUseds({
       userID: userID,
       isUsed: false,
+      isDeleted: false,
     });
     // Thêm % sử dụng voucher
     voucherUseds = voucherUseds.map((voucherUsed) => {
@@ -326,6 +334,8 @@ exports.checkExpiredVouchers = async (req, res, next) => {
     }
     return res.send({
       message: "Tất cả các voucher còn hiệu lực.",
+      sameDayExpiredVouchers: [],
+      upcomingExpiredVouchers: [],
     });
   } catch (error) {
     console.log(error);

@@ -152,12 +152,8 @@ const updateOrderById = async (orderId, updateData) => {
   return updatedOrder;
 };
 
-const updateStatus = async (orderID, status) => {
-  const order = await Order.findById(orderID);
-  order.status = status;
-  order.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
-  await order.save();
-  return order;
+const updateStatus = async (orderID, updateData) => {
+  return await Order.findByIdAndUpdate(orderID, updateData, { new: true });
 };
 
 const hasUserPurchasedBook = async (userID, bookID) => {
@@ -205,6 +201,11 @@ const getStatusOptionsAndFormat = (status) => {
     { value: 2, label: "Đã xác nhận" },
     { value: 3, label: "Đã hủy" },
     { value: 4, label: "Yêu cầu hủy" },
+    { value: 5, label: "Đã lấy hàng" },
+    { value: 6, label: "Đang giao" },
+    { value: 7, label: "Giao hàng không thành công" },
+    { value: 8, label: "Đã giao" },
+    { value: 9, label: "Hoàn tất" },
   ];
   switch (status) {
     case 1:
@@ -247,9 +248,67 @@ const getStatusOptionsAndFormat = (status) => {
         label: "Yêu cầu hủy",
       };
       break;
+    case 5:
+      statusOptions.push({ value: 5, label: "Đã lấy hàng" });
+      statusFormat = {
+        value: 5,
+        label: "Đã lấy hàng",
+      };
+      break;
+    case 6:
+      statusOptions.push({ value: 6, label: "Đang giao" });
+      statusFormat = {
+        value: 6,
+        label: "Đang giao",
+      };
+      break;
+    case 7:
+      statusOptions.push({ value: 7, label: "Giao hàng không thành công" });
+      statusFormat = {
+        value: 7,
+        label: "Giao hàng không thành công",
+      };
+      break;
+    case 8:
+      statusOptions.push({ value: 8, label: "Đã giao" });
+      statusFormat = {
+        value: 8,
+        label: "Đã giao",
+      };
+      break;
+    case 9:
+      statusOptions.push({ value: 9, label: "Hoàn tất" });
+      statusFormat = {
+        value: 9,
+        label: "Hoàn tất",
+      };
+      break;
   }
 
   return { statusOptions, statusFormat, statusFullOptions };
+};
+
+const getOrderStats = async (matchCondition, groupBy) => {
+  try {
+    const stats = await Order.aggregate([
+      { $match: matchCondition },
+      {
+        $group: {
+          _id: groupBy,
+          totalOrders: { $sum: 1 }, // Tổng số đơn hàng
+          totalRevenue: { $sum: "$totalPrice" }, // Tổng doanh thu
+          avgRevenue: { $avg: "$totalPrice" }, // Doanh thu trung bình
+          maxRevenue: { $max: "$totalPrice" }, // Doanh thu cao nhất
+          totalBooksSold: { $sum: "$totalQuantity" }, // Tổng sách đã bán
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    return stats;
+  } catch (error) {
+    throw new Error(`Lỗi khi tính toán thống kê: ${error.message}`);
+  }
 };
 
 module.exports = {
@@ -266,4 +325,5 @@ module.exports = {
   countDocumentsOrders,
   countOrdersByMonth,
   getStatusOptionsAndFormat,
+  getOrderStats,
 };

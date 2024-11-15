@@ -22,6 +22,10 @@ const voucherSchema = new mongoose.Schema({
   endDate: {
     type: Date,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
   },
@@ -47,6 +51,10 @@ const voucherCategorySchema = new mongoose.Schema({
   maxValue: {
     type: Number,
     default: null,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,

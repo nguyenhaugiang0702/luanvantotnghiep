@@ -11,7 +11,8 @@ require("./app/passport");
 app.use(cors());
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    // origin: "http://localhost:3001",
+    origin: '*',
   })
 );
 // Định nghĩa static file
@@ -19,6 +20,7 @@ const staticFiles = [
   "app/images/uploads/books/",
   "app/images/uploads/avatars/",
   "app/images/uploads/comments/",
+  "app/images/uploads/orders/",
 ];
 staticFiles.forEach((path) => app.use(`/${path}`, express.static(path)));
 

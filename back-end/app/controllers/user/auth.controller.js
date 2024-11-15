@@ -12,25 +12,19 @@ const config = require("../../config/index");
 const token = require("../../services/token.service");
 
 exports.login = async (req, res, next) => {
-  const { phoneNumber, password } = req.body;
-  const phoneRegex = /^0\d{9}$/;
-
-  // Validate phoneNumber and password
-  if (phoneNumber && !phoneRegex.test(phoneNumber)) {
-    return next(new ApiError(400, "Số điện thoại không hợp lệ"));
-  }
-  if (!password || password.length < 8) {
-    return next(new ApiError(400, "Kiểm tra lại mật khẩu"));
-  }
   try {
-    const user = await authUserService.getUserByPhoneNumber(phoneNumber);
-
-    if (!user) {
-      return next(new ApiError(404, "Tài khoản không tồn tại."));
-    }
-
-    if (user.isActive <= 0) {
-      return next(new ApiError(404, "Tài khoản chưa được kích hoạt."));
+    const { loginMethod, email, phoneNumber, password } = req.body;
+    let user;
+    if(loginMethod === 'phone'){
+      user = await authUserService.getUserByPhoneNumber(phoneNumber);
+      if (!user) {
+        return next(new ApiError(404, "Tài khoản không tồn tại."));
+      }
+    }else{
+      user = await authUserService.getUserByEmail(email);
+      if (!user) {
+        return next(new ApiError(404, "Không tìm thấy email."));
+      }
     }
 
     if (user.isActive >= 2) {

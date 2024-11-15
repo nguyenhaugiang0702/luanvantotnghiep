@@ -12,7 +12,12 @@ exports.registerUserValidation = async (req, res, next) => {
 
 exports.loginUserValidation = async (req, res, next) => {
   try {
-    await schema.loginUserSchema.validate(req.body);
+    const { loginMethod } = req.body;
+    if(loginMethod === 'phone'){
+      await schema.phoneLoginUserSchema.validate(req.body);
+    }else {
+      await schema.emailLoginUserSchema.validate(req.body);
+    }
     next();
   } catch (err) {
     return next(new ApiError(400, err.message));

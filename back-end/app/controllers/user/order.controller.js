@@ -52,7 +52,7 @@ exports.findAll = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const skip = (page - 1) * limit;
-    const status = req.query.status || "all"; // all, pending, accepted, cancelled, request-cancel
+    const status = req.query.status || "all";
 
     const query = { userID: userID };
     const statusMap = {
@@ -104,6 +104,7 @@ exports.updateStatus = async (req, res, next) => {
     if (!orderUpdateStatus) {
       return next(new ApiError(400, "Lỗi khi hủy đơn hàng!"));
     }
+    
     return res.send({
       message: "Đã yêu cầu hủy thành công",
     });
@@ -128,7 +129,7 @@ exports.findOne = async (req, res, next) => {
     if (!orderDetail) {
       return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
     }
-    const { statusOptions, statusFormat } =
+    const { statusOptions, statusFormat, statusFullOptions } =
       orderService.getStatusOptionsAndFormat(orderDetail.status);
 
     // Tính tổng giá sách trong đơn hàng
@@ -153,12 +154,22 @@ exports.findOne = async (req, res, next) => {
     if (!orderDetail) {
       return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
     }
+    const obj = {
+      ...orderDetail._doc,
+      totalPriceOrder,
+      totalDiscountPrice,
+      statusOptions,
+      status: statusFormat,
+      statusFullOptions,
+    };
+    console.log(obj);
     return res.send({
       ...orderDetail._doc,
       totalPriceOrder,
       totalDiscountPrice,
       statusOptions,
       status: statusFormat,
+      statusFullOptions,
     });
   } catch (error) {
     console.log(error);
@@ -173,9 +184,9 @@ exports.getShippingFee = async (req, res, next) => {
   }
   const { province, district, ward, address, weight } = req.body;
   const data = {
-    pick_province: "Thành phố Cần Thơ",
-    pick_district: "Quận Ninh Kiều",
-    pick_ward: "Phường Xuân Khánh",
+    pick_province: "Cần Thơ",
+    pick_district: "Ninh Kiều",
+    pick_ward: "Xuân Khánh",
     pick_address: "Đại học Cần Thơ, Đường 3/2",
     ...req.body,
     transport: "road",

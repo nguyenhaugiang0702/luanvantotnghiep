@@ -29,6 +29,8 @@ const storage = multer.diskStorage({
       cb(null, "app/images/uploads/books/");
     } else if (req.body.fileType === "comment") {
       cb(null, "app/images/uploads/comments/");
+    } else if (req.body.fileType === "orders") {
+      cb(null, "app/images/uploads/orders/");
     } else {
       cb(new Error("Invalid file type"), null);
     }

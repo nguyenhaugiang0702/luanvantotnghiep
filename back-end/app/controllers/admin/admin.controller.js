@@ -7,7 +7,7 @@ const sendEmail = require("../../utils/email.util");
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 
-exports.findALL = async (req, res) => {
+exports.findALL = async (req, res, next) => {
   let admins = [];
   try {
     admins = await adminService.getAllAdmin({});
@@ -17,7 +17,7 @@ exports.findALL = async (req, res) => {
   }
 };
 
-exports.findAdminInfo = async (req, res) => {
+exports.findAdminInfo = async (req, res, next) => {
   try {
     const adminID = req.admin.id;
     const admin = await adminService.getAdminByID(adminID);
@@ -27,7 +27,7 @@ exports.findAdminInfo = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   try {
     const { firstName, lastName, phoneNumber, email, password, role } =
       req.body;
@@ -35,6 +35,10 @@ exports.create = async (req, res) => {
     req.body.password = hashedPassword;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    const emailExist = await adminService.checkEmailExist(email);
+    if(emailExist){
+      return next(new ApiError(400, "Email trên đã được sử dụng"));
+    }
     const newAdmin = await adminService.createAdmin(req.body);
     try {
       await sendEmail({
@@ -62,12 +66,16 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
   try {
     const { firstName, lastName, phoneNumber, email, password, role } =
       req.body;
     const { adminID } = req.params;
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    const emailExist = await adminService.checkEmailExist(email);
+    if(emailExist){
+      return next(new ApiError(400, "Email trên đã được sử dụng"));
+    }
     const updateAdmin = await adminService.updateAdmin(adminID, req.body);
     try {
       await sendEmail({
@@ -80,7 +88,6 @@ exports.update = async (req, res) => {
     - Họ tên: ${firstName} ${lastName}
     - Số điện thoại: ${phoneNumber}
     - Email: ${email}
-    - Mật khẩu: ${password}
         `,
       });
     } catch (error) {
@@ -95,7 +102,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.resetPassword = async (req, res, next) => {
   try {
     const { password } =
       req.body;
@@ -133,7 +140,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+exports.delete = async (req, res,next) => {
   try {
     const { adminID } = req.params;
     const deleteAdmin = await adminService.deleteAdmin(adminID);

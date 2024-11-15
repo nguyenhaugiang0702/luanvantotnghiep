@@ -15,7 +15,7 @@ const registerUserSchema = yup.object({
 });
 
 // Schema Login
-const loginUserSchema = yup.object({
+const phoneLoginUserSchema = yup.object({
   phoneNumber: yup
     .string()
     .required("Số điện thoại là bắt buộc")
@@ -23,7 +23,15 @@ const loginUserSchema = yup.object({
   password: yup
     .string()
     .required("Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu phair từ 8 ký tự"),
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
+});
+
+const emailLoginUserSchema = yup.object({
+  email: yup.string().required("Email là bắt buộc").email("Email không hợp lệ"),
+  password: yup
+    .string()
+    .required("Mật khẩu là bắt buộc")
+    .min(8, "Mật khẩu phải từ 8 ký tự"),
 });
 
 // Schema Fogot Password
@@ -358,7 +366,7 @@ const addAdminSchema = yup.object({
     .required("Mật khẩu là bắt buộc")
     .min(8, "Mật khẩu phải từ 8 ký tự"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
-  roleID: yup
+  role: yup
     .string()
     .notOneOf([""], "Vui lòng chọn quyền")
     .required("Vui lòng chọn quyền"),
@@ -372,7 +380,7 @@ const updateAdminSchema = yup.object({
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
-  roleID: yup
+  role: yup
     .string()
     .notOneOf([""], "Vui lòng chọn quyền")
     .required("Vui lòng chọn quyền"),
@@ -387,7 +395,8 @@ module.exports = {
   priceRangeSchema,
   addressSchema,
   registerUserSchema,
-  loginUserSchema,
+  emailLoginUserSchema,
+  phoneLoginUserSchema,
   forgotPasswordSchema,
   changePasswordSchema,
   updateUserSchema,

@@ -3,7 +3,7 @@ const config = require("../config/index");
 
 const createAccessToken = (userId, role) => {
   return jwt.sign({ id: userId, role: role }, config.jwt.user.secretKey, {
-    expiresIn: "30m",
+    expiresIn: "1d",
   });
 };
 
@@ -15,7 +15,7 @@ const createRefreshToken = (userId, role) => {
 
 const createAdminAccessToken = (adminId, role) => {
   return jwt.sign({ id: adminId, role: role }, config.jwt.admin.secretKey, {
-    expiresIn: "30m",
+    expiresIn: "1d",
   });
 };
 

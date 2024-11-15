@@ -10,11 +10,15 @@ const voucherUsedsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  isApplied:{
+  isApplied: {
     type: Boolean,
     default: false,
   },
   isUsed: {
+    type: Boolean,
+    default: false,
+  },
+  isDeleted: {
     type: Boolean,
     default: false,
   },

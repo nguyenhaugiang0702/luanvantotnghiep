@@ -109,6 +109,8 @@ exports.handleZaloPayIPN = async (req, res, next) => {
       result.return_message = "mac not equal";
     } else {
       // Lưu đơn hàng từ thông tin req.body khi thanh toán thành công
+      console.log('Du lieu khi tao: =' + JSON.stringify(dataObj, null, 2));
+
       const newOrderData = {
         userID: embedData.userID,
         addressID: embedData.addressID,

@@ -28,6 +28,7 @@ router
 
 router
   .route("/voucher/:voucherID")
-  .put(validation.createVoucherValidation, voucher.updateVoucher); // Validated
+  .put(validation.createVoucherValidation, voucher.updateVoucher) // Validated
+  .delete(voucher.deleteVoucher);
 
 module.exports = router;

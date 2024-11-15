@@ -25,9 +25,8 @@ const adminSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
-  roleID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Role",
+  role: {
+    type: String,
   },
 });
 
