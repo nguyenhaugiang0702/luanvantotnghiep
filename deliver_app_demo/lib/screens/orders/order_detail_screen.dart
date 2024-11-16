@@ -27,6 +27,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   bool isLoading = true;
   File? _capturedImage;
   final ScrollController _scrollController = ScrollController();
+  bool isLoadingAction = false;
 
   @override
   void initState() {
@@ -190,6 +191,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   Future<void> _updateOrderStatus(String orderId, Map<String, dynamic> status,
       {File? image}) async {
+    setState(() {
+      isLoadingAction = true;
+    });
     try {
       final provider = Provider.of<OrderProvider>(context, listen: false);
       await provider.updateOrderStatus(orderId, status, image: image);
@@ -202,6 +206,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi khi cập nhật đơn hàng')),
       );
+    } finally {
+      setState(() {
+        isLoadingAction = false;
+      });
     }
   }
 
@@ -351,87 +359,93 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: (orderDetail!['status']['value'] == 2)
-            ? ElevatedButton(
-                onPressed: () =>
-                    _updateOrderStatus(widget.order['_id'], {'status': 5}),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Nhận hàng'),
-              )
-            : (orderDetail!['status']['value'] == 5)
+        child: isLoadingAction
+            ? const Center(child: CircularProgressIndicator())
+            : (orderDetail!['status']['value'] == 2)
                 ? ElevatedButton(
                     onPressed: () =>
-                        _updateOrderStatus(widget.order['_id'], {'status': 6}),
+                        _updateOrderStatus(widget.order['_id'], {'status': 5}),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Chuyển sang Đang giao'),
+                    child: const Text('Nhận hàng'),
                   )
-                : (orderDetail!['status']['value'] == 6)
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_capturedImage ==
-                              null) // Chỉ hiển thị khi chưa chụp ảnh
-                            ElevatedButton(
-                              onPressed: () async {
-                                final bool? confirmed = await showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      const ConfirmationDialog(
-                                    title:
-                                        'Xác nhận giao hàng không thành công',
-                                    content:
-                                        'Bạn có chắc chắn muốn đánh dấu giao hàng không thành công?',
-                                    confirmText: 'Xác nhận',
-                                    cancelText: 'Hủy',
-                                  ),
-                                );
-                                if (confirmed == true) {
-                                  _updateOrderStatus(
-                                      widget.order['_id'], {'status': 7});
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Giao hàng không thành công'),
-                            ),
-                          const SizedBox(height: 8),
-                          if (_capturedImage != null)
-                            ElevatedButton(
-                              onPressed: () => _updateOrderStatus(
-                                  widget.order['_id'], {'status': 8},
-                                  image: _capturedImage),
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Hoàn tất'),
-                            )
-                          else
-                            ElevatedButton.icon(
-                              onPressed: _openCamera,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                backgroundColor: Colors.orange,
-                                foregroundColor: Colors.white,
-                              ),
-                              icon: const Icon(Icons.camera_alt),
-                              label: const Text('Chụp ảnh'),
-                            ),
-                        ],
+                : (orderDetail!['status']['value'] == 5)
+                    ? ElevatedButton(
+                        onPressed: () => _updateOrderStatus(
+                            widget.order['_id'], {'status': 6}),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Chuyển sang Đang giao'),
                       )
-                    : null,
+                    : (orderDetail!['status']['value'] == 6)
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_capturedImage ==
+                                  null) // Chỉ hiển thị khi chưa chụp ảnh
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final bool? confirmed = await showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          const ConfirmationDialog(
+                                        title:
+                                            'Xác nhận giao hàng không thành công',
+                                        content:
+                                            'Bạn có chắc chắn muốn đánh dấu giao hàng không thành công?',
+                                        confirmText: 'Xác nhận',
+                                        cancelText: 'Hủy',
+                                      ),
+                                    );
+                                    if (confirmed == true) {
+                                      _updateOrderStatus(
+                                          widget.order['_id'], {'status': 7});
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child:
+                                      const Text('Giao hàng không thành công'),
+                                ),
+                              const SizedBox(height: 8),
+                              if (_capturedImage != null)
+                                ElevatedButton(
+                                  onPressed: () => _updateOrderStatus(
+                                      widget.order['_id'], {'status': 8},
+                                      image: _capturedImage),
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Hoàn tất'),
+                                )
+                              else
+                                ElevatedButton.icon(
+                                  onPressed: _openCamera,
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: const Icon(Icons.camera_alt),
+                                  label: const Text('Chụp ảnh'),
+                                ),
+                            ],
+                          )
+                        : null,
       ),
     );
   }

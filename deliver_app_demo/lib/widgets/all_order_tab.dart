@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
 import '../screens/orders/order_detail_screen.dart';
-import '../../providers/order_provider.dart';
 
 class AllOrdersTab extends StatelessWidget {
   final String searchQuery;
@@ -44,7 +43,7 @@ class AllOrdersTab extends StatelessWidget {
             return Card(
               margin: const EdgeInsets.only(bottom: 16),
               child: ListTile(
-                title: Text('Đơn hàng #${order['_id']}'),
+                title: Text('Mã đơn #${order['_id']}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

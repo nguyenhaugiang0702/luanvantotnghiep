@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'dio_service.dart';
 
 class AuthService {

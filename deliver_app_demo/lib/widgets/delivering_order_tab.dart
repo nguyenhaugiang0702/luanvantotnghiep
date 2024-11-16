@@ -42,7 +42,7 @@ class DeliveringOrdersTab extends StatelessWidget {
             return Card(
               margin: const EdgeInsets.only(bottom: 16),
               child: ListTile(
-                title: Text('Đơn hàng #${order['_id']}'),
+                title: Text('Mã đơn #${order['_id']}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
