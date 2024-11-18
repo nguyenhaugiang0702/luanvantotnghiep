@@ -61,6 +61,10 @@ exports.findAll = async (req, res, next) => {
       accepted: { status: 2 },
       cancelled: { status: 3 },
       "request-cancel": { status: 4 },
+      getOrder: { status: 5 },
+      delivering: { status: 6 },
+      fail: { status: 7 },
+      delivered: { status: 8 },
     };
     if (status !== "all") {
       query.status = statusMap[status].status;
@@ -100,17 +104,17 @@ exports.updateStatus = async (req, res, next) => {
   const orderID = req.params.orderID;
   const { status } = req.body;
   try {
-    const orderUpdateStatus = await orderService.updateStatus(orderID, status);
+    const orderUpdateStatus = await orderService.updateStatus(orderID, req.body);
     if (!orderUpdateStatus) {
-      return next(new ApiError(400, "Lỗi khi hủy đơn hàng!"));
+      return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
     }
     
     return res.send({
-      message: "Đã yêu cầu hủy thành công",
+      message: "Đã cập nhật trạng thái đơn hàng",
     });
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
+    return next(new ApiError(500, "Lỗi khi cập nhật trạng thái đơn hàng!"));
   }
 };
 

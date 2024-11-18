@@ -4,15 +4,26 @@ const adminService = require("../services/admin.service");
 
 exports.createAdminValidation = async (req, res, next) => {
   try {
-    if (req.body.method === "add") {
+    const { method, role, side } = req.body;
+    if (method === "add") {
+      // admin them nhân viên
       await schema.addAdminSchema.validate(req.body);
       await validateAddAdmin(req, next);
     } else {
-      await schema.updateAdminSchema.validate(req.body);
-      await validateEditAdmin(req, next);
+      // cập nhật nhân viên
+      if (side === "employee") {
+        // nhân viên tự cập nhật (không cập nhật role)
+        await schema.updateEmployeeSchema.validate(req.body);
+        await validateEditAdmin(req, next);
+      } else {
+        // admin câp nhật - cập nhật all
+        await schema.updateAdminSchema.validate(req.body);
+        await validateEditAdmin(req, next);
+      }
     }
     next();
   } catch (err) {
+    console.log(err);
     return next(new ApiError(400, err.message));
   }
 };
@@ -59,5 +70,16 @@ const validateEditAdmin = async (req, next) => {
     if (checkPhoneNumberAdmin) {
       return next(new ApiError(400, "Đã tồn tại số điện thoại nhân viên"));
     }
+  }
+};
+
+
+exports.loginAdminValidation = async (req, res, next) => {
+  try {
+    await schema.emailLoginUserSchema.validate(req.body);
+    next();
+  } catch (err) {
+    console.log(err);
+    return next(new ApiError(400, err.message));
   }
 };

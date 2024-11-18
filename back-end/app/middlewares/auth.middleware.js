@@ -31,22 +31,18 @@ const verifyAdminToken = (req, res, next) => {
   if (req.originalUrl.includes("/auth/login")) {
     return next();
   }
-  if (!token) return next(new ApiError(403, "Vui lòng đăng nhập"));
+  if (!token) {
+    return next(new ApiError(403, "Vui lòng đăng nhập"));
+  }
 
   jwt.verify(token, config.jwt.admin.secretKey, (err, admin) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(new ApiError(401, "Phiên hết hạn, vui lòng đăng nhập lại"));
       } else {
-        return next(new ApiError(404, "Vui lòng đăng nhập lại"));
+        return next(new ApiError(403, "Vui lòng đăng nhập lại"));
       }
     }
-    const allowedRoutesForSale = [
-      "/chats",
-      "/suppliers",
-      "/orders",
-      "/receipts",
-    ];
 
     // Admin
     if (admin.role === "admin") {
@@ -54,6 +50,14 @@ const verifyAdminToken = (req, res, next) => {
       return next();
     }
     // Sale
+    const allowedRoutesForSale = [
+      "/chats",
+      "/suppliers",
+      "/orders",
+      "/receipts",
+      "/auth",
+      "/admins",
+    ];
     const isSaleAllowed = allowedRoutesForSale.some((route) =>
       req.originalUrl.includes(route)
     );
@@ -62,11 +66,12 @@ const verifyAdminToken = (req, res, next) => {
       req.admin = { ...admin, token };
       return next();
     }
-
-    if (
-      (admin.role === "shipper" && req.originalUrl.includes("/admins/infoAdmin")) ||
-      req.originalUrl.includes("/orders")
-    ) {
+    // Shipper
+    const allowedRoutesForShipper = ["/admins/infoAdmin", "/orders", "/auth"];
+    const isShipperAllowed = allowedRoutesForShipper.some((route) =>
+      req.originalUrl.includes(route)
+    );
+    if (admin.role === "shipper" && isShipperAllowed) {
       req.admin = { ...admin, token };
       return next();
     }

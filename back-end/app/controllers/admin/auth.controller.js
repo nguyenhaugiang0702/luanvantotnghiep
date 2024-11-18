@@ -12,13 +12,6 @@ const tokenService = require("../../services/token.service");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
-
-  if (!email) {
-    return next(new ApiError(404, "Vui lòng kiểm tra email"));
-  }
-  if (!password) {
-    return next(new ApiError(404, "Vui lòng kiểm tra lại mật khẩu"));
-  }
   try {
     const admin = await authAdminService.getAdminByEmail(email);
 
@@ -26,7 +19,7 @@ exports.login = async (req, res, next) => {
       return next(new ApiError(404, "Tài khoản không tồn tại."));
     }
 
-    const isMatch = bcrypt.compare(password, admin.password);
+    const isMatch = await bcrypt.compare(password, admin.password);
 
     if (!isMatch) {
       return next(new ApiError(400, "Mật khẩu không chính xác."));
@@ -92,5 +85,37 @@ exports.refreshToken = async (req, res, next) => {
     return next(
       new ApiError(403, "Refresh token không hợp lệ hoặc đã hết hạn.")
     );
+  }
+};
+
+exports.changePassword = async (req, res, next) => {
+  const adminID = req.admin ? req.admin.id : null;
+  if (!adminID) {
+    return next(new ApiError(400, "Vui lòng đăng nhập"));
+  }
+  const { currentPassword, newPassword, cfNewPassword } = req.body;
+  try {
+    const admin = await adminService.getAdminByID(adminID);
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+      return next(new ApiError(400, "Mật khẩu hiện tại không đúng"));
+    }
+    if (newPassword !== cfNewPassword) {
+      return next(
+        new ApiError(400, "Mật khẩu mới và nhập lại mật khẩu phải giống nhau")
+      );
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const updateAdmin = await adminService.updateAdmin(adminID, {
+      password: hashedNewPassword,
+    });
+    if (!updateAdmin) {
+      return next(new ApiError(400, "Lỗi khi đổi mật khẩu"));
+    }
+    return res.send({
+      message: "Đổi mật khẩu thành công",
+    });
+  } catch (error) {
+    return next(new ApiError(500, "Lỗi khi đổi mật khẩu"));
   }
 };

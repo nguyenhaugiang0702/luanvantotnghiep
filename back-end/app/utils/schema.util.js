@@ -361,10 +361,6 @@ const addAdminSchema = yup.object({
     .string()
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
-  password: yup
-    .string()
-    .required("Mật khẩu là bắt buộc")
-    .min(8, "Mật khẩu phải từ 8 ký tự"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
   role: yup
     .string()
@@ -373,6 +369,13 @@ const addAdminSchema = yup.object({
 });
 
 const updateAdminSchema = yup.object({
+  role: yup
+    .string()
+    .notOneOf([""], "Vui lòng chọn quyền")
+    .required("Vui lòng chọn quyền"),
+});
+
+const updateEmployeeSchema = yup.object({
   firstName: yup.string().required("Họ là bắt buộc"),
   lastName: yup.string().required("Tên là bắt buộc"),
   phoneNumber: yup
@@ -380,10 +383,6 @@ const updateAdminSchema = yup.object({
     .required("Số điện thoại là bắt buộc")
     .matches(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
   email: yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
-  role: yup
-    .string()
-    .notOneOf([""], "Vui lòng chọn quyền")
-    .required("Vui lòng chọn quyền"),
 });
 
 module.exports = {
@@ -405,4 +404,5 @@ module.exports = {
   voucherSchema,
   addAdminSchema,
   updateAdminSchema,
+  updateEmployeeSchema,
 };
