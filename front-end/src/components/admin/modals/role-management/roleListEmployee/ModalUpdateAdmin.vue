@@ -23,39 +23,29 @@
               <div class="col-6">
                 <div class="form-group">
                   <label for="firstName" class="form-label">Họ</label>
-                  <Field
+                  <input
                     name="firstName"
                     type="text"
                     class="form-control"
-                    :class="{
-                      'is-invalid': errors.firstName,
-                      'is-valid':
-                        !errors.firstName && adminToEdit.firstName !== '',
-                    }"
                     id="firstName"
                     placeholder="Họ nhân viên"
                     v-model="adminToEdit.firstName"
+                    readonly
                   />
-                  <ErrorMessage name="firstName" class="invalid-feedback" />
                 </div>
               </div>
               <div class="col-6">
                 <div class="form-group">
                   <label for="lastName" class="form-label">Tên</label>
-                  <Field
+                  <input
                     name="lastName"
                     type="text"
                     class="form-control"
-                    :class="{
-                      'is-invalid': errors.lastName,
-                      'is-valid':
-                        !errors.lastName && adminToEdit.lastName !== '',
-                    }"
                     id="lastName"
                     placeholder="Tên nhân viên"
                     v-model="adminToEdit.lastName"
+                    readonly
                   />
-                  <ErrorMessage name="lastName" class="invalid-feedback" />
                 </div>
               </div>
             </div>
@@ -66,38 +56,29 @@
                   <label for="phoneNumber" class="form-label"
                     >Số điện thoại</label
                   >
-                  <Field
+                  <input
                     name="phoneNumber"
                     type="text"
                     class="form-control"
-                    :class="{
-                      'is-invalid': errors.phoneNumber,
-                      'is-valid':
-                        !errors.phoneNumber && adminToEdit.phoneNumber !== '',
-                    }"
                     id="phoneNumber"
                     placeholder="Số điện thoại"
                     v-model="adminToEdit.phoneNumber"
+                    readonly
                   />
-                  <ErrorMessage name="phoneNumber" class="invalid-feedback" />
                 </div>
               </div>
               <div class="col-6">
                 <div class="form-group">
                   <label for="email" class="form-label">Email</label>
-                  <Field
+                  <input
                     name="email"
                     type="text"
                     class="form-control"
-                    :class="{
-                      'is-invalid': errors.email,
-                      'is-valid': !errors.email && adminToEdit.email !== '',
-                    }"
+                    readonly
                     id="email"
                     placeholder="Email"
                     v-model="adminToEdit.email"
                   />
-                  <ErrorMessage name="email" class="invalid-feedback" />
                 </div>
               </div>
             </div>
@@ -175,6 +156,7 @@ export default {
         password: "",
         roleID: "",
         method: "update",
+        side: "admin"
       }),
     },
   },
@@ -193,10 +175,11 @@ export default {
       }
       isLoading.value = true;
       try {
+        console.log(adminToEdit.value.role);
         const response = await apiAdmin.put(
           `/admins/${props.adminToEdit._id}`,
           {
-            ...adminToEdit.value,
+            role: adminToEdit.value.role,
           }
         );
 

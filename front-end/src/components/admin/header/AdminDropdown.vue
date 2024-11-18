@@ -8,7 +8,7 @@
           {{ admin ? admin.firstName + " " + admin.lastName : "Chưa biết" }}
         </div>
         <div class="user-role small text-muted" style="line-height: 1.2">
-          {{ admin ? admin.roleID?.name : "Chưa biết" }}
+          {{ admin ? admin.role : "Chưa biết" }}
         </div>
       </div>
       <DownOutlined />
@@ -33,21 +33,21 @@
               </div>
             </div>
           </div>
-          <a-button type="primary" block>
+          <a-button type="primary" block @click="handleNavigate(router, 'admin-account-info')">
             <template #icon><UserOutlined /></template>
             Xem hồ sơ
           </a-button>
         </div>
 
         <!-- Account Settings -->
-        <a-menu-item key="account">
+        <a-menu-item key="account" @click="handleNavigate(router, 'admin-account-info')">
           <template #icon><UserOutlined /></template>
           Tài khoản của tôi
         </a-menu-item>
 
-        <a-menu-item key="security">
+        <a-menu-item key="security" @click="handleNavigate(router, 'admin-account-changePassword')">
           <template #icon><SafetyCertificateOutlined /></template>
-          Bảo mật
+          Đổi mật khẩu
         </a-menu-item>
 
         <a-menu-item key="settings">
@@ -116,6 +116,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import {
   BellOutlined,
@@ -133,10 +134,11 @@ import {
 import { message } from "ant-design-vue";
 import { showConfirmation } from "@/utils/swalUtils";
 import ApiAdminService from "@/service/admin/apiAdmin.service";
-
+import { handleNavigate } from "@/utils/utils";
 // Dark mode state
 const isDarkMode = ref(false);
 const apiAdmin = new ApiAdminService();
+const router = useRouter();
 // Toggle theme function
 const toggleTheme = (checked) => {
   message.success(`Đã chuyển sang giao diện ${checked ? "tối" : "sáng"}`);

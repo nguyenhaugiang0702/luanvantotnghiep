@@ -111,25 +111,7 @@
               </div>
             </div>
             <div class="row mt-3">
-              <div class="col-6">
-                <div class="form-group">
-                  <label for="password" class="form-label">Mật khẩu</label>
-                  <Field
-                    name="password"
-                    type="text"
-                    class="form-control"
-                    :class="{
-                      'is-invalid': errors.password,
-                      'is-valid': !errors.password && newAdmin.password !== '',
-                    }"
-                    id="password"
-                    placeholder="Mật khẩu"
-                    v-model="newAdmin.password"
-                  />
-                  <ErrorMessage name="password" class="invalid-feedback" />
-                </div>
-              </div>
-              <div class="col-6">
+              <div class="col-12">
                 <div class="form-group">
                   <label for="role" class="form-label">Vai trò</label>
                   <Field
@@ -139,11 +121,11 @@
                     class="form-control"
                     :class="{
                       'is-invalid': errors.role,
-                      'is-valid': !errors.role && newAdmin.roleID !== '',
+                      'is-valid': !errors.role && newAdmin.role !== '',
                     }"
                     id="role"
                     placeholder="Vai trò"
-                    v-model="newAdmin.roleID"
+                    v-model="newAdmin.role"
                     ><option selected value="">Vui lòng chọn quyền</option>
                     <option :value="role.name" v-for="role in roles">
                       {{ role.name }}
@@ -193,8 +175,7 @@ export default {
       lastName: "",
       phoneNumber: "",
       email: "",
-      password: "",
-      roleID: "",
+      role: "",
       method: "add",
     });
     const isLoading = ref(false);

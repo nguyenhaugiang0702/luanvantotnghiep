@@ -21,90 +21,93 @@
       </ul>
 
       <!-- Order List -->
-      <div v-for="order in orders" :key="order.id" class="card mb-4">
-        <div
-          class="card-header d-flex justify-content-between align-items-center"
-        >
-          <h5 class="mb-0">Đơn hàng #{{ order._id }}</h5>
-          <span class="badge p-2" :class="getStatusBadge(order.status)">
-            <span class="me-1">{{ getStatusIcon(order.status) }}</span
-            >{{ getStatusLabel(order.status) }}
-          </span>
-        </div>
-        <div class="card-body mh-100">
-          <ul class="list-unstyled mb-3">
-            <li
-              v-for="(book, index) in order.detail"
-              :key="index"
-              class="d-flex justify-content-between mb-3"
-            >
-              <div class="d-flex align-items-center">
-                <img
-                  :src="`http://localhost:3000/` + book.bookID.images[0].path"
-                  alt=""
-                  class="me-3 book-image"
-                />
-                <div class="d-flex flex-column">
-                  <span>{{ book.bookID.name }}</span>
-                  <div class="d-flex flex-row">
-                    <span>{{ book.quantity }} x</span>
-                    <span class="text-danger fw-bold mx-2">
-                      {{
-                        formatPrice(
-                          book.bookID.detail.originalPrice -
-                            book.bookID.detail.discountPrice
-                        )
-                      }}</span
-                    >
-                    <span class="opacity-75 text-decoration-line-through">{{
-                      formatPrice(book.bookID.detail.originalPrice)
-                    }}</span>
+      <div v-if="orders.length !== 0">
+        <div v-for="order in orders" :key="order._id" class="card mb-4">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <h5 class="mb-0">Đơn hàng #{{ order._id }}</h5>
+            <span class="badge p-2" :class="getStatusBadge(order.status)">
+              <span class="me-1">{{ getStatusIcon(order.status) }}</span
+              >{{ getStatusLabel(order.status) }}
+            </span>
+          </div>
+          <div class="card-body mh-100">
+            <ul class="list-unstyled mb-3">
+              <li
+                v-for="(book, index) in order.detail"
+                :key="index"
+                class="d-flex justify-content-between mb-3"
+              >
+                <div class="d-flex align-items-center">
+                  <img
+                    :src="`http://localhost:3000/` + book.bookID.images[0].path"
+                    alt=""
+                    class="me-3 book-image"
+                  />
+                  <div class="d-flex flex-column">
+                    <span>{{ book.bookID.name }}</span>
+                    <div class="d-flex flex-row">
+                      <span>{{ book.quantity }} x</span>
+                      <span class="text-danger fw-bold mx-2">
+                        {{
+                          formatPrice(
+                            book.bookID.detail.originalPrice -
+                              book.bookID.detail.discountPrice
+                          )
+                        }}</span
+                      >
+                      <span class="opacity-75 text-decoration-line-through">{{
+                        formatPrice(book.bookID.detail.originalPrice)
+                      }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <span class="d-flex align-items-center fw-bold">{{
-                formatPrice(book.realPrice * book.quantity)
+                <span class="d-flex align-items-center fw-bold">{{
+                  formatPrice(book.realPrice * book.quantity)
+                }}</span>
+              </li>
+            </ul>
+            <hr />
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Tổng cộng</span>
+              <span class="text-danger fw-bold">{{
+                formatPrice(order.totalPrice)
               }}</span>
-            </li>
-          </ul>
-          <hr />
-          <div class="d-flex justify-content-between fw-bold">
-            <span>Tổng cộng</span>
-            <span class="text-danger fw-bold">{{
-              formatPrice(order.totalPrice)
-            }}</span>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-end gap-2">
+            <button
+              @click="
+                handleNavigate(
+                  router,
+                  'profile-orders-detail',
+                  'orderID',
+                  order._id
+                )
+              "
+              class="btn btn-sm btn-outline-secondary"
+            >
+              Chi tiết
+            </button>
+            <button
+              @click="requestCancelOrder(order._id)"
+              v-if="order.status === 1"
+              class="btn btn-sm btn-danger"
+            >
+              Hủy đơn
+            </button>
           </div>
         </div>
-        <div class="card-footer d-flex justify-content-end gap-2">
-          <button
-            @click="
-              handleNavigate(
-                router,
-                'profile-orders-detail',
-                'orderID',
-                order._id
-              )
-            "
-            class="btn btn-sm btn-outline-secondary"
-          >
-            Chi tiết
-          </button>
-          <button
-            @click="requestCancelOrder(order._id)"
-            v-if="order.status === 1"
-            class="btn btn-sm btn-danger"
-          >
-            Hủy đơn
-          </button>
-        </div>
-      </div>
 
-      <!-- Pagination -->
-      <Pagination
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @updatePage="handlePageChange"
-      />
+        <!-- Pagination -->
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @updatePage="handlePageChange"
+        />
+      </div>
+      <div v-else class="text-center">Không có đơn nào</div>
     </div>
   </div>
 </template>
@@ -170,11 +173,19 @@ const requestCancelOrder = async (orderID) => {
 const countOrdersByStatus = (status, count) => {
   switch (status) {
     case "all":
-      return `Tất cả đơn hàng (${count})`;
+      return `Tất cả (${count})`;
     case "pending":
       return `Chờ xử lý (${count})`;
     case "accepted":
       return `Đã xác nhận (${count})`;
+    case "getOrder":
+      return `Đã lấy hàng (${count})`;
+    case "delivering":
+      return `Đang giao (${count})`;
+    case "delivered":
+      return `Đã giao (${count})`;
+    case "fail":
+      return `Giao không thành công (${count})`;
     case "cancelled":
       return `Đã hủy (${count})`;
     case "request-cancel":
@@ -200,26 +211,39 @@ const setActiveTab = (tab) => {
 const getStatusBadge = (status) => {
   switch (status) {
     case 1:
+    case 6:
       return "bg-warning text-dark";
     case 2:
-      return "bg-success";
+    case 5:
+    case 8:
+    case 9:
+      return "bg-success"; 
     case 3:
-      return "bg-danger";
     case 4:
-      return "bg-warning text-dark";
+    case 7:
+      return "bg-danger";
+    default:
+      return "bg-secondary"; 
   }
 };
+
 
 const getStatusIcon = (status) => {
   switch (status) {
     case 1:
-      return "⏳";
+    case 6:
+      return "⏳"; 
     case 2:
+    case 5:
+    case 8:
+    case 9:
       return "✅";
     case 3:
-      return "❌";
     case 4:
-      return "⚠️";
+    case 7:
+      return "❌"; 
+    default:
+      return "❓"; 
   }
 };
 
@@ -233,8 +257,16 @@ const getStatusLabel = (status) => {
       return "Đã hủy";
     case 4:
       return "Yêu cầu hủy";
-    default:
-      return "Unknown"; // Để xử lý trường hợp không xác định
+    case 5:
+      return "Đã lấy hàng";
+    case 6:
+      return "Đang giao hàng";
+    case 7:
+      return "Giao hàng không thành công";
+    case 8:
+      return "Đã giao";
+    case 9:
+      return "Hoàn tất";
   }
 };
 </script>

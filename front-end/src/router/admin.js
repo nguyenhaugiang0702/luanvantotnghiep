@@ -101,6 +101,25 @@ const admin = [
         ],
       },
       {
+        path: "account/edit",
+        name: "admin-account",
+        redirect: { name: "admin-account-info" },
+        children: [
+          {
+            path: "",
+            name: "admin-account-info",
+            component: () => import("../pages/admin/account/Info.vue"),
+            props: true,
+          },
+          {
+            path: "changePassword",
+            name: "admin-account-changePassword",
+            component: () => import("../pages/admin/account/changePassword.vue"),
+            props: true,
+          },
+        ],
+      },
+      {
         path: "priceranges",
         name: "admin-priceranges",
         redirect: { name: "admin-priceranges-list" },

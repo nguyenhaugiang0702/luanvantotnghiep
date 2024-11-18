@@ -4,19 +4,19 @@
   </div>
   <div class="center">
     <h1>Đăng nhập</h1>
-    <Form class="form" @submit="loginAdmin">
+    <form class="form" @submit.prevent="loginAdmin">
       <div class="txt_field mt-5">
         <Field
           as="input"
           class="input"
           v-model="admin.email"
           type="email"
-          name="admin_email"
+          name="email"
           required
         />
         <span class="under-line"></span>
         <label>Email</label>
-        <ErrorMessage name="admin_email" class="text-danger" />
+        <ErrorMessage name="email" class="text-danger" />
       </div>
       <div class="txt_field mt-5">
         <Field
@@ -24,7 +24,7 @@
           class="input-password input"
           v-model="admin.password"
           :type="showPassword ? 'text' : 'password'"
-          name="admin_password"
+          name="password"
           required
         />
         <span class="under-line"></span>
@@ -33,7 +33,7 @@
           <i v-if="!showPassword" class="fa-solid fa-eye-slash text-dark"></i>
           <i v-else class="fa-solid fa-eye text-dark"></i>
         </button>
-        <ErrorMessage name="admin_password" class="text-danger" />
+        <ErrorMessage name="password" class="text-danger" />
       </div>
       <button class="btn_login my-5" :disabled="isLoading">
         <span
@@ -44,7 +44,7 @@
         ></span>
         <span v-else>Đăng nhập</span>
       </button>
-    </Form>
+    </form>
   </div>
 </template>
 
@@ -53,10 +53,13 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import ApiAdmin from "@/service/admin/apiAdmin.service";
-import { Form, Field, ErrorMessage } from "vee-validate";
+import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { useAuthStore } from "../../stores/auth";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
-
+import { emailLoginUserSchema } from "@/utils/schema.util";
+const { errors, validate, resetForm } = useForm({
+  validationSchema: emailLoginUserSchema,
+});
 const admin = ref({
   email: "",
   password: "",
@@ -68,16 +71,17 @@ const isLoading = ref(false);
 const authStore = useAuthStore();
 
 const loginAdmin = async () => {
+  const { valid, errors } = await validate();
+  if (!valid) {
+    return showErrorToast("Vui lòng kiểm tra lại email hoặc mật khẩu");
+  }
   isLoading.value = true;
   try {
     const apiCall = await apiAdmin.post("/auth/login", admin.value);
     const delay = new Promise((resolve) => setTimeout(resolve, 1500));
     const [response] = await Promise.all([apiCall, delay]);
     if (response?.status == 200) {
-      admin.value = {
-        admin_email: "",
-        admin_password: "",
-      };
+      resetForm();
       Cookies.set("accessToken", response.data.accessToken);
       Cookies.set("isLoggedIn", response.data.isLoggedIn);
       Cookies.set("refreshToken", response.data.refreshToken);

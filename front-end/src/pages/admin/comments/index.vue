@@ -75,6 +75,8 @@
                     <th class="text-start">Sản phẩm</th>
                     <th class="text-start">Nội dung</th>
                     <th class="text-start">Đánh giá</th>
+                    <th class="text-start">Like</th>
+                    <th class="text-start">Dislike</th>
                     <th class="text-start">Thao Tác</th>
                   </tr>
                 </thead>
@@ -172,6 +174,20 @@ export default {
             ></i>`;
           }
           return divStar;
+        },
+      },
+      {
+        data: "liked",
+        width: "30%",
+        render: (data, type, row, meta) => {
+          return `<div class='text-start'>${data}</div>`;
+        },
+      },
+      {
+        data: "disLiked",
+        width: "30%",
+        render: (data, type, row, meta) => {
+          return `<div class='text-start'>${data}</div>`;
         },
       },
       {

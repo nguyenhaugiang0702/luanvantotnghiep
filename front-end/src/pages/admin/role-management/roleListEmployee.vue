@@ -13,10 +13,6 @@
               :adminToEdit="editedAdmin"
               @refreshEmployee="getAdmins"
             />
-            <ModalResetPasswordAdmin
-              :adminToEdit="editedAdmin"
-              @refreshEmployee="getAdmins"
-            />
             <div class="table-responsive">
               <DataTable
                 id="mytable"
@@ -43,17 +39,6 @@
                         class="badge text-bg-warning p-2"
                       >
                         <i class="fa-solid fa-pencil"></i> Edit
-                      </button>
-                    </div>
-                    <div class="me-3">
-                      <button
-                        @click="handleUpdateAdmin(props.rowData._id)"
-                        data-bs-toggle="modal"
-                        data-bs-target="#resetPassword"
-                        id="editRole"
-                        class="badge text-bg-info p-2"
-                      >
-                        <i class="fa-solid fa-lock"></i> Reset Password
                       </button>
                     </div>
                     <div class="">
@@ -111,7 +96,6 @@ import { showSuccess, showConfirmation } from "@/utils/swalUtils";
 import ApiAdmin from "../../../service/admin/apiAdmin.service.js";
 import ModalAddAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalAddAdmin.vue";
 import ModalUpdateAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalUpdateAdmin.vue";
-import ModalResetPasswordAdmin from "../../../components/admin/modals/role-management/roleListEmployee/ModalResetPassword.vue";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
 import { buttons, language } from "@/utils/datatable";
 
@@ -120,7 +104,6 @@ export default defineComponent({
     DataTable,
     ModalAddAdmin,
     ModalUpdateAdmin,
-    ModalResetPasswordAdmin,
   },
   setup() {
     const router = useRouter();

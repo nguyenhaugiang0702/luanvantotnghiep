@@ -128,28 +128,39 @@
             </p>
             <p class="d-flex justify-content-between mb-3">
               <span>Trạng thái đơn hàng:</span>
-              <span
-                class="badge p-2"
-                :class="{
-                  'text-bg-warning':
-                    (orderDetail.status && orderDetail.status.value === 1) ||
-                    (orderDetail.status && orderDetail.status.value === 6),
-                  'text-bg-success':
-                    (orderDetail.status && orderDetail.status.value === 2) ||
-                    (orderDetail.status && orderDetail.status.value === 5) ||
-                    (orderDetail.status && orderDetail.status.value === 8) ||
-                    (orderDetail.status && orderDetail.status.value === 9),
-                  'text-bg-danger':
-                    (orderDetail.status && orderDetail.status.value === 3) ||
-                    (orderDetail.status && orderDetail.status.value === 4) ||
-                    (orderDetail.status && orderDetail.status.value === 7),
-                }"
-              >
-                {{
-                  orderDetail.status
-                    ? orderDetail.status.label
-                    : "Chưa xác định"
-                }}
+              <span class="d-flex">
+                <span
+                  class="badge p-2 me-2"
+                  :class="{
+                    'text-bg-warning':
+                      (orderDetail.status && orderDetail.status.value === 1) ||
+                      (orderDetail.status && orderDetail.status.value === 6),
+                    'text-bg-success':
+                      (orderDetail.status && orderDetail.status.value === 2) ||
+                      (orderDetail.status && orderDetail.status.value === 5) ||
+                      (orderDetail.status && orderDetail.status.value === 8) ||
+                      (orderDetail.status && orderDetail.status.value === 9),
+                    'text-bg-danger':
+                      (orderDetail.status && orderDetail.status.value === 3) ||
+                      (orderDetail.status && orderDetail.status.value === 4) ||
+                      (orderDetail.status && orderDetail.status.value === 7),
+                  }"
+                >
+                  {{
+                    orderDetail.status
+                      ? orderDetail.status.label
+                      : "Chưa xác định"
+                  }}
+                </span>
+                <!-- Nút xác nhận đã nhận được hàng khi trạng thái là 8 -->
+                <div v-if="orderDetail.status?.value === 8" class="text-end">
+                  <button
+                    @click="confirmReceived"
+                    class="btn btn-outline-success"
+                  >
+                    Xác nhận đã nhận hàng
+                  </button>
+                </div>
               </span>
             </p>
 
@@ -209,6 +220,7 @@ import Cookies from "js-cookie";
 import { formatPrice, formatDate } from "@/utils/utils";
 import moment from "moment";
 import { io } from "socket.io-client";
+import { showErrorToast, showSuccessToast } from "@/utils/toast.util";
 
 const route = useRoute();
 const orderID = ref(route.params.orderID);
@@ -228,6 +240,7 @@ const getOrderDetail = async () => {
   const response = await apiUser.get(`/orders/detail/${orderID.value}`);
   if (response.status === 200) {
     orderDetail.value = response.data;
+    console.log(orderDetail.value);
   }
 };
 
@@ -239,13 +252,13 @@ const filteredStatusOptions = computed(() => {
   const currentStatusValue = orderDetail.value.status?.value;
 
   // Bước 1: Lấy ra các trạng thái từ đầu đến trạng thái hiện tại
-  const statusesUpToCurrent = orderDetail.value.statusFullOptions?.filter(option => {
-    return option.value <= currentStatusValue;
-  }) || [];
-  console.log(statusesUpToCurrent);
+  const statusesUpToCurrent =
+    orderDetail.value.statusFullOptions?.filter((option) => {
+      return option.value <= currentStatusValue;
+    }) || [];
 
   // Bước 2: Áp dụng các điều kiện lọc bổ sung
-  return statusesUpToCurrent.filter(option => {
+  return statusesUpToCurrent.filter((option) => {
     // Nếu trạng thái hiện tại là "Đã xác nhận", loại bỏ "Đã hủy" và "Yêu cầu hủy"
     if (currentStatusValue === 2) {
       return option.value !== 3 && option.value !== 4;
@@ -261,8 +274,18 @@ const filteredStatusOptions = computed(() => {
       return option.value !== 3 && option.value !== 4;
     }
 
+    // Nếu trạng thái hiện tại là "Đã lấy hàng" trở lên, loại bỏ "Đã hủy" và "Yêu cầu hủy"
+    if (currentStatusValue === 7) {
+      return option.value !== 3 && option.value !== 4;
+    }
+
     // Nếu trạng thái hiện tại là "Đã giao", loại bỏ "Giao hàng không thành công"
     if (currentStatusValue === 8) {
+      return option.value !== 3 && option.value !== 4 && option.value !== 7;
+    }
+
+    // Nếu trạng thái hiện tại là "Hoàn tất", loại bỏ "Giao hàng không thành công" và loại bỏ "Đã hủy" và "Yêu cầu hủy"
+    if (currentStatusValue === 9) {
       return option.value !== 3 && option.value !== 4 && option.value !== 7;
     }
 
@@ -271,12 +294,27 @@ const filteredStatusOptions = computed(() => {
   });
 });
 
+const confirmReceived = async () => {
+  try {
+    const response = await apiUser.put(`/orders/updateStatus/${orderID.value}`, {
+      status: 9,
+    });
+    if (response.status === 200) {
+      showSuccessToast("Đã nhận được hàng");
+      await getOrderDetail();
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorToast("Lỗi khi xác nhận đã nhận hàng");
+  }
+};
+
 onMounted(async () => {
   await getOrderDetail();
   socket.value = io("http://localhost:3000");
   socket.value.on("hasNewOrderStatus", async (data) => {
     if (data.orderStatus) {
-      await getOrderDetail(); 
+      await getOrderDetail();
     }
   });
 });
