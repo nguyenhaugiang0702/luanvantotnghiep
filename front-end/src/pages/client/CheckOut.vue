@@ -349,6 +349,7 @@ const shippingFee = ref(0);
 const isCalculatingFee = ref(false);
 const isLoadingPaypal = ref(false);
 let voucherUsed;
+const isOrderCompleted = ref(false);
 
 const getAddress = async () => {
   const response = await apiUser.get("/addresses");
@@ -498,6 +499,9 @@ const placeOrder = async (orderData) => {
 watch(
   [selectedAddress, () => dataToCalculateShippingFee.value.weight],
   async ([newAddressId, newWeight], [oldAddressId, oldWeight]) => {
+    if (isOrderCompleted.value) {
+      return;
+    }
     if (selectedAddressData.value && dataToCalculateShippingFee.value.weight) {
       const params = {
         province: selectedAddressData.value.province.name,
@@ -527,7 +531,6 @@ const getShippingFee = async (params) => {
     return response.data;
   } catch (error) {
     console.error("Error calculating shipping fee:", error);
-    showErrorToast("Lỗi khi tính phí vận chuyển");
     shippingFee.value = 0;
   } finally {
     isCalculatingFee.value = false;
@@ -538,10 +541,19 @@ onMounted(async () => {
   await getAddress();
   await getBookCheckOut();
   socket.value = io("http://localhost:3000");
-  socket.value.on("hasNewVoucherUpdate", async (data) => {
+  await socket.value.on("hasNewVoucherUpdate", async (data) => {
     if (data.vouchers) {
       updateVoucher.value += 1;
       await getBookCheckOut();
+    }
+  });
+  await socket.value.on("hasUpdateCheckout", async (data) => {
+    if (data.checkout) {
+      isOrderCompleted.value = true;
+      shippingFee.value = 0;
+      updateVoucher.value += 1;
+      await getBookCheckOut();
+      await getShippingFee();
     }
   });
 });

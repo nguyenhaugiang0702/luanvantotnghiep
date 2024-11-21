@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { formatPrice, handleNavigate } from "@/utils/utils";
 import ApiUser from "@/service/user/apiUser.service";
 import Cookies from "js-cookie";
@@ -143,6 +143,7 @@ const getOrders = async (page, limit, status) => {
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage;
     totalOrdersByStatus.value = response.data.totalOrdersByStatus;
+    console.log(response.data);
   }
 };
 
@@ -153,7 +154,7 @@ const handleCancelOrder = async (orderID) => {
     });
     if (response.status === 200) {
       showSuccessToast(response?.data?.message);
-      await getOrders();
+      await getOrders(currentPage.value, limit.value, activeTab.value);
     }
   } catch (error) {
     console.log(error);
@@ -190,6 +191,8 @@ const countOrdersByStatus = (status, count) => {
       return `Đã hủy (${count})`;
     case "request-cancel":
       return `Yêu cầu hủy (${count})`;
+    case "completed":
+      return `Đã nhận (${count})`;
   }
 };
 
@@ -217,22 +220,21 @@ const getStatusBadge = (status) => {
     case 5:
     case 8:
     case 9:
-      return "bg-success"; 
+      return "bg-success";
     case 3:
     case 4:
     case 7:
       return "bg-danger";
     default:
-      return "bg-secondary"; 
+      return "bg-secondary";
   }
 };
-
 
 const getStatusIcon = (status) => {
   switch (status) {
     case 1:
     case 6:
-      return "⏳"; 
+      return "⏳";
     case 2:
     case 5:
     case 8:
@@ -241,9 +243,9 @@ const getStatusIcon = (status) => {
     case 3:
     case 4:
     case 7:
-      return "❌"; 
+      return "❌";
     default:
-      return "❓"; 
+      return "❓";
   }
 };
 

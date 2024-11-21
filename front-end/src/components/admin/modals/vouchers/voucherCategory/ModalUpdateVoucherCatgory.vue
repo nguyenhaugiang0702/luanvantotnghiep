@@ -25,7 +25,9 @@
             <div class="row">
               <div class="col-6">
                 <div class="form-group">
-                  <label for="discountType" class="form-label">Loại giảm giá</label>
+                  <label for="discountType" class="form-label"
+                    >Loại giảm giá</label
+                  >
                   <Field
                     as="select"
                     v-model="voucherCategoryToEdit.discountType"
@@ -33,7 +35,8 @@
                     :class="{
                       'is-invalid': errors.discountType,
                       'is-valid':
-                        !errors.discountType && voucherCategoryToEdit.discountType !== '',
+                        !errors.discountType &&
+                        voucherCategoryToEdit.discountType !== '',
                     }"
                     name="discountType"
                   >
@@ -48,22 +51,6 @@
                   </Field>
                   <ErrorMessage name="discountType" class="invalid-feedback" />
                 </div>
-                <div class="form-group my-3">
-                  <label for="minValue" class="form-label">Giá giảm từ</label>
-                  <Field
-                    name="minValue"
-                    type="text"
-                    class="form-control"
-                    :class="{
-                      'is-invalid': errors.minValue,
-                      'is-valid':
-                        !errors.minValue && voucherCategoryToEdit.minValue !== null,
-                    }"
-                    placeholder="Giá giảm từ"
-                    v-model="voucherCategoryToEdit.minValue"
-                  />
-                  <ErrorMessage name="minValue" class="invalid-feedback" />
-                </div>
               </div>
               <div class="col-6">
                 <div class="form-group">
@@ -74,15 +61,41 @@
                     class="form-control"
                     :class="{
                       'is-invalid': errors.value,
-                      'is-valid': !errors.value && voucherCategoryToEdit.value !== null,
+                      'is-valid':
+                        !errors.value && voucherCategoryToEdit.value !== null,
                     }"
                     placeholder="Giá trị"
                     v-model="voucherCategoryToEdit.value"
                   />
                   <ErrorMessage name="value" class="invalid-feedback" />
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6">
                 <div class="form-group my-3">
-                  <label for="maxValue" class="form-label">Giá giảm đến</label>
+                  <label for="minValue" class="form-label">Giá tối thiểu</label>
+                  <Field
+                    name="minValue"
+                    type="text"
+                    class="form-control"
+                    :class="{
+                      'is-invalid': errors.minValue,
+                      'is-valid':
+                        !errors.minValue &&
+                        voucherCategoryToEdit.minValue !== null,
+                    }"
+                    placeholder="Giá giảm từ"
+                    v-model="voucherCategoryToEdit.minValue"
+                  />
+                  <ErrorMessage name="minValue" class="invalid-feedback" />
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group my-3">
+                  <label for="maxValue" class="form-label"
+                    >Giá giảm tối đa</label
+                  >
                   <Field
                     name="maxValue"
                     type="text"
@@ -90,7 +103,8 @@
                     :class="{
                       'is-invalid': errors.maxValue,
                       'is-valid':
-                        !errors.maxValue && voucherCategoryToEdit.maxValue !== null,
+                        !errors.maxValue &&
+                        voucherCategoryToEdit.maxValue !== null,
                     }"
                     placeholder="Giá giảm đến"
                     v-model="voucherCategoryToEdit.maxValue"
@@ -101,10 +115,16 @@
             </div>
 
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
                 Đóng
               </button>
-              <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+              <button type="submit" class="btn btn-primary">
+                Lưu Thay Đổi
+              </button>
             </div>
           </form>
         </div>
@@ -145,7 +165,7 @@ export default defineComponent({
     const apiAdmin = new ApiAdmin();
 
     const updateVoucherCategory = async () => {
-      const { valid } = await validate();
+      const { valid, errors } = await validate();
       if (!valid) {
         return;
       }

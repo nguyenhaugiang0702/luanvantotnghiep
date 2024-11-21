@@ -74,7 +74,7 @@
                     <th class="text-start">Tổng giá</th>
                     <th class="text-start">Thanh toán</th>
                     <th class="text-start">Mã giảm giá</th>
-                    <th class="text-start">Đã trả</th>
+                    <th class="text-start">Trạng thái thanh toán</th>
                     <th class="text-start">Trạng thái</th>
                     <th class="text-start">Ngày đặt</th>
                     <th class="text-start">Thao tác</th>
@@ -183,12 +183,26 @@ const columns = [
   {
     data: "wasPaided",
     render: (data, type, row, meta) => {
-      if (data) {
-        data = "Đã thanh toán";
-        return `<div class='text-start badge text-bg-success p-2'>${data}</div>`;
-      } else {
-        data = "Chưa";
-        return `<div class='text-start'>${data}</div>`;
+      if (row.status.value !== 3) {
+        if (data) {
+          return `<div class='text-start badge text-bg-success p-2'>Đã thanh toán</div>`;
+        } else {
+          return `<div class='text-start badge text-bg-warning p-2'>Chưa thanh toán</div>`;
+        }
+      } else if (
+        row.status.value === 3 &&
+        row.payment === "PAYPAL" &&
+        row.paymentDetail.state === "REFUNDED"
+      ) {
+        // Đã hủy
+        return `<div class='text-start badge text-bg-success p-2'><i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền</div>`;
+      } else if (
+        row.status.value === 3 &&
+        row.payment === "MOMO" || row.payment === "ZALOPAY" &&
+        row.paymentDetail.state === "PENDING_REFUND"
+      ) {
+        // Đã hủy
+        return `<div class='text-start badge text-bg-warning p-2'><i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn tiền</div>`;
       }
     },
   },

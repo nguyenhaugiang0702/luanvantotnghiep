@@ -45,7 +45,7 @@
               />
               <ErrorMessage name="authorName" class="invalid-feedback" />
             </div>
-            <div class="form-group">
+            <div class="form-group mt-3">
               <label for="authorDob" class="form-label">Ngày sinh</label>
               <Field
                 name="authorDob"

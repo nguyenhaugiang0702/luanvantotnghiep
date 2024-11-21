@@ -51,7 +51,7 @@
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
                   <span>Giảm giá:</span>
-                  <span class="price text-success">{{
+                  <span class="price text-success">-{{
                     formatPrice(selectedBooks.discountValue)
                   }}</span>
                 </div>

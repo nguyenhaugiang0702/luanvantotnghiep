@@ -343,38 +343,87 @@ export const addressSchema = yup.object({
     .required("Thông tin này quan trọng.Vui lòng không để trống."),
 });
 
-export const voucherCatgorySchema = yup.object({
-  discountType: yup
-    .string()
-    .oneOf(["percent", "amount"], "Kiểu giảm giá không hợp lệ")
-    .required("Loại giảm giá là bắt buộc"),
-  value: yup.number().when("discountType", {
-    is: "percent",
-    then: () =>
-      yup
-        .number()
-        .min(1, "Giá trị phải từ 1 đến 100")
-        .max(100, "Giá trị phải từ 1 đến 100")
-        .typeError("Giá trị phải là số")
-        .required("Giá trị là bắt buộc"),
-    otherwise: () =>
-      yup
-        .number()
-        .min(0, "Giá trị không được âm")
-        .typeError("Giá trị phải là số")
-        .required("Giá trị là bắt buộc"),
-  }),
-  minValue: yup
-    .number()
-    .min(0, "Giá trị tối thiểu không được âm")
-    .typeError("Giá trị phải là số")
-    .required("Giá trị tối thiểu là bắt buộc"),
-  maxValue: yup
-    .number()
-    .required("Giá giảm tối đa là bắt buộc")
-    .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
-    .typeError("Giá giảm tối đa phải là số"),
-});
+// export const voucherCatgorySchema = yup.object({
+//   discountType: yup
+//     .string()
+//     .oneOf(["percent", "amount"], "Kiểu giảm giá không hợp lệ")
+//     .required("Loại giảm giá là bắt buộc"),
+//   value: yup.number().when("discountType", {
+//     is: "percent",
+//     then: () =>
+//       yup
+//         .number()
+//         .min(1, "Giá trị phải từ 1 đến 100")
+//         .max(100, "Giá trị phải từ 1 đến 100")
+//         .typeError("Giá trị phải là số")
+//         .required("Giá trị là bắt buộc"),
+//     otherwise: () =>
+//       yup
+//         .number()
+//         .min(0, "Giá trị không được âm")
+//         .typeError("Giá trị phải là số")
+//         .required("Giá trị là bắt buộc"),
+//   }),
+//   minValue: yup
+//     .number()
+//     .min(0, "Giá trị tối thiểu không được âm")
+//     .typeError("Giá trị phải là số")
+//     .required("Giá trị tối thiểu là bắt buộc"),
+//   maxValue: yup
+//     .number()
+//     .required("Giá giảm tối đa là bắt buộc")
+//     .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
+//     .typeError("Giá giảm tối đa phải là số"),
+// });
+export const voucherCatgorySchema = yup
+  .object({
+    discountType: yup
+      .string()
+      .oneOf(["percent", "amount"], "Kiểu giảm giá không hợp lệ")
+      .required("Loại giảm giá là bắt buộc"),
+    value: yup.number().when("discountType", {
+      is: "percent",
+      then: () =>
+        yup
+          .number()
+          .min(1, "Giá trị phải từ 1 đến 100")
+          .max(100, "Giá trị phải từ 1 đến 100")
+          .typeError("Giá trị phải là số")
+          .required("Giá trị là bắt buộc"),
+      otherwise: () =>
+        yup
+          .number()
+          .min(0, "Giá trị không được âm")
+          .typeError("Giá trị phải là số")
+          .required("Giá trị là bắt buộc"),
+    }),
+    minValue: yup
+      .number()
+      .min(0, "Giá trị tối thiểu không được âm")
+      .typeError("Giá trị phải là số")
+      .required("Giá trị tối thiểu là bắt buộc"),
+    maxValue: yup
+      .number()
+      .required("Giá giảm tối đa là bắt buộc")
+      .min(0, "Giá giảm tối đa phải lớn hơn hoặc bằng 0")
+      .typeError("Giá giảm tối đa phải là số"),
+  })
+  .test("value-equals-maxValue", function (values) {
+    const { discountType, value, maxValue } = values;
+
+    // Custom error message for specific fields
+    if (discountType === "amount" && value !== maxValue) {
+      // Trả về lỗi cho cả value và maxValue
+      return this.createError({
+        path: "value",
+        message: `Giá trị phải bằng Giá trị tối đa.`
+      }) || this.createError({
+        path: "maxValue",
+        message: `Giá trị tối đa phải bằng Giá trị`
+      });
+    }
+    return true; 
+  });
 
 export const voucherSchema = yup.object().shape({
   voucherCategoryID: yup.string().required("Loại giảm giá là bắt buộc"),

@@ -46,7 +46,7 @@
               />
               <ErrorMessage name="startPrice" class="invalid-feedback" />
             </div>
-            <div class="form-group">
+            <div class="form-group mt-3">
               <label for="endPrice" class="form-label">Giá kết thúc</label>
               <Field
                 name="endPrice"

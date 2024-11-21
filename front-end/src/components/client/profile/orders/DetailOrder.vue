@@ -104,7 +104,7 @@
         <div class="card-header">
           <h5 class="card-title mb-0">Tóm tắt đơn hàng</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body pb-5">
           <div class="summary-content">
             <p class="d-flex justify-content-between mb-3">
               <span
@@ -115,7 +115,7 @@
                 moment(orderDetail.createdAt).format("DD/MM/YYYY HH:mm:ss")
               }}</span>
             </p>
-            <p class="d-flex justify-content-between mb-3">
+            <p class="d-flex justify-content-between">
               <span>Trạng thái thanh toán:</span>
               <span
                 class="badge p-2"
@@ -126,7 +126,13 @@
                 }}
               </span>
             </p>
-            <p class="d-flex justify-content-between mb-3">
+            <p class="d-flex justify-content-between">
+              <span>Phương thức thanh toán:</span>
+              <span class="badge p-2 text-dark">
+                {{ orderDetail.payment }}
+              </span>
+            </p>
+            <p class="d-flex justify-content-between">
               <span>Trạng thái đơn hàng:</span>
               <span class="d-flex">
                 <span
@@ -163,46 +169,47 @@
                 </div>
               </span>
             </p>
-
-            <!-- Price Section -->
-            <div class="price-section">
-              <!-- Main Price Row - Always Visible -->
-              <div
-                class="price-row"
-                @click="togglePriceDetail"
-                :class="{ 'is-open': isPriceDetailOpen }"
-              >
-                <span class="label">Tổng giá:</span>
-                <div class="value-wrapper">
-                  <span class="text-danger fw-bold">{{
-                    formatPrice(orderDetail.totalPrice)
-                  }}</span>
-                  <i class="fa-solid fa-chevron-down ms-2 transition-icon"></i>
-                </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <!-- Price Section -->
+          <div class="price-section">
+            <!-- Main Price Row - Always Visible -->
+            <div
+              class="price-row"
+              @click="togglePriceDetail"
+              :class="{ 'is-open': isPriceDetailOpen }"
+            >
+              <span class="label">Tổng giá:</span>
+              <div class="value-wrapper">
+                <span class="text-danger fw-bold">{{
+                  formatPrice(orderDetail.totalPrice)
+                }}</span>
+                <i class="fa-solid fa-chevron-down ms-2 transition-icon"></i>
               </div>
+            </div>
 
-              <!-- Expandable Price Details -->
-              <div class="price-details" :class="{ show: isPriceDetailOpen }">
-                <div class="price-detail-row">
-                  <span>Tổng đơn hàng:</span>
-                  <span>{{ formatPrice(orderDetail.totalPriceOrder) }}</span>
-                </div>
-                <div class="price-detail-row">
-                  <span>Phí vận chuyển:</span>
-                  <span>{{ formatPrice(orderDetail.shippingFee) }}</span>
-                </div>
-                <div class="price-detail-row">
-                  <span>Giảm giá:</span>
-                  <span class="text-success">{{
-                    formatPrice(orderDetail.totalDiscountPrice)
-                  }}</span>
-                </div>
-                <div class="price-detail-row total">
-                  <span>Tổng giá:</span>
-                  <span class="text-danger fw-bold">{{
-                    formatPrice(orderDetail.totalPrice)
-                  }}</span>
-                </div>
+            <!-- Expandable Price Details -->
+            <div class="price-details" :class="{ show: isPriceDetailOpen }">
+              <div class="price-detail-row">
+                <span>Tổng đơn hàng:</span>
+                <span>{{ formatPrice(orderDetail.totalPriceOrder) }}</span>
+              </div>
+              <div class="price-detail-row">
+                <span>Phí vận chuyển:</span>
+                <span>{{ formatPrice(orderDetail.shippingFee) }}</span>
+              </div>
+              <div class="price-detail-row">
+                <span>Giảm giá:</span>
+                <span class="text-success">{{
+                  formatPrice(orderDetail.totalDiscountPrice)
+                }}</span>
+              </div>
+              <div class="price-detail-row">
+                <span>Tổng giá:</span>
+                <span class="text-danger fw-bold">{{
+                  formatPrice(orderDetail.totalPrice)
+                }}</span>
               </div>
             </div>
           </div>
@@ -234,6 +241,7 @@ const orderDetail = ref({
       bookID: {},
     },
   ],
+  payment: "",
 });
 const socket = ref(null);
 const getOrderDetail = async () => {
@@ -296,9 +304,12 @@ const filteredStatusOptions = computed(() => {
 
 const confirmReceived = async () => {
   try {
-    const response = await apiUser.put(`/orders/updateStatus/${orderID.value}`, {
-      status: 9,
-    });
+    const response = await apiUser.put(
+      `/orders/updateStatus/${orderID.value}`,
+      {
+        status: 9,
+      }
+    );
     if (response.status === 200) {
       showSuccessToast("Đã nhận được hàng");
       await getOrderDetail();
@@ -321,15 +332,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.summary-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .price-section {
   background-color: #fff;
   border-radius: 8px;
+  overflow: hidden; /* Đảm bảo không bị tràn nội dung */
+  border: 1px solid #e9ecef; /* Đường viền để phân biệt */
 }
 
 .price-row {
@@ -339,7 +346,7 @@ onMounted(async () => {
   padding: 12px 16px;
   background-color: #f8f9fa;
   cursor: pointer;
-  border-radius: 8px;
+  border-bottom: 1px solid #e9ecef;
   transition: all 0.3s ease;
 }
 
@@ -348,6 +355,7 @@ onMounted(async () => {
 }
 
 .price-row.is-open {
+  background-color: #fff; /* Giữ màu trắng khi mở dropdown */
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -367,24 +375,25 @@ onMounted(async () => {
 
 .price-details {
   max-height: 0;
-  overflow: hidden;
+  overflow: hidden; /* Ẩn nội dung khi không mở */
   transition: all 0.3s ease-out;
   background-color: #fff;
-  border: 1px solid #e9ecef;
   border-top: none;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
 }
 
 .price-details.show {
-  max-height: 300px;
+  max-height: 200px; /* Đặt chiều cao tối đa khi mở */
+  padding: 8px 16px; /* Bổ sung padding */
+  overflow: auto; /* Cuộn nội dung nếu vượt quá chiều cao */
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .price-detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 0;
   border-bottom: 1px solid #e9ecef;
 }
 
@@ -397,7 +406,6 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-/* Card styling */
 .card {
   margin-bottom: 1.5rem;
   border: none;
@@ -412,28 +420,5 @@ onMounted(async () => {
 .card-header {
   background-color: #fff;
   border-bottom: 1px solid #e9ecef;
-}
-
-.label {
-  font-weight: 500;
-  color: #495057;
-}
-
-.completed {
-  color: green;
-}
-
-.current {
-  color: blue;
-  font-weight: bold;
-}
-
-.special-status {
-  color: red;
-  font-weight: bold;
-}
-
-.a-timeline-item:empty::before {
-  display: none;
 }
 </style>
