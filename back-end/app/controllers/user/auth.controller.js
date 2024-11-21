@@ -4,10 +4,10 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const User = require("../../models/user.model");
-const sendOTP = require("../../sendOTP");
+const smsService = require("../../sendOTP");
 const otpService = require("../../services/otp.service");
 const authUserService = require("../../services/auth/authUser.service");
-const sendEmail = require("../../utils/email.util");
+const emailService = require("../../utils/email.util");
 const config = require("../../config/index");
 const token = require("../../services/token.service");
 
@@ -15,12 +15,12 @@ exports.login = async (req, res, next) => {
   try {
     const { loginMethod, email, phoneNumber, password } = req.body;
     let user;
-    if(loginMethod === 'phone'){
+    if (loginMethod === "phone") {
       user = await authUserService.getUserByPhoneNumber(phoneNumber);
       if (!user) {
         return next(new ApiError(404, "Tài khoản không tồn tại."));
       }
-    }else{
+    } else {
       user = await authUserService.getUserByEmail(email);
       if (!user) {
         return next(new ApiError(404, "Không tìm thấy email."));
@@ -138,67 +138,48 @@ exports.createOTP = async (req, res, next) => {
         phoneNumber
       );
 
-      // Nếu tài khoản tồn tại và đã được kích hoạt qua OTP
-      if (userExistWithPhoneNumber && userExistWithPhoneNumber.isActive == 1) {
-        if (method !== "forgotPassword") {
-          if (userExistWithPhoneNumber.phoneNumber == phoneNumber) {
-            return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
-          }
-        }
-
-        const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-        const otpSMS = await sendOTP(phoneNumber);
-        const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
-
-        if (!otpUser) {
-          await otpService.createOTP({
-            phoneNumber,
-            otpSMS,
-            expiresAt,
-          });
-        }
-        await otpService.updateOTPByPhoneNumber(phoneNumber, {
-          otpSMS: otpSMS,
-          expiresAt: expiresAt,
-        });
-
-        return res.send({
-          message: "Mã OTP đã được gửi",
-          otpCode: otpSMS,
-          otpSent: true,
-        });
-      } else {
+      if (method !== "forgotPassword") {
+        // Đăng ký tài khoản, đổi số điện thoại (check trùng số điện thoại)
         if (userExistWithPhoneNumber) {
           return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
         }
-
-        const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-        const otpSMS = await sendOTP(phoneNumber);
-        const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
-
-        if (!otpUser) {
-          await otpService.createOTP({
-            phoneNumber,
-            otpSMS,
-            expiresAt,
-          });
+      } else {
+        // Khôi phục mật khẩu
+        if (!userExistWithPhoneNumber) {
+          return next(
+            new ApiError(400, "Không tồn tại tài khoản với số điện thoại này")
+          );
         }
-        await otpService.updateOTPByPhoneNumber(phoneNumber, {
-          otpSMS: otpSMS,
-          expiresAt: expiresAt,
-        });
-        return res.send({
-          message: "Mã OTP đã được gửi",
-          otpCode: otpSMS,
-          otpSent: true,
+      }
+      const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
+      const otpSMS = Math.floor(100000 + Math.random() * 900000);
+      const textSMS = `Mã OTP của bạn là ${otpSMS}, thời gian hết hạn là 2 phút`;
+      await smsService.sendOTP(phoneNumber, textSMS);
+      const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
+
+      if (!otpUser) {
+        await otpService.createOTP({
+          phoneNumber,
+          otpSMS,
+          expiresAt,
         });
       }
+      await otpService.updateOTPByPhoneNumber(phoneNumber, {
+        otpSMS: otpSMS,
+        expiresAt: expiresAt,
+      });
+
+      return res.send({
+        message: "Mã OTP đã được gửi",
+        otpCode: otpSMS,
+        otpSent: true,
+      });
     } else if (email) {
       // Gửi mã OTP qua email
       const otpUser = await otpService.findRecordByEmail(email);
       const otpCode = Math.floor(100000 + Math.random() * 900000);
       try {
-        await sendEmail({
+        await emailService.sendEmail({
           email: email,
           subject: "Kích hoạt email",
           text: `Mã OTP của bạn là ${otpCode}`,
@@ -229,6 +210,7 @@ exports.createOTP = async (req, res, next) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi tạo OTP"));
   }
 };
@@ -268,41 +250,6 @@ exports.verifyOTP = async (req, res, next) => {
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi xác thực OTP"));
-  }
-};
-
-exports.loginByAdmin = async (req, res, next) => {
-  const { email, password } = req.body;
-
-  try {
-    const admin = await authUserService.getUserByPhoneNumber(phoneNumber);
-
-    if (!admin) {
-      return next(new ApiError(404, "Tài khoản không tồn tại."));
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return next(new ApiError(400, "Mật khẩu không chính xác."));
-    }
-
-    const accessToken = jwt.sign(
-      { id: user._id },
-      "my_jwt_secret_key_bookstore",
-      {
-        expiresIn: "1y",
-      }
-    );
-
-    res.send({
-      isLoggedIn: true,
-      message: "Đăng nhập thành công!",
-      accessToken,
-      user: user,
-    });
-  } catch (error) {
-    return next(new ApiError(500, "Lỗi khi đăng nhập"));
   }
 };
 

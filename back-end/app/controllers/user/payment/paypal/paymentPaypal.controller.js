@@ -87,7 +87,6 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
       };
       paypal.payment.create(create_payment_json, function (error, payment) {
         if (error) {
-          console.log("Chi tiết lỗi:", error.response.details);
           return next(new ApiError(500, "Lỗi khi tạo link thanh toán"));
         } else {
           for (let i = 0; i < payment.links.length; i++) {
@@ -128,25 +127,27 @@ exports.handlePayPalSuccess = async (req, res, next) => {
       if (error) {
         return next(new ApiError(500, "Lỗi khi xác nhận thanh toán"));
       } else {
+        console.log(
+          "saleID: " + payment.transactions[0].related_resources[0].sale.id
+        );
         const customObj = JSON.parse(payment.transactions[0]?.custom);
         const detailOrder = JSON.parse(detail);
         const orderData = {
           userID: customObj.userID,
-          // // áp dụng cho tiền đô
-          // detail: payment.transactions[0].item_list.items.map((item) => ({
-          //   bookID: item.sku,
-          //   quantity: item.quantity,
-          //   realPrice: parseFloat(item.price),
-          // })),
           detail: detailOrder,
           notes: customObj.notes,
           addressID: customObj.addressID,
           totalPrice: parseInt(customObj.totalPrice),
           totalQuantity: parseInt(customObj.totalQuantity),
           payment: "PAYPAL",
-          voucherID: customObj.voucherID,
+          voucherID: customObj.voucherID ? customObj.voucherID : null,
           wasPaided: true,
           shippingFee: customObj.shippingFee,
+          paymentDetail: {
+            saleId: payment.transactions[0]?.related_resources[0]?.sale.id,
+            state: "COMPLETED",
+            amount: parseFloat(totalAmount),
+          },
           createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
           updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
         };
@@ -156,10 +157,54 @@ exports.handlePayPalSuccess = async (req, res, next) => {
         }
         await cartService.deleteBookFromCartWhenCheckOut(customObj.userID);
         await cartService.calculateTotalPriceWhenCheckOut(customObj.userID);
+        // Lấy io từ app và phát thông báo đến admin
+        const io = require("../../../../../app").get("socketIo");
+        io.emit("hasUpdateCheckout", {
+          checkout: {
+            message: "Cập nhật checkout",
+            newOrder: newOrder,
+          },
+        });
         return res.redirect("http://localhost:3001/thanks");
       }
     }
   );
 };
 
-exports.handlePayPalCancel = async (req, res, next) => {};
+exports.handlePayPalCancel = async (req, res, next) => {
+  return res.redirect("http://localhost:3001/checkout");
+};
+
+exports.handleRefundPayPal = async (saleId, amount, next) => {
+  try {
+    if (!saleId) {
+      throw new ApiError(400, "Vui lòng nhập saleId");
+    }
+
+    const refundData = {
+      amount: {
+        currency: "USD",
+        total: amount.toFixed(2),
+      },
+    };
+
+    return new Promise((resolve, reject) => {
+      paypal.sale.refund(saleId, refundData, (error, refund) => {
+        if (error) {
+          console.error("Refund Error:", error);
+          return reject(new ApiError(500, "Refund process failed"));
+        } else {
+          console.log("Refund Response:", refund);
+          return resolve({
+            success: true,
+            refund,
+          });
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Refund Exception:", error);
+    return next(new ApiError(500, "Lỗi khi tính toán hoàn tiền"));
+  }
+};
+

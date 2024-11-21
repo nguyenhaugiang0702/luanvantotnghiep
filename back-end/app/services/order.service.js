@@ -9,8 +9,11 @@ const voucherService = require("../services/vouchers/voucher.service");
 const { ordersValidation } = require("../middlewares/validateOrder.middelware");
 
 const create = async (orderData) => {
+  console.log("Order data before saving:", orderData);
   const newOrder = new Order(orderData);
-  return newOrder.save();
+  const savedOrder = await newOrder.save();
+  console.log("Order saved:", savedOrder);
+  return savedOrder;
 };
 const createOrder = async (orderData) => {
   const newOrder = await create(orderData);

@@ -13,6 +13,6 @@ router
 
 router.route("/success").get(paypal.handlePayPalSuccess);
 
-router.route("/cancel").post(paypal.handlePayPalCancel);
+router.route("/cancel").get(paypal.handlePayPalCancel);
 
 module.exports = router;

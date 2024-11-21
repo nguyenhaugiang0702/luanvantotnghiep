@@ -43,7 +43,12 @@ const orderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Voucher",
     default: null,
-  }, 
+  },
+  paymentDetail: {
+    saleId: { type: String, default: null },
+    state: { type: String, default: null },
+    amount: { type: Number, default: null },
+  },
   createdAt: Date,
   updatedAt: Date,
 });

@@ -9,6 +9,12 @@ exports.create = async (req, res, next) => {
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.name = `${formatPrice(startPrice)} - ${formatPrice(endPrice)}`;
+    const checkExistPriceRange = await priceRangeService.getPriceRange({
+      name: req.body.name,
+    });
+    if(checkExistPriceRange){
+      return next(new ApiError(400, "Đã tồn tại kkhoản giá"))
+    }
     const newPriceRange = await priceRangeService.createPriceRange(req.body);
     return res.send({
       message: "Thêm khoản giá thành công",
@@ -23,7 +29,7 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   let priceRanges = [];
   try {
-    priceRanges = await priceRangeService.getAllPriceRange();
+    priceRanges = await priceRangeService.getAllPriceRange({});
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi lấy tất cả khoản giá"));
   }

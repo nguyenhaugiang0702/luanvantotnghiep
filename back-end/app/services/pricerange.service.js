@@ -7,8 +7,12 @@ const createPriceRange = async (priceRangeData) => {
   return await newPriceRange.save();
 };
 
-const getAllPriceRange = async () => {
-  return await PriceRange.find({}).sort({ createdAt: -1 });
+const getAllPriceRange = async (query) => {
+  return await PriceRange.find(query).sort({ createdAt: -1 });
+};
+
+const getPriceRange = async (query) => {
+  return await PriceRange.findOne(query);
 };
 
 const updatePriceRange = async (priceRangeId, priceRangeData) => {
@@ -30,4 +34,5 @@ module.exports = {
   updatePriceRange,
   deletePriceRange,
   getAllPriceRange,
+  getPriceRange,
 };

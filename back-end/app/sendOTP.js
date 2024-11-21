@@ -13,13 +13,8 @@ const formatPhoneNumber = async (phoneNumber) => {
   return await phoneNumber;
 };
 
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000);
-};
-
 // Hàm gửi mã OTP tới số điện thoại
-const sendOTP = async (phoneNumber) => {
-  const otp = generateOTP();
+exports.sendOTP = async (phoneNumber, text) => {
   const formattedPhoneNumber = await formatPhoneNumber(phoneNumber);
   // Cấu hình request để gửi SMS
   const options = {
@@ -35,7 +30,7 @@ const sendOTP = async (phoneNumber) => {
         {
           destinations: [{ to: formattedPhoneNumber }],
           from: "447491163443",
-          text: `Mã OTP của bạn là ${otp}, thời gian hết hạn là 2 phút`,
+          text: text,
         },
       ],
     },
@@ -44,13 +39,12 @@ const sendOTP = async (phoneNumber) => {
   // Gửi yêu cầu và xử lý phản hồi
   return axios(options)
     .then((response) => {
-      console.log("Response:", response.data); 
-      return otp; 
+      console.log("Response:", response.data);
+      console.log('Thư đã được gửi đi');
     })
     .catch((error) => {
-      console.error("Error:", error); 
-      throw error; 
+      console.error("Error:", error);
+      throw error;
     });
 };
 
-module.exports = sendOTP;

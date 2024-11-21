@@ -6,6 +6,7 @@ const config = require("../../../../config/index");
 const moment = require("moment-timezone");
 const ApiError = require("../../../../api-error");
 const axios = require("axios");
+const crypto = require("crypto");
 
 exports.createLinkOrderByMomo = async (req, res, next) => {
   try {
@@ -39,7 +40,6 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
     console.log("--------------------RAW SIGNATURE----------------");
     console.log(rawSignature);
     //signature
-    const crypto = require("crypto");
     const signature = crypto
       .createHmac("sha256", secretKey)
       .update(rawSignature)
@@ -83,32 +83,56 @@ exports.createLinkOrderByMomo = async (req, res, next) => {
       result = await axios(options);
       return res.send(result.data);
     } catch (error) {
-      console.log(error.response ? error.response.data : error.message);
-      return next(new ApiError(500, "Lôi khi thanh toán momo!"));
+      console.error(
+        "MoMo Payment Error:",
+        error.response?.data || error.message
+      );
+      return next(new ApiError(500, "Lỗi khi kết nối tới MoMo!"));
     }
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi thêm mới địa chỉ"));
+    return next(new ApiError(500, "Lỗi khi thanh toán với MoMo"));
   }
 };
 
 exports.handleMomoIPN = async (req, res, next) => {
-  const { orderId, resultCode, extraData } = req.body;
+  const { orderId, transId, resultCode, extraData, amount } = req.body;
   if (resultCode !== 0) {
     // Thanh toán không thành công
     return next(new ApiError(400, "Thanh toán thất bại!"));
   }
+
   const extraDataObj = JSON.parse(extraData);
-  extraDataObj.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
-  extraDataObj.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate(),
-  extraDataObj.wasPaided = true;
-  const newOrder = await orderService.createOrder(extraDataObj);
+  (extraDataObj.createdAt = moment.tz("Asia/Ho_Chi_Minh").toDate()),
+    (extraDataObj.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate()),
+    (extraDataObj.wasPaided = true);
+  const data = {
+    paymentDetail: {
+      saleId: transId,
+      state: "COMPLETED",
+      amount: amount,
+    },
+  };
+  const orderData = {
+    ...extraDataObj,
+    ...data,
+  };
+
+  const newOrder = await orderService.createOrder(orderData);
   if (!newOrder) {
     return next(new ApiError(400, "Lỗi khi tạo đơn hàng sau thanh toán"));
   }
   // Thanh toán thành công
-  await cartService.deleteBookFromCartWhenCheckOut(extraDataObj.userID);
-  await cartService.calculateTotalPriceWhenCheckOut(extraDataObj.userID);
+  await cartService.deleteBookFromCartWhenCheckOut(orderData.userID);
+  await cartService.calculateTotalPriceWhenCheckOut(orderData.userID);
+  // Lấy io từ app và phát thông báo đến admin
+  const io = require("../../../../../app").get("socketIo");
+  io.emit("hasUpdateCheckout", {
+    checkout: {
+      message: "Cập nhật checkout",
+      newOrder: newOrder,
+    },
+  });
 };
 
 exports.handleMomoIPNTransactionStatus = async (req, res, next) => {
@@ -144,5 +168,67 @@ exports.handleMomoIPNTransactionStatus = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Lôi khi thanh toán momo!"));
+  }
+};
+
+exports.refundTransaction = async (transId, amount, description, next) => {
+  try {
+    // Các thông tin cần thiết
+    // const partnerCode = "MOMOIQA420180417";
+    const partnerCode = "MOMO";
+
+    const accessKey = config.momo.accessKey;
+    const secretKey = config.momo.secretKey;
+    const endpoint = "https://test-payment.momo.vn/v2/gateway/api/refund";
+
+    if (!transId || !amount || !description) {
+      return { success: false, message: "Thông tin không đầy đủ!" };
+    }
+
+    // Tạo requestId duy nhất
+    const requestId = `REFUND-${Date.now()}`;
+
+    // Tạo chữ ký
+    const rawSignature = `accessKey=${accessKey}&amount=${amount}&description=${description}&orderId=${requestId}&partnerCode=${partnerCode}&requestId=${requestId}&transId=${transId}`;
+    const signature = crypto
+      .createHmac("sha256", secretKey)
+      .update(rawSignature)
+      .digest("hex");
+
+    // Payload gửi tới MoMo
+    const requestBody = {
+      partnerCode: partnerCode,
+      requestId: requestId,
+      orderId: requestId,
+      amount: amount,
+      transId: transId,
+      lang: "vi",
+      description: description,
+      signature: signature,
+    };
+
+    // Gửi yêu cầu tới MoMo
+    const options = {
+      url: endpoint,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: requestBody,
+    };
+    const response = await axios(options);
+
+    // Xử lý phản hồi từ MoMo
+    const result = response.data;
+    if (result.errorCode === 0) {
+      console.log("Hoàn tiền thành công!");
+      console.log("Chi tiết kết quả:", JSON.stringify(result, null, 2)); // Định dạng dễ đọc
+      return { success: true, data: result };
+    } else {
+      console.log(`Hoàn tiền thất bại: ${JSON.stringify(result, null, 2)}`); // Định dạng dễ đọc
+      return { success: false, message: result };
+    }
+    
+  } catch (error) {
+    console.error("Lỗi khi hoàn tiền:", error.response?.data || error.message);
+    return { success: false, message: "Lỗi khi hoàn tiền!" };
   }
 };

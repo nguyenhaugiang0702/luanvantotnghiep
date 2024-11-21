@@ -2,6 +2,10 @@ const orderService = require("../../services/order.service");
 const bookService = require("../../services/book.service");
 const ApiError = require("../../api-error");
 const moment = require("moment-timezone");
+const payment = require("../../controllers/user/payment/paypal/paymentPaypal.controller");
+const paymentMomo = require("../../controllers/user/payment/momo/paymentMomo.controller");
+const smsService = require("../../sendOTP");
+const emailService = require("../../utils/email.util");
 
 exports.findAll = async (req, res, next) => {
   try {
@@ -76,12 +80,12 @@ exports.updateStatus = async (req, res, next) => {
       return next(new ApiError(404, "Đơn hàng không tồn tại!"));
     }
     if (status === 2) {
-      // Đơn hàng đã được xác nhận -> Tăng số lượng bán
+      // Admin xác nhận đơn hàng -> Tăng số lượng bán
       const error = await updateBookQuantities(order.detail);
       if (error) return next(new ApiError(400, error));
     }
     if (status === 7) {
-      // Giao hàng không thành công
+      // Shipper giao hàng không thành công
       const updateFailShipOrder = await orderService.updateStatus(orderID, {
         status: status,
       });
@@ -102,7 +106,44 @@ exports.updateStatus = async (req, res, next) => {
         })
       );
     }
+    if (status === 3) {
+      // Admin xác nhận đã hủy cho yêu cầu khách hàng PayPal
+      if (order.payment === "PAYPAL" && order.paymentDetail?.saleId) {
+        const refundResult = await payment.handleRefundPayPal(
+          order.paymentDetail.saleId,
+          order.paymentDetail.amount
+        );
+        if (!refundResult.success) {
+          return next(new ApiError(400, "Hoàn tiền qua PayPal thất bại!"));
+        }
+        await orderService.updateOrderById(order._id, {
+          "paymentDetail.state": "REFUNDED",
+        });
+      }
+      if (order.payment === "MOMO" || order.payment === "ZALOPAY") {
+        const notificationMessage = `Đơn hàng ${orderID} đã được hủy. Liên hệ hotline: 0384804407 hoặc email: nhgbookstore@gmail.com để được hỗ trợ hoàn tiền.
+`;
+        try {
+          await orderService.updateOrderById(order._id, {
+            "paymentDetail.state": "PENDING_REFUND",
+          });
+          // Gửi SMS
+          await smsService.sendOTP(order.userID?.phoneNumber, notificationMessage);
+          // Gửi Email
+          if (order.userID?.email) {
+            await emailService.sendEmail({
+              email: order.userID.email,
+              subject: "Thông báo hủy đơn hàng",
+              text: notificationMessage,
+            });
+          }
+        } catch (notifyError) {
+          console.error("Lỗi khi gửi thông báo:", notifyError);
+        }
+      }
+    }
     if (status === 8 && req.file) {
+      // Giao hàng thành công và chụp ảnh giao hàng
       req.body.image = req.file.path;
     }
     req.body.status = status;

@@ -5,3 +5,12 @@ NGUYEN VAN A
 OTP
 
 ssh -R nhgbookstore:80:localhost:3000 serveo.net
+lt --port 3000 --subdomain nhgbookstore
+
+Paypal sandbox:
+nguyenhaugiangpaypal@gmail.com
+haugiang200702
+
+Paypal real:
+nguyenhaugiang0702@gmail.com
+H@ugi@ng200702

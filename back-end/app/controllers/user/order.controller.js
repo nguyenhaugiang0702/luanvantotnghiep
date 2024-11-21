@@ -65,6 +65,7 @@ exports.findAll = async (req, res, next) => {
       delivering: { status: 6 },
       fail: { status: 7 },
       delivered: { status: 8 },
+      completed: { status: 9 },
     };
     if (status !== "all") {
       query.status = statusMap[status].status;
@@ -92,7 +93,7 @@ exports.findAll = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, "Lỗi khi đặt hàng!"));
+    return next(new ApiError(500, "Lỗi khi lấy tất cả dơn hàng!"));
   }
 };
 
@@ -158,15 +159,7 @@ exports.findOne = async (req, res, next) => {
     if (!orderDetail) {
       return next(new ApiError(400, "Lỗi khi lấy chi tiết đơn hàng!"));
     }
-    const obj = {
-      ...orderDetail._doc,
-      totalPriceOrder,
-      totalDiscountPrice,
-      statusOptions,
-      status: statusFormat,
-      statusFullOptions,
-    };
-    console.log(obj);
+    
     return res.send({
       ...orderDetail._doc,
       totalPriceOrder,
@@ -217,7 +210,7 @@ exports.getShippingFee = async (req, res, next) => {
       }
       return res.json(response.data.fee.ship_fee_only);
     }
-    if (!response.data.fee.delivery) {
+    if (!response.data.fee?.delivery) {
       return next(
         new ApiError(
           500,

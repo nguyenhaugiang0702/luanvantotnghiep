@@ -121,6 +121,11 @@ exports.handleZaloPayIPN = async (req, res, next) => {
         voucherID: embedData.voucherID,
         detail: items,
         wasPaided: true,
+        paymentDetail: {
+          saleId: appTransId,
+          state: "COMPLETED",
+          amount: dataObj.amount,
+        },
         shippingFee: embedData.shippingFee,
         createdAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
         updatedAt: moment.tz("Asia/Ho_Chi_Minh").toDate(),
@@ -134,6 +139,14 @@ exports.handleZaloPayIPN = async (req, res, next) => {
       // Thanh toán thành công, xóa giỏ hàng, tính lại tổng tiền
       await cartService.deleteBookFromCartWhenCheckOut(embedData.userID);
       await cartService.calculateTotalPriceWhenCheckOut(embedData.userID);
+      // Lấy io từ app và phát thông báo đến admin
+      const io = require("../../../../../app").get("socketIo");
+      io.emit("hasUpdateCheckout", {
+        checkout: {
+          message: "Cập nhật checkout",
+          newOrder: newOrder,
+        },
+      });
       result.return_code = 1;
       result.return_message = "success";
     }
