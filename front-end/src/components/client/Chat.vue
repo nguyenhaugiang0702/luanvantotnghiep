@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Chat button -->
     <button
       v-if="!isOpen"
       class="btn btn-primary rounded-circle p-3"
@@ -16,11 +15,15 @@
     </button>
 
     <!-- Chat box -->
-    <div v-if="isOpen" class="card" style="width: 27rem; height: 30rem">
+    <div
+      v-if="isOpen"
+      class="card"
+      style="width: 27rem; height: 30rem"
+    >
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
-        <h5 class="mb-0">Customer Support</h5>
+        <h5 class="mb-0">Hỗ trợ khách hàng</h5>
         <button class="btn btn-light btn-sm" @click="isOpen = false">
           <i class="fa-solid fa-x"></i>
         </button>
@@ -80,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import ApiUser from "@/service/user/apiUser.service";
@@ -132,7 +135,9 @@ const scrollToBottom = () => {
 };
 
 const openChat = async () => {
-  await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, { isReaded: true });
+  await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, {
+    isReaded: true,
+  });
   await checkRoomChat();
   isOpen.value = true;
   scrollToBottom();

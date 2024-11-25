@@ -272,6 +272,11 @@ const filteredStatusOptions = computed(() => {
       return option.value !== 3 && option.value !== 4;
     }
 
+    // Nếu trạng thái hiện tại là "yêu cầu hủy, loại bỏ "Đã hủy"
+    if (currentStatusValue === 4) {
+      return option.value !== 3;
+    }
+
     // Nếu trạng thái hiện tại là "Đã lấy hàng" trở lên, loại bỏ "Đã hủy" và "Yêu cầu hủy"
     if (currentStatusValue === 5) {
       return option.value !== 3 && option.value !== 4;

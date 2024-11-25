@@ -41,9 +41,12 @@
                   :class="{
                     'is-invalid':
                       errors.authorName ||
-                      (searchAuthorValue !== '' && !authorID) ||
-                      searchAuthorValue === '',
-                    'is-valid': !errors.authorName && book.authorID !== '',
+                      (!selectAuthorID &&
+                        searchAuthorValue !== '' &&
+                        !authorID),
+                    'is-valid':
+                      !errors.authorName ||
+                      (book.authorID !== '' && selectAuthorID && authorID),
                   }"
                 />
                 <ul
@@ -65,7 +68,7 @@
                 <ErrorMessage name="authorName" class="invalid-feedback" />
                 <span
                   v-if="
-                    !errors.authorName && searchAuthorValue !== '' && !authorID
+                    !selectAuthorID && searchAuthorValue !== '' && !authorID
                   "
                   style="color: #dc3545; font-size: 0.875em"
                   >Vui lòng chọn tác giả</span
@@ -90,9 +93,14 @@
                   :class="{
                     'is-invalid':
                       errors.publisherName ||
-                      (searchPublisherValue !== '' && !publisherID),
+                      (!selectPublisherID &&
+                        searchPublisherValue !== '' &&
+                        !publisherID),
                     'is-valid':
-                      !errors.publisherName && book.publisherID !== '',
+                      !errors.publisherName ||
+                      (book.publisherID !== '' &&
+                        selectPublisherID &&
+                        publisherID),
                   }"
                 />
 
@@ -106,7 +114,7 @@
                     class="dropdown-item"
                     v-for="(publisher, index) in publisherOptions"
                     :key="publisher._id"
-                    @click="selectpublisherID(publisher)"
+                    @click="selectPublisherID(publisher)"
                   >
                     {{ publisher.name }}
                   </li>
@@ -114,12 +122,12 @@
                 <ErrorMessage name="publisherName" class="invalid-feedback" />
                 <span
                   v-if="
-                    !errors.publisherName &&
+                    !selectPublisherID &&
                     searchPublisherValue !== '' &&
                     !publisherID
                   "
                   style="color: #dc3545; font-size: 0.875em"
-                  >Vui lòng chọn nhà xuất bản</span
+                  >Vui lòng chọn nhà xuất bản 1213213</span
                 >
               </div>
             </div>
@@ -142,9 +150,14 @@
                     :class="{
                       'is-invalid':
                         errors.categoryName ||
-                        (searchCategoryValue !== '' && !categoryID),
+                        (!selectCategoryID &&
+                          searchCategoryValue !== '' &&
+                          !categoryID),
                       'is-valid':
-                        !errors.categoryName && book.categoryID !== '',
+                        !errors.categoryName ||
+                        (book.categoryID !== '' &&
+                          selectCategoryID &&
+                          categoryID),
                     }"
                   />
                   <ul
@@ -165,7 +178,7 @@
                   <ErrorMessage name="categoryName" class="invalid-feedback" />
                   <span
                     v-if="
-                      !errors.categoryName &&
+                      !selectCategoryID &&
                       searchCategoryValue !== '' &&
                       !categoryID
                     "
@@ -194,9 +207,14 @@
                     :class="{
                       'is-invalid':
                         errors.formalityName ||
-                        (searchFormalityValue !== '' && !formalityID),
+                        (!selectFormalityID &&
+                          searchFormalityValue !== '' &&
+                          !formalityID),
                       'is-valid':
-                        !errors.formalityName && book.formalityID !== '',
+                        !errors.formalityName ||
+                        (book.formalityID !== '' &&
+                          selectFormalityID &&
+                          formalityID),
                     }"
                   />
                   <ul
@@ -217,7 +235,7 @@
                   <ErrorMessage name="formalityName" class="invalid-feedback" />
                   <span
                     v-if="
-                      !errors.formalityName &&
+                      !selectFormalityID &&
                       searchFormalityValue !== '' &&
                       !formalityID
                     "
@@ -388,9 +406,12 @@
                     :class="{
                       'is-invalid':
                         errors.priceRangeName ||
-                        (searchPriceRangeValue !== '' && !priceRangeID),
+                        (!selectPriceRangeID &&
+                          searchPriceRangeValue !== '' &&
+                          !priceRangeID),
                       'is-valid':
-                        !errors.priceRangeName && book.priceRangeID !== '',
+                        !errors.priceRangeName ||
+                        (selectPriceRangeID && priceRangeID),
                     }"
                   />
                   <ul
@@ -416,12 +437,12 @@
                   />
                   <span
                     v-if="
-                      !errors.priceRangeName &&
+                      !selectPriceRangeID &&
                       searchPriceRangeValue !== '' &&
                       !priceRangeID
                     "
                     style="color: #dc3545; font-size: 0.875em"
-                    >Vui lòng chọn khoản giá</span
+                    >Vui lòng chọn khoản giá 123</span
                   >
                 </div>
               </div>
@@ -483,62 +504,43 @@ export default {
       const response = await apiAdmin.get(`/books/${bookID}`);
       if (response.status === 200) {
         book.value = response.data;
-        // Data update
-        data.value.authorID = response.data.authorID?._id;
-        data.value.categoryID = response.data.categoryID?._id;
-        data.value.formalityID = response.data.formalityID?._id;
-        data.value.publisherID = response.data.publisherID?._id;
-        data.value.priceRangeID = response.data.priceRangeID?._id;
-        data.value.name = response.data.name;
-        data.value.detail = response.data.detail;
-        data.value.description = response.data.description;
         // End Data update
-        searchAuthorValue.value = response.data.authorID?.name
-          ? response.data.authorID?.name
-          : "";
-        searchCategoryValue.value = response.data.categoryID?.name
-          ? response.data.categoryID?.name
-          : "";
-        searchFormalityValue.value = response.data.formalityID?.name
-          ? response.data.formalityID?.name
-          : "";
-        searchPublisherValue.value = response.data.publisherID?.name
-          ? response.data.publisherID?.name
-          : "";
-        searchPriceRangeValue.value = response.data.priceRangeID?.name
-          ? response.data.priceRangeID?.name
-          : "";
+        // Khởi tạo giá trị cho các dropdown
+        searchAuthorValue.value = book.value.authorID?.name || "";
+        authorID.value = book.value.authorID?._id || "";
+
+        searchCategoryValue.value = book.value.categoryID?.name || "";
+        categoryID.value = book.value.categoryID?._id || "";
+
+        searchFormalityValue.value = book.value.formalityID?.name || "";
+        formalityID.value = book.value.formalityID?._id || "";
+
+        searchPublisherValue.value = book.value.publisherID?.name || "";
+        publisherID.value = book.value.publisherID?._id || "";
+
+        searchPriceRangeValue.value = book.value.priceRangeID?.name || "";
+        priceRangeID.value = book.value.priceRangeID?._id || "";
       }
     };
-
-    const data = ref({
-      name: "",
-      categoryID: "",
-      publisherID: "",
-      formalityID: "",
-      authorID: "",
-      priceRangeID: "",
-      description: "",
-      detail: {
-        publisherYear: "",
-        weight: "",
-        pageNumber: "",
-        length: "",
-        width: "",
-        originalPrice: "",
-        discountPrice: "",
-      },
-    });
 
     const updateBook = async () => {
       const { valid, errors } = await validate();
       if (!valid) {
         return;
       }
-
+      const data = {
+        authorID: book.value.authorID?._id,
+        categoryID: book.value.categoryID?._id,
+        formalityID: book.value.formalityID?._id,
+        publisherID: book.value.publisherID?._id,
+        priceRangeID: book.value.priceRangeID?._id,
+        name: book.value.name,
+        detail: book.value.detail,
+        description: book.value.description,
+      };
+      console.log(data);
       try {
-        console.log(data.value);
-        const response = await apiAdmin.put(`/books/${bookID}`, data.value);
+        const response = await apiAdmin.put(`/books/${bookID}`, data);
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           await getBook();
@@ -549,8 +551,8 @@ export default {
       }
     };
 
-    onMounted(async () => {
-      await getBook();
+    onMounted(() => {
+      getBook();
     });
 
     // Dropdown cho tác giả
@@ -568,7 +570,7 @@ export default {
       searchValue: searchPublisherValue,
       filteredOptions: publisherOptions,
       selected: publisherSelectedID,
-      selectItem: selectpublisherID,
+      selectItem: selectPublisherID,
       itemID: publisherID,
       loading: loadingPublishers,
     } = useDropdown("publishers", book.value.publisherID._id);
@@ -606,6 +608,7 @@ export default {
     // Theo dõi sự thay đổi của authorSelectedID
     watch(authorSelectedID, (newVal) => {
       if (newVal) {
+        console.log(newVal);
         authorSelectedID.value = newVal;
       }
     });
@@ -641,40 +644,40 @@ export default {
     // Theo dõi sự thay đổi của authorID
     watch(authorID, (newVal) => {
       if (newVal) {
-        data.value.authorID = newVal;
-        console.log('Đã chọn tác giả - '+newVal);
+        book.value.authorID = newVal;
+        console.log("Đã chọn tác giả - " + newVal._id);
       }
     });
 
     // Theo dõi sự thay đổi của publisherID
     watch(publisherID, (newVal) => {
       if (newVal) {
-        data.value.publisherID = newVal;
-        console.log('Đã chọn NXB - '+newVal);
+        book.value.publisherID = newVal;
+        console.log("Đã chọn NXB - " + newVal._id);
       }
     });
 
     // Theo dõi sự thay đổi của categoryID
     watch(categoryID, (newVal) => {
       if (newVal) {
-        data.value.categoryID = newVal;
-        console.log('Đã chọn thể loại - '+newVal);
+        book.value.categoryID = newVal;
+        console.log("Đã chọn thể loại - " + newVal._id);
       }
     });
 
     // Theo dõi sự thay đổi của formalityID
     watch(formalityID, (newVal) => {
       if (newVal) {
-        data.value.formalityID = newVal;
-        console.log('Đã chọn hình thức - '+newVal);
+        book.value.formalityID = newVal;
+        console.log("Đã chọn hình thức - " + newVal._id);
       }
     });
 
     // Theo dõi sự thay đổi của priceRangeID
     watch(priceRangeID, (newVal) => {
       if (newVal) {
-        data.value.priceRangeID = newVal;
-        console.log('Đã chọn khoản giá - '+newVal);
+        book.value.priceRangeID = newVal;
+        console.log("Đã chọn khoản giá - " + newVal._id);
       }
     });
 
@@ -682,7 +685,6 @@ export default {
       book,
       errors,
       updateBook,
-      data,
       updateBookSchema,
       // Authors
       searchAuthorValue,
@@ -695,7 +697,7 @@ export default {
       searchPublisherValue,
       publisherOptions,
       publisherSelectedID,
-      selectpublisherID,
+      selectPublisherID,
       publisherID,
       loadingPublishers,
       // Categories

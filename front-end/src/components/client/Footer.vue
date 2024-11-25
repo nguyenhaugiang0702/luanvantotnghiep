@@ -119,6 +119,8 @@
 <script setup>
 import Cookies from 'js-cookie'
 import Chat from './Chat.vue';
+// import ChatAI from './ChatAI.vue';
+
 import {ref} from 'vue';
 const token = Cookies.get("accessToken")
 </script>

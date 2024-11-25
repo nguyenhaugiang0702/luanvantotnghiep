@@ -73,8 +73,21 @@
             @keyup.enter="handleSearch"
             style="flex-grow: 1"
           />
-          <button class="btn btn-primary me-2">
+          <button class="btn btn-primary me-2" @click="handleSearch">
             <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <button
+            class="btn btn-primary"
+            :class="{ listening: isListening }"
+            @click="startRecognition"
+          >
+            <i v-if="!isListening" class="fa-solid fa-microphone"></i>
+            <!-- Hiệu ứng lượn sóng -->
+            <span v-if="isListening" class="loading-dots">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
           </button>
         </div>
       </div>
@@ -139,15 +152,15 @@
               <div class="text-decoration-line-through opacity-75">
                 {{ formatPrice(book.detail.originalPrice) }}
               </div>
-              <div
+              <!-- <div
                 v-if="
                   book.quantityImported !== 0 &&
                   book.quantityImported > book.quantitySold
                 "
               >
                 Còn lại: ({{ book.quantityImported - book.quantitySold }}) quyển
-              </div>
-              <div v-else-if="book.quantityImported === 0">Đang nhập hàng</div>
+              </div> -->
+              <div v-if="book.quantityImported === 0">Đang nhập hàng</div>
               <div
                 v-else-if="
                   book.quantityImported !== 0 &&
@@ -211,6 +224,7 @@ const props = defineProps({
     default: () => {},
   },
 });
+const isListening = ref(false);
 const emit = defineEmits(["filteredTagsDelete"]);
 
 // Hàm cắt ngắn tên sách nếu quá dài
@@ -219,10 +233,47 @@ const truncateTitle = (title) => {
   return title.length > maxLength ? title.slice(0, maxLength) + "..." : title;
 };
 
+// Kiểm tra xem có bất kỳ mảng nào trong filteredTags không rỗng
 const hasFilteredTags = computed(() => {
-  // Kiểm tra xem có bất kỳ mảng nào trong filteredTags không rỗng
   return Object.values(props.selectedIds).some((arr) => arr.length > 0);
 });
+
+// Search by voice
+const startRecognition = async () => {
+  // Kiểm tra nếu trình duyệt hỗ trợ Web Speech API
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Trình duyệt của bạn không hỗ trợ tính năng nhận diện giọng nói.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "vi-VN"; // Thiết lập ngôn ngữ tiếng Việt
+  recognition.interimResults = false; // Chỉ trả về kết quả cuối cùng
+
+  // Bật trạng thái lắng nghe
+  isListening.value = true;
+  recognition.start();
+
+  recognition.onresult = async (event) => {
+    searchQuery.value = event.results[0][0].transcript; // Lấy kết quả văn bản
+    const filtersString = JSON.stringify(filters.value);
+    await getBooks(
+      filtersString,
+      currentPage.value,
+      itemsPerPage.value,
+      sortBy.value,
+      searchQuery.value
+    );
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Lỗi nhận diện giọng nói:", event.error);
+    isListening.value = false;
+  };
+};
 
 const updateView = async (bookID) => {
   try {
@@ -400,6 +451,9 @@ watch(
 
 // Search
 const handleSearch = async () => {
+  if(!searchQuery.value){
+    return showErrorToast("Vui lòng nhập để tìm kiếm");
+  }
   try {
     const filtersString = JSON.stringify(filters.value);
     await getBooks(
@@ -559,4 +613,38 @@ const handleSearch = async () => {
     justify-content: center;
   }
 }
+
+/* Nút micro */
+.loading-dots {
+  display: inline-flex;
+  font-weight: bold;
+  color: white;
+}
+
+.loading-dots span {
+  display: inline-block;
+  animation: wave 1.5s infinite;
+}
+
+/* Tạo hiệu ứng sóng cho từng dấu chấm */
+.loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Keyframes cho hiệu ứng sóng */
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px); /* Lượn lên */
+  }
+}
+
 </style>
