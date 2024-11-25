@@ -23,7 +23,7 @@
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
-        <h5 class="mb-0">Hỗ trợ khách hàng</h5>
+        <h5 class="mb-0">HỖ TRỢ KHÁCH HÀNG</h5>
         <button class="btn btn-light btn-sm" @click="isOpen = false">
           <i class="fa-solid fa-x"></i>
         </button>

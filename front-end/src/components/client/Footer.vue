@@ -110,17 +110,39 @@
     </div>
     <!-- Chat component fixed at the bottom-right -->
     <div v-if="token" class="position-fixed bottom-0 end-0 p-2">
-      <Chat v-if="token"/>
+      <Chat @click="handleClickChat('chat')" class="my-3" v-if="token && activeTabChat"/>
+      <ChatAI @click="handleClickChat('chatAI')" v-if="token && activeTabChatAI"/>
     </div>
-
   </div>
 
 </template>
 <script setup>
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
 import Chat from './Chat.vue';
-// import ChatAI from './ChatAI.vue';
+import ChatAI from './ChatAI.vue';
+import { ref, watch } from 'vue';
 
-import {ref} from 'vue';
-const token = Cookies.get("accessToken")
+const token = Cookies.get("accessToken");
+const activeTabChat = ref(true);
+const activeTabChatAI = ref(true);
+
+const handleClickChat = (tab) => {
+  if(tab === 'chat'){
+    activeTabChatAI.value = !activeTabChatAI.value;
+  }else{
+    activeTabChat.value = !activeTabChat.value;
+  }
+}
+
+watch(activeTabChatAI, (newValue) => {
+  if(newValue){
+    activeTabChatAI.value = newValue;
+  }
+})
+
+watch(activeTabChat, (newValue) => {
+  if(newValue){
+    activeTabChat.value = newValue;
+  }
+})
 </script>
