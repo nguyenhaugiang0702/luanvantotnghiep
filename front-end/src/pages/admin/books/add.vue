@@ -679,7 +679,7 @@ export default {
     watch(authorID, (newVal) => {
       if (newVal) {
         newBook.value.authorID = newVal;
-        console.log("Tác giả đã chọn: ", newVal);
+        console.log("Tác giả đã chọn: ", newVal._id);
       }
     });
 
@@ -739,7 +739,7 @@ export default {
     watch(publisherID, (newVal) => {
       if (newVal) {
         newBook.value.publisherID = newVal;
-        console.log("Nhà xuất bản đã chọn: ", newVal);
+        console.log("Nhà xuất bản đã chọn: ", newVal._id);
       }
     });
 
@@ -747,7 +747,7 @@ export default {
     watch(categoryID, (newVal) => {
       if (newVal) {
         newBook.value.categoryID = newVal;
-        console.log("Hình thức đã chọn: ", newVal);
+        console.log("Hình thức đã chọn: ", newVal._id);
       }
     });
 
@@ -755,7 +755,7 @@ export default {
     watch(formalityID, (newVal) => {
       if (newVal) {
         newBook.value.formalityID = newVal;
-        console.log("Hình thức đã chọn: ", newVal);
+        console.log("Hình thức đã chọn: ", newVal._id);
       }
     });
 
@@ -763,7 +763,7 @@ export default {
     watch(priceRangeID, (newVal) => {
       if (newVal) {
         newBook.value.priceRangeID = newVal;
-        console.log("Khoản giá đã chọn: ", newVal);
+        console.log("Khoản giá đã chọn: ", newVal._id);
       }
     });
 

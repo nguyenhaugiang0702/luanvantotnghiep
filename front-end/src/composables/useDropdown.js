@@ -164,7 +164,7 @@ export default function useDropdown(entityType, initialID = "") {
   // Khi chọn mục từ dropdown
   const selectItem = async (item) => {
     searchValue.value = item.name;
-    itemID.value = item; // Lưu ID
+    itemID.value = item._id; // Lưu ID
     selected.value = true;
 
     // Nếu entity là sách, fetch thông tin bổ sung
@@ -190,7 +190,7 @@ export default function useDropdown(entityType, initialID = "") {
     );
 
     if (matchedItem) {
-      itemID.value = matchedItem; // Lưu ID khi có khớp
+      itemID.value = matchedItem._id; // Lưu ID khi có khớp
       selected.value = true;
     } else {
       itemID.value = ""; // Không khớp thì xóa ID

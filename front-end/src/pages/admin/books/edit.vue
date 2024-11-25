@@ -503,23 +503,29 @@ export default {
     const getBook = async () => {
       const response = await apiAdmin.get(`/books/${bookID}`);
       if (response.status === 200) {
-        book.value = response.data;
-        // End Data update
+        book.value.authorID = response.data.authorID?._id;
+        book.value.categoryID = response.data.categoryID?._id;
+        book.value.formalityID = response.data.formalityID?._id;
+        book.value.publisherID = response.data.publisherID?._id;
+        book.value.priceRangeID = response.data.priceRangeID?._id;
+        book.value.name = response.data.name;
+        book.value.description = response.data.description;
+        book.value.detail = response.data.detail;
         // Khởi tạo giá trị cho các dropdown
-        searchAuthorValue.value = book.value.authorID?.name || "";
-        authorID.value = book.value.authorID?._id || "";
+        searchAuthorValue.value = response.data.authorID?.name || "";
+        authorID.value = response.data.authorID?._id || "";
 
-        searchCategoryValue.value = book.value.categoryID?.name || "";
-        categoryID.value = book.value.categoryID?._id || "";
+        searchCategoryValue.value = response.data.categoryID?.name || "";
+        categoryID.value = response.data.categoryID?._id || "";
 
-        searchFormalityValue.value = book.value.formalityID?.name || "";
-        formalityID.value = book.value.formalityID?._id || "";
+        searchFormalityValue.value = response.data.formalityID?.name || "";
+        formalityID.value = response.data.formalityID?._id || "";
 
-        searchPublisherValue.value = book.value.publisherID?.name || "";
-        publisherID.value = book.value.publisherID?._id || "";
+        searchPublisherValue.value = response.data.publisherID?.name || "";
+        publisherID.value = response.data.publisherID?._id || "";
 
-        searchPriceRangeValue.value = book.value.priceRangeID?.name || "";
-        priceRangeID.value = book.value.priceRangeID?._id || "";
+        searchPriceRangeValue.value = response.data.priceRangeID?.name || "";
+        priceRangeID.value = response.data.priceRangeID?._id || "";
       }
     };
 
@@ -528,19 +534,19 @@ export default {
       if (!valid) {
         return;
       }
-      const data = {
-        authorID: book.value.authorID?._id,
-        categoryID: book.value.categoryID?._id,
-        formalityID: book.value.formalityID?._id,
-        publisherID: book.value.publisherID?._id,
-        priceRangeID: book.value.priceRangeID?._id,
-        name: book.value.name,
-        detail: book.value.detail,
-        description: book.value.description,
-      };
-      console.log(data);
+      // const data = {
+      //   authorID: book.value.authorID?._id,
+      //   categoryID: book.value.categoryID?._id,
+      //   formalityID: book.value.formalityID?._id,
+      //   publisherID: book.value.publisherID?._id,
+      //   priceRangeID: book.value.priceRangeID?._id,
+      //   name: book.value.name,
+      //   detail: book.value.detail,
+      //   description: book.value.description,
+      // };
+      console.log(book.value);
       try {
-        const response = await apiAdmin.put(`/books/${bookID}`, data);
+        const response = await apiAdmin.put(`/books/${bookID}`, book.value);
         if (response.status === 200) {
           showSuccessToast(response?.data?.message);
           await getBook();
