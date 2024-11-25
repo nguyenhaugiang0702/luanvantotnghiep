@@ -1,0 +1,133 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+    - xin chào
+    - chào shop
+    - hello shop
+    - chào admin
+    - chào admin
+    - chào ad
+    - hello admin
+    - hello ad
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+- intent: search_book
+  examples: |
+    - Tôi muốn tìm sách [Mùa hè không tên](book_name)
+    - Tìm cuốn sách [Harry Potter](book_name)
+    - Có sách nào tên là [Mùa hè không tên](book_name) không?
+    - Tôi muốn mua sách [Lập trình Python](book_name)
+    - Bạn có sách [Những người khốn khổ](book_name) không?
+
+- intent: search_books_by_author
+  examples: |
+    - Có sách nào của [Nguyễn Nhật Ánh](author_name) không?
+    - Tác giả [Haruki Murakami](author_name) có sách nào không?
+    - Tôi muốn tìm sách của [J.K. Rowling](author_name).
+    - Bạn có sách nào của [Nguyễn Nhật Ánh](author_name)?
+    - Sách của tác giả [Nguyễn Nhật Ánh](author_name) đâu?
+
+- intent: search_books_by_price
+  examples: |
+    - Tìm sách giá dưới [100000](price)
+    - Tìm sách giá thấp hơn [100000](price)
+    - Tìm sách giá bé hơn [100000](price)
+    - Tìm sách giá dưới [100000](price)
+    - Tìm sách giá nhỏ hơn [100000](price)
+    - Tìm sách giá cao hơn [100000](price)
+    - Tìm sách giá lớn hơn [100000](price)
+    - Sách giá khoảng [300000](price)
+    - Tìm sách giá từ [50000](min_price) đến [200000](max_price)
+    - Sách giá trong khoảng [50000](min_price) - [150000](max_price)
+    - Có sách nào giá lớn hơn [250000](price)?
+    - Có sách nào giá trên [250000](price)?
+    - Sách có giá trên [250000](price)?
+
+

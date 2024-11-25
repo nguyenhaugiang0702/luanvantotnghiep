@@ -1,0 +1,85 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - search_book
+  - search_books_by_author
+  - search_books_by_price
+
+slots:
+  book_name:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: book_name  # Lấy giá trị từ entity `book_name`
+  author_name:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: author_name  # Lấy giá trị từ entity `author_name`
+  price:
+    type: float
+    mappings:
+      - type: from_entity
+        entity: price
+  min_price:
+    type: any
+    mappings:
+      - type: from_entity
+        entity: min_price
+  max_price:
+    type: any
+    mappings:
+      - type: from_entity
+        entity: max_price
+
+entities:
+  - book_name
+  - author_name
+  - price
+  - min_price
+  - max_price
+
+responses:
+  utter_greet:
+  - text: "NHG BOOKSTORE xin hân hạnh được phục vụ bạn"
+
+  utter_cheer_up:
+  - text: "Here is something to cheer you up:"
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+  - text: "Did that help you?"
+
+  utter_happy:
+  - text: "Great, carry on!"
+
+  utter_goodbye:
+  - text: "Bye"
+
+  utter_iamabot:
+  - text: "I am a bot, powered by Rasa."
+
+  utter_ask_book_name:
+    - text: "Bạn muốn tìm sách gì?"
+
+  utter_order_status:
+    - text: "Đơn hàng của bạn đang được xử lý."
+
+  utter_ask_author_name:
+    - text: "Bạn muốn tìm sách của tác giả nào?"
+
+actions:
+  - action_search_book
+  - action_search_books_by_author
+  - action_search_books_by_price
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

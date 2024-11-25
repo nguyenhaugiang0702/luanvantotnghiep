@@ -1,0 +1,52 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-author_name",
+      "2": "I-author_name",
+      "3": "L-author_name",
+      "4": "U-author_name",
+      "5": "B-book_name",
+      "6": "I-book_name",
+      "7": "L-book_name",
+      "8": "U-book_name",
+      "9": "B-max_price",
+      "10": "I-max_price",
+      "11": "L-max_price",
+      "12": "U-max_price",
+      "13": "B-min_price",
+      "14": "I-min_price",
+      "15": "L-min_price",
+      "16": "U-min_price",
+      "17": "B-price",
+      "18": "I-price",
+      "19": "L-price",
+      "20": "U-price",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-author_name": 1,
+      "I-author_name": 2,
+      "L-author_name": 3,
+      "U-author_name": 4,
+      "B-book_name": 5,
+      "I-book_name": 6,
+      "L-book_name": 7,
+      "U-book_name": 8,
+      "B-max_price": 9,
+      "I-max_price": 10,
+      "L-max_price": 11,
+      "U-max_price": 12,
+      "B-min_price": 13,
+      "I-min_price": 14,
+      "L-min_price": 15,
+      "U-min_price": 16,
+      "B-price": 17,
+      "I-price": 18,
+      "L-price": 19,
+      "U-price": 20,
+      "O": 0
+    },
+    "num_tags": 21
+  }
+]
