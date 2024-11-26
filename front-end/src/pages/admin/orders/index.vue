@@ -206,6 +206,7 @@ const columns = [
       }
     },
   },
+  
   {
     data: "status",
     width: "8%",

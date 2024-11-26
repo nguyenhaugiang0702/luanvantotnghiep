@@ -117,13 +117,48 @@
             </p>
             <p class="d-flex justify-content-between">
               <span>Trạng thái thanh toán:</span>
-              <span
-                class="badge p-2"
-                :class="orderDetail.wasPaided ? 'bg-success' : 'bg-danger'"
-              >
-                {{
-                  orderDetail.wasPaided ? "Đã thanh toán" : "Chưa thanh toán"
-                }}
+              <!-- Check payment status and show badge accordingly -->
+              <span v-if="orderDetail.status?.value !== 3">
+                <span
+                  v-if="
+                    orderDetail.wasPaided &&
+                    (orderDetail.payment === 'MOMO' ||
+                      orderDetail.payment === 'ZALOPAY')
+                  "
+                  class="badge p-2"
+                  :class="orderDetail.wasPaided ? 'bg-success' : 'bg-warning'"
+                >
+                  {{
+                    orderDetail.wasPaided ? "Đã thanh toán" : "Chưa thanh toán"
+                  }}
+                </span>
+              </span>
+
+              <!-- Check for refund status -->
+              <span v-else>
+                <span
+                  v-if="
+                    orderDetail.status?.value === 3 &&
+                    orderDetail.payment === 'PAYPAL' &&
+                    orderDetail.paymentDetail.state === 'REFUNDED'
+                  "
+                  class="badge text-bg-success p-2"
+                >
+                  <i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền
+                </span>
+
+                <span
+                  v-else-if="
+                    orderDetail.status?.value === 3 &&
+                    (orderDetail.payment === 'MOMO' ||
+                      orderDetail.payment === 'ZALOPAY') &&
+                    orderDetail.paymentDetail.state === 'PENDING_REFUND'
+                  "
+                  class="badge text-bg-warning p-2"
+                >
+                  <i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn
+                  tiền
+                </span>
               </span>
             </p>
             <p class="d-flex justify-content-between">
@@ -274,7 +309,7 @@ const filteredStatusOptions = computed(() => {
 
     // Nếu trạng thái hiện tại là "yêu cầu hủy, loại bỏ "Đã hủy"
     if (currentStatusValue === 4) {
-      return option.value !== 3;
+      return option.value !== 3 && option.value !== 2;
     }
 
     // Nếu trạng thái hiện tại là "Đã lấy hàng" trở lên, loại bỏ "Đã hủy" và "Yêu cầu hủy"

@@ -212,13 +212,7 @@ export default {
       }
     };
 
-    $(document).on("click", "#detailVoucher", (event) => {
-      let voucherCategoryId = $(event.currentTarget).data("id");
-      router.push({
-        name: "admin-vouchers-detail",
-        params: { voucherCategory: voucherCategoryId },
-      });
-    });
+    
 
     onMounted(() => {
       getVouchers();

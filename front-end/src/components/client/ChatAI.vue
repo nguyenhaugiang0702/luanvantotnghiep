@@ -1,20 +1,14 @@
 <template>
   <div>
-    <button
-      v-if="!isOpen"
-      class="btn btn-primary rounded-circle p-3"
-      @click="openChat"
-    >
-    <i class="fa-solid fa-robot fs-4"></i>
-    </button>
+    
 
     <!-- Chat box -->
-    <div v-if="isOpen" class="card" style="width: 27rem; height: 30rem">
+    <div class="card" style="width: 27rem; height: 30rem">
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
         <h5 class="mb-0">NHG BOOKSTORE CHAT BOT</h5>
-        <button class="btn btn-light btn-sm" @click="isOpen = false">
+        <button class="btn btn-light btn-sm" @click="closeChat">
           <i class="fa-solid fa-x"></i>
         </button>
       </div>
@@ -117,6 +111,7 @@ const messages = ref([]); // Lưu lịch sử tin nhắn
 const chatContainer = ref(null);
 const sessionId = ref("");
 const router = useRouter();
+const emit = defineEmits("close-chat");
 
 // Gửi tin nhắn tới Rasa
 const sendMessage = async () => {
@@ -170,6 +165,10 @@ const sendMessage = async () => {
       console.error("Error sending message to Rasa:", error);
     }
   }
+};
+
+const closeChat = () => {
+  emit('close-chat'); 
 };
 
 // Cuộn tới cuối phần hiển thị tin nhắn

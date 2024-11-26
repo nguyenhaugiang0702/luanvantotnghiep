@@ -1,30 +1,12 @@
 <template>
   <div>
-    <button
-      v-if="!isOpen"
-      class="btn btn-primary rounded-circle p-3"
-      @click="openChat"
-    >
-      <i class="fa-regular fa-comments fs-4"></i>
-      <span
-        v-if="hasNewMessage"
-        class="notifycation translate-middle p-2 bg-danger border border-light rounded-circle"
-      >
-        <span class="visually-hidden"></span>
-      </span>
-    </button>
-
     <!-- Chat box -->
-    <div
-      v-if="isOpen"
-      class="card"
-      style="width: 27rem; height: 30rem"
-    >
+    <div class="card" style="width: 27rem; height: 30rem">
       <div
         class="card-header d-flex justify-content-between align-items-center"
       >
         <h5 class="mb-0">HỖ TRỢ KHÁCH HÀNG</h5>
-        <button class="btn btn-light btn-sm" @click="isOpen = false">
+        <button class="btn btn-light btn-sm" @click="closeChat">
           <i class="fa-solid fa-x"></i>
         </button>
       </div>
@@ -83,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, inject } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import ApiUser from "@/service/user/apiUser.service";
@@ -98,6 +80,7 @@ const token = Cookies.get("accessToken");
 const isLoggedIn = Cookies.get("isLoggedIn");
 const hasNewMessage = ref(false);
 const chatContainer = ref(null);
+const emit = defineEmits("close-chat");
 //
 const apiUser = new ApiUser();
 
@@ -113,6 +96,10 @@ const sendMessage = () => {
 
     newMessage.value = ""; // Xóa nội dung sau khi gửi
   }
+};
+
+const closeChat = () => {
+  emit("close-chat");
 };
 
 const checkRoomChat = async () => {
@@ -157,6 +144,7 @@ onMounted(async () => {
       // Nếu tin nhắn là từ admin, hiển thị thông báo chấm đỏ
       if (message.sender === "admin") {
         hasNewMessage.value = true;
+        emit("hasNewMessage", hasNewMessage.value);
       }
       scrollToBottom();
     });
