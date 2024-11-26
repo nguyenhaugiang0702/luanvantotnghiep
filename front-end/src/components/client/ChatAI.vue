@@ -39,7 +39,7 @@
                   :key="idx"
                 >
                   <router-link
-                    class="d-flex"
+                    class="d-flex text-decoration-none"
                     :to="{ name: 'book-detail', params: { bookID: book._id } }"
                   >
                     <img
@@ -52,7 +52,7 @@
                         {{ book.name }}
                       </p>
                       <p class="mb-0 text-danger">
-                        {{ formatPrice(book.price) }}
+                        Giá: {{ formatPrice(book.price) }}
                       </p>
                     </div>
                   </router-link>
@@ -76,7 +76,7 @@
                         {{ message.books.book_name }}
                       </p>
                       <p class="mb-0 text-danger ">
-                        {{ formatPrice(message.books.finalPrice) }}
+                        Giá: {{ formatPrice(message.books.finalPrice) }}
                       </p>
                       <p class="mb-0">
                         Tác giả: {{ message.books.author }}
