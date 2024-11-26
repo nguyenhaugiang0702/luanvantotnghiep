@@ -4,7 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DioBase {
   late Dio dio;
-  final String baseUrl = 'http://${dotenv.env['DOMAIN']}:3000/api/v1/admin/';
+  // final String baseUrl = 'http://${dotenv.env['DOMAIN']}:3000/api/v1/admin/';
+  final String baseUrl = 'http://localhost:3000/api/v1/admin/';
 
   DioBase() {
     dio = Dio(BaseOptions(

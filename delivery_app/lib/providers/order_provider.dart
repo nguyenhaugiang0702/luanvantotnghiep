@@ -26,5 +26,13 @@ class OrderProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> fetchOrderDetail(String orderId) async {
+    try {
+      return await _orderService.fetchOrderDetail(orderId);
+    } catch (e) {
+      throw Exception('Failed to fetch order detail');
+    }
+  }
   
 }

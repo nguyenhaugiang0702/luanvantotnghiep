@@ -34,7 +34,7 @@ exports.findAllVouchers = async (req, res, next) => {
           const voucherUsedExist = await voucherUsedsService.getOneVoucherUsed({
             userID: userID,
             voucherID: voucher._id,
-            isDeleted: false
+            isDeleted: false,
           });
           // Check đã sử dụng voucher chưa
           const isUsedVoucher = voucherUsedExist
@@ -305,6 +305,7 @@ exports.checkExpiredVouchers = async (req, res, next) => {
     voucherUseds = await voucherUsedsService.getAllVoucherUseds({
       userID: userID,
       isUsed: false,
+      isDeleted: false,
     });
     // Lọc voucher hết hạn trong cùng ngày
     voucherUseds.forEach((voucherUsed) => {

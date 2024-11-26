@@ -42,7 +42,14 @@ class DeliveringOrdersTab extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               child: ListTile(
                 title: Text('Đơn hàng #${order['_id']}'),
-                subtitle: Text('Trạng thái: ${order['status']['label']}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Trạng thái: ${order['status']['label']}'),
+                    Text(
+                        'Hình thức thanh toán: ${order['payment'] ?? 'Không xác định'}'),
+                  ],
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   // Navigate to order details

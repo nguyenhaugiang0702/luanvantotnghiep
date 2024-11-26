@@ -6,6 +6,7 @@ const path = require("path");
 
 exports.createBookValidation = async (req, res, next) => {
   try {
+    console.log(req.body);
     await schema.updateBookSchema.validate(req.body);
     next();
   } catch (err) {

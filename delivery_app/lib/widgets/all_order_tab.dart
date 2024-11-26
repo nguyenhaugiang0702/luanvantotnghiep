@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
+import '../screens/orders/order_detail_screen.dart';
 
 class AllOrdersTab extends StatelessWidget {
-  final String searchQuery; 
+  final String searchQuery;
   const AllOrdersTab({super.key, required this.searchQuery});
 
   @override
@@ -23,7 +24,8 @@ class AllOrdersTab extends StatelessWidget {
         final displayedOrders = searchQuery.isNotEmpty
             ? orderProvider.orders.where((order) {
                 final orderId = order['_id'].toString();
-                final statusLabel = order['status']['label']?.toLowerCase() ?? '';
+                final statusLabel =
+                    order['status']['label']?.toLowerCase() ?? '';
                 final query = searchQuery.toLowerCase();
                 // Filter orders based on whether the search query matches the order ID or status label
                 return orderId.contains(query) || statusLabel.contains(query);
@@ -39,10 +41,22 @@ class AllOrdersTab extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               child: ListTile(
                 title: Text('Đơn hàng #${order['_id']}'),
-                subtitle: Text('Trạng thái: ${order['status']['label']}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Trạng thái: ${order['status']['label']}'),
+                    Text(
+                        'Hình thức thanh toán: ${order['payment'] ?? 'Không xác định'}'),
+                  ],
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // Navigate to order details
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailsScreen(order: order),
+                    ),
+                  );
                 },
               ),
             );

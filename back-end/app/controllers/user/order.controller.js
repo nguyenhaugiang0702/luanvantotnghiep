@@ -9,6 +9,7 @@ const config = require("../../config/index");
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const axios = require("axios");
+const validation = require("../../middlewares/validateVoucher.middleware");
 
 exports.create = async (req, res, next) => {
   try {
@@ -19,6 +20,15 @@ exports.create = async (req, res, next) => {
     req.body.userID = userID;
     req.body.createdAt = moment.tz("Asia/Ho_Chi_Minh");
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+    if(req.body.voucherID){
+      const voucherID = req.body.voucherID;
+      const currentVoucher = await voucherService.getVoucherByID(voucherID);
+      try {
+        validation.voucherDateValidation(currentVoucher);
+      } catch (error) {
+        return next(new ApiError(400, error.message));
+      }
+    }
     const newOrder = await orderService.createOrder(req.body);
     if (!newOrder) {
       return next(new ApiError(400, "Lỗi khi đặt hàng!"));

@@ -30,20 +30,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # Thư viện để gọi API từ backend
-  http: ^1.2.0
 
   # Thư viện để quản lý trạng thái (State Management)
   provider: ^6.0.5
 
   # Thư viện cho Google Maps
-  # google_maps_flutter: ^2.2.5
+  google_maps_flutter: ^2.2.5
+  flutter_map: ^0.14.0
 
   # Thư viện để xử lý định vị (Location) của thiết bị
-  # geolocator: ^11.1.0
-
-  # Thư viện xác thực OAuth (ví dụ: đăng nhập qua Google, Facebook)
-  # flutter_secure_storage: ^9.2.2 # Dùng để lưu trữ token an toàn
+  geolocator: ^11.1.0
 
   # Thư viện xử lý JSON dễ dàng hơn
   json_annotation: ^4.8.0
@@ -58,6 +54,8 @@ dependencies:
   shared_preferences: ^2.0.0
   logging: ^1.0.2
   dio: ^5.1.0
+  url_launcher: ^6.3.0
+  permission_handler: ^11.3.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

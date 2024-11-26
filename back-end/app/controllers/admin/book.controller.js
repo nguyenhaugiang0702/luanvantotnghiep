@@ -27,6 +27,7 @@ exports.create = async (req, res, next) => {
       newBook,
     });
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi khi thêm mới sách"));
   }
 };

@@ -14,4 +14,14 @@ class OrderService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchOrderDetail(String orderId) async {
+    try {
+      // final url = 'orders/$orderId'; // Tạo URL
+      // print('Calling API URL: ${_dioBase.dio.options.baseUrl}$url');
+      final response = await _dioBase.dio.get('orders/$orderId');
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to fetch order detail');
+    }
+  }
 }
