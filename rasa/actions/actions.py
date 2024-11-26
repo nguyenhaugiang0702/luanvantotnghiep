@@ -63,7 +63,67 @@ class ActionSearchBooksByAuthor(Action):
             )
 
         return []
+    
+class ActionSearchBooksByPublisher(Action):
+    def name(self):
+        return "action_search_books_by_publisher"
 
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Lấy tên nhà xuất bản từ slot
+        if tracker.latest_message["intent"].get("name") != "search_books_by_publisher":
+            return []
+        
+        publisher_name = tracker.get_slot("publisher_name")
+
+        if not publisher_name:
+            dispatcher.utter_message(text="Bạn vui lòng cung cấp tên nhà xuất bản.")
+            return []
+
+        # Sử dụng service để tìm sách
+        book_service = BookService()
+        books = book_service.find_books_by_publisher_name(publisher_name)
+
+        if books:
+            book_details = extract_book_details(books)
+            response = {
+                "text": f"Tôi tìm thấy các sách của nhà xuất bản '{publisher_name}':",
+                "books": book_details, 
+            }
+            dispatcher.utter_message(json_message=response)
+        else:
+            dispatcher.utter_message(
+                text=f"Xin lỗi, tôi không tìm thấy sách nào của nhà xuất bản '{publisher_name}'."
+            )
+
+        return []
+
+class ActionFindBookQuantity(Action):
+    def name(self):
+        return "action_find_book_quantity"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Lấy tên sách từ slot
+        book_name = tracker.get_slot("book_name")
+
+        if not book_name:
+            dispatcher.utter_message(text="Bạn vui lòng cung cấp tên sách.")
+            return []
+
+        # Tìm thông tin sách
+        book_service = BookService()  # Thay bằng kết nối cơ sở dữ liệu
+        book_info = book_service.find_book_quantity(book_name)
+
+        if book_info:
+            response = (
+                f"Tôi tìm thấy thông tin sách '{book_info['name']}':\n"
+                f"- Số lượng còn lại: {book_info['quantityAvailable']}"
+            )
+            dispatcher.utter_message(text=response)
+        else:
+            dispatcher.utter_message(text=f"Xin lỗi, tôi không tìm thấy sách nào có tên '{book_name}'.")
+
+        return []
+    
 class ActionSearchBooksByPrice(Action):
     def name(self):
         return "action_search_books_by_price"
@@ -148,7 +208,45 @@ class ActionSearchBooksByPrice(Action):
         dispatcher.utter_message(text="Bạn vui lòng cung cấp khoảng giá hoặc giá cụ thể.")
         return []
 
-    
+class ActionFindBookDetails(Action):
+    def name(self):
+        return "action_get_book_details"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Lấy tên sách từ slot
+        book_name = tracker.get_slot("book_name")
+
+        if not book_name:
+            dispatcher.utter_message(text="Bạn vui lòng cung cấp tên sách.")
+            return []
+
+        # Sử dụng BookService để tìm sách
+        book_service = BookService()
+        book_detail = book_service.find_book_details_by_name(book_name)
+
+        if book_detail:
+            book_with_detail = {
+                "_id": book_detail['_id'],
+                "book_name": book_detail["name"],
+                "author": book_detail["author"],
+                "publisher": book_detail["publisher"],
+                "category": book_detail["category"],
+                "formality": book_detail["formality"],
+                "finalPrice": book_detail["finalPrice"],
+                "quantityAvailable": book_detail["quantityAvailable"],
+                "publisher_year": book_detail["publisher_year"],
+                "image": book_detail["image"],
+            }
+            response = {
+                "text": f"Tôi tìm thấy thông tin chi tiết của {book_name}, bạn có thể click vào để xem chi tiết hơn:",
+                "books": book_with_detail, 
+            }
+            dispatcher.utter_message(json_message=response)
+        else:
+            dispatcher.utter_message(text=f"Xin lỗi, tôi không tìm thấy sách nào có tên '{book_name}'.")
+
+        return []
+
 def extract_book_details(books):
     """
     Hàm này nhận vào một đối tượng hoặc mảng sách và trả về danh sách thông tin sách với tên, giá và hình ảnh.

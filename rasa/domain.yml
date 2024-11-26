@@ -11,18 +11,26 @@ intents:
   - search_book
   - search_books_by_author
   - search_books_by_price
+  - search_books_by_publisher
+  - find_book_quantity
+  - get_book_details
 
 slots:
   book_name:
     type: text
     mappings:
       - type: from_entity
-        entity: book_name  # Lấy giá trị từ entity `book_name`
+        entity: book_name
   author_name:
     type: text
     mappings:
       - type: from_entity
-        entity: author_name  # Lấy giá trị từ entity `author_name`
+        entity: author_name
+  publisher_name:
+    type: text  
+    mappings:
+      - type: from_entity
+        entity: publisher_name
   price:
     type: float
     mappings:
@@ -42,29 +50,30 @@ slots:
 entities:
   - book_name
   - author_name
+  - publisher_name
   - price
   - min_price
   - max_price
 
 responses:
   utter_greet:
-  - text: "NHG BOOKSTORE xin hân hạnh được phục vụ bạn"
+    - text: "NHG BOOKSTORE xin hân hạnh được phục vụ bạn"
 
   utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
+    - text: "Here is something to cheer you up:"
+      image: "https://i.imgur.com/nGF1K8f.jpg"
 
   utter_did_that_help:
-  - text: "Did that help you?"
+    - text: "Did that help you?"
 
   utter_happy:
-  - text: "Great, carry on!"
+    - text: "Great, carry on!"
 
   utter_goodbye:
-  - text: "Bye"
+    - text: "Bye"
 
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+    - text: "I am a bot, powered by Rasa."
 
   utter_ask_book_name:
     - text: "Bạn muốn tìm sách gì?"
@@ -79,6 +88,9 @@ actions:
   - action_search_book
   - action_search_books_by_author
   - action_search_books_by_price
+  - action_search_books_by_publisher
+  - action_find_book_quantity
+  - action_get_book_details
 
 session_config:
   session_expiration_time: 60

@@ -130,4 +130,33 @@ nlu:
     - Có sách nào giá trên [250000](price)?
     - Sách có giá trên [250000](price)?
 
+- intent: search_books_by_publisher
+  examples: |
+    - Có sách nào của nhà xuất bản [Kim Đồng](publisher_name)?
+    - Có sách nào của nxb [Kim Đồng](publisher_name)?
+    - Tôi muốn tìm sách của nhà xuất bản [Trẻ](publisher_name).
+    - Tôi muốn tìm sách của nxb [Trẻ](publisher_name).
+    - Bạn có sách nào của nhà xuất bản [Dân Trí](publisher_name)?
+    - Bạn có sách nào của nxb [Dân Trí](publisher_name)?
+    - Tìm sách của nhà xuất bản [First News](publisher_name).
+    - Tìm sách của nxb [First News](publisher_name).
+    - Có sách nào của nhà xuất bản [Nhà Xuất Bản Giáo Dục](publisher_name)?
+    - Có sách nào của nxb [Nhà Xuất Bản Giáo Dục](publisher_name)?
 
+- intent: find_book_quantity
+  examples: |
+    - Sách [Mùa hè không tên](book_name) còn bao nhiêu cuốn?
+    - Kiểm tra số lượng sách [Harry Potter](book_name)
+    - Tôi muốn biết số lượng của sách [Những người khốn khổ](book_name)
+    - Sách [Lập trình Python](book_name) còn hàng không?
+    - Còn sách [Lập trình Python](book_name) không?
+
+- intent: get_book_details
+  examples: |
+    - Chi tiết sách [Mùa Hè Không Tên](book_name)
+    - Tìm thông tin sách [Mùa Hè Không Tên](book_name)
+    - Thông tin sách [Mùa Hè Không Tên](book_name)
+    - Hãy cho tôi biết chi tiết sách [Mùa Hè Không Tên](book_name)
+    - Tôi muốn biết về sách [Mùa Hè Không Tên](book_name)
+    - Chi tiết của sách [Mùa Hè Không Tên](book_name)
+    - Cuốn sách [Mùa Hè Không Tên](book_name) có gì đặc biệt?
