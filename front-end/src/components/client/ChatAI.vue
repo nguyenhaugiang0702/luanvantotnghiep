@@ -1,7 +1,5 @@
 <template>
   <div>
-    
-
     <!-- Chat box -->
     <div class="card" style="width: 27rem; height: 30rem">
       <div
@@ -60,6 +58,48 @@
                   </router-link>
                 </div>
               </div>
+              <!-- Nếu message.books là object -->
+              <div v-else-if="typeof message.books === 'object' && message.books !== null">
+                <p>{{ message.text }}</p>
+                <div class="d-flex my-3">
+                  <router-link
+                    class="d-flex text-decoration-none"
+                    :to="{ name: 'book-detail', params: { bookID: message.books._id } }"
+                  >
+                    <img
+                      :src="config.imgUrl + '/' + message.books.image"
+                      alt="book image"
+                      style="width: 100px; height: auto"
+                    />
+                    <div class="d-flex flex-column ms-3">
+                      <p class="mb-0">
+                        {{ message.books.book_name }}
+                      </p>
+                      <p class="mb-0 text-danger ">
+                        {{ formatPrice(message.books.finalPrice) }}
+                      </p>
+                      <p class="mb-0">
+                        Tác giả: {{ message.books.author }}
+                      </p>
+                      <p class="mb-0">
+                        Nhà xuất bản: {{ message.books.publisher }}
+                      </p>
+                      <p class="mb-0">
+                        Hình thức: {{ message.books.formality }}
+                      </p>
+                      <p class="mb-0">
+                        Năm XB: {{ message.books.publisher_year }}
+                      </p>
+                      <p class="mb-0">
+                        Thể loại: {{ message.books.category }}
+                      </p>
+                      <p class="mb-0">
+                        Số lượng còn lại: {{ message.books.quantityAvailable }}
+                      </p>
+                    </div>
+                  </router-link>
+                </div>
+              </div>
               <div v-else>
                 <p class="mb-0">{{ message.text }}</p>
                 <small
@@ -104,6 +144,7 @@ import { formatPrice } from "@/utils/utils";
 import config from "@/config/index";
 import { handleNavigate } from "@/utils/utils";
 import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
 
 const isOpen = ref(false);
 const newMessage = ref("");
@@ -117,6 +158,7 @@ const emit = defineEmits("close-chat");
 const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
     // Thêm tin nhắn người dùng vào danh sách
+
     messages.value.push({
       sender: "user",
       text: newMessage.value,
@@ -139,15 +181,29 @@ const sendMessage = async () => {
 
       // Đảm bảo bot phản hồi
       response.data.forEach((message) => {
+        console.log(message);
         // Kiểm tra nếu message chứa thông tin sách (giả sử bot trả về mảng các đối tượng)
-        if (Array.isArray(message.custom.books)) {
+        if (message.custom) {
           // Nếu là mảng, mỗi phần tử chứa thông tin sách
-          messages.value.push({
-            sender: "bot",
-            books: message.custom.books, // message.books là mảng các sách
-            text: message.custom.text, // Văn bản đi kèm
-            createdAt: new Date(),
-          });
+          if (Array.isArray(message.custom.books)) {
+            messages.value.push({
+              sender: "bot",
+              books: message.custom.books, 
+              text: message.custom.text, 
+              createdAt: new Date(),
+            });
+          } else if (
+            typeof message.custom.books === "object" &&
+            message.custom.books !== null
+          ) {
+            // Xử lý nếu books là object
+            messages.value.push({
+              sender: "bot",
+              books: message.custom.books, // Chuyển books thành mảng với một phần tử là object
+              text: message.custom.text, // Văn bản đi kèm
+              createdAt: new Date(),
+            });
+          }
         } else {
           // Nếu chỉ là một thông báo đơn giản từ bot
           messages.value.push({
@@ -168,7 +224,7 @@ const sendMessage = async () => {
 };
 
 const closeChat = () => {
-  emit('close-chat'); 
+  emit("close-chat");
 };
 
 // Cuộn tới cuối phần hiển thị tin nhắn
@@ -180,22 +236,22 @@ const scrollToBottom = () => {
   });
 };
 
-// Mở chat và cuộn tới cuối
-const openChat = () => {
-  isOpen.value = true;
-  scrollToBottom();
-};
-
 // Khởi tạo sessionId nếu chưa có
-onMounted(() => {
+onMounted(async () => {
   const savedMessages = localStorage.getItem("chatMessages");
   if (savedMessages) {
-    messages.value = JSON.parse(savedMessages);  // Đọc dữ liệu từ localStorage và gán lại cho messages
+    messages.value = JSON.parse(savedMessages); // Đọc dữ liệu từ localStorage và gán lại cho messages
   } else {
     messages.value = [];
+    messages.value.push({
+      sender: "bot",
+      text: "NHG BOOKSTORE rất hân hạnh được phục vụ quý khách",
+      createdAt: new Date(),
+    });
   }
   sessionId.value = localStorage.getItem("sessionId") || uuidv4();
   localStorage.setItem("sessionId", sessionId.value);
+  scrollToBottom();
 });
 
 // Ngắt kết nối WebSocket khi component bị hủy
