@@ -65,14 +65,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick, watch, inject } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import ApiUser from "@/service/user/apiUser.service";
 import { formatDate } from "@/utils/utils";
 
 const socket = ref(null);
-const isOpen = ref(false);
 const newMessage = ref("");
 const messages = ref([]); // Khởi tạo danh sách tin nhắn rỗng
 const chatRoomId = ref(""); // Khởi tạo chatRoomId rỗng
@@ -119,15 +118,6 @@ const scrollToBottom = () => {
       chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
     }
   });
-};
-
-const openChat = async () => {
-  await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, {
-    isReaded: true,
-  });
-  await checkRoomChat();
-  isOpen.value = true;
-  scrollToBottom();
 };
 
 onMounted(async () => {
