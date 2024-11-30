@@ -142,6 +142,7 @@ exports.handlePayPalSuccess = async (req, res, next) => {
           payment: "PAYPAL",
           voucherID: customObj.voucherID ? customObj.voucherID : null,
           wasPaided: true,
+          image: '',
           shippingFee: customObj.shippingFee,
           paymentDetail: {
             saleId: payment.transactions[0]?.related_resources[0]?.sale.id,

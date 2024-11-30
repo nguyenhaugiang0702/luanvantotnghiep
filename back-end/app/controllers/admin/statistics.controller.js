@@ -60,7 +60,7 @@ exports.findRevenueWithDate = async (req, res, next) => {
     }
 
     const stats = await orderService.getOrderStats(matchCondition, groupBy);
-    
+
     // Tính toán tổng doanh thu, doanh thu trung bình và doanh thu lớn nhất
     const totalRevenue = stats.reduce(
       (acc, item) => acc + item.totalRevenue,
@@ -91,11 +91,19 @@ exports.calculateProductProfit = async (req, res, next) => {
   try {
     const { bookID, type, startDate, endDate } = req.body;
 
-    const start = moment.tz(startDate, "DD/MM/YYYY", "Asia/Ho_Chi_Minh").startOf("day").toDate();
-    const end = moment.tz(endDate, "DD/MM/YYYY", "Asia/Ho_Chi_Minh").endOf("day").toDate();
+    const start = moment
+      .tz(startDate, "DD/MM/YYYY", "Asia/Ho_Chi_Minh")
+      .startOf("day")
+      .toDate();
+    const end = moment
+      .tz(endDate, "DD/MM/YYYY", "Asia/Ho_Chi_Minh")
+      .endOf("day")
+      .toDate();
 
     if (!start || !end) {
-      return next(new ApiError(400, "Thiếu thông tin ngày bắt đầu hoặc kết thúc."));
+      return next(
+        new ApiError(400, "Thiếu thông tin ngày bắt đầu hoặc kết thúc.")
+      );
     }
 
     const matchCondition = {
@@ -110,8 +118,8 @@ exports.calculateProductProfit = async (req, res, next) => {
       matchCondition["detail.bookID"] = new mongoose.Types.ObjectId(bookID);
     }
 
-    const groupBy = { $dateToString: { format: "%m/%Y", date: "$createdAt" } };
 
+    const groupBy = { $dateToString: { format: "%m/%Y", date: "$createdAt" } };
     const orders = await Order.aggregate([
       { $unwind: "$detail" },
       { $match: matchCondition },
@@ -122,7 +130,9 @@ exports.calculateProductProfit = async (req, res, next) => {
             bookID: "$detail.bookID",
           },
           totalQuantitySold: { $sum: "$detail.quantity" },
-          totalRevenue: { $sum: { $multiply: ["$detail.quantity", "$detail.realPrice"] } },
+          totalRevenue: {
+            $sum: { $multiply: ["$detail.quantity", "$detail.realPrice"] },
+          },
         },
       },
     ]);
@@ -151,10 +161,11 @@ exports.calculateProductProfit = async (req, res, next) => {
       const bookID = order._id.bookID;
       const timeGroup = order._id.group;
 
+
       const receipts = await Receipt.aggregate([
         { $unwind: "$detail" },
         { $match: { "detail.bookID": new mongoose.Types.ObjectId(bookID) } },
-        { $sort: { createdAt: 1 } },
+        { $sort: { createdAt: -1 } },
         {
           $group: {
             _id: "$detail.bookID",
@@ -164,6 +175,8 @@ exports.calculateProductProfit = async (req, res, next) => {
           },
         },
       ]);
+
+
 
       if (receipts.length === 0) continue;
 
@@ -212,15 +225,34 @@ exports.calculateProductProfit = async (req, res, next) => {
       maxProfit = Math.max(maxProfit, resultByMonth[timeGroup].totalProfit);
     }
 
-    totalMonths = Object.keys(resultByMonth).length;
+    const sortedMonths = Object.keys(resultByMonth).sort((a, b) => {
+      const [aMonth, aYear] = a.split("/").map(Number); // tách tháng và năm
+      const [bMonth, bYear] = b.split("/").map(Number); // tách tháng và năm
+    
+      // So sánh theo năm trước, rồi đến tháng
+      if (aYear !== bYear) {
+        return aYear - bYear;
+      } else {
+        return aMonth - bMonth;
+      }
+    });
+
+    // Sắp xếp lại resultByMonth theo thứ tự tháng
+    const sortedResult = sortedMonths.map(month => resultByMonth[month]);
+
+    // totalMonths = Object.keys(resultByMonth).length;
+    // const avgRevenue = totalMonths > 0 ? totalRevenue / totalMonths : 0;
+    // const avgProfit = totalMonths > 0 ? totalProfit / totalMonths : 0;
+    totalMonths = sortedResult.length;
     const avgRevenue = totalMonths > 0 ? totalRevenue / totalMonths : 0;
     const avgProfit = totalMonths > 0 ? totalProfit / totalMonths : 0;
 
-    const result = Object.values(resultByMonth);
+    // const result = Object.values(resultByMonth);
+    
 
     return res.send({
       success: true,
-      data: result,
+      data: sortedResult,
       totalRevenue,
       avgRevenue,
       maxRevenue,
@@ -233,5 +265,3 @@ exports.calculateProductProfit = async (req, res, next) => {
     return next(new ApiError(500, "Lỗi khi tính toán lợi nhuận."));
   }
 };
-
-

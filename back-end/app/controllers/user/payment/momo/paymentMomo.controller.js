@@ -116,6 +116,7 @@ exports.handleMomoIPN = async (req, res, next) => {
   const orderData = {
     ...extraDataObj,
     ...data,
+    image: ''
   };
 
   const newOrder = await orderService.createOrder(orderData);

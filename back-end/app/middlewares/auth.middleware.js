@@ -29,6 +29,7 @@ const verifyAdminToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (req.originalUrl.includes("/auth/login")) {
+    console.log(req.body);
     return next();
   }
   if (!token) {

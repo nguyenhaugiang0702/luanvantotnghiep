@@ -83,8 +83,16 @@ exports.updateStatus = async (req, res, next) => {
       // Admin xác nhận đơn hàng -> Tăng số lượng bán
       const error = await updateBookQuantities(order.detail);
       if (error) return next(new ApiError(400, error));
-    }
-    if (status === 7) {
+      req.body.status = status;
+      req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+      const orderUpdateStatus = await orderService.updateStatus(
+        orderID,
+        req.body
+      );
+      if (!orderUpdateStatus) {
+        return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
+      }
+    } else if (status === 7 || status === 3) {
       // Shipper giao hàng không thành công
       const updateFailShipOrder = await orderService.updateStatus(orderID, {
         status: status,
@@ -98,16 +106,16 @@ exports.updateStatus = async (req, res, next) => {
         );
       }
       // Cập nhật lại số lượng bán
-      await Promise.all(
-        updateFailShipOrder.detail.map(async (book) => {
-          await bookService.updateBook(book.bookID, {
-            $inc: { quantitySold: -book.quantity },
-          });
-        })
-      );
-    }
-    if (status === 3) {
-      // Admin xác nhận đã hủy cho yêu cầu khách hàng PayPal
+      if (status === 7) {
+        await Promise.all(
+          updateFailShipOrder.detail.map(async (book) => {
+            await bookService.updateBook(book.bookID, {
+              $inc: { quantitySold: -book.quantity },
+            });
+          })
+        );
+      }
+
       if (order.payment === "PAYPAL" && order.paymentDetail?.saleId) {
         const refundResult = await payment.handleRefundPayPal(
           order.paymentDetail.saleId,
@@ -120,6 +128,7 @@ exports.updateStatus = async (req, res, next) => {
           "paymentDetail.state": "REFUNDED",
         });
       }
+      // nếu giao dịch là MOMO hoẵcj ZALOPAY thì gửi về thông báo
       if (order.payment === "MOMO" || order.payment === "ZALOPAY") {
         const notificationMessage = `Đơn hàng ${orderID} đã được hủy. Liên hệ hotline: 0384804407 hoặc email: nhgbookstore@gmail.com để được hỗ trợ hoàn tiền.
 `;
@@ -128,7 +137,10 @@ exports.updateStatus = async (req, res, next) => {
             "paymentDetail.state": "PENDING_REFUND",
           });
           // Gửi SMS
-          await smsService.sendOTP(order.userID?.phoneNumber, notificationMessage);
+          await smsService.sendOTP(
+            order.userID?.phoneNumber,
+            notificationMessage
+          );
           // Gửi Email
           if (order.userID?.email) {
             await emailService.sendEmail({
@@ -141,37 +153,37 @@ exports.updateStatus = async (req, res, next) => {
           console.error("Lỗi khi gửi thông báo:", notifyError);
         }
       }
-    }
-    if (status === 8 && req.file) {
+    } else if (status === 8 && req.file) {
       // Giao hàng thành công và chụp ảnh giao hàng
       req.body.image = req.file.path;
+      req.body.status = status;
+      req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
+      const orderUpdateStatus = await orderService.updateStatus(
+        orderID,
+        req.body
+      );
+      if (!orderUpdateStatus) {
+        return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
+      }
+      // Cập nhật cho shipper nếu là "8 : Đã giao" thì cập nhật đã trả tiền thành true
+      if (
+        orderUpdateStatus.status === 8 &&
+        !orderUpdateStatus.wasPaided &&
+        orderUpdateStatus.payment === "COD"
+      ) {
+        // Đã giao
+        await orderService.updateStatus(orderUpdateStatus._id, {
+          wasPaided: true,
+        });
+      }
     }
-    req.body.status = status;
-    req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh");
-    const orderUpdateStatus = await orderService.updateStatus(
-      orderID,
-      req.body
-    );
-    if (!orderUpdateStatus) {
-      return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
-    }
-    // Cập nhật cho shipper nếu là "8 : Đã giao" thì cập nhật đã trả tiền thành true
-    if (
-      orderUpdateStatus.status === 8 &&
-      !orderUpdateStatus.wasPaided &&
-      orderUpdateStatus.payment === "COD"
-    ) {
-      // Đã giao
-      await orderService.updateStatus(orderUpdateStatus._id, {
-        wasPaided: true,
-      });
-    }
+
     // Lấy io từ app và phát thông báo đến admin
     const io = require("../../../app").get("socketIo");
     io.emit("hasNewOrderStatus", {
       orderStatus: {
         message: "Có trạng thái mới",
-        newOrderStatus: orderUpdateStatus.status,
+        newOrderStatus: status,
       },
     });
     return res.send({

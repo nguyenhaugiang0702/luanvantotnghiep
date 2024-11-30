@@ -121,6 +121,7 @@ exports.handleZaloPayIPN = async (req, res, next) => {
         voucherID: embedData.voucherID,
         detail: items,
         wasPaided: true,
+        image: '',
         paymentDetail: {
           saleId: appTransId,
           state: "COMPLETED",
