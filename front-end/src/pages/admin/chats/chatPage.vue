@@ -58,14 +58,7 @@
                           </div>
                         </div>
                       </div>
-                      <div>
-                        <button class="btn btn-outline-secondary me-2">
-                          <i class="fa-solid fa-phone"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary">
-                          <i class="fa-solid fa-video"></i>
-                        </button>
-                      </div>
+                      
                     </div>
 
                     <!-- Messages -->

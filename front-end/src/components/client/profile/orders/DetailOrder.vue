@@ -12,14 +12,14 @@
               <p class="mb-1">
                 <i class="fa-solid fa-user me-2"></i>
                 {{
-                  orderDetail.addressID.firstName +
+                  orderDetail.userID?.firstName +
                   " " +
-                  orderDetail.addressID.lastName
+                  orderDetail.userID?.lastName
                 }}
               </p>
               <p>
                 <i class="fa-solid fa-phone me-2"></i>
-                {{ orderDetail.addressID.phoneNumber }}
+                {{ orderDetail.userID?.phoneNumber }}
               </p>
             </div>
           </div>
@@ -31,6 +31,18 @@
               <h5 class="card-title mb-0">Địa chỉ giao hàng</h5>
             </div>
             <div class="card-body">
+              <p class="">
+                <i class="fa-solid fa-user me-2"></i>
+                {{
+                  orderDetail.userID?.firstName +
+                  " " +
+                  orderDetail.userID?.lastName
+                }}
+              </p>
+              <p>
+                <i class="fa-solid fa-phone me-2"></i>
+                {{ orderDetail.userID?.phoneNumber }}
+              </p>
               <p>
                 <i class="fa-solid fa-location-dot me-2"></i>
                 {{
@@ -117,14 +129,10 @@
             </p>
             <p class="d-flex justify-content-between">
               <span>Trạng thái thanh toán:</span>
-              <!-- Check payment status and show badge accordingly -->
-              <span v-if="orderDetail.status?.value !== 3">
+
+              <!-- Nếu là COD -->
+              <span v-if="orderDetail.payment === 'COD'">
                 <span
-                  v-if="
-                    orderDetail.wasPaided &&
-                    (orderDetail.payment === 'MOMO' ||
-                      orderDetail.payment === 'ZALOPAY')
-                  "
                   class="badge p-2"
                   :class="orderDetail.wasPaided ? 'bg-success' : 'bg-warning'"
                 >
@@ -134,33 +142,54 @@
                 </span>
               </span>
 
-              <!-- Check for refund status -->
-              <span v-else>
-                <span
-                  v-if="
-                    orderDetail.status?.value === 3 &&
-                    orderDetail.payment === 'PAYPAL' &&
-                    orderDetail.paymentDetail.state === 'REFUNDED'
-                  "
-                  class="badge text-bg-success p-2"
-                >
-                  <i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền
+              <!-- Nếu là MOMO hoặc ZALOPAY -->
+              <span
+                v-else-if="
+                  orderDetail.payment === 'MOMO' ||
+                  orderDetail.payment === 'ZALOPAY'
+                "
+              >
+                <!-- Nếu đã hoàn tiền cho MOMO hoặc ZALOPAY -->
+                <span v-if="orderDetail.paymentDetail.state === 'COMPLETED'">
+                  <span class="badge text-bg-success p-2">
+                    <i class="fa-solid fa-money-check-dollar"></i> Đã thanh toán
+                  </span>
                 </span>
-
                 <span
                   v-else-if="
-                    orderDetail.status?.value === 3 &&
-                    (orderDetail.payment === 'MOMO' ||
-                      orderDetail.payment === 'ZALOPAY') &&
                     orderDetail.paymentDetail.state === 'PENDING_REFUND'
                   "
-                  class="badge text-bg-warning p-2"
                 >
-                  <i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn
-                  tiền
+                  <span class="badge text-bg-warning p-2">
+                    <i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn
+                    tiền
+                  </span>
+                </span>
+              </span>
+
+              <!-- Nếu là PAYPAL và trạng thái hoàn thành -->
+              <span
+                v-else-if="
+                  orderDetail.payment === 'PAYPAL' &&
+                  orderDetail.paymentDetail.state === 'COMPLETED'
+                "
+              >
+                <span class="badge bg-success p-2"> Đã thanh toán </span>
+              </span>
+
+              <!-- Nếu là PAYPAL và trạng thái hoàn tiền -->
+              <span
+                v-else-if="
+                  orderDetail.payment === 'PAYPAL' &&
+                  orderDetail.paymentDetail.state === 'REFUNDED'
+                "
+              >
+                <span class="badge text-bg-success p-2">
+                  <i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền
                 </span>
               </span>
             </p>
+
             <p class="d-flex justify-content-between">
               <span>Phương thức thanh toán:</span>
               <span class="badge p-2 text-dark">
@@ -305,6 +334,11 @@ const filteredStatusOptions = computed(() => {
     // Nếu trạng thái hiện tại là "Đã xác nhận", loại bỏ "Đã hủy" và "Yêu cầu hủy"
     if (currentStatusValue === 2) {
       return option.value !== 3 && option.value !== 4;
+    }
+
+    // Nếu trạng thái hiện tại là "Đã hủy", loại bỏ "Đã xác nhận"
+    if (currentStatusValue === 3) {
+      return option.value !== 2;
     }
 
     // Nếu trạng thái hiện tại là "yêu cầu hủy, loại bỏ "Đã hủy"

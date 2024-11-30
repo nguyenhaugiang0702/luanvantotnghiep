@@ -18,7 +18,7 @@
       >
         {{
           vouchers.sameDayExpiredVouchers?.length +
-          vouchers.upcomingExpiredVouchers?.length || 0
+            vouchers.upcomingExpiredVouchers?.length || 0
         }}
         <span class="visually-hidden">unread messages</span>
       </span>
@@ -195,15 +195,18 @@ import { showConfirmation } from "@/utils/swalUtils";
 const apiUser = new ApiUser();
 const collapseSameDay = ref(true);
 const collapseUpcoming = ref(true);
+const token = Cookies.get("accessToken");
 const vouchers = ref({
   sameDayExpiredVouchers: [],
   upcomingExpiredVouchers: [],
   message: "",
 });
 const checkExpireVoucher = async () => {
-  const response = await apiUser.get("/vouchers/voucherUseds/checkExpire");
-  if (response.status === 200) {
-    vouchers.value = response.data;
+  if (token) {
+    const response = await apiUser.get("/vouchers/voucherUseds/checkExpire");
+    if (response.status === 200) {
+      vouchers.value = response.data;
+    }
   }
 };
 

@@ -21,7 +21,7 @@
     <!-- Tiêu đề -->
     <div class="text-center" v-motion-slide-visible-once-top>
       <h1 class="display-4 text-primary">Giới thiệu về NHG BOOKSTORE</h1>
-      <p class="lead mt-3">
+      <p class="lead mt-3 fs-3">
         NHG BOOKSTORE - Mang tri thức đến gần bạn, với sứ mệnh nâng cao văn hóa
         đọc và cung cấp các đầu sách chất lượng nhất cho khách hàng.
       </p>
@@ -30,14 +30,14 @@
     <!-- Phần Giới Thiệu Chung -->
     <section class="about-section my-5" v-motion-slide-visible-once-bottom>
       <h2 class="text-dark">Giới thiệu chung</h2>
-      <p>
+      <p class="fs-5">
         Được thành lập từ năm 2020, NHG BOOKSTORE cam kết cung cấp các đầu sách
         chất lượng thuộc nhiều thể loại, từ văn học, kỹ năng sống đến các sách
         khoa học và chuyên ngành. Chúng tôi luôn nỗ lực không ngừng để tạo nên
         một không gian văn hóa đọc hiện đại, nơi mọi người có thể dễ dàng tìm
         kiếm và tiếp cận tri thức.
       </p>
-      <p>
+      <p class="fs-5">
         Với hệ thống cửa hàng hiện đại và đội ngũ nhân viên tận tâm, NHG
         BOOKSTORE mang đến một trải nghiệm mua sắm sách thân thiện, tiện lợi cho
         các bạn đọc yêu sách.
@@ -47,13 +47,13 @@
     <!-- Phần Sứ Mệnh và Tầm Nhìn -->
     <section class="mission-vision my-5" v-motion-slide-visible-once-bottom>
       <h2 class="text-dark">Sứ mệnh & Tầm nhìn</h2>
-      <p>
+      <p class="fs-5">
         <strong>Sứ mệnh:</strong> Chúng tôi luôn phấn đấu để mang tri thức đến
         gần hơn với mọi người. Với sứ mệnh này, chúng tôi mong muốn truyền cảm
         hứng và tạo điều kiện tốt nhất cho người đọc nâng cao kiến thức và phát
         triển bản thân.
       </p>
-      <p>
+      <p class="fs-5">
         <strong>Tầm nhìn:</strong> Trở thành nhà cung cấp sách hàng đầu và là
         điểm đến đáng tin cậy của mọi người yêu sách. Chúng tôi muốn xây dựng
         một hệ sinh thái văn hóa đọc thân thiện, lan tỏa niềm yêu thích sách đến
@@ -76,7 +76,7 @@
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title text-dark fw-bold">{{ value.title }}</h5>
-              <p class="card-text">{{ value.description }}</p>
+              <p class="card-text fs-5">{{ value.description }}</p>
             </div>
           </div>
         </div>
@@ -86,17 +86,17 @@
     <!-- Thông Tin Liên Hệ -->
     <section class="contact-info my-5" v-motion-slide-visible-once-bottom>
       <h2 class="text-dark">Liên hệ với chúng tôi</h2>
-      <p>
+      <p class="fs-5">
         NHG BOOKSTORE luôn sẵn sàng hỗ trợ và giải đáp mọi thắc mắc của bạn. Hãy
         liên hệ với chúng tôi qua các kênh sau:
       </p>
       <ul>
-        <li>
+        <li class="fs-5">
           Email:
           <a href="mailto:nhgbookstore@gmail.com">nhgbookstore@gmail.com</a>
         </li>
-        <li>Điện thoại: <a href="tel:+84123456789">+84 384 484 407</a></li>
-        <li>Địa chỉ: Khu II, Đ. 3 Tháng 2, Xuân Khánh, Ninh Kiều, Cần Thơ</li>
+        <li class="fs-5">Điện thoại: <a href="tel:+84123456789">+84 384 484 407</a></li>
+        <li class="fs-5">Địa chỉ: Khu II, Đ. 3 Tháng 2, Xuân Khánh, Ninh Kiều, Cần Thơ</li>
       </ul>
     </section>
 
@@ -105,7 +105,7 @@
       class="text-center social-icons my-4"
       v-motion-slide-visible-once-bottom
     >
-      <p>Theo dõi chúng tôi:</p>
+      <p class="fs-5">Theo dõi chúng tôi:</p>
       <a href="#" class="mx-2">
         <i class="fab fa-facebook fa-2x"></i>
       </a>

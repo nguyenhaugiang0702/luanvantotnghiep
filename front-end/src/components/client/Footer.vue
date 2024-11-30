@@ -212,11 +212,11 @@ const checkRoomChat = async () => {
 };
 
 const openChat = async () => {
+  scrollToBottom();
   await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, {
     isReaded: true,
   });
   await checkRoomChat();
-  scrollToBottom();
 };
 
 onMounted(async () => {

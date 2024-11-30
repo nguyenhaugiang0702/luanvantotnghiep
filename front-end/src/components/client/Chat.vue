@@ -21,15 +21,15 @@
             :key="index"
             :class="[
               'mb-3',
-              message.sender === 'user' ? 'text-end' : 'text-start',
+              message.sender === 'user' ? 'd-flex justify-content-end user-message' : 'd-flex justify-content-start admin-message',
             ]"
           >
             <div
               :class="[
-                'd-inline-block p-2 rounded',
+                'd-inline-block p-2 rounded position-relative',
                 message.sender === 'user'
                   ? 'bg-primary text-white'
-                  : 'bg-white border',
+                  : 'bg-body-secondary',
               ]"
             >
               <p class="mb-0">{{ message.message }}</p>
@@ -172,5 +172,28 @@ button.btn-rounded {
   position: absolute;
   top: 15px;
   right: 0px;
+}
+
+.user-message .d-inline-block::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 8px 0 8px 10px;
+  border-color: transparent transparent transparent #007bff; /* Màu primary */
+}
+
+/* Tam giác cho tin nhắn bot */
+.admin-message .d-inline-block::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 8px 10px 8px 0;
+  border-color: transparent #e3eaf0 transparent transparent ; /* Màu primary */
 }
 </style>

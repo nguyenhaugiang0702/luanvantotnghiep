@@ -50,20 +50,14 @@
               }"
               >{{ book.bookID.name }}</router-link
             >
-            <div>
-              <small
-                >Còn lại
-                {{
-                  book.bookID.quantityImported - book.bookID.quantitySold
-                }}</small
-              >
+            <div class="mt-2">
+              <span class="price text-danger fw-bold">
+                {{ formatPrice(book.price) }}
+              </span>
+              <span class="ms-2 text-decoration-line-through opacity-75">{{
+                formatPrice(book.bookID.detail.originalPrice)
+              }}</span>
             </div>
-            <span class="price text-danger fw-bold">
-              {{ formatPrice(book.price) }}
-            </span>
-            <span class="ms-2 text-decoration-line-through opacity-75">{{
-              formatPrice(book.bookID.detail.originalPrice)
-            }}</span>
           </td>
           <td>
             <div class="d-flex justify-content-start align-items-center">

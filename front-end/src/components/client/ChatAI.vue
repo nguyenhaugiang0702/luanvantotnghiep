@@ -19,15 +19,19 @@
           <div
             v-for="(message, index) in messages"
             :key="index"
-            :class="[message.sender === 'user' ? 'text-end' : 'text-start']"
+            :class="[
+              message.sender === 'user'
+                ? 'd-flex justify-content-end user-message'
+                : 'd-flex justify-content-start bot-message',
+            ]"
             class="mt-3"
           >
             <div
               :class="[
-                'd-inline-block p-2 rounded',
+                'd-inline-block p-2 rounded position-relative ',
                 message.sender === 'user'
                   ? 'bg-primary text-white'
-                  : 'bg-white border',
+                  : 'bg-body-secondary',
               ]"
             >
               <!-- Kiểm tra xem nếu message.text là một mảng sách -->
@@ -59,12 +63,19 @@
                 </div>
               </div>
               <!-- Nếu message.books là object -->
-              <div v-else-if="typeof message.books === 'object' && message.books !== null">
+              <div
+                v-else-if="
+                  typeof message.books === 'object' && message.books !== null
+                "
+              >
                 <p>{{ message.text }}</p>
                 <div class="d-flex my-3">
                   <router-link
                     class="d-flex text-decoration-none"
-                    :to="{ name: 'book-detail', params: { bookID: message.books._id } }"
+                    :to="{
+                      name: 'book-detail',
+                      params: { bookID: message.books._id },
+                    }"
                   >
                     <img
                       :src="config.imgUrl + '/' + message.books.image"
@@ -75,12 +86,10 @@
                       <p class="mb-0">
                         {{ message.books.book_name }}
                       </p>
-                      <p class="mb-0 text-danger ">
+                      <p class="mb-0 text-danger">
                         Giá: {{ formatPrice(message.books.finalPrice) }}
                       </p>
-                      <p class="mb-0">
-                        Tác giả: {{ message.books.author }}
-                      </p>
+                      <p class="mb-0">Tác giả: {{ message.books.author }}</p>
                       <p class="mb-0">
                         Nhà xuất bản: {{ message.books.publisher }}
                       </p>
@@ -90,9 +99,7 @@
                       <p class="mb-0">
                         Năm XB: {{ message.books.publisher_year }}
                       </p>
-                      <p class="mb-0">
-                        Thể loại: {{ message.books.category }}
-                      </p>
+                      <p class="mb-0">Thể loại: {{ message.books.category }}</p>
                       <p class="mb-0">
                         Số lượng còn lại: {{ message.books.quantityAvailable }}
                       </p>
@@ -114,6 +121,15 @@
                   {{ formatDate(message.createdAt) }}
                 </small>
               </div>
+            </div>
+          </div>
+          <div
+            v-if="isLoading"
+            class="bg-body-secondary d-flex justify-content-start bot-message mt-3 d-inline-block p-2 rounded position-relative"
+          >
+            <p class="mb-0 text-muted">Đang trả lời...</p>
+            <div class="dots-ellipsis">
+              <span>.</span><span>.</span><span>.</span>
             </div>
           </div>
         </div>
@@ -153,6 +169,7 @@ const chatContainer = ref(null);
 const sessionId = ref("");
 const router = useRouter();
 const emit = defineEmits("close-chat");
+const isLoading = ref(false);
 
 // Gửi tin nhắn tới Rasa
 const sendMessage = async () => {
@@ -164,7 +181,8 @@ const sendMessage = async () => {
       text: newMessage.value,
       createdAt: new Date(),
     });
-
+    isLoading.value = true;
+    scrollToBottom();
     // Gửi tin nhắn tới Rasa qua API REST
     try {
       const response = await axios.post(
@@ -188,8 +206,8 @@ const sendMessage = async () => {
           if (Array.isArray(message.custom.books)) {
             messages.value.push({
               sender: "bot",
-              books: message.custom.books, 
-              text: message.custom.text, 
+              books: message.custom.books,
+              text: message.custom.text,
               createdAt: new Date(),
             });
           } else if (
@@ -215,8 +233,8 @@ const sendMessage = async () => {
       });
       // Lưu tin nhắn vào localStorage sau khi nhận phản hồi từ bot
       localStorage.setItem("chatMessages", JSON.stringify(messages.value));
-
       scrollToBottom();
+      isLoading.value = false;
     } catch (error) {
       console.error("Error sending message to Rasa:", error);
     }
@@ -238,6 +256,7 @@ const scrollToBottom = () => {
 
 // Khởi tạo sessionId nếu chưa có
 onMounted(async () => {
+  scrollToBottom();
   const savedMessages = localStorage.getItem("chatMessages");
   if (savedMessages) {
     messages.value = JSON.parse(savedMessages); // Đọc dữ liệu từ localStorage và gán lại cho messages
@@ -251,7 +270,7 @@ onMounted(async () => {
   }
   sessionId.value = localStorage.getItem("sessionId") || uuidv4();
   localStorage.setItem("sessionId", sessionId.value);
-  scrollToBottom();
+  
 });
 
 // Ngắt kết nối WebSocket khi component bị hủy
@@ -265,5 +284,62 @@ onBeforeUnmount(() => {});
 
 button.btn-rounded {
   border-radius: 50%;
+}
+
+.user-message .d-inline-block::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 8px 0 8px 10px;
+  border-color: transparent transparent transparent #007bff; /* Màu primary */
+}
+
+/* Tam giác cho tin nhắn bot */
+.bot-message .d-inline-block::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 8px 10px 8px 0;
+  border-color: transparent #e3eaf0 transparent transparent; /* Màu primary */
+}
+
+/* Các dấu chấm */
+.dots-ellipsis span {
+  display: inline-block;
+  animation: bounce 1s infinite alternate;
+  /* font-size: 1.5rem; */
+  margin-left: 2px;
+}
+
+/* Chỉnh độ trễ cho từng dấu chấm */
+.dots-ellipsis span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dots-ellipsis span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.dots-ellipsis span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Hiệu ứng nhảy lên xuống */
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* Nhảy lên */
+  }
+  100% {
+    transform: translateY(0); /* Trở về vị trí ban đầu */
+  }
 }
 </style>

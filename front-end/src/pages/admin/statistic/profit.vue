@@ -2,8 +2,8 @@
   <div>
     <a-layout-content style="margin: 0 16px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Tồn kho</a-breadcrumb-item>
-        <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
+        <a-breadcrumb-item>Thống kê</a-breadcrumb-item>
+        <a-breadcrumb-item class="fw-bold">Lợi nhuận</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
         <a-card>
@@ -204,7 +204,7 @@ const updateChart = () => {
 
         return `
           Tháng: ${params[0].name}<br/>
-          Tổng doanh thu: ${formatCurrency(monthData?.totalRevenue || 0)}<br/>
+          Tổng bán được: ${formatCurrency(monthData?.totalRevenue || 0)}<br/>
           Tổng giá vốn: ${formatCurrency(monthData?.totalCost || 0)}<br/>
           Tổng lợi nhuận: ${formatCurrency(monthData?.totalProfit || 0)}<br/>
         `;
@@ -212,7 +212,7 @@ const updateChart = () => {
     },
 
     legend: {
-      data: ["Tổng doanh thu", "Tổng giá vốn", "Tổng lợi nhuận"],
+      data: ["Tổng bán được", "Tổng giá vốn", "Tổng lợi nhuận"],
       textStyle: {
         color: "#333", // Màu chữ
       },
@@ -235,7 +235,7 @@ const updateChart = () => {
 
     series: [
       {
-        name: "Tổng doanh thu",
+        name: "Tổng bán được",
         data: statistics.value?.data?.map((item) => item.totalRevenue),
         type: "bar",
         itemStyle: {

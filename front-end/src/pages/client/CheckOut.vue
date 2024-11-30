@@ -485,7 +485,15 @@ const confirmPayment = async () => {
 // Tạo một phương thức riêng để xử lý đơn hàng
 const placeOrder = async (orderData) => {
   try {
-    const response = await apiUser.post("/orders", orderData);
+    const orderDataObj = {
+      ...orderData,
+      paymentDetail:{
+        saleId: null,
+        state: null,
+        amount: null
+      }
+    }
+    const response = await apiUser.post("/orders", orderDataObj);
     if (response.status === 200) {
       updateCart.value += 1;
       router.push({ name: "thanks" });
