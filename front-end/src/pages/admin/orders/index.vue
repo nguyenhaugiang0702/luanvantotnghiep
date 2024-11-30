@@ -183,30 +183,32 @@ const columns = [
   {
     data: "wasPaided",
     render: (data, type, row, meta) => {
-      if (row.status.value !== 3) {
+      if (row.payment === "COD") {
         if (data) {
           return `<div class='text-start badge text-bg-success p-2'>Đã thanh toán</div>`;
         } else {
           return `<div class='text-start badge text-bg-warning p-2'>Chưa thanh toán</div>`;
         }
-      } else if (
-        row.status.value === 3 &&
-        row.payment === "PAYPAL" &&
-        row.paymentDetail.state === "REFUNDED"
-      ) {
-        // Đã hủy
-        return `<div class='text-start badge text-bg-success p-2'><i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền</div>`;
-      } else if (
-        row.status.value === 3 &&
-        row.payment === "MOMO" || row.payment === "ZALOPAY" &&
-        row.paymentDetail.state === "PENDING_REFUND"
-      ) {
-        // Đã hủy
-        return `<div class='text-start badge text-bg-warning p-2'><i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn tiền</div>`;
+      } else {
+        if (row.payment === "PAYPAL") {
+          if (row.paymentDetail.state === "REFUNDED") {
+            return `<div class='text-start badge text-bg-success p-2'><i class="fa-solid fa-money-check-dollar"></i> Đã hoàn tiền</div>`;
+          } else if (row.paymentDetail.state === "COMPLETED") {
+            return `<div class='text-start badge text-bg-success p-2'> Đã thanh toán</div>`;
+          }
+        } else {
+          if (row.payment === "ZALOPAY" || row.payment === "MOMO") {
+            if (row.paymentDetail.state === "PENDING_REFUND") {
+              return `<div class='text-start badge text-bg-warning p-2'><i class="fa-solid fa-money-check-dollar"></i> Kiểm tra hoàn tiền</div>`;
+            } else if (row.paymentDetail.state === "COMPLETED") {
+              return `<div class='text-start badge text-bg-success p-2'> Đã thanh toán</div>`;
+            }
+          }
+        }
       }
     },
   },
-  
+
   {
     data: "status",
     width: "8%",

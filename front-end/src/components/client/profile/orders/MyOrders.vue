@@ -164,7 +164,7 @@ const handleCancelOrder = async (orderID) => {
 
 const requestCancelOrder = async (orderID) => {
   const isConfirm = await showConfirmation({
-    title: "Bạn chắc chắn muốn hủy đơn hàng này?",
+    text: "Bạn chắc chắn muốn hủy đơn hàng này?, bạn sẽ không thể hủy yêu cầu này sau khi đồng ý.",
   });
   if (isConfirm.isConfirmed) {
     await handleCancelOrder(orderID);

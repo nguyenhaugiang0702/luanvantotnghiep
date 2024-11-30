@@ -101,7 +101,7 @@
                         <div class="d-flex justify-content-between">
                           <div class="fs-6">Tổng giảm giá</div>
                           <div class="fs-6 fw-bold text-success">
-                            {{ formatPrice(orderDetail.totalDiscountPrice) }}
+                            -{{ formatPrice(orderDetail.totalDiscountPrice) }}
                           </div>
                         </div>
                         <hr />
