@@ -1,5 +1,7 @@
 const orderService = require("../../services/order.service");
 const bookService = require("../../services/book.service");
+const voucherService = require("../../services/vouchers/voucher.service");
+const voucherUsedService = require("../../services/vouchers/voucherUseds.service");
 const ApiError = require("../../api-error");
 const moment = require("moment-timezone");
 const payment = require("../../controllers/user/payment/paypal/paymentPaypal.controller");
@@ -79,7 +81,17 @@ exports.updateStatus = async (req, res, next) => {
     if (!order) {
       return next(new ApiError(404, "Đơn hàng không tồn tại!"));
     }
-    if (status === 2) {
+    if(status === 1){
+      // Admin từ chối hủy đơn cho khách
+      const orderUpdateStatus = await orderService.updateStatus(
+        orderID,
+        req.body
+      );
+      if (!orderUpdateStatus) {
+        return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
+      }
+    }
+    else if (status === 2) {
       // Admin xác nhận đơn hàng -> Tăng số lượng bán
       const error = await updateBookQuantities(order.detail);
       if (error) return next(new ApiError(400, error));
@@ -93,7 +105,7 @@ exports.updateStatus = async (req, res, next) => {
         return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
       }
     } else if (status === 7 || status === 3) {
-      // Shipper giao hàng không thành công
+      // Shipper giao hàng không thành công hoặc xác nhận hủy đơn
       const updateFailShipOrder = await orderService.updateStatus(orderID, {
         status: status,
       });
@@ -116,6 +128,18 @@ exports.updateStatus = async (req, res, next) => {
         );
       }
 
+      if (status === 3) {
+        // Nếu admin hủy đơn mà đơn hàng có áp dụng mã giảm giá thì reset lại mã giảm giá cho user
+        if (order.voucherID) {
+          await voucherUsedService.updateVoucherUsedsByQuery(
+            {
+              voucherID: order.voucherID._id,
+            },
+            { isApplied: false, isUsed: false }
+          );
+        }
+      }
+
       if (order.payment === "PAYPAL" && order.paymentDetail?.saleId) {
         const refundResult = await payment.handleRefundPayPal(
           order.paymentDetail.saleId,
@@ -131,7 +155,7 @@ exports.updateStatus = async (req, res, next) => {
       // nếu giao dịch là MOMO hoẵcj ZALOPAY thì gửi về thông báo
       if (order.payment === "MOMO" || order.payment === "ZALOPAY") {
         const notificationMessage = `Đơn hàng ${orderID} đã được hủy. Liên hệ hotline: 0384804407 hoặc email: nhgbookstore@gmail.com để được hỗ trợ hoàn tiền.
-`;
+      `;
         try {
           await orderService.updateOrderById(order._id, {
             "paymentDetail.state": "PENDING_REFUND",

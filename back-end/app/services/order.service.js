@@ -242,7 +242,8 @@ const getStatusOptionsAndFormat = (status) => {
     case 4:
       statusOptions.push(
         { value: 4, label: "Yêu cầu hủy" },
-        { value: 3, label: "Đã hủy" }
+        { value: 3, label: "Xác nhận hủy đơn" },
+        { value: 1, label: "Từ chối hủy đơn" }
       );
       statusFormat = {
         value: 4,

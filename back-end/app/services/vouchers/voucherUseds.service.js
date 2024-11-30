@@ -42,6 +42,14 @@ const updateVoucherUseds = async (voucherUsedsID, voucherUsedsData) => {
   );
 };
 
+const updateVoucherUsedsByQuery = async (query, voucherUsedsData) => {
+  return await VouhcherUseds.findOneAndUpdate(
+    query,
+    voucherUsedsData,
+    { new: true }
+  );
+};
+
 const updateMany = async (filter, update) => {
   return await VouhcherUseds.updateMany(filter, update);
 };
@@ -63,5 +71,6 @@ module.exports = {
   deleteVoucherUsedWhenCheckOut,
   getOneVoucherUsed,
   countAllVouchersUsed,
-  getVouchers
+  getVouchers,
+  updateVoucherUsedsByQuery,
 };
