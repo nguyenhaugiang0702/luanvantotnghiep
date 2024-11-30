@@ -1,6 +1,9 @@
 from actions.services.book_service import BookService
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
+import re
+from rasa_sdk.events import SlotSet
+from typing import Any, Text, List, Dict
 
 class ActionSearchBook(Action):
     def name(self):
@@ -125,56 +128,46 @@ class ActionFindBookQuantity(Action):
         return []
     
 class ActionSearchBooksByPrice(Action):
-    def name(self):
+    def name(self) -> Text:
         return "action_search_books_by_price"
 
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
-        # Lấy giá trị từ slot
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[SlotSet]:
         price = tracker.get_slot("price")
         min_price = tracker.get_slot("min_price")
         max_price = tracker.get_slot("max_price")
 
+        print(f"DEBUG: ------- By Price -------")
         print(f"DEBUG: Giá trị slot 'price': {price}")
         print(f"DEBUG: Giá trị slot 'min_price': {min_price}")
         print(f"DEBUG: Giá trị slot 'max_price': {max_price}")
+        print(f"DEBUG: ------- By Price -------")
 
-        # Xử lý nếu người dùng cung cấp khoảng giá
-        if min_price and max_price:
-            try:
-                min_price = int(min_price)
-                max_price = int(max_price)
-            except (ValueError, TypeError):
-                dispatcher.utter_message(text="Giá trị không hợp lệ. Vui lòng cung cấp giá trị nguyên.")
-                return []
-            
-            book_service = BookService()
-            books = book_service.find_books_by_price_range(min_price, max_price)
+        # Chuyển đổi giá trị có "k" thành giá trị tương ứng
+        def convert_price(price_str):
+            if price_str:
+                price_str = price_str.lower()
+                match = re.match(r"(\d+)(k|K)?", price_str)
+                if match:
+                    price_value = int(match.group(1))
+                    if match.group(2):  # Nếu có "k"
+                        price_value *= 1000
+                    return price_value
+            return None
 
-            if books:
-                book_details = extract_book_details(books)
-                response = {
-                    "text": f"Tôi tìm thấy các sách với giá từ {min_price} đến {max_price} VND:",
-                    "books": book_details, 
-                }
-                dispatcher.utter_message(json_message=response)
-            else:
-                dispatcher.utter_message(
-                    text=f"Không tìm thấy sách nào với giá từ {min_price} đến {max_price} VND."
-                )
-            return []
-
-        # Xử lý nếu người dùng cung cấp giá cụ thể
+        # Chuyển đổi giá trị price, min_price và max_price
         if price:
-            try:
-                price = int(price)
-            except (ValueError, TypeError):
-                dispatcher.utter_message(text="Giá trị không hợp lệ. Vui lòng cung cấp giá trị nguyên.")
-                return []
-            
-            # Kiểm tra điều kiện "giá lớn hơn"
-            if "cao hơn" in tracker.latest_message["text"] or "lớn hơn" in tracker.latest_message["text"] or "trên" in tracker.latest_message["text"]:
+            price = convert_price(price)
+
+        # Xử lý yêu cầu tìm sách theo các điều kiện khác nhau
+        if price:
+            # Kiểm tra các từ khóa tìm kiếm (lớn hơn, nhỏ hơn, khoảng)
+            price_condition = tracker.latest_message["text"].lower()
+            print(price_condition)
+            if "lớn hơn" in price_condition or "cao hơn" in price_condition or "trên" in price_condition:
+                # Tìm sách với giá lớn hơn
                 book_service = BookService()
                 books = book_service.find_books_by_min_price(price)
+                response = f"Tôi tìm thấy các sách với giá lớn hơn {price} VND:"
                 if books:
                     book_details = extract_book_details(books)
                     response = {
@@ -184,29 +177,118 @@ class ActionSearchBooksByPrice(Action):
                     dispatcher.utter_message(json_message=response)
                 else:
                     dispatcher.utter_message(
-                        text=f"Không tìm thấy sách nào với giá lớn hơn {price} VND."
+                        text=f"Không tìm thấy các sách với giá lớn hơn {price} VND:"
                     )
-                return []
 
+            elif "bé hơn" in price_condition or "nhỏ hơn" in price_condition or "dưới" in price_condition:
+                # Tìm sách với giá nhỏ hơn
+                book_service = BookService()
+                books = book_service.find_books_by_max_price(price)
+                if books:
+                    book_details = extract_book_details(books)
+                    response = {
+                        "text": f"Tôi tìm thấy các sách với giá nhỏ hơn {price} VND:",
+                        "books": book_details, 
+                    }
+                    print(response)
+                    dispatcher.utter_message(json_message=response)
+                else:
+                    dispatcher.utter_message(
+                        text=f"Không tìm thấy các sách với giá nhỏ hơn {price} VND:"
+                    )
+
+            elif "khoảng" in price_condition or "khoản" in price_condition:
+                # Tìm sách trong khoảng giá
+                match = re.search(r"(khoảng|khoản)\s*(\d+k|\d+)", tracker.latest_message["text"].lower())
+                print(match)
+                if match:
+                    base_price_str = match.group(2)
+                    print(base_price_str)
+                    base_price = convert_price(base_price_str)
+                    print(base_price)
+                    
+                    if base_price:
+                        # Xác định khoảng giá
+                        min_range = base_price - 20000  # Giảm 20k
+                        max_range = base_price + 20000  # Tăng 20k
+
+                        book_service = BookService()
+                        books = book_service.find_books_by_price_range(min_range, max_range)
+
+                        if books:
+                            book_details = extract_book_details(books)
+                            response = {
+                                "text": f"Tôi tìm thấy các sách với giá khoảng {base_price} VND:",
+                                "books": book_details, 
+                            }
+                            dispatcher.utter_message(json_message=response)
+                        else:
+                            dispatcher.utter_message(
+                                text=f"Không tìm thấy các sách với giá khoảng {base_price} VND:"
+                            )
+                    else:
+                        dispatcher.utter_message(text="Giá trị không hợp lệ. Vui lòng cung cấp giá hợp lệ.")
+                else:
+                    dispatcher.utter_message(text="Không tìm thấy sách trong khoảng giá này.")
+        return []
+
+class ActionSearchBooksByPriceRange(Action):
+    def name(self) -> Text:
+        return "action_search_books_by_price_range"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[SlotSet]:
+        price = tracker.get_slot("price")
+        min_price = tracker.get_slot("min_price")
+        max_price = tracker.get_slot("max_price")
+
+        print(f"DEBUG: ------- By Price Range -------")
+        print(f"DEBUG: Giá trị slot 'price': {price}")
+        print(f"DEBUG: Giá trị slot 'min_price': {min_price}")
+        print(f"DEBUG: Giá trị slot 'max_price': {max_price}")
+        print(f"DEBUG: ------- By Price Range -------")
+
+        # Kiểm tra các từ khóa tìm kiếm (lớn hơn, nhỏ hơn, khoảng)
+        price_condition = tracker.latest_message["text"].lower()
+
+        # Chuyển đổi giá trị có "k" thành giá trị tương ứng
+        def convert_price(price_str):
+            if price_str:
+                price_str = price_str.lower()
+                match = re.match(r"(\d+)(k|K)?", price_str)
+                if match:
+                    price_value = int(match.group(1))
+                    if match.group(2):  # Nếu có "k"
+                        price_value *= 1000
+                    return price_value
+            return None
+
+        # Chuyển đổi giá trị price, min_price và max_price
+        if min_price:
+            min_price = convert_price(min_price)
+        if max_price:
+            max_price = convert_price(max_price)
+
+        # Xử lý yêu cầu tìm sách theo các điều kiện khác nhau
+        if min_price and max_price:
+            min_price = int(min_price)
+            max_price = int(max_price)
+            if min_price > max_price:
+                dispatcher.utter_message(text="Giá trị không hợp lệ. Vui lòng cung cấp giá hợp lệ.")
+            
             book_service = BookService()
-            books = book_service.find_books_by_price(price)
-
+            books = book_service.find_books_by_price_range(min_price, max_price)
             if books:
                 book_details = extract_book_details(books)
                 response = {
-                    "text": f"Tôi tìm thấy các sách với giá dưới {price} VND:",
+                    "text": f"Tôi tìm thấy các sách với giá từ {min_price} đến {max_price} VND:",
                     "books": book_details, 
                 }
                 dispatcher.utter_message(json_message=response)
             else:
-                dispatcher.utter_message(
-                    text=f"Không tìm thấy sách nào với giá dưới {price} VND."
-                )
-            return []
-
-        # Trường hợp không có thông tin giá
-        dispatcher.utter_message(text="Bạn vui lòng cung cấp khoảng giá hoặc giá cụ thể.")
+                dispatcher.utter_message(text=f"Không tìm thấy sách nào trong khoảng giá từ {min_price} đến {max_price} VND.")
+        
         return []
+
 
 class ActionFindBookDetails(Action):
     def name(self):

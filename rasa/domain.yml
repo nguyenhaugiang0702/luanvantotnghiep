@@ -2,18 +2,17 @@ version: "3.1"
 
 intents:
   - greet
-  - goodbye
-  - affirm
-  - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - delivery_policy
+  - close_chat
+  - thank_you
+  - need_help
   - search_book
   - search_books_by_author
-  - search_books_by_price
   - search_books_by_publisher
   - find_book_quantity
   - get_book_details
+  - search_books_by_price
+  - search_books_by_price_range
 
 slots:
   book_name:
@@ -33,16 +32,19 @@ slots:
         entity: publisher_name
   price:
     type: float
+    influence_conversation: false
     mappings:
       - type: from_entity
         entity: price
   min_price:
-    type: any
+    type: float
+    influence_conversation: false
     mappings:
       - type: from_entity
         entity: min_price
   max_price:
-    type: any
+    type: float
+    influence_conversation: false
     mappings:
       - type: from_entity
         entity: max_price
@@ -58,39 +60,23 @@ entities:
 responses:
   utter_greet:
     - text: "NHG BOOKSTORE xin hân hạnh được phục vụ bạn"
-
-  utter_cheer_up:
-    - text: "Here is something to cheer you up:"
-      image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-    - text: "Did that help you?"
-
-  utter_happy:
-    - text: "Great, carry on!"
-
-  utter_goodbye:
-    - text: "Bye"
-
-  utter_iamabot:
-    - text: "I am a bot, powered by Rasa."
-
-  utter_ask_book_name:
-    - text: "Bạn muốn tìm sách gì?"
-
-  utter_order_status:
-    - text: "Đơn hàng của bạn đang được xử lý."
-
-  utter_ask_author_name:
-    - text: "Bạn muốn tìm sách của tác giả nào?"
+  utter_delivery_policy:
+    - text: "Chúng tôi giao hàng toàn quốc, thời gian giao hàng từ 2-5 ngày làm việc tùy vào khu vực."
+  utter_thank:
+    - text: "Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi! Nếu bạn cần thêm thông tin, đừng ngần ngại hỏi tôi nhé."
+  utter_need_help:
+    - text: "Tôi có thể giúp gì cho bạn?"
+  utter_close_chat:
+    - text: "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Chúc bạn một ngày vui vẻ! Hẹn gặp lại lần sau! 👋"
 
 actions:
   - action_search_book
   - action_search_books_by_author
-  - action_search_books_by_price
   - action_search_books_by_publisher
   - action_find_book_quantity
   - action_get_book_details
+  - action_search_books_by_price
+  - action_search_books_by_price_range
 
 session_config:
   session_expiration_time: 60

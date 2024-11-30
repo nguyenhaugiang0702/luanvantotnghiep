@@ -25,78 +25,34 @@ nlu:
     - hello admin
     - hello ad
 
-- intent: goodbye
+- intent: delivery_policy
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - Các bạn giao hàng như thế nào?
+    - Chính sách giao hàng của các bạn thế nào?
+    - Có giao hàng miễn phí không?
+    - Giao hàng mất bao lâu?
 
-- intent: affirm
+- intent: need_help
   examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+    - Tôi cần giúp đỡ.
+    - Có thể giúp tôi không?
+    - Tôi cần trợ giúp.
 
-- intent: deny
+- intent: thank_you
   examples: |
-    - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - Cảm ơn bạn.
+    - Cảm ơn chatbot.
+    - Cảm ơn sự giúp đỡ của bạn.
+    - Cảm ơn shop nha
+    - cảm ơn ad nhiều nha
+    - cảm ơn admin
 
-- intent: mood_great
+- intent: close_chat
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
-
-- intent: mood_unhappy
-  examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
-
-- intent: bot_challenge
-  examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - Tạm biệt.
+    - Bye bye
+    - Đóng chat.
+    - Cảm ơn, tôi muốn kết thúc trò chuyện.
 
 - intent: search_book
   examples: |
@@ -116,19 +72,52 @@ nlu:
 
 - intent: search_books_by_price
   examples: |
-    - Tìm sách giá dưới [100000](price)
+    - Tôi muốn tìm sách giá dưới [100000](price)
     - Tìm sách giá thấp hơn [100000](price)
     - Tìm sách giá bé hơn [100000](price)
-    - Tìm sách giá dưới [100000](price)
-    - Tìm sách giá nhỏ hơn [100000](price)
+    - Tìm sách giá dưới [150k](price)  
+    - Tìm sách giá thấp hơn [150k](price)
+    - Tìm sách giá bé hơn [150k](price)
     - Tìm sách giá cao hơn [100000](price)
     - Tìm sách giá lớn hơn [100000](price)
-    - Sách giá khoảng [300000](price)
-    - Tìm sách giá từ [50000](min_price) đến [200000](max_price)
-    - Sách giá trong khoảng [50000](min_price) - [150000](max_price)
-    - Có sách nào giá lớn hơn [250000](price)?
-    - Có sách nào giá trên [250000](price)?
-    - Sách có giá trên [250000](price)?
+    - Sách giá khoảng [300000](price) 
+    - Sách giá khoảng [250k](price)   
+    - Sách có giá trên [250000](price) 
+    - Có sách nào giá lớn hơn [250000](price)? 
+    - Có sách nào giá trên [250000](price)?   
+    - Tôi muốn tìm sách giá khoảng [100k](price) 
+    - Tôi muốn tìm sách giá khoảng [150k](price) 
+    - Tôi muốn tìm sách giá khoảng [200k](price)  
+    - Tìm sách giá khoảng [500k](price)  
+    - Tìm sách giá khoảng [50k](price)   
+
+- intent: search_books_by_price_range
+  examples: |
+    - Tôi muốn tìm sách giá từ [50000](min_price) tới [200000](max_price)
+    - Tìm sách giá từ [50k](min_price) đến [200k](max_price)
+    - Tôi muốn tìm sách có giá từ [100k](min_price) đến [250k](max_price)
+    - Tôi muốn tìm sách trong khoảng từ [120000](min_price) - [250000](max_price) 
+    - Tôi muốn tìm sách giá từ [50000](min_price) đến [200000](max_price)
+    - Tôi muốn tìm sách giá từ [50k](min_price) đến [200k](max_price) 
+    - Tôi muốn tìm sách có giá từ [50k](min_price) đến [155k](max_price) 
+    - Tôi muốn tìm sách có giá từ [156k](min_price) đến [160k](max_price) 
+    - Tìm sách giá từ [100k](min_price) đến [250k](max_price) 
+    - Tìm sách giá từ [100k](min_price) tới [165k](max_price) 
+    - Tìm sách giá từ [150k](min_price) tới [325k](max_price) 
+    - Sách giá trong khoảng từ [50000](min_price) - [150000](max_price) 
+    - Sách giá trong khoảng từ [120000](min_price) - [250000](max_price) 
+    - Sách giá trong khoảng từ [100k](min_price) đến [250k](max_price) 
+    - Sách giá trong khoảng từ [100k](min_price) đến [160k](max_price) 
+    - Sách giá trong khoảng từ [100k](min_price) tới [250k](max_price) 
+    - Sách giá trong khoảng từ [100k](min_price) tới [1600k](max_price) 
+    - Sách giá trong khoảng từ [100k](min_price) - [250k](max_price) 
+    - Sách giá trong khoảng từ [150k](min_price) - [185k](max_price) 
+    - Tôi muốn tìm sách giá từ [50k](min_price) - [200k](max_price) 
+    - Tôi muốn tìm sách giá từ [130k](min_price) - [170k](max_price)
+    - Tôi muốn tìm sách giá từ [50k](min_price) đến [200k](max_price) 
+    - Tôi muốn tìm sách giá từ [150k](min_price) đến [145k](max_price) 
+    - Tôi muốn tìm sách giá từ [50k](min_price) tới [200k](max_price) 
+    - Tôi muốn tìm sách giá từ [120k](min_price) tới [163k](max_price) 
 
 - intent: search_books_by_publisher
   examples: |

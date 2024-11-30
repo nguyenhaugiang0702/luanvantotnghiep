@@ -87,41 +87,7 @@ class BookService:
         }
     
     # Tìm theo giá
-    def find_books_by_price(self, price):
-        """
-        Tìm sách với giá <= price từ MongoDB.
-        """
-        # Query sách có giá sau giảm <= price
-        books = self.books_collection.find({
-            "$expr": {
-                "$and": [
-                    {"isShowed": True},
-                    { "$lte": [{ "$subtract": ["$detail.originalPrice", "$detail.discountPrice"] }, price] },
-                ]
-            }
-        })
-
-        # Chuyển kết quả thành danh sách Python
-        result = []
-        for book in books:
-            original_price = book["detail"]["originalPrice"]
-            discount_price = book["detail"]["discountPrice"]
-            final_price = original_price - discount_price
-
-            result.append({
-                "name": book["name"],
-                "author": book.get("author", "Unknown"),
-                "finalPrice": final_price,
-                "originalPrice": original_price,
-                "category": book.get("category", "Unknown"),
-                "view": book.get("view", 0),
-                "quantitySold": book.get("quantitySold", 0)
-            })
-
-        return result
-    
-    # Tìm theo giá
-    def find_books_by_price(self, price):
+    def find_books_by_max_price(self, price):
         """
         Tìm sách với giá <= price.
         """

@@ -16,6 +16,11 @@ stories:
       - intent: search_books_by_price
       - action: action_search_books_by_price
 
+  - story: search books by price range
+    steps:
+      - intent: search_books_by_price_range
+      - action: action_search_books_by_price_range
+
   - story: search books by publisher name
     steps:
       - intent: search_books_by_publisher
@@ -35,25 +40,24 @@ stories:
     steps:
       - intent: greet
       - action: utter_greet
-      - intent: mood_great
-      - action: utter_happy
-
-  - story: sad path 1
+  
+  - story: need help
     steps:
-      - intent: greet
-      - action: utter_greet
-      - intent: mood_unhappy
-      - action: utter_cheer_up
-      - action: utter_did_that_help
-      - intent: affirm
-      - action: utter_happy
+      - intent: need_help
+      - action: utter_need_help
 
-  - story: sad path 2
+  - story: delivery policy
     steps:
-      - intent: greet
-      - action: utter_greet
-      - intent: mood_unhappy
-      - action: utter_cheer_up
-      - action: utter_did_that_help
-      - intent: deny
-      - action: utter_goodbye
+      - intent: need_help
+      - action: utter_delivery_policy
+  
+  - story: close chat
+    steps:
+      - intent: close_chat
+      - action: utter_close_chat
+
+  - story: thank you
+    steps:
+      - intent: thank_you
+      - action: utter_thank
+
