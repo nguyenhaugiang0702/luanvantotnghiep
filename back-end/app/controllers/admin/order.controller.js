@@ -266,7 +266,6 @@ exports.deleteOrder = async (req, res, next) => {
 exports.findAllOrderConfirmed = async (req, res, next) => {
   try {
     let orders = await orderService.getAllOrdersByAdmin({ status: 2 });
-    console.log(1);
     orders = orders.map((order) => {
       const { statusOptions, statusFormat } =
         orderService.getStatusOptionsAndFormat(order.status);
