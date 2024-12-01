@@ -77,7 +77,8 @@ class BookService:
 
         if not book:
             return None
-
+        return book
+    
         # Trích xuất thông tin quantityImported và quantitySold
         return {
             "name": book.get("name"),
@@ -85,6 +86,7 @@ class BookService:
             "quantitySold": book.get("quantitySold", 0),
             "quantityAvailable": book.get("quantityImported", 0) - book.get("quantitySold", 0)
         }
+    
     
     # Tìm theo giá
     def find_books_by_max_price(self, price):

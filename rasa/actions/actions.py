@@ -117,11 +117,18 @@ class ActionFindBookQuantity(Action):
         book_info = book_service.find_book_quantity(book_name)
 
         if book_info:
-            response = (
-                f"Tôi tìm thấy thông tin sách '{book_info['name']}':\n"
-                f"- Số lượng còn lại: {book_info['quantityAvailable']}"
-            )
-            dispatcher.utter_message(text=response)
+            book_details = extract_book_details(book_info)
+            if book_info['quantityImported'] == 0:
+                response = {
+                    "text": f"Tôi tìm thấy thông tin sách '{book_info['name']}'\n - Đang nhập hàng, bạn có thể xem click để xem thêm",
+                    "books": book_details, 
+                }
+            else:
+                response = {
+                    "text": f"Tôi tìm thấy thông tin sách '{book_info['name']}'\n - với số lượng {book_details[0]['quantityAvailable']} quyển",
+                    "books": book_details, 
+                }
+            dispatcher.utter_message(json_message=response)
         else:
             dispatcher.utter_message(text=f"Xin lỗi, tôi không tìm thấy sách nào có tên '{book_name}'.")
 
@@ -315,6 +322,7 @@ class ActionFindBookDetails(Action):
                 "category": book_detail["category"],
                 "formality": book_detail["formality"],
                 "finalPrice": book_detail["finalPrice"],
+                "quantityImported": book_detail["quantityImported"],
                 "quantityAvailable": book_detail["quantityAvailable"],
                 "publisher_year": book_detail["publisher_year"],
                 "image": book_detail["image"],
@@ -348,12 +356,19 @@ def extract_book_details(books):
         # Lấy hình ảnh (có thể lấy ảnh đầu tiên hoặc một mảng ảnh)
         image_path = book.get("images", [{}])[0].get("path", "")
 
+        # Tính toán số lượng còn lại
+        quantity_imported = book.get("quantityImported", 0)
+        quantity_sold = book.get("quantitySold", 0)
+        quantity_available = quantity_imported - quantity_sold
+
         # Tạo đối tượng chứa thông tin sách
         book_info = {
             "_id": str(book.get("_id")),
             "name": book.get("name", "Chưa có tên sách"),
             "price": f"{price}",
             "image": image_path,
+            "quantityImported": quantity_imported,
+            "quantityAvailable": max(quantity_available, 0),
         }
         book_details.append(book_info)
 
