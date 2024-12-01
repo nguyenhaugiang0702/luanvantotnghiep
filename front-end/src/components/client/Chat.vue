@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="chat">
     <!-- Chat box -->
     <div class="card" style="width: 27rem; height: 30rem">
       <div
@@ -168,6 +168,7 @@ onBeforeUnmount(() => {
 button.btn-rounded {
   border-radius: 50%;
 }
+
 .notifycation {
   position: absolute;
   top: 15px;
@@ -195,5 +196,11 @@ button.btn-rounded {
   border-style: solid;
   border-width: 8px 10px 8px 0;
   border-color: transparent #e3eaf0 transparent transparent ; /* Màu primary */
+}
+
+.chat{
+  position: fixed;
+  bottom: -13px;
+  right: 0;
 }
 </style>

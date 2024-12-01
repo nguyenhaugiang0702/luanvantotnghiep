@@ -113,9 +113,9 @@
       </div>
     </div>
     <!-- Chat component fixed at the bottom-right -->
-    <div class="position-fixed bottom-0 end-0 p-2">
+    <div class="position-fixed bottom-0 end-0">
       <!-- Chat button -->
-      <div v-if="isChatButtonVisible">
+      <div v-if="isChatButtonVisible" class="mb-2">
         <button class="btn btn-primary rounded-circle p-3" @click="toggleChat">
           <i class="fa-regular fa-comments fs-4"></i>
           <span

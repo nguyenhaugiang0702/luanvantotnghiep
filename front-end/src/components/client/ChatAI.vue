@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="chat">
     <!-- Chat box -->
     <div class="card" style="width: 27rem; height: 30rem">
       <div
@@ -84,25 +84,16 @@
                     />
                     <div class="d-flex flex-column ms-3">
                       <p class="mb-0">
-                        {{ message.books.book_name }}
+                        {{ message.books.book_name || 'Chưa biết' }}
                       </p>
                       <p class="mb-0 text-danger">
-                        Giá: {{ formatPrice(message.books.finalPrice) }}
+                        Giá: {{ formatPrice(message.books.finalPrice)  || 'Chưa biết'}}
                       </p>
-                      <p class="mb-0">Tác giả: {{ message.books.author }}</p>
+                      <p class="mb-0">Tác giả: {{ message.books.author || 'Chưa biết' }}</p>
                       <p class="mb-0">
-                        Nhà xuất bản: {{ message.books.publisher }}
+                        Nhà xuất bản: {{ message.books.publisher || 'Chưa biết' }}
                       </p>
-                      <p class="mb-0">
-                        Hình thức: {{ message.books.formality }}
-                      </p>
-                      <p class="mb-0">
-                        Năm XB: {{ message.books.publisher_year }}
-                      </p>
-                      <p class="mb-0">Thể loại: {{ message.books.category }}</p>
-                      <p class="mb-0">
-                        Số lượng còn lại: {{ message.books.quantityAvailable }}
-                      </p>
+                      <p class="mb-0">Thể loại: {{ message.books.category || 'Chưa biết' }}</p>
                     </div>
                   </router-link>
                 </div>
@@ -341,5 +332,11 @@ button.btn-rounded {
   100% {
     transform: translateY(0); /* Trở về vị trí ban đầu */
   }
+}
+
+.chat{
+  position: fixed;
+  bottom: -13px;
+  right: 0;
 }
 </style>
