@@ -248,9 +248,14 @@ exports.deleteOrder = async (req, res, next) => {
     if (!currentOrder) {
       return next(new ApiError(404, "Không tìm thấy đơn hàng"));
     }
-    // Xóa đơn hàng ơ trạng thái "Đang chờ xác nhận", "yêu cầu hủy" hoặc "Đã hủy"
-    if (currentOrder.status === 2) {
-      return next(new ApiError(400, "Không thể xóa đơn hàng đã xác nhận"));
+    // Chỉ cho phép xóa các trạng thái: 1, 3, 4, 7
+    if (![1, 3, 4, 7].includes(currentOrder.status)) {
+      return next(
+        new ApiError(
+          400,
+          "Không thể xóa đơn hàng ở trạng thái hiện tại"
+        )
+      );
     }
 
     const deleteOrder = await orderService.deleteOrderByID(orderID);

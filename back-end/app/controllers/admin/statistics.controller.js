@@ -38,8 +38,7 @@ exports.findRevenueWithDate = async (req, res, next) => {
     // Lấy ra các đơn hàng đã giao (status : 8)
     const matchCondition = {
       $and: [
-        { status: { $gte: 2 } }, // Lấy các status > 2
-        { status: { $nin: [3, 4, 7] } }, // Loại bỏ status 3, 4, và 7
+        { status: { $gte: 8 } }, // Lấy các đơn hàng có status >= 8
       ],
       createdAt: {
         $gte: start,
@@ -108,7 +107,7 @@ exports.calculateProductProfit = async (req, res, next) => {
 
     const matchCondition = {
       createdAt: { $gte: start, $lte: end },
-      status: 8,
+      status: { $gte: 8 }, 
     };
 
     if (bookID) {
