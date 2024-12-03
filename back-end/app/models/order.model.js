@@ -49,6 +49,11 @@ const orderSchema = new mongoose.Schema({
     state: { type: String, default: null },
     amount: { type: Number, default: null },
   },
+  shipperID:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+    default: null,
+  },
   createdAt: Date,
   updatedAt: Date,
 });

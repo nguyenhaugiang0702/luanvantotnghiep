@@ -81,7 +81,7 @@ exports.updateStatus = async (req, res, next) => {
     if (!order) {
       return next(new ApiError(404, "Đơn hàng không tồn tại!"));
     }
-    if(status === 1){
+    if (status === 1) {
       // Admin từ chối hủy đơn cho khách
       const orderUpdateStatus = await orderService.updateStatus(
         orderID,
@@ -90,8 +90,7 @@ exports.updateStatus = async (req, res, next) => {
       if (!orderUpdateStatus) {
         return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng!"));
       }
-    }
-    else if (status === 2) {
+    } else if (status === 2) {
       // Admin xác nhận đơn hàng -> Tăng số lượng bán
       const error = await updateBookQuantities(order.detail);
       if (error) return next(new ApiError(400, error));
@@ -113,7 +112,7 @@ exports.updateStatus = async (req, res, next) => {
         return next(
           new ApiError(
             400,
-            "Lỗi khi cập nhật trạng thái giao hàng không thành công"
+            "Lỗi khi cập nhật trạng thái đơn hàng"
           )
         );
       }
@@ -200,6 +199,28 @@ exports.updateStatus = async (req, res, next) => {
           wasPaided: true,
         });
       }
+    } else if (status === 5 || status === 6) {
+      const shipperID = req.admin.id;
+      if (status === 5) {
+        const updateGettedOrder = await orderService.updateStatus(orderID, {
+          status: status,
+          shipperID: shipperID,
+        });
+        if (!updateGettedOrder) {
+          return next(
+            new ApiError(400, "Lỗi khi cập nhật trạng thái nhận hàng")
+          );
+        }
+      } else if (status === 6) {
+        const updateGettedOrder = await orderService.updateStatus(orderID, {
+          status: status,
+        });
+        if (!updateGettedOrder) {
+          return next(
+            new ApiError(400, "Lỗi khi cập nhật trạng thái đang giao hàng")
+          );
+        }
+      }
     }
 
     // Lấy io từ app và phát thông báo đến admin
@@ -251,10 +272,7 @@ exports.deleteOrder = async (req, res, next) => {
     // Chỉ cho phép xóa các trạng thái: 1, 3, 4, 7
     if (![1, 3, 4, 7].includes(currentOrder.status)) {
       return next(
-        new ApiError(
-          400,
-          "Không thể xóa đơn hàng ở trạng thái hiện tại"
-        )
+        new ApiError(400, "Không thể xóa đơn hàng ở trạng thái hiện tại")
       );
     }
 
@@ -268,18 +286,37 @@ exports.deleteOrder = async (req, res, next) => {
   }
 };
 
-exports.findAllOrderConfirmed = async (req, res, next) => {
+exports.findAllOrderByStatus = async (req, res, next) => {
   try {
-    let orders = await orderService.getAllOrdersByAdmin({ status: 2 });
+    const shipperID = req.admin.id;
+    const status = parseInt(req.query.status);
+
+    let orders;
+    if ([5, 6, 8].includes(status)) {
+      orders = await orderService.getAllOrdersByAdmin({
+        status: status,
+        shipperID: shipperID,
+      });
+    }
+    // Nếu status là 2, thì trả về tất cả các đơn hàng có status = 2
+    else if (status === 2) {
+      orders = await orderService.getAllOrdersByAdmin({ status: 2 });
+    } else {
+      return next(new ApiError(400, "Trạng thái đơn hàng không hợp lệ!"));
+    }
+
+    // Map thêm thông tin statusOptions và statusFormat
     orders = orders.map((order) => {
       const { statusOptions, statusFormat } =
         orderService.getStatusOptionsAndFormat(order.status);
-      // Gán mảng statusOptions cho từng đơn hàng
       return { ...order._doc, statusOptions, status: statusFormat };
     });
-    if (!orders) {
-      return next(new ApiError(400, "Lỗi khi lấy tất cả đơn hàng!"));
+
+    // Kiểm tra nếu không có đơn hàng nào được tìm thấy
+    if (!orders || orders.length === 0) {
+      return next(new ApiError(404, "Không tìm thấy đơn hàng!"));
     }
+
     return res.send(orders);
   } catch (error) {
     console.log(error);
