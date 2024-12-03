@@ -29,7 +29,8 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setString('refreshToken', response['refreshToken']);
       _isLoggedIn = true; // Cập nhật trạng thái đăng nhập thành công
       await prefs.setBool('isLoggedIn', response['isLoggedIn']);
-
+      print('accessToken - ' + prefs.getString('accessToken')!);
+      print('refreshToken - ' + prefs.getString('refreshToken')!);
       notifyListeners();
     } catch (e) {
       rethrow;

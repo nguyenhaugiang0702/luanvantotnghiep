@@ -120,7 +120,6 @@
 //   }
 // }
 
-
 import '../../providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/all_order_tab.dart';
@@ -154,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrderProvider>().fetchOrders();
+      context.read<OrderProvider>().fetchOrders(2);
     });
   }
 
@@ -223,7 +222,15 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentIndex = index;
           _searchQuery = '';
         });
-        context.read<OrderProvider>().fetchOrders();
+        if (_currentIndex == 0) {
+          context.read<OrderProvider>().fetchOrders(2);
+        } else if (_currentIndex == 1) {
+          context.read<OrderProvider>().fetchOrders(5);
+        } else if (_currentIndex == 2) {
+          context.read<OrderProvider>().fetchOrders(6);
+        } else if (_currentIndex == 3) {
+          context.read<OrderProvider>().fetchOrders(8);
+        }
         context.read<AuthProvider>().fetchShipperInfo();
       },
       child: Column(

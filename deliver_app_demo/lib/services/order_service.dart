@@ -10,9 +10,9 @@ class OrderService {
   final DioBase _dioBase;
 
   OrderService(this._dioBase);
-  Future<List<dynamic>> getOrders() async {
+  Future<List<dynamic>> getOrders(status) async {
     try {
-      final response = await _dioBase.dio.get('orders');
+      final response = await _dioBase.dio.get('orders/ordersByStatus?status=${status}');
       return response.data;
     } catch (e) {
       throw Exception('Failed to fetch orders');

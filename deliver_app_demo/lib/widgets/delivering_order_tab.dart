@@ -62,7 +62,7 @@ class DeliveringOrdersTab extends StatelessWidget {
                   );
 
                   // Refresh orders after returning
-                  orderProvider.fetchOrders();
+                  orderProvider.fetchOrders(6);
                 },
               ),
             );

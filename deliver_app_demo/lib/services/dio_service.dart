@@ -10,13 +10,12 @@ class DioBase {
   DioBase() {
     dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 60),
-      receiveTimeout: const Duration(seconds: 60),
+      connectTimeout: const Duration(seconds: 10000),
+      receiveTimeout: const Duration(seconds: 10000),
     ));
 
     dio.interceptors
         .add(InterceptorsWrapper(onRequest: (options, handler) async {
-      // Get token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final accessToken = prefs.getString('accessToken');
       final refreshToken = prefs.getString('refreshToken');

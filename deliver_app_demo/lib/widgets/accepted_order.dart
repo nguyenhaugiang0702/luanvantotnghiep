@@ -62,7 +62,7 @@ class AcceptedOrdersTab extends StatelessWidget {
                   );
 
                   // Refresh orders after returning
-                  orderProvider.fetchOrders();
+                  orderProvider.fetchOrders(5);
                 },
               ),
             );
