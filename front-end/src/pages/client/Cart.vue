@@ -51,9 +51,9 @@
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
                   <span>Giảm giá:</span>
-                  <span class="price text-success">-{{
-                    formatPrice(selectedBooks.discountValue)
-                  }}</span>
+                  <span class="price text-success"
+                    >-{{ formatPrice(selectedBooks.discountValue) }}</span
+                  >
                 </div>
                 <div
                   class="d-flex justify-content-between align-items-center fw-bold"
@@ -112,6 +112,7 @@ const apiUser = new ApiUser();
 const updateCart = inject("updateCart");
 const vouchersEmit = ref([]);
 const updateVoucher = inject("updateVouchers");
+
 const getCartsWithCheckbox = async () => {
   const response = await apiUser.get("/cart/booksCheckBox");
   if (response.status === 200) {
@@ -127,6 +128,7 @@ const getVouchersUseds = async () => {
 };
 
 const refreshCartMethod = async (data) => {
+  console.log('refresh getCartsWithCheckbox');
   await getCartsWithCheckbox();
   vouchersEmit.value = data;
 };
@@ -141,10 +143,17 @@ onMounted(async () => {
   await getCartsWithCheckbox();
   await getVouchersUseds();
   socket.value = io("http://localhost:3000");
-  socket.value.on("hasNewVoucherUpdate", async (data) => {
+  await socket.value.on("hasNewVoucherUpdate", async (data) => {
     if (data.vouchers) {
+      await refreshCartMethod();
       updateVoucher.value += 1;
-      await getBookCheckOut();
+    }
+  });
+  await socket.value.on("hasNewHideBook", async (data) => {
+    if (data.book) {  
+      await refreshCartMethod(); 
+      updateVoucher.value += 1;
+      updateCart.value += 1;
     }
   });
 });

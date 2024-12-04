@@ -152,7 +152,8 @@
                         errors.categoryName ||
                         (!selectCategoryID &&
                           searchCategoryValue !== '' &&
-                          !categoryID),
+                          !categoryID) ||
+                        (searchCategoryValue === '' && !categoryID),
                       'is-valid':
                         !errors.categoryName ||
                         (book.categoryID !== '' &&
@@ -178,9 +179,9 @@
                   <ErrorMessage name="categoryName" class="invalid-feedback" />
                   <span
                     v-if="
-                      !selectCategoryID &&
-                      searchCategoryValue !== '' &&
-                      !categoryID
+                      (!selectCategoryID &&
+                        searchCategoryValue !== '' &&
+                        !categoryID)
                     "
                     style="color: #dc3545; font-size: 0.875em"
                     >Vui lòng chọn thể loại</span

@@ -77,7 +77,7 @@
               </div>
 
               <!-- Content -->
-              <div class="flex-grow-1">
+              <div @click="handleNavigate(router, 'profile-vouchers')" class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
                     <h6 class="mb-1 fw-bold text-danger">
@@ -142,9 +142,9 @@
               </div>
 
               <!-- Content -->
-              <div class="flex-grow-1">
+              <div @click="handleNavigate(router, 'profile-vouchers')" class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-start">
-                  <div>
+                  <div >
                     <h6 class="mb-1 fw-bold text-warning">
                       Voucher sắp hết hạn!
                     </h6>
@@ -201,6 +201,7 @@ const vouchers = ref({
   upcomingExpiredVouchers: [],
   message: "",
 });
+const router = useRouter();
 const checkExpireVoucher = async () => {
   if (token) {
     const response = await apiUser.get("/vouchers/voucherUseds/checkExpire");

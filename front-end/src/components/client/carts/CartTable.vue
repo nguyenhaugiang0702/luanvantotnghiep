@@ -124,6 +124,7 @@ import { formatPrice } from "@/utils/utils";
 import { showConfirmation } from "@/utils/swalUtils";
 import { toast } from "vue3-toastify";
 import { showSuccessToast, showErrorToast } from "@/utils/toast.util";
+import { io } from "socket.io-client";
 
 export default {
   emit: ["refreshVouchers"],
@@ -136,6 +137,8 @@ export default {
     const isLoggedIn = Cookies.get("isLoggedIn");
     const updateCart = inject("updateCart");
     const updateVouchers = inject("updateVouchers");
+    const socket = ref(null);
+
     const getCarts = async () => {
       if (token) {
         const response = await apiUser.get("/cart");
@@ -152,8 +155,14 @@ export default {
       }
     };
 
-    onMounted(() => {
-      getCarts();
+    onMounted(async () => {
+      socket.value = io("http://localhost:3000");
+      socket.value.on("hasNewHideBook", async (data) => {
+        if (data.book) {
+          await getCarts();
+        }
+      });
+      await getCarts();
     });
 
     const increaseQuantity = async (book) => {

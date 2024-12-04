@@ -104,6 +104,16 @@
                     }}
                   </p>
                 </div>
+                <div class="col">
+                  <p>
+                    Thể loại:
+                    {{
+                      book.categoryID?.name
+                        ? book.categoryID?.name
+                        : "Đang cập nhật..."
+                    }}
+                  </p>
+                </div>
               </div>
               <div class="row">
                 <div class="col">
@@ -204,7 +214,7 @@
                 <!-- Phần mô tả sản phẩm có thể cuộn -->
                 <div
                   class="description-content"
-                  v-html="book.description"
+                  v-html="book.description ? book.description: 'Đang cập nhật'"
                 ></div>
                 <button
                   v-if="isLongDescription"

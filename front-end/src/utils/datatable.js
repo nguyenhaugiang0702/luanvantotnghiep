@@ -1,3 +1,5 @@
+import moment from "moment";
+
 // Cấu hình bỏ cột thao tác trong bảng
 export const exportOptions = {
   columns: ":not(:last-child)",
@@ -24,6 +26,64 @@ export const buttons = [
     extend: "print",
     exportOptions: exportOptions,
     bom: true,
+  },
+];
+
+// Cấu hình các nút xuất dữ liệu
+export const buttonsReceiptDetail = (createdAt) => [
+  {
+    extend: "copy",
+    bom: true,
+    text: "Sao chép",
+    title: () => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY");
+      return `Danh sách chi tiết phiếu nhập - ${formattedDate}`;
+    },
+    customize: (csv) => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY HH:mm:ss");
+      const dateLine = `Ngày nhập: ${formattedDate}\n`;
+      return dateLine + csv;
+    },
+  },
+  {
+    extend: "csv",
+    bom: true,
+    text: "Xuất CSV",
+    title: () => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY");
+      return `Danh sách chi tiết phiếu nhập - ${formattedDate}`;
+    },
+    customize: (csv) => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY HH:mm:ss");
+      const dateLine = `Ngày nhập: ${formattedDate}\n`;
+      return dateLine + csv;
+    },
+  },
+  {
+    extend: "pdf",
+    bom: true,
+    text: "Xuất PDF",
+    title: () => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY");
+      return `Danh sách chi tiết phiếu nhập - ${formattedDate}`;
+    },
+    customize: (doc) => {
+      const formattedDateTime = moment(createdAt).format("DD-MM-YYYY HH:mm:ss");
+      doc.content.splice(0, 0, {
+        text: `Ngày nhập: ${formattedDateTime}`,
+        margin: [0, 0, 0, 12],
+        alignment: "left",
+      });
+    },
+  },
+  {
+    extend: "print",
+    bom: true,
+    text: "In",
+    title: () => {
+      const formattedDate = moment(createdAt).format("DD-MM-YYYY");
+      return `Danh sách chi tiết phiếu nhập - ${formattedDate}`;
+    },
   },
 ];
 

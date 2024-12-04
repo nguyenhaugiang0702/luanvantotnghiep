@@ -91,6 +91,7 @@
                   <div>
                     Thời hạn sử dụng đến -
                     {{ formatDate(voucher.voucherID?.endDate, (time = false)) }}
+                    <span v-if="voucher.isExpiringSoon" class="text-danger fw-bold">(Sắp hết hạn)</span>
                   </div>
                   <div>
                     <div class="mx-auto">Đã sử dụng</div>

@@ -54,7 +54,12 @@
                 >
               </li>
               <li class="nav-item me-2">
-                <a class="nav-link" href="/about">Giới thiệu</a>
+                <a
+                  class="nav-link"
+                  :class="{ active: currentPage === 'about' }"
+                  href="/about"
+                  >Giới thiệu</a
+                >
               </li>
             </ul>
           </div>
@@ -290,13 +295,37 @@
       </div>
       <div class="offcanvas-body">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="/books">Books</a></li>
           <li class="nav-item">
-            <a class="nav-link" href="/categories">Categories</a>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'home' }"
+              href="/"
+              >Trang chủ</a
+            >
           </li>
-          <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
           <li class="nav-item">
-            <a class="nav-link" href="/contact">Contact</a>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'books' }"
+              href="/books"
+              >Cửa hàng</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'discountCode' }"
+              href="/discountCode"
+              >Mã giảm giá</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'about' }"
+              href="/about"
+              >Giới thiệu</a
+            >
           </li>
         </ul>
       </div>
@@ -305,7 +334,7 @@
     <!-- Mobile User Account Menu (Offcanvas) -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="userMenu">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Your Account</h5>
+        <h5 class="offcanvas-title">Tài khoản của tôi</h5>
         <button
           type="button"
           class="btn-close text-reset"
@@ -315,18 +344,47 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="/account">My Account</a>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'profile-infoUser' }"
+              @click="handleNavigate(router, 'profile-infoUser')"
+              >Thông tin cá nhân</a
+            >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/orders">My Orders</a>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'profile-orders-list' }"
+              @click="handleNavigate(router, 'profile-orders')"
+              >Đơn hàng</a
+            >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/wishlist">Wishlist</a>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'profile-address-list' }"
+              @click="handleNavigate(router, 'profile-address')"
+              >Địa chỉ</a
+            >
           </li>
           <li class="nav-item">
-            <button class="nav-link btn btn-link" @click="signOut">
-              Sign Out
-            </button>
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'profile-password' }"
+              @click="handleNavigate(router, 'profile-password')"
+              >Đổi mật khẩu</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ active: currentPage === 'profile-vouchers' }"
+              @click="handleNavigate(router, 'profile-vouchers')"
+              >Mã giảm giá</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" @click="logOut"> Đăng xuất </a>
           </li>
         </ul>
       </div>
@@ -343,7 +401,7 @@ import config from "@/config/index";
 import EmptyCart from "./carts/EmptyCart.vue";
 import Cookies from "js-cookie";
 import { showConfirmation } from "@/utils/swalUtils";
-import Notification from '../../components/client/Notification.vue';
+import Notification from "../../components/client/Notification.vue";
 
 const route = useRoute();
 const router = useRouter();

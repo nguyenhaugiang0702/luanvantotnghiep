@@ -5,7 +5,9 @@
         <a-breadcrumb-item>Nhập hàng</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">Danh sách</a-breadcrumb-item>
         <a-breadcrumb-item class="fw-bold">{{
-          supplier.name +' - '+ formatDate(receiptDetail.createdAt, (time = ttrue))
+          supplier.name +
+          " - " +
+          formatDate(receiptDetail.createdAt, (time = ttrue))
         }}</a-breadcrumb-item>
       </a-breadcrumb>
       <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
@@ -26,7 +28,7 @@
                   responsive: false,
                   autoWidth: true,
                   dom: 'lBfrtip',
-                  buttons: buttons,
+                  buttons: buttonsReceiptDetailConfig,
                   language: language,
                 }"
                 class="display table table-striped table-bordered"
@@ -68,7 +70,7 @@ DataTable.use(pdfmake);
 DataTable.use(ButtonsHtml5);
 import "datatables.net-responsive-bs5";
 import "datatables.net-select-bs5";
-import { buttons, language } from "@/utils/datatable";
+import { buttonsReceiptDetail, language } from "@/utils/datatable";
 
 //
 import ApiAdmin from "../../../service/admin/apiAdmin.service";
@@ -127,16 +129,21 @@ export default defineComponent({
 
     onMounted(getReceiptDetail);
 
+    const buttonsReceiptDetailConfig = computed(() =>
+      buttonsReceiptDetail(receiptDetail.value.createdAt)
+    );
+
     return {
       getReceiptDetail,
       columns,
       receiptDetail,
-      buttons,
+      buttonsReceiptDetail,
       language,
       formatPrice,
       supplier,
       receiptID,
       formatDate,
+      buttonsReceiptDetailConfig
     };
   },
 });

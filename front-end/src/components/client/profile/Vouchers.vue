@@ -42,16 +42,17 @@
                     </span>
                   </h3>
                   <div
-                    class="code"
-                    :class="{
-                      'code-apply': voucher.voucherID?.usedPercentage === 100,
-                    }"
+                    v-if="voucher.voucherID?.usedPercentage === 100"
+                    class="code code-apply"
                   >
-                    {{
-                      voucher.voucherID?.usedPercentage === 100
-                        ? "Đã hết"
-                        : "Dùng ngay"
-                    }}
+                    Đã hết
+                  </div>
+                  <div
+                    v-else
+                    class="code"
+                    @click="handleNavigate(router, 'cart')"
+                  >
+                    Dùng ngay
                   </div>
                 </div>
 
@@ -61,6 +62,7 @@
                     {{
                       moment(voucher.voucherID?.endDate).format("DD/MM/YYYY")
                     }}
+                    <span class="text-danger fw-bold" v-if="voucher.isExpiringSoon">(Sắp hết hạn)</span>
                   </div>
                   <div class="code code-apply">
                     {{ voucher.voucherID?.code }}
@@ -99,16 +101,15 @@
         />
       </div>
     </div>
-    <div v-else class="d-flex justify-content-center">
-      Không có mã giảm giá
-    </div>
+    <div v-else class="d-flex justify-content-center">Không có mã giảm giá</div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+import {useRouter} from 'vue-router';
 import ApiUser from "@/service/user/apiUser.service";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, handleNavigate } from "@/utils/utils";
 import moment from "moment";
 import Pagination from "../../Pagination.vue";
 
@@ -117,6 +118,7 @@ const vouchers = ref([]);
 const currentPage = ref(1);
 const limit = ref(4);
 const totalPages = ref(1);
+const router = useRouter();
 const getVouchers = async (page, limit) => {
   const response = await apiUser.get(
     `/vouchers/voucherUseds?page=${page}&limit=${limit}`

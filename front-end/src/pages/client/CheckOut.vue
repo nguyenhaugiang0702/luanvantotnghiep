@@ -564,6 +564,12 @@ onMounted(async () => {
       await getShippingFee();
     }
   });
+  await socket.value.on("hasNewHideBook", async (data) => {
+    if (data.book) {  
+      updateVoucher.value += 1;
+      await getBookCheckOut();
+    }
+  });
 });
 </script>
 <style scoped>
