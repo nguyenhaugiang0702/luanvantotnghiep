@@ -162,12 +162,24 @@ exports.findAllVoucherUseds = async (req, res, next) => {
         },
       };
     });
-    // Lọc voucher hết hạn
-    const validVouchers = voucherUseds.filter((voucherUsed) => {
+    // Lọc và thêm trạng thái "sắp hết hạn"
+    const validVouchers = voucherUseds.map((voucherUsed) => {
       const endDate = moment(voucherUsed.voucherID.endDate)
         .tz("Asia/Ho_Chi_Minh")
         .endOf("day")
-        .toDate(); // Chuyển đổi endDate sang đối tượng Date
+        .toDate();
+
+      const isExpiringSoon = moment(endDate).isSame(currentDate, "day"); // Kiểm tra xem endDate có cùng ngày với currentDate không
+
+      return {
+        ...voucherUsed,
+        isExpiringSoon, // Thêm thuộc tính này vào kết quả
+      };
+    }).filter((voucherUsed) => {
+      const endDate = moment(voucherUsed.voucherID.endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .endOf("day")
+        .toDate();
       return endDate >= currentDate; // Kiểm tra xem endDate có lớn hơn hoặc bằng currentDate không
     });
     // Phân trang
@@ -178,7 +190,6 @@ exports.findAllVoucherUseds = async (req, res, next) => {
     }
     const totalVouchersUsed = validVouchers.length;
     const totalPages = Math.ceil(totalVouchersUsed / limit);
-
     return res.send({
       currentPage: page,
       totalPages: totalPages,
@@ -204,11 +215,11 @@ exports.updateVoucherUseds = async (req, res, next) => {
       return next(new ApiError(400, "Vui lòng đăng nhập"));
     }
     // Check giỏ hàng có sản phẩm đã check chưa
-    const cart = await cartService.getCartByUserID(userID);
+    const cart = await cartService.getFullInfoCartByUserID({ userID: userID });
     if (!cart) {
       return next(new ApiError(404, "Không tìm thấy giỏ hàng"));
     }
-    const isExistBookIsCheckOut = cart.books.some((book) => book.isCheckOut);
+    const isExistBookIsCheckOut = cart.books.some((book) => book.isCheckOut && book.bookID.isShowed);
 
     // Check số lượng voucher
     const currentVoucher = await voucherService.getVoucherByID(voucherID);

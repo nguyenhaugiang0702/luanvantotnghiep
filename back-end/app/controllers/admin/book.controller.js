@@ -1,6 +1,7 @@
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
 const bookService = require("../../services/book.service");
+const cartService = require("../../services/cart.service");
 const upload = require("../../utils/multer.util");
 const fs = require("fs").promises;
 const path = require("path");
@@ -264,11 +265,18 @@ exports.hideBook = async (req, res, next) => {
     if (!updateBook) {
       return next(new ApiError(400, "Lỗi khi ẩn sách"));
     }
+    // Gọi service để cập nhật isCheckOut
+    await cartService.updateIsCheckOutForBookInCarts(bookID);
     // Lấy io từ app và phát thông báo đến admin
     const io = require("../../../app").get("socketIo");
     io.emit("hasNewHideBook", {
       book: {
         message: "Có sách bị ẩn",
+      },
+    });
+    io.emit("hasNewVoucherUpdate", {
+      vouchers: {
+        message: "cập nhật vouchers",
       },
     });
     return res.send({

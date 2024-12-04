@@ -108,12 +108,41 @@ exports.findAll = async (req, res, next) => {
         });
       }
     }
-    totalQuantity = cart?.books?.length;
+    totalQuantity = filteredBooks.reduce((acc, book) => {
+      return acc + book.quantity;
+    }, 0);
+    totalPrice = filteredBooks.reduce(
+      (acc, book) => acc + book.quantity * book.price,
+      0
+    );
+
     const cartWithQuantity = {
       ...cart?._doc,
       books: filteredBooks,
       totalQuantity: totalQuantity,
+      totalPrice: totalPrice,
     };
+    // Tìm mã giảm gía đã được áp dụng và chưa sử dụng + chưa check vào sách nào => cập nhật isApplied: false
+    const discountCodeApplied = await voucherUsedsService.getOneVoucherUsed({
+      userID: userID,
+      isApplied: true,
+      isUsed: false,
+    });
+    const isExistBookIsCheckOut =
+      cart.books.some((book) => book.isCheckOut && book.bookID.isShowed) ||
+      false;
+
+    if (discountCodeApplied && !isExistBookIsCheckOut) {
+      await voucherUsedsService.updateVoucherUseds(discountCodeApplied._id, {
+        isApplied: false,
+      });
+    }
+
+    // Lưu lại `totalPrice` và `totalQuantity` vào giỏ hàng trong database
+    await cartService.updateCart(userID, {
+      totalPrice: totalPrice,
+      updatedAt: moment.tz("Asia/Ho_Chi_Minh"),
+    });
 
     return res.send(cartWithQuantity);
   } catch (error) {
@@ -142,7 +171,23 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
       userID: userID,
       isApplied: true,
       isUsed: false,
+      isDeleted: false,
     });
+    const discountCodeDeletedByAdmin =
+      await voucherUsedsService.getOneVoucherUsed({
+        userID: userID,
+        isApplied: true,
+        isUsed: false,
+        isDeleted: true,
+      });
+    if (discountCodeDeletedByAdmin) {
+      await voucherUsedsService.updateVoucherUseds(
+        discountCodeDeletedByAdmin._id,
+        {
+          isApplied: false,
+        }
+      );
+    }
 
     const cart = await cartService.getFullInfoCartByUserID({
       userID: userID,
@@ -155,12 +200,10 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
         totalWeight += bookObj.detail.weight * book.quantity; // Tổng trọng lượng
         checkedOutBooks.push(book);
       }
-      if(book.bookID.isShowed){
+      if (book.bookID.isShowed) {
         bookInCart.push(book);
-        // console.log(book.bookID.isShowed);
       }
     });
-
 
     // Lưu lại tổng giá trị chưa giảm
     originalTotalPrice = totalPrice;

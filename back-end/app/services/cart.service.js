@@ -207,6 +207,21 @@ const updateCart = async (userID, cartData) => {
   });
 };
 
+const updateIsCheckOutForBookInCarts = async (bookID) => {
+  const result = await Cart.updateMany(
+    { "books.bookID": bookID },
+    {
+      $set: {
+        "books.$[elem].isCheckOut": false,
+      },
+    },
+    {
+      arrayFilters: [{ "elem.bookID": bookID }],  // Lọc phần tử trong mảng books dựa trên bookID.
+    }
+  );
+  return result;
+};
+
 module.exports = {
   createCartByUserID,
   deleteBookFromCart,
@@ -221,4 +236,5 @@ module.exports = {
   calculateTotalPriceAndCheckStock,
   updateCartItems,
   updateCart,
+  updateIsCheckOutForBookInCarts,
 };
