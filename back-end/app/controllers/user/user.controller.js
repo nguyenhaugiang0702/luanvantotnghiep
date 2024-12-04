@@ -1,4 +1,5 @@
 const userService = require("../../services/user.service");
+const adminService = require("../../services/admin.service");
 const otpService = require("../../services/otp.service");
 const moment = require("moment-timezone");
 const ApiError = require("../../api-error");
@@ -51,6 +52,19 @@ exports.update = async (req, res, next) => {
       if (currentTime.isAfter(moment(otpRecord.expiresAt))) {
         return next(new ApiError(400, "Mã OTP đã hết hạn."));
       }
+
+      // Kiểm tra số điện thoại trùng lặp
+      const existingPhoneInUser = await userService.checkPhoneNumberExist(
+        newPhoneNumber
+      );
+      const existingPhoneInAdmin = await adminService.checkPhoneNumberExist(
+        newPhoneNumber
+      );
+
+      if (existingPhoneInUser || existingPhoneInAdmin) {
+        return next(new ApiError(400, "Số điện thoại đã được sử dụng"));
+      }
+
       req.body.phoneNumber = newPhoneNumber;
       const userUpdate = await userService.updateUser(userID, req.body);
       return res.send({
@@ -72,6 +86,19 @@ exports.update = async (req, res, next) => {
       if (currentTime.isAfter(moment(otpRecord.expiresAt))) {
         return next(new ApiError(400, "Mã OTP đã hết hạn."));
       }
+
+      // Kiểm tra email trùng lặp
+      const existingEmailInUser = await userService.checkEmailExist(
+        newPhoneNumber
+      );
+      const existingEmailInAdmin = await adminService.checkEmailExist(
+        newPhoneNumber
+      );
+
+      if (existingEmailInUser || existingEmailInAdmin) {
+        return next(new ApiError(400, "Email đã được sử dụng"));
+      }
+
       const userUpdate = await userService.updateUser(userID, { email: email });
       return res.send({
         message: "Cập nhât thành công",

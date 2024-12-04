@@ -1,4 +1,5 @@
 const userService = require("../../services/user.service");
+const adminService = require("../../services/admin.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
@@ -134,48 +135,65 @@ exports.createOTP = async (req, res, next) => {
   try {
     if (phoneNumber) {
       // Gửi mã OTP qua số điện thoại
+      // Check trùng sdt bảng user + admin
       const userExistWithPhoneNumber = await userService.checkPhoneNumberExist(
         phoneNumber
       );
-
+      const userExistWithPhoneNumberInAdmin =
+        await adminService.checkPhoneNumberExist(phoneNumber);
       if (method !== "forgotPassword") {
         // Đăng ký tài khoản, đổi số điện thoại (check trùng số điện thoại)
-        if (userExistWithPhoneNumber) {
+        if (userExistWithPhoneNumber || userExistWithPhoneNumberInAdmin) {
           return next(new ApiError(400, "Số điện thoại này đã được sử dụng"));
         }
       } else {
         // Khôi phục mật khẩu
-        if (!userExistWithPhoneNumber) {
+        if (userExistWithPhoneNumberInAdmin) {
           return next(
             new ApiError(400, "Không tồn tại tài khoản với số điện thoại này")
           );
+        } else {
+          if (!userExistWithPhoneNumber) {
+            return next(
+              new ApiError(400, "Không tồn tại tài khoản với số điện thoại này")
+            );
+          }
         }
       }
-      const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-      const otpSMS = Math.floor(100000 + Math.random() * 900000);
-      const textSMS = `Mã OTP của bạn là ${otpSMS}, thời gian hết hạn là 2 phút`;
-      await smsService.sendOTP(phoneNumber, textSMS);
-      const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
+      console.log('da gui');
+      // const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
+      // const otpSMS = Math.floor(100000 + Math.random() * 900000);
+      // const textSMS = `Mã OTP của bạn là ${otpSMS}, thời gian hết hạn là 2 phút`;
+      // await smsService.sendOTP(phoneNumber, textSMS);
+      // const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
 
-      if (!otpUser) {
-        await otpService.createOTP({
-          phoneNumber,
-          otpSMS,
-          expiresAt,
-        });
-      }
-      await otpService.updateOTPByPhoneNumber(phoneNumber, {
-        otpSMS: otpSMS,
-        expiresAt: expiresAt,
-      });
+      // if (!otpUser) {
+      //   await otpService.createOTP({
+      //     phoneNumber,
+      //     otpSMS,
+      //     expiresAt,
+      //   });
+      // }
+      // await otpService.updateOTPByPhoneNumber(phoneNumber, {
+      //   otpSMS: otpSMS,
+      //   expiresAt: expiresAt,
+      // });
 
-      return res.send({
-        message: "Mã OTP đã được gửi",
-        otpCode: otpSMS,
-        otpSent: true,
-      });
+      // return res.send({
+      //   message: "Mã OTP đã được gửi",
+      //   otpCode: otpSMS,
+      //   otpSent: true,
+      // });
     } else if (email) {
       // Gửi mã OTP qua email
+      // Check trùng email bảng user + admin
+      const existingEmailInUser = await userService.checkEmailExist(email);
+      const existingEmailInAdmin = await adminService.checkEmailExist(email);
+
+      if (existingEmailInUser || existingEmailInAdmin) {
+        return next(new ApiError(400, "Email đã được sử dụng"));
+      }
+      // End check trùng email
       const otpUser = await otpService.findRecordByEmail(email);
       const otpCode = Math.floor(100000 + Math.random() * 900000);
       try {
