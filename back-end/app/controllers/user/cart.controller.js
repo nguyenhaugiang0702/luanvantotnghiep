@@ -84,7 +84,9 @@ exports.findAll = async (req, res, next) => {
     return next(new ApiError(400, "Vui lòng đăng nhập"));
   }
   try {
-    let cart = await cartService.getFullInfoCartByUserID(userID);
+    let cart = await cartService.getFullInfoCartByUserID({
+      userID: userID,
+    });
     if (!cart) {
       cartData = {
         userID,
@@ -95,11 +97,24 @@ exports.findAll = async (req, res, next) => {
       };
       cart = await cartService.createCartByUserID(cartData);
     }
+
+    // Lọc sách dựa trên `isShowed`
+    const filteredBooks = [];
+    for (const cartBook of cart.books) {
+      const bookDetail = await bookService.getBookByID(cartBook.bookID);
+      if (bookDetail && bookDetail.isShowed) {
+        filteredBooks.push({
+          ...cartBook._doc,
+        });
+      }
+    }
     totalQuantity = cart?.books?.length;
     const cartWithQuantity = {
       ...cart?._doc,
+      books: filteredBooks,
       totalQuantity: totalQuantity,
     };
+
     return res.send(cartWithQuantity);
   } catch (error) {
     console.log(error);
@@ -129,17 +144,23 @@ exports.findAllBooksCheckBox = async (req, res, next) => {
       isUsed: false,
     });
 
-    const cart = await cartService.getFullInfoCartByUserID(userID);
+    const cart = await cartService.getFullInfoCartByUserID({
+      userID: userID,
+    });
     cart?.books?.forEach((book) => {
-      if (book.isCheckOut) {
+      if (book.isCheckOut && book.bookID?.isShowed) {
         const bookObj = book.bookID;
         totalPrice += book.price * book.quantity; // Tính tổng giá
         totalQuantity += book.quantity; // Tổng số lượng
         totalWeight += bookObj.detail.weight * book.quantity; // Tổng trọng lượng
         checkedOutBooks.push(book);
       }
-      bookInCart.push(book);
+      if(book.bookID.isShowed){
+        bookInCart.push(book);
+        // console.log(book.bookID.isShowed);
+      }
     });
+
 
     // Lưu lại tổng giá trị chưa giảm
     originalTotalPrice = totalPrice;

@@ -14,8 +14,8 @@ const getCartByUserID = async (userID) => {
   return await Cart.findOne({ userID: userID });
 };
 
-const getFullInfoCartByUserID = async (userID) => {
-  return await Cart.findOne({ userID: userID }).populate("books.bookID");
+const getFullInfoCartByUserID = async (query) => {
+  return await Cart.findOne(query).populate("books.bookID");
 };
 
 const deleteBookFromCart = async (userID, bookID) => {

@@ -261,12 +261,19 @@ exports.hideBook = async (req, res, next) => {
     const { bookID } = req.params;
     req.body.updatedAt = moment.tz("Asia/Ho_Chi_Minh").toDate();
     const updateBook = await bookService.updateBook(bookID, req.body);
-    if(!updateBook){
+    if (!updateBook) {
       return next(new ApiError(400, "Lỗi khi ẩn sách"));
     }
+    // Lấy io từ app và phát thông báo đến admin
+    const io = require("../../../app").get("socketIo");
+    io.emit("hasNewHideBook", {
+      book: {
+        message: "Có sách bị ẩn",
+      },
+    });
     return res.send({
       message: "Ẩn thành công",
-      updateBook
+      updateBook,
     });
   } catch (error) {
     return next(new ApiError(500, "Lỗi khi ẩn sách"));
