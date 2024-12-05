@@ -51,24 +51,22 @@ nlu:
   examples: |
     - Tạm biệt.
     - Bye bye
-    - Đóng chat.
-    - Cảm ơn, tôi muốn kết thúc trò chuyện.
 
 - intent: search_book
   examples: |
-    - Tôi muốn tìm sách [Mùa hè không tên](book_name)
-    - Tìm cuốn sách [Harry Potter](book_name)
+    - Tôi muốn tìm sách [Mùa hè không tên, Một Thoáng Ta Rực Rỡ Ở Nhân Gian, Em Vốn Thích Cô Độc, Cho Đến Khi Có Anh, Kết Thúc Của Chúng Ta, Mãi Mãi Là Bao Xa, Eo Thon Nhỏ 1, Putin - Logic Của Quyền Lực - Putin: Innenansichten Der Macht, Âm Mưu Câu Kết - Chính Trị Hoa Kỳ Bị Thao Túng Từ Bên Ngoài Như Thế Nào?, Lời Nguyện Cầu Chernobyl, Cuộc Đời Của Các Triết Gia Nổi Tiếng, Ngoảnh Lại Đã Một Đời](book_name)
+    - Tìm cuốn sách [Em Vốn Thích Cô Độc](book_name)
     - Có sách nào tên là [Mùa hè không tên](book_name) không?
-    - Tôi muốn mua sách [Lập trình Python](book_name)
-    - Bạn có sách [Những người khốn khổ](book_name) không?
+    - Tôi muốn mua sách [Một Thoáng Ta Rực Rỡ Ở Nhân Gian](book_name)
+    - Bạn có sách [Lời Nguyện Cầu Chernobyl](book_name) không?
 
 - intent: search_books_by_author
   examples: |
-    - Có sách nào của [Nguyễn Nhật Ánh](author_name) không?
-    - Tác giả [Haruki Murakami](author_name) có sách nào không?
-    - Tôi muốn tìm sách của [J.K. Rowling](author_name).
+    - Có sách nào của [Nguyễn Nhật Ánh, Diệp Lạc Vô Tâm, Bradley Hope, Justin Scheck, Ron Chernow, ](author_name) không?
+    - Tác giả [Paulo Coelho](author_name) có sách nào không?
+    - Tôi muốn tìm sách của [Diệp Lạc Vô Tâm](author_name).
     - Bạn có sách nào của [Nguyễn Nhật Ánh](author_name)?
-    - Sách của tác giả [Nguyễn Nhật Ánh](author_name) đâu?
+    - Sách của tác giả [Justin Scheck](author_name) đâu?
 
 - intent: search_books_by_price
   examples: |
@@ -122,19 +120,19 @@ nlu:
 - intent: search_books_by_publisher
   examples: |
     - Có sách nào của nhà xuất bản [Kim Đồng](publisher_name)?
-    - Có sách nào của nxb [Kim Đồng](publisher_name)?
-    - Tôi muốn tìm sách của nhà xuất bản [Trẻ](publisher_name).
-    - Tôi muốn tìm sách của nxb [Trẻ](publisher_name).
+    - Có sách nào của nxb [Nhã Nam](publisher_name)?
+    - Tôi muốn tìm sách của nhà xuất bản [NXB Kim Đồng](publisher_name).
+    - Tôi muốn tìm sách của nxb [NXB Kim Đồng](publisher_name).
     - Bạn có sách nào của nhà xuất bản [Dân Trí](publisher_name)?
     - Bạn có sách nào của nxb [Dân Trí](publisher_name)?
-    - Tìm sách của nhà xuất bản [First News](publisher_name).
-    - Tìm sách của nxb [First News](publisher_name).
+    - Tìm sách của nhà xuất bản [NXB Hội Nhà Văn](publisher_name).
+    - Tìm sách của nxb [NXB Hội Nhà Văn](publisher_name).
     - Có sách nào của nhà xuất bản [Nhà Xuất Bản Giáo Dục](publisher_name)?
     - Có sách nào của nxb [Nhà Xuất Bản Giáo Dục](publisher_name)?
 
 - intent: find_book_quantity
   examples: |
-    - Sách [Mùa hè không tên](book_name) còn bao nhiêu cuốn?
+    - Sách [Mùa hè không tên, Một Thoáng Ta Rực Rỡ Ở Nhân Gian, Em Vốn Thích Cô Độc, Cho Đến Khi Có Anh, Kết Thúc Của Chúng Ta, Mãi Mãi Là Bao Xa, Eo Thon Nhỏ 1, Putin - Logic Của Quyền Lực - Putin: Innenansichten Der Macht, Âm Mưu Câu Kết - Chính Trị Hoa Kỳ Bị Thao Túng Từ Bên Ngoài Như Thế Nào?, Lời Nguyện Cầu Chernobyl, Cuộc Đời Của Các Triết Gia Nổi Tiếng, Ngoảnh Lại Đã Một Đời](book_name) còn bao nhiêu cuốn?
     - Kiểm tra số lượng sách [Harry Potter](book_name)
     - Tôi muốn biết số lượng của sách [Những người khốn khổ](book_name)
     - Sách [Lập trình Python](book_name) còn hàng không?
@@ -142,10 +140,22 @@ nlu:
 
 - intent: get_book_details
   examples: |
-    - Chi tiết sách [Mùa Hè Không Tên](book_name)
-    - Tìm thông tin sách [Mùa Hè Không Tên](book_name)
-    - Thông tin sách [Mùa Hè Không Tên](book_name)
-    - Hãy cho tôi biết chi tiết sách [Mùa Hè Không Tên](book_name)
-    - Tôi muốn biết về sách [Mùa Hè Không Tên](book_name)
-    - Chi tiết của sách [Mùa Hè Không Tên](book_name)
-    - Cuốn sách [Mùa Hè Không Tên](book_name) có gì đặc biệt?
+    - Chi tiết sách [Mùa hè không tên, Một Thoáng Ta Rực Rỡ Ở Nhân Gian, Em Vốn Thích Cô Độc, Cho Đến Khi Có Anh, Kết Thúc Của Chúng Ta, Mãi Mãi Là Bao Xa, Eo Thon Nhỏ 1, Putin - Logic Của Quyền Lực - Putin: Innenansichten Der Macht, Âm Mưu Câu Kết - Chính Trị Hoa Kỳ Bị Thao Túng Từ Bên Ngoài Như Thế Nào?, Lời Nguyện Cầu Chernobyl, Cuộc Đời Của Các Triết Gia Nổi Tiếng, Ngoảnh Lại Đã Một Đời](book_name)
+    - Tìm thông tin sách [Một Thoáng Ta Rực Rỡ Ở Nhân Gian](book_name)
+    - Thông tin sách [Em Vốn Thích Cô Độc](book_name)
+    - Hãy cho tôi biết chi tiết sách [Eo Thon Nhỏ 1](book_name)
+    - Tôi muốn biết về sách [Putin - Logic Của Quyền Lực - Putin: Innenansichten Der Macht](book_name)
+    - Chi tiết của sách [Lời Nguyện Cầu Chernobyl](book_name)
+    - Cuốn sách [Cuộc Đời Của Các Triết Gia Nổi Tiếng](book_name) có gì đặc biệt?
+
+- intent: search_books_by_genre
+  examples: |
+    - Tôi muốn tìm sách thuộc thể loại [Ngôn Tình](category_name).
+    - Bạn có sách nào thuộc thể loại [Chính Trị](category_name)?
+    - Tìm sách thể loại [Manga - Comic](category_name).
+    - Tôi muốn đọc sách về thể loại [văn học](category_name).
+    - Có sách nào thuộc thể loại [Manga - Comic](category_name) không?
+    - Tìm sách thể loại [hài hước](category_name)
+    - Bạn có sách thuộc thể loại [Chính Trị](category_name)?
+    - Tôi muốn tìm sách thuộc thể loại [Ngôn Tình](category_name).
+    - Có sách nào thuộc thể loại [Ngôn Tình](category_name)?

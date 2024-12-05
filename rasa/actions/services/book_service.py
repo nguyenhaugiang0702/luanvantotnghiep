@@ -26,6 +26,21 @@ class BookService:
         books = self.books_collection.find({"authorID": ObjectId(author["_id"]), "isShowed": True})
         return list(books)
     
+    def find_books_by_genre(self, genre):
+        """
+        Tìm tất cả sách thuộc thể loại cụ thể.
+        :param genre: Tên thể loại
+        :return: Danh sách sách hoặc None
+        """
+        # Tìm thể loại dựa trên tên
+        category = self.categories_collection.find_one({"name": {"$regex": genre, "$options": "i"}})
+        if not category:
+            return None
+
+        # Tìm sách dựa trên `categoryID`
+        books = self.books_collection.find({"categoryID": ObjectId(category["_id"]), "isShowed": True})
+        return list(books)
+    
     # Tìm theo tên nhà xuất bản
     def find_books_by_publisher_name(self, publisher_name):
         """

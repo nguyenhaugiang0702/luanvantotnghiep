@@ -13,6 +13,7 @@ class ActionSearchBook(Action):
         # Lấy tên sách từ slot
         book_name = tracker.get_slot("book_name")
         if tracker.latest_message["intent"].get("name") != "search_book":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
             return []
         if not book_name:
             dispatcher.utter_message(text="Bạn vui lòng cung cấp tên sách.")
@@ -42,6 +43,7 @@ class ActionSearchBooksByAuthor(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
         # Lấy tên tác giả từ slot
         if tracker.latest_message["intent"].get("name") != "search_books_by_author":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
             return []
         author_name = tracker.get_slot("author_name")
 
@@ -74,6 +76,7 @@ class ActionSearchBooksByPublisher(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
         # Lấy tên nhà xuất bản từ slot
         if tracker.latest_message["intent"].get("name") != "search_books_by_publisher":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
             return []
         
         publisher_name = tracker.get_slot("publisher_name")
@@ -99,12 +102,53 @@ class ActionSearchBooksByPublisher(Action):
             )
 
         return []
+    
+class ActionSearchBooksByGenre(Action):
+    def name(self):
+        return "action_search_books_by_genre"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Kiểm tra ý định
+        if tracker.latest_message["intent"].get("name") != "search_books_by_genre":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
+            return []
+        # Lấy thể loại từ slot
+        category_name = tracker.get_slot("category_name")
+        print(tracker.latest_message["intent"])
+        print(f"Thể loại sách nhận được từ slot: '{category_name}'")  # Debugging
+
+        if not category_name:
+            dispatcher.utter_message(text="Bạn vui lòng cung cấp tên thể loại sách.")
+            return []
+
+        # Sử dụng service để tìm sách theo thể loại
+        book_service = BookService()
+        books = book_service.find_books_by_genre(category_name)
+
+        if books:
+            book_details = extract_book_details(books)
+            response = {
+                "text": f"Tôi tìm thấy các sách thuộc thể loại '{category_name}':",
+                "books": book_details,
+            }
+            dispatcher.utter_message(json_message=response)
+        else:
+            dispatcher.utter_message(
+                text=f"Xin lỗi, tôi không tìm thấy sách nào thuộc thể loại '{category_name}'."
+            )
+
+        return []
 
 class ActionFindBookQuantity(Action):
     def name(self):
         return "action_find_book_quantity"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Kiểm tra ý định
+        if tracker.latest_message["intent"].get("name") != "find_book_quantity":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
+            return []
+        
         # Lấy tên sách từ slot
         book_name = tracker.get_slot("book_name")
 
@@ -139,6 +183,11 @@ class ActionSearchBooksByPrice(Action):
         return "action_search_books_by_price"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[SlotSet]:
+        # Kiểm tra ý định
+        if tracker.latest_message["intent"].get("name") != "search_books_by_price":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
+            return []
+        
         price = tracker.get_slot("price")
         min_price = tracker.get_slot("min_price")
         max_price = tracker.get_slot("max_price")
@@ -244,6 +293,11 @@ class ActionSearchBooksByPriceRange(Action):
         return "action_search_books_by_price_range"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[SlotSet]:
+        # Kiểm tra ý định
+        if tracker.latest_message["intent"].get("name") != "search_books_by_price_range":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
+            return []
+        
         price = tracker.get_slot("price")
         min_price = tracker.get_slot("min_price")
         max_price = tracker.get_slot("max_price")
@@ -302,6 +356,11 @@ class ActionFindBookDetails(Action):
         return "action_get_book_details"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain):
+        # Kiểm tra ý định
+        if tracker.latest_message["intent"].get("name") != "get_book_details":
+            dispatcher.utter_message(text="Tôi chưa hiểu ý bạn lắm, bạn có thể cụ thể hơn không?")
+            return []
+        
         # Lấy tên sách từ slot
         book_name = tracker.get_slot("book_name")
 
