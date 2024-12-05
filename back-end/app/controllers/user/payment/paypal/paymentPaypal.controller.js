@@ -57,11 +57,11 @@ exports.createLinkOrderByPayPal = async (req, res, next) => {
           payment_method: "paypal",
         },
         redirect_urls: {
-          return_url: `https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/success?totalAmount=${totalAmount}&detail=${encodeURIComponent(
+          return_url: `http://localhost:3000/api/v1/user/payment/paypal/success?totalAmount=${totalAmount}&detail=${encodeURIComponent(
             JSON.stringify(detail)
           )}`,
           cancel_url:
-            "https://nhgbookstore.serveo.net/api/v1/user/payment/paypal/cancel",
+            "http://localhost:3000/api/v1/user/payment/paypal/cancel",
         },
         transactions: [
           {

@@ -160,30 +160,29 @@ exports.createOTP = async (req, res, next) => {
           }
         }
       }
-      console.log('da gui');
-      // const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
-      // const otpSMS = Math.floor(100000 + Math.random() * 900000);
-      // const textSMS = `Mã OTP của bạn là ${otpSMS}, thời gian hết hạn là 2 phút`;
-      // await smsService.sendOTP(phoneNumber, textSMS);
-      // const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
+      const otpUser = await otpService.findRecordByPhoneNumber(phoneNumber);
+      const otpSMS = Math.floor(100000 + Math.random() * 900000);
+      const textSMS = `Mã OTP của bạn là ${otpSMS}, thời gian hết hạn là 2 phút`;
+      await smsService.sendOTP(phoneNumber, textSMS);
+      const expiresAt = moment().tz("Asia/Ho_Chi_Minh").add(2, "minutes");
 
-      // if (!otpUser) {
-      //   await otpService.createOTP({
-      //     phoneNumber,
-      //     otpSMS,
-      //     expiresAt,
-      //   });
-      // }
-      // await otpService.updateOTPByPhoneNumber(phoneNumber, {
-      //   otpSMS: otpSMS,
-      //   expiresAt: expiresAt,
-      // });
+      if (!otpUser) {
+        await otpService.createOTP({
+          phoneNumber,
+          otpSMS,
+          expiresAt,
+        });
+      }
+      await otpService.updateOTPByPhoneNumber(phoneNumber, {
+        otpSMS: otpSMS,
+        expiresAt: expiresAt,
+      });
 
-      // return res.send({
-      //   message: "Mã OTP đã được gửi",
-      //   otpCode: otpSMS,
-      //   otpSent: true,
-      // });
+      return res.send({
+        message: "Mã OTP đã được gửi",
+        otpCode: otpSMS,
+        otpSent: true,
+      });
     } else if (email) {
       // Gửi mã OTP qua email
       // Check trùng email bảng user + admin

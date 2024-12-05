@@ -9,7 +9,7 @@ exports.checkRoomChat = async (req, res, next) => {
   }
   try {
     const chatRoom = await chatRoomService.getChatRoomByUserID(userID);
-    const hasNewMessage = chatRoom.messages.some(
+    const hasNewMessage = chatRoom?.messages?.some(
       (msg) => !msg.isReaded && msg.sender === "admin"
     );
     if (!chatRoom) {
@@ -25,16 +25,17 @@ exports.checkRoomChat = async (req, res, next) => {
       }
       return res.send({
         chatRoomID: newChatRoom._id,
-        hasNewMessage: hasNewMessage,
+        hasNewMessage: hasNewMessage ? hasNewMessage : false,
       });
     } else {
       return res.send({
         chatRoomID: chatRoom._id,
-        hasNewMessage: hasNewMessage,
+        hasNewMessage: hasNewMessage ? hasNewMessage : false,
       });
     }
   } catch (error) {
-    return next(new ApiError(500, "Lỗi khi lấy tất cả địa chỉ"));
+    console.log(error);
+    return next(new ApiError(500, "Lỗi khi lấy tin nhắn"));
   }
 };
 

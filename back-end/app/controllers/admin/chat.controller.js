@@ -61,7 +61,7 @@ exports.checkMessages = async (req, res, next) => {
             chatRoomID: chatRoom._id, // ID phòng chat
             lastMessage: lastMessage, // Tin nhắn cuối cùng từ user
             user:
-              chatRoom.userID?.firstName + chatRoom.userID?.firstName ||
+              chatRoom.userID?.firstName +' '+ chatRoom.userID?.lastName ||
               "Không rõ",
           });
         }
