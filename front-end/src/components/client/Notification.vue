@@ -249,6 +249,11 @@ setInterval(() => {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.dropdown-menu-cart{
+  position: absolute;
+  right: 0px;
+}
+
 .notification-item {
   transition: background-color 0.2s ease;
 }
