@@ -59,13 +59,13 @@
       </div>
     </div>
 
-    <div class="row bg-white mt-4">
+    <!-- <div class="row bg-white mt-4">
       <div class="text-uppercase fw-bold col-md-6 pt-3 ps-3">
         Hình thức giao hàng & Cước phí vận chuyển
       </div>
       <div class="col-md-12"><hr /></div>
       <div class="col-md-12"></div>
-    </div>
+    </div> -->
 
     <!-- Payment -->
     <div class="row bg-white mt-4">

@@ -376,7 +376,7 @@
               <div class="form-group">
                 <div class="dropdown">
                   <label class="form-label" for="priceRangeName"
-                    >Khoản giá</label
+                    >Khoảng giá</label
                   >
                   <Field
                     class="form-control dropdown-toggle"
@@ -424,7 +424,7 @@
                       !priceRangeID
                     "
                     style="color: #dc3545; font-size: 0.875em"
-                    >Vui lòng chọn khoản giá</span
+                    >Vui lòng chọn khoảng giá</span
                   >
                 </div>
               </div>

@@ -35,7 +35,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { handleNavigate } from "@/utils/utils";
+import {useRouter} from 'vue-router';
 const countdown = ref(10);
+const router = useRouter();
 onMounted(() => {
   if (window.location.href.includes("?")) {
     // Chuyển hướng lần nữa mà không có tham số URL
@@ -46,7 +48,7 @@ onMounted(() => {
       countdown.value--;
     } else {
       clearInterval(interval); // Dừng bộ đếm khi countdown = 0
-      handleNavigate("cart");
+      handleNavigate(router, "cart");
     }
   }, 1000);
 });

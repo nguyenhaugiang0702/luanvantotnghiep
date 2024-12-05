@@ -88,17 +88,17 @@ const columns = [
   {
     data: "categoryID.name",
     width: "15%",
-    render: (data) => `<div class="text-start text-break">${data}</div>`,
+    render: (data) => `<div class="text-start text-break">${data ? data : 'Đang cập nhật'}</div>`,
   },
   {
     data: "publisherID.name",
     width: "15%",
-    render: (data) => `<div class="text-start text-break">${data}</div>`,
+    render: (data) => `<div class="text-start text-break">${data ? data : 'Đang cập nhật'}</div>`,
   },
   {
     data: "formalityID.name",
     width: "10%",
-    render: (data) => `<div class="text-start text-break">${data}</div>`,
+    render: (data) => `<div class="text-start text-break">${data ? data : 'Đang cập nhật'}</div>`,
   },
   {
     data: "quantityImported",

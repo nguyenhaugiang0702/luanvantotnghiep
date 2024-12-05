@@ -161,7 +161,7 @@ const sessionId = ref("");
 const router = useRouter();
 const emit = defineEmits("close-chat");
 const isLoading = ref(false);
-
+const messageSended = ref('');
 // Gửi tin nhắn tới Rasa
 const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
@@ -172,6 +172,9 @@ const sendMessage = async () => {
       text: newMessage.value,
       createdAt: new Date(),
     });
+    messageSended.value = newMessage.value;
+    newMessage.value = "";
+
     isLoading.value = true;
     scrollToBottom();
     // Gửi tin nhắn tới Rasa qua API REST
@@ -180,11 +183,11 @@ const sendMessage = async () => {
         "http://localhost:5005/webhooks/rest/webhook",
         {
           sender: sessionId.value,
-          message: newMessage.value,
+          message: messageSended.value,
         }
       );
       // Xóa nội dung nhập
-      newMessage.value = "";
+      // newMessage.value = "";
       // Lưu tin nhắn vào localStorage
       localStorage.setItem("chatMessages", JSON.stringify(messages.value));
 

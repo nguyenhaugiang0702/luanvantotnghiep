@@ -43,7 +43,8 @@
                       errors.authorName ||
                       (!selectAuthorID &&
                         searchAuthorValue !== '' &&
-                        !authorID),
+                        !authorID) ||
+                      (searchAuthorValue === '' && !authorID),
                     'is-valid':
                       !errors.authorName ||
                       (book.authorID !== '' && selectAuthorID && authorID),
@@ -95,7 +96,8 @@
                       errors.publisherName ||
                       (!selectPublisherID &&
                         searchPublisherValue !== '' &&
-                        !publisherID),
+                        !publisherID) ||
+                      (searchPublisherValue === '' && !publisherID),
                     'is-valid':
                       !errors.publisherName ||
                       (book.publisherID !== '' &&
@@ -127,7 +129,7 @@
                     !publisherID
                   "
                   style="color: #dc3545; font-size: 0.875em"
-                  >Vui lòng chọn nhà xuất bản 1213213</span
+                  >Vui lòng chọn nhà xuất bản</span
                 >
               </div>
             </div>
@@ -179,9 +181,9 @@
                   <ErrorMessage name="categoryName" class="invalid-feedback" />
                   <span
                     v-if="
-                      (!selectCategoryID &&
-                        searchCategoryValue !== '' &&
-                        !categoryID)
+                      !selectCategoryID &&
+                      searchCategoryValue !== '' &&
+                      !categoryID
                     "
                     style="color: #dc3545; font-size: 0.875em"
                     >Vui lòng chọn thể loại</span
@@ -210,7 +212,8 @@
                         errors.formalityName ||
                         (!selectFormalityID &&
                           searchFormalityValue !== '' &&
-                          !formalityID),
+                          !formalityID) ||
+                        (searchFormalityValue === '' && !formalityID),
                       'is-valid':
                         !errors.formalityName ||
                         (book.formalityID !== '' &&
@@ -392,7 +395,7 @@
               <div class="form-group">
                 <div class="dropdown">
                   <label class="form-label" for="priceRangeName"
-                    >Khoản giá</label
+                    >Khoảng giá</label
                   >
                   <Field
                     class="form-control dropdown-toggle"
@@ -407,12 +410,8 @@
                     :class="{
                       'is-invalid':
                         errors.priceRangeName ||
-                        (!selectPriceRangeID &&
-                          searchPriceRangeValue !== '' &&
-                          !priceRangeID),
-                      'is-valid':
-                        !errors.priceRangeName ||
-                        (selectPriceRangeID && priceRangeID),
+                        (searchPriceRangeValue === '' && !priceRangeID),
+                      'is-valid': !errors.priceRangeName && searchPriceRangeValue !== '',
                     }"
                   />
                   <ul
@@ -436,15 +435,7 @@
                     name="priceRangeName"
                     class="invalid-feedback"
                   />
-                  <span
-                    v-if="
-                      !selectPriceRangeID &&
-                      searchPriceRangeValue !== '' &&
-                      !priceRangeID
-                    "
-                    style="color: #dc3545; font-size: 0.875em"
-                    >Vui lòng chọn khoản giá 123</span
-                  >
+                  
                 </div>
               </div>
             </div>
@@ -527,6 +518,7 @@ export default {
 
         searchPriceRangeValue.value = response.data.priceRangeID?.name || "";
         priceRangeID.value = response.data.priceRangeID?._id || "";
+        console.log(priceRangeID.value);
       }
     };
 
@@ -645,6 +637,8 @@ export default {
     watch(priceRangeSelectedID, (newVal) => {
       if (newVal) {
         priceRangeSelectedID.value = newVal;
+        console.log(priceRangeSelectedID.value);
+
       }
     });
 

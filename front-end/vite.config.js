@@ -19,7 +19,11 @@ export default defineConfig({
         target: "http://localhost:3000/",
         changeOrigin: true,
       },
-      "/api/v1/user/payment/*": {
+      "/api/v1/user/payment/momo": {
+        target: "https://nhgbookstore.serveo.net",
+        changeOrigin: true,
+      },
+      "/api/v1/user/payment/zalopay": {
         target: "https://nhgbookstore.serveo.net",
         changeOrigin: true,
       },

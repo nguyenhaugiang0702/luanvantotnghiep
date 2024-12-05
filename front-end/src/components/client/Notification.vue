@@ -207,6 +207,7 @@ const checkExpireVoucher = async () => {
     const response = await apiUser.get("/vouchers/voucherUseds/checkExpire");
     if (response.status === 200) {
       vouchers.value = response.data;
+      console.log(vouchers.value);
     }
   }
 };

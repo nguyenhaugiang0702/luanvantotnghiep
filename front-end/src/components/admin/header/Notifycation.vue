@@ -32,9 +32,9 @@
                   <div class="text-muted small">
                     {{ messages.message + " - " + msg.user }}
                   </div>
-                  <div class="text-muted smaller">
-                    {{ formatDate(msg.createdAt) }}
-                  </div>
+                  <!-- <div class="text-muted smaller">
+                    {{ formatDate(msg.createdAt, time=true) }}
+                  </div> -->
                 </div>
               </div>
             </a-menu-item>

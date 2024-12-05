@@ -10,7 +10,7 @@
     </div>
     <!-- Danh sách địa chỉ -->
     <div class="address-container">
-      <div class="row">
+      <div v-if="address.length !== 0" class="row">
         <div v-for="addr in address" :key="addr.id" class="address-item">
           <div class="col-sm-12 ms-3 mb-4">
             <div>
@@ -68,15 +68,17 @@
             </div>
           </div>
         </div>
+        <!-- Phân trang -->
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @updatePage="handlePageChange"
+        />
       </div>
+
+      <div v-else class="d-flex justify-content-center">Không có địa chỉ</div>
     </div>
   </div>
-  <!-- Phân trang -->
-  <Pagination
-    :currentPage="currentPage"
-    :totalPages="totalPages"
-    @updatePage="handlePageChange"
-  />
 </template>
 
 <script>

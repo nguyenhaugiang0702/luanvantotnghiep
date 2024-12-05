@@ -115,7 +115,7 @@
     <!-- Chat component fixed at the bottom-right -->
     <div class="position-fixed bottom-0 end-0">
       <!-- Chat button -->
-      <div v-if="isChatButtonVisible" class="mb-2">
+      <div v-if="isChatButtonVisible && token" class="mb-2">
         <button class="btn btn-primary rounded-circle p-3" @click="toggleChat">
           <i class="fa-regular fa-comments fs-4"></i>
           <span
@@ -212,7 +212,6 @@ const checkRoomChat = async () => {
 };
 
 const openChat = async () => {
-  scrollToBottom();
   await apiUser.put(`/chats/chatrooms/${chatRoomId.value}`, {
     isReaded: true,
   });
@@ -247,3 +246,10 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+<style scoped>
+.notifycation{
+  position: absolute;
+  top: 5px;
+  right: 0px;
+}
+</style>
