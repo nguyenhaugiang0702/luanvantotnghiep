@@ -14,7 +14,6 @@ exports.checkRoomChat = async (req, res, next) => {
     );
     if (!chatRoom) {
       let newChatRoom = await chatRoomService.createChatRoom({
-        adminID: null,
         userID: userID,
         messages: [],
         createdAt: moment.tz("Asia/Ho_Chi_Minh"),

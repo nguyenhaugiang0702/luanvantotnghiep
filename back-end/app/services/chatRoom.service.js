@@ -8,13 +8,11 @@ const createChatRoom = async (chatRoomData) => {
 };
 
 const getMessageByChatRoomID = async (chatRoomId) => {
-  return await ChatRoom.findById(chatRoomId)
-    .populate("adminID")
-    .populate("userID");
+  return await ChatRoom.findById(chatRoomId).populate("userID");
 };
 
 const getChatRooms = async (query) => {
-  return await ChatRoom.find(query).populate("adminID").populate("userID");
+  return await ChatRoom.find(query).populate("userID");
 };
 
 const getChatRoomByUserID = async (userID) => {
@@ -27,7 +25,6 @@ const getOrCreateChatRoom = async (chatRoomId, adminID, clientID) => {
 
   if (!chatRoom) {
     chatRoom = new ChatRoom({
-      adminID: adminID,
       clientID: clientID,
       messages: [],
     });

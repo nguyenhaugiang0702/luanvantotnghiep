@@ -12,10 +12,6 @@ const messageSchema = new Schema({
 
 // Tạo schema cho phòng chat
 const chatRoomSchema = new Schema({
-  adminID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Admin",
-  },
   userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
