@@ -11,7 +11,23 @@ const emailService = require("../../utils/email.util");
 
 exports.findAll = async (req, res, next) => {
   try {
-    let orders = await orderService.getAllOrdersByAdmin({});
+    console.log(req.admin.id);
+    let orders;
+    if (req.admin.id && req.admin.role === "shipper") {
+      const ordersAwaitAccepted = await orderService.getAllOrdersByAdmin({
+        status: 2
+      });
+      const ordersWithShipperID = await orderService.getAllOrdersByAdmin({
+        shipperID: req.admin.id
+      });
+      orders = [...ordersAwaitAccepted, ...ordersWithShipperID]
+      console.log(ordersAwaitAccepted.length);
+      console.log(ordersWithShipperID.length);
+      console.log(ordersAwaitAccepted[8]);
+
+    } else {
+      orders = await orderService.getAllOrdersByAdmin({});
+    }
     orders = orders.map((order) => {
       const { statusOptions, statusFormat } =
         orderService.getStatusOptionsAndFormat(order.status);
@@ -21,6 +37,7 @@ exports.findAll = async (req, res, next) => {
     if (!orders) {
       return next(new ApiError(400, "Lỗi khi lấy tất cả đơn hàng!"));
     }
+    console.log(orders[0]);
     return res.send(orders);
   } catch (error) {
     console.log(error);
@@ -41,6 +58,7 @@ exports.findOne = async (req, res, next) => {
     orderDetail.detail.map((book) => {
       totalPriceOrder += book.quantity * book.realPrice;
     });
+
     // Tính tổng giá giảm nếu áp dụng mã giảm giá
     if (orderDetail.voucherID) {
       totalPrice = totalPriceOrder + orderDetail.shippingFee;
@@ -109,12 +127,7 @@ exports.updateStatus = async (req, res, next) => {
         status: status,
       });
       if (!updateFailShipOrder) {
-        return next(
-          new ApiError(
-            400,
-            "Lỗi khi cập nhật trạng thái đơn hàng"
-          )
-        );
+        return next(new ApiError(400, "Lỗi khi cập nhật trạng thái đơn hàng"));
       }
       // Cập nhật lại số lượng bán
       if (status === 7) {

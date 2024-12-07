@@ -12,7 +12,7 @@ class DeliveringOrdersTab extends StatelessWidget {
     return Consumer<OrderProvider>(
       builder: (context, orderProvider, child) {
         final deliveringOrders = orderProvider.orders
-            .where((order) => order['status']['value'] == 6)
+            .where((order) => order['status']['value'] == 6 && order['shipperID'] != null)
             .toList();
         if (orderProvider.loading) {
           return const Center(child: CircularProgressIndicator());
@@ -62,7 +62,7 @@ class DeliveringOrdersTab extends StatelessWidget {
                   );
 
                   // Refresh orders after returning
-                  orderProvider.fetchOrders(6);
+                  orderProvider.fetchOrders();
                 },
               ),
             );

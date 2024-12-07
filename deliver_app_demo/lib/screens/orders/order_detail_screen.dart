@@ -39,6 +39,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     try {
       final provider = Provider.of<OrderProvider>(context, listen: false);
       final detail = await provider.fetchOrderDetail(widget.order['_id']);
+      print(widget.order['_id']);
       setState(() {
         orderDetail = detail;
         isLoading = false;
@@ -297,7 +298,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   'Họ tên',
                   '${orderDetail!['userID']['firstName']} ${orderDetail!['userID']['lastName']}',
                 ),
-                _buildInfoRow('Email', orderDetail!['userID']['email']),
+                _buildInfoRow('Email', orderDetail!['userID']['email'] ?? 'chưa biết'),
                 _buildInfoRow(
                   'Số điện thoại',
                   orderDetail!['userID']['phoneNumber'],

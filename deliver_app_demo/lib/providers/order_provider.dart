@@ -13,12 +13,13 @@ class OrderProvider extends ChangeNotifier {
   List<dynamic> get orders => _orders;
   bool get loading => _loading;
 
-  Future<void> fetchOrders(status) async {
+  Future<void> fetchOrders() async {
     try {
       _loading = true;
       notifyListeners();
 
-      _orders = await _orderService.getOrders(status);
+      _orders = await _orderService.getOrders();
+      print(_orders[1]);
 
       _loading = false;
       notifyListeners();

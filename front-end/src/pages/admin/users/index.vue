@@ -53,14 +53,14 @@
                         <i class="fa-solid fa-lock-open"></i> UnBlock
                       </button>
                     </div>
-                    <div class="me-3">
+                    <!-- <div class="me-3">
                       <button
                         @click="handleDeleteUser(props.rowData._id)"
                         class="badge text-bg-danger p-2"
                       >
                         <i class="fa-solid fa-trash"></i> Delete
                       </button>
-                    </div>
+                    </div> -->
                   </div>
                 </template>
                 <thead>
@@ -233,14 +233,14 @@ export default defineComponent({
       }
     };
 
-    const handleDeleteUser = async (userID) => {
-      const isConfirmed = await showConfirmation({
-        text: "Người dùng này sẽ bi xóa khỏi hệ thống",
-      });
-      if (isConfirmed.isConfirmed) {
-        await deletUser(userID);
-      }
-    };
+    // const handleDeleteUser = async (userID) => {
+    //   const isConfirmed = await showConfirmation({
+    //     text: "Người dùng này sẽ bi xóa khỏi hệ thống",
+    //   });
+    //   if (isConfirmed.isConfirmed) {
+    //     await deletUser(userID);
+    //   }
+    // };
     // End Delete User
 
     onMounted(() => {
@@ -254,7 +254,7 @@ export default defineComponent({
       buttons,
       language,
       handleBlockAndUnBlockUser,
-      handleDeleteUser,
+      // handleDeleteUser,
     };
   },
 });
