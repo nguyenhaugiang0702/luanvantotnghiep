@@ -6,6 +6,7 @@ const ApiError = require("./app/api-error");
 const adminRouter = require("./app/routes/admin/index.route");
 const userRouter = require("./app/routes/user/index.route");
 const { verifyUserToken, verifyAdminToken } = require("./app/middlewares/auth.middleware");
+const path = require('path');
 
 require("./app/passport");
 app.use(cors());
@@ -23,6 +24,15 @@ const staticFiles = [
   "app/images/uploads/orders/",
 ];
 staticFiles.forEach((path) => app.use(`/${path}`, express.static(path)));
+
+// const staticFiles = [
+//   path.join(__dirname, 'app/images/uploads/books/'),
+//   path.join(__dirname, 'app/images/uploads/avatars/'),
+//   path.join(__dirname, 'app/images/uploads/comments/'),
+//   path.join(__dirname, 'app/images/uploads/orders/')
+// ];
+
+// staticFiles.forEach((folderPath) => app.use('/app/images/uploads/', express.static(folderPath)));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
