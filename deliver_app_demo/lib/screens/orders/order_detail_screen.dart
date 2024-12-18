@@ -677,11 +677,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   String _getImageUrl(String? imagePath) {
     final baseUrl =
-        'http://${dotenv.env['DOMAIN']}:3000/'; // Đổi thành URL thật nếu chạy trên server
+        'https://${dotenv.env['DOMAIN']}/'; // Đổi thành URL thật nếu chạy trên server
     if (imagePath == null || imagePath.isEmpty) {
       return '';
     }
     // Nếu `imagePath` đã có base URL, thì trả về `imagePath` gốc, nếu không thêm `baseUrl`
-    return imagePath.startsWith('http') ? imagePath : '$baseUrl$imagePath';
-  }
+    return imagePath.startsWith('https') ? imagePath : '$baseUrl$imagePath';
+  } 
 }

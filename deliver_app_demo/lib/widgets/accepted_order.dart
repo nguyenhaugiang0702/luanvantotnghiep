@@ -12,7 +12,7 @@ class AcceptedOrdersTab extends StatelessWidget {
     return Consumer<OrderProvider>(
       builder: (context, orderProvider, child) {
         final acceptedOrders = orderProvider.orders
-            .where((order) => order['status']['value'] == 5 && order['shipperID'] != null)
+            .where((order) => order['status']['value'] == 5)
             .toList();
 
         if (orderProvider.loading) {
